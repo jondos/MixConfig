@@ -20,7 +20,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
 {
   private JComboBox m_comboboxMixType;
   private JTextField MixName,CascadeName,MixID,FileName,ID_Text,num_file;
-  private JCheckBox Auto,m_checkboxDaemon,m_checkboxLogging,m_checkboxUserID,m_checkboxNrOfFileDes;
+  private JCheckBox Auto,m_checkboxDaemon,m_checkboxLogging,m_checkboxUserID,m_checkboxNrOfFileDes,m_compressLog;
   private JRadioButton Console,File,Syslog;
   private ButtonGroup bg;
 
@@ -191,6 +191,15 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     add(FileName);
     FileName.setEnabled(false);
 
+    m_compressLog = new JCheckBox("Compress Log Files");
+    c.gridx = 1;
+    c.gridy++;
+    c.gridwidth = 3;
+    c.weightx = 1;
+    layout.setConstraints(m_compressLog,c);
+    add(m_compressLog);
+    m_compressLog.setEnabled(false);
+
     Syslog = new JRadioButton("Log to Syslog");
     c.gridx = 1;
     c.gridy++;
@@ -213,7 +222,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
        setMixName(null);
        setCascadeName(null);
        setUserID(null);
-       setLogging(false,false,false,null);
+       setLogging(false,false,false,null,false);
        setFileDes(null);
        setDaemon(null);
        setMixID(null);
@@ -291,7 +300,12 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
       return m_checkboxLogging.isSelected();
     }
 
-  public void setLogging(boolean bLogConsole,boolean bLogSyslog,boolean bLogFile, String file)
+  public boolean isLoggingCompressed()
+  {
+      return m_compressLog.isSelected();
+  }
+
+  public void setLogging(boolean bLogConsole,boolean bLogSyslog,boolean bLogFile, String file, boolean bcompLog)
     {
       if(bLogConsole||bLogSyslog||bLogFile)
         {
@@ -299,7 +313,10 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
           Console.setSelected(bLogConsole);
           File.setSelected(bLogFile);
           if(bLogFile)
+          {
             FileName.setText(file);
+            m_compressLog.setSelected(bcompLog);
+          }
           Syslog.setSelected(bLogSyslog);
 
         }
@@ -432,8 +449,8 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
           Console.setEnabled(true);
         File.setEnabled(true);
         FileName.setEnabled(File.isSelected());
+        m_compressLog.setEnabled(File.isSelected());
         Syslog.setEnabled(true);
-
       }
     else
       {
@@ -441,7 +458,8 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
         File.setEnabled(false);
         Syslog.setEnabled(false);
         FileName.setEnabled(false);
-      }
+        m_compressLog.setEnabled(false);
+    }
 
 
     ID_Text.setEnabled(m_checkboxUserID.isSelected());

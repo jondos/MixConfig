@@ -388,11 +388,15 @@ class MyFrame extends JPanel implements ActionListener
             boolean bLogConsole=false;
             boolean bLogSyslog=false;
             String file=null;
+            boolean bLogcompress=false;
             Element elemFile = getChild(elemEnableLog,"File");
             if(elemFile != null)
             {
               file = getElementValue(elemFile,null);
               bLogFile=true;
+              String sCompr = elemFile.getAttribute("compressed");
+              if(sCompr!=null && sCompr.equalsIgnoreCase("true"))
+                  bLogcompress = false;
             }
             Element elemSyslog = getChild(elemEnableLog,"SysLog");
             if(elemSyslog != null)
@@ -404,7 +408,7 @@ class MyFrame extends JPanel implements ActionListener
             {
               bLogConsole=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
             }
-            m_GeneralPanel.setLogging(bLogConsole,bLogSyslog,bLogFile,file);
+            m_GeneralPanel.setLogging(bLogConsole,bLogSyslog,bLogFile,file,bLogcompress);
         }
 
         Element elemNetwork = getChild(root,"Network");
@@ -585,6 +589,7 @@ class MyFrame extends JPanel implements ActionListener
 	      String filename = m_GeneralPanel.getFileName();
 	      Element elemLog = doc.createElement("File");
 	      elemLogging.appendChild(elemLog);
+              elemLog.setAttribute("compressed",m_GeneralPanel.isLoggingCompressed()?"true":"false");
 	      Text text6 = doc.createTextNode(filename);
 	      elemLog.appendChild(text6);
 	    }
