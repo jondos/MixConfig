@@ -27,6 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.text.PlainDocument;
@@ -65,7 +66,7 @@ class CertificatesPanel extends JPanel implements ActionListener
     JTextField text1,from_text1,to_text1;
     JTextField m_textPrevCertCN,m_textPrevCertValidFrom,m_textPrevCertValidTo;
     JTextField m_textNextCertCN,m_textNextCertValidFrom,m_textNextCertValidTo;
-    JButton import1,import2,create,m_bttnExportOwnPub,m_bttnChangePasswd;
+    JButton import1,import2,export1,export2,create,m_bttnExportOwnPub,m_bttnChangePasswd;
 
     byte[] m_ownPubCert;
     byte[] m_ownPrivCert;
@@ -198,6 +199,13 @@ class CertificatesPanel extends JPanel implements ActionListener
     import1.setActionCommand("Import1");
     Previous.setConstraints(import1,e);
     panel2.add(import1);
+    export1 = new JButton("Export...");
+    e.gridx = 2;
+    export1.addActionListener(this);
+    export1.setActionCommand("Export1");
+    export1.setEnabled(false);
+    Own.setConstraints(export1,e);
+    panel2.add(export1);
 
     JLabel name2 = new JLabel("Name");
     e.gridx = 0;
@@ -259,6 +267,13 @@ class CertificatesPanel extends JPanel implements ActionListener
     import2.setActionCommand("Import2");
     Next.setConstraints(import2,f);
     panel3.add(import2);
+    export2 = new JButton("Export...");
+    f.gridx = 2;
+    export2.addActionListener(this);
+    export2.setActionCommand("Export2");
+    export2.setEnabled(false);
+    Own.setConstraints(export2,f);
+    panel3.add(export2);
 
     JLabel name3 = new JLabel("Name");
     f.gridx = 0;
@@ -306,21 +321,21 @@ class CertificatesPanel extends JPanel implements ActionListener
   }
 
     public void clear()
-      {
-	setOwnPrivCert(null,null);
-	setPrevPubCert(null);
-	setNextPubCert(null);
-      }
+    {
+      setOwnPrivCert(null,null);
+      setPrevPubCert(null);
+      setNextPubCert(null);
+    }
 
     public byte[] getOwnPubCert()
-      {
-	return m_ownPubCert;
-      }
+    {
+      return m_ownPubCert;
+    }
 
     public byte[] getOwnPrivCert()
-      {
-	return m_ownPrivCert;
-      }
+    {
+      return m_ownPrivCert;
+    }
 
     public void setOwnPrivCert(byte[] cert)
     {
@@ -491,40 +506,43 @@ class CertificatesPanel extends JPanel implements ActionListener
 
     public void setPrevPubCert(byte[] cert)
     {
-	try
-	{
-	    if(cert!=null)
-	    {
-		X509CertificateStructure cert1 = readCertificate(cert);
-		m_textPrevCertCN.setText(cert1.getSubject().toString());
-		m_textPrevCertValidFrom.setText(cert1.getStartDate().getDate().toString());
-		m_textPrevCertValidTo.setText(cert1.getEndDate().getDate().toString());
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		new DEROutputStream(out).writeObject(cert1);
-		m_prevPubCert=out.toByteArray();
+        try
+        {
+            if(cert!=null)
+            {
+                X509CertificateStructure cert1 = readCertificate(cert);
+                m_textPrevCertCN.setText(cert1.getSubject().toString());
+                m_textPrevCertValidFrom.setText(cert1.getStartDate().getDate().toString());
+                m_textPrevCertValidTo.setText(cert1.getEndDate().getDate().toString());
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                new DEROutputStream(out).writeObject(cert1);
+                m_prevPubCert=out.toByteArray();
 
-		/*
-		CertificateFactory cf = CertificateFactory.getInstance("X.509");
-		X509Certificate cert1 = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(cert));
-		m_textPrevCertCN.setText(cert1.getSubjectDN().getName());
-		m_textPrevCertValidFrom.setText(cert1.getNotBefore().toString());
-		m_textPrevCertValidTo.setText(cert1.getNotAfter().toString());
-		m_prevPubCert=cert1.getEncoded();
-		*/
-	    }
-	    else
-	    {
-		m_textPrevCertCN.setText(null);
-		m_textPrevCertValidFrom.setText(null);
-		m_textPrevCertValidTo.setText(null);
-		m_prevPubCert=null;
-	    }
-	}
-	catch(Exception e)
-	{
-	    System.out.println("Prev Cert not set: "+e.getMessage());
-	    setPrevPubCert(null);
-	}
+                /*
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                X509Certificate cert1 = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(cert));
+                m_textPrevCertCN.setText(cert1.getSubjectDN().getName());
+                m_textPrevCertValidFrom.setText(cert1.getNotBefore().toString());
+                m_textPrevCertValidTo.setText(cert1.getNotAfter().toString());
+                m_prevPubCert=cert1.getEncoded();
+                */
+
+                export1.setEnabled(true);
+            }
+            else
+            {
+                m_textPrevCertCN.setText(null);
+                m_textPrevCertValidFrom.setText(null);
+                m_textPrevCertValidTo.setText(null);
+                m_prevPubCert=null;
+                export1.setEnabled(false);
+            }
+        }
+        catch(Exception e)
+        {
+            System.out.println("Prev Cert not set: "+e.getMessage());
+            setPrevPubCert(null);
+        }
     }
 
     public byte[] getNextPubCert()
@@ -534,39 +552,41 @@ class CertificatesPanel extends JPanel implements ActionListener
 
     public void setNextPubCert(byte[] cert)
       {
-	try
-	  {
-	    if(cert!=null)
-	      {
-		X509CertificateStructure cert1 = readCertificate(cert);
-		m_textNextCertCN.setText(cert1.getSubject().toString());
-		m_textNextCertValidFrom.setText(cert1.getStartDate().getDate().toString());
-		m_textNextCertValidTo.setText(cert1.getEndDate().getDate().toString());
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		new DEROutputStream(out).writeObject(cert1);
-		m_nextPubCert=out.toByteArray();
-		/*
-		CertificateFactory cf = CertificateFactory.getInstance("X.509");
-		X509Certificate cert1 = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(cert));
-		m_textNextCertCN.setText(cert1.getSubjectDN().getName());
-		m_textNextCertValidFrom.setText(cert1.getNotBefore().toString());
-		m_textNextCertValidTo.setText(cert1.getNotAfter().toString());
-		m_nextPubCert=cert1.getEncoded();
-		*/
-	      }
-	    else
-	      {
-		m_textNextCertCN.setText(null);
-		m_textNextCertValidFrom.setText(null);
-		m_textNextCertValidTo.setText(null);
-		m_nextPubCert=null;
-	      }
-	  }
-	catch(Exception e)
-	  {
-	    System.out.println("Next Cert not set: "+e.getMessage());
-	    setNextPubCert(null);
-	  }
+        try
+          {
+            if(cert!=null)
+              {
+                X509CertificateStructure cert1 = readCertificate(cert);
+                m_textNextCertCN.setText(cert1.getSubject().toString());
+                m_textNextCertValidFrom.setText(cert1.getStartDate().getDate().toString());
+                m_textNextCertValidTo.setText(cert1.getEndDate().getDate().toString());
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                new DEROutputStream(out).writeObject(cert1);
+                m_nextPubCert=out.toByteArray();
+                /*
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                X509Certificate cert1 = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(cert));
+                m_textNextCertCN.setText(cert1.getSubjectDN().getName());
+                m_textNextCertValidFrom.setText(cert1.getNotBefore().toString());
+                m_textNextCertValidTo.setText(cert1.getNotAfter().toString());
+                m_nextPubCert=cert1.getEncoded();
+                */
+                export2.setEnabled(true);
+              }
+            else
+              {
+                m_textNextCertCN.setText(null);
+                m_textNextCertValidFrom.setText(null);
+                m_textNextCertValidTo.setText(null);
+                m_nextPubCert=null;
+                export2.setEnabled(false);
+              }
+          }
+        catch(Exception e)
+          {
+            System.out.println("Next Cert not set: "+e.getMessage());
+            setNextPubCert(null);
+          }
       }
 
       class DateTextField extends JPanel
@@ -904,12 +924,19 @@ class CertificatesPanel extends JPanel implements ActionListener
 
       if(oMixid==null || oMixid.length()==0)
       {
-	 javax.swing.JOptionPane.showMessageDialog(this,
-		 MyFrame.m_GeneralPanel.getMixAuto().equals("True")?
-		 "Please enter main incoming connection in the network panel.":
-		 "Please enter Mix ID in general panel.",
-		 "No Mix ID!", javax.swing.JOptionPane.ERROR_MESSAGE);
-	 return;
+         javax.swing.JOptionPane.showMessageDialog(this,
+                 "Please enter Mix ID in general panel.",
+                 "No Mix ID!", javax.swing.JOptionPane.ERROR_MESSAGE);
+         return;
+      }
+      else if(!MyFrame.m_GeneralPanel.isMixIDValid())
+      {
+          javax.swing.JOptionPane.showMessageDialog(this,
+                  "Please enter a valid Mix ID in general panel,\n"+
+                  "starting with a 'm' and containing only letters,\n"+
+                  "digits, dots, underscores and minuses.",
+                  "Invalid Mix ID!", javax.swing.JOptionPane.ERROR_MESSAGE);
+          return;
       }
 
       final ValidityDialog vdialog = new ValidityDialog(TheApplet.getMainWindow(), "Validity");
@@ -928,6 +955,8 @@ class CertificatesPanel extends JPanel implements ActionListener
 
       SwingWorker worker = new SwingWorker()
       {
+          private static final int SALT_SIZE = 20;
+
 	  public Object construct()
 	  {
 	      V3TBSCertificateGenerator v3certgen=new V3TBSCertificateGenerator();
@@ -1037,14 +1066,20 @@ class CertificatesPanel extends JPanel implements ActionListener
 		  X509CertificateStructure x509cert=new  X509CertificateStructure(seq);
 
 		  //PKCS12 generation
+                  /*
 		  JDKPKCS12KeyStore store = new JDKPKCS12KeyStore(null);
 		  X509CertificateObject certobj=new X509CertificateObject(x509cert);
 		  Certificate[] chain=new Certificate[] {certobj};
 
-		  store.engineSetKeyEntry("<Mix id=\""+mixid+"\"/>",(Key) kp.getPrivate(), null, chain, kp.getPublic());
+                  store.engineSetKeyEntry("<Mix id=\""+mixid+"\"/>",(Key) kp.getPrivate(), null, chain, kp.getPublic());
 		  ByteArrayOutputStream out=new ByteArrayOutputStream();
 		  store.engineStore(out,passwd,kp.getPublic());
 		  out.close();
+                  */
+                  PKCS12 pkcs12 = new PKCS12("<Mix id=\""+mixid+"\"/>",kp.getPrivate(), x509cert, kp.getPublic());
+                  ByteArrayOutputStream out=new ByteArrayOutputStream();
+                  pkcs12.store(out,passwd);
+                  out.close();
 		  return out.toByteArray();
 	      }
 	      catch(Exception e)
@@ -1067,6 +1102,53 @@ class CertificatesPanel extends JPanel implements ActionListener
       };
       waitWindow.setSwingWorker(worker);
       worker.start();
+    }
+
+    public void exportCert(byte[] cert)
+    {
+        if(cert==null)
+            return;
+        JFileChooser fd=TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_CER|TheApplet.FILTER_B64_CER);
+        FileFilter ff = fd.getFileFilter();
+        int type;
+        if(ff instanceof SimpleFileFilter)
+            type = ((SimpleFileFilter)ff).getFilterType();
+        else
+            type = TheApplet.FILTER_B64_CER;
+        File file=fd.getSelectedFile();
+        if(file!=null)
+        {
+            String fname = file.getName();
+            if(fname.indexOf('.')<0)
+                switch(type)
+                {
+                    case TheApplet.FILTER_CER:
+                        file = new File(file.getParent(), fname + ".der.cer");
+                        break;
+                    case TheApplet.FILTER_B64_CER:
+                        file = new File(file.getParent(), fname + ".b64.cer");
+                        break;
+                }
+            try
+            {
+              FileOutputStream fout=new FileOutputStream(file);
+              switch(type)
+              {
+                  case TheApplet.FILTER_CER:
+                      fout.write(cert);
+                      break;
+                  case TheApplet.FILTER_B64_CER:
+                      fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
+                      fout.write(Base64.encodeBytes(cert).getBytes());
+                      fout.write("\n-----END CERTIFICATE-----\n".getBytes());
+                      break;
+              }
+              fout.close();
+            }
+            catch(Exception e)
+            {
+            }
+        }
     }
 
   public void actionPerformed(ActionEvent ae)
@@ -1109,47 +1191,53 @@ class CertificatesPanel extends JPanel implements ActionListener
       }
     else if (ae.getActionCommand().equalsIgnoreCase("ExportOwnPubCert"))
       {
-	JFileChooser fd=TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_CER|TheApplet.FILTER_B64_CER|TheApplet.FILTER_PFX);
-	File file=fd.getSelectedFile();
-	if(file!=null)
-	  {
-	    String fname = file.getName();
-	    if(fname.indexOf('.')<0)
-		switch(((SimpleFileFilter)fd.getFileFilter()).getFilterType())
-		{
-		    case TheApplet.FILTER_PFX:
-			file = new File(file.getParent(), fname + ".pfx");
-			break;
-		    case TheApplet.FILTER_CER:
-			file = new File(file.getParent(), fname + ".der.cer");
-			break;
-		    case TheApplet.FILTER_B64_CER:
-			file = new File(file.getParent(), fname + ".b64.cer");
-			break;
-		}
-	    try
-	      {
-		FileOutputStream fout=new FileOutputStream(file);
-		switch(((SimpleFileFilter)fd.getFileFilter()).getFilterType())
-		{
-		    case TheApplet.FILTER_PFX:
-			fout.write(getOwnPrivCert());
-			break;
-		    case TheApplet.FILTER_CER:
-			fout.write(getOwnPubCert());
-			break;
-		    case TheApplet.FILTER_B64_CER:
-			fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
-			fout.write(Base64.encodeBytes(getOwnPubCert()).getBytes());
-			fout.write("\n-----END CERTIFICATE-----\n".getBytes());
-			break;
-		}
-		fout.close();
-	      }
-	    catch(Exception e)
-	      {
-	      }
-	  }
+        JFileChooser fd=TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_CER|TheApplet.FILTER_B64_CER|TheApplet.FILTER_PFX);
+        File file=fd.getSelectedFile();
+        FileFilter ff = fd.getFileFilter();
+        int type;
+        if(ff instanceof SimpleFileFilter)
+            type = ((SimpleFileFilter)ff).getFilterType();
+        else
+            type = TheApplet.FILTER_B64_CER;
+        if(file!=null)
+          {
+            String fname = file.getName();
+            if(fname.indexOf('.')<0)
+                switch(type)
+                {
+                    case TheApplet.FILTER_PFX:
+                        file = new File(file.getParent(), fname + ".pfx");
+                        break;
+                    case TheApplet.FILTER_CER:
+                        file = new File(file.getParent(), fname + ".der.cer");
+                        break;
+                    case TheApplet.FILTER_B64_CER:
+                        file = new File(file.getParent(), fname + ".b64.cer");
+                        break;
+                }
+            try
+              {
+                FileOutputStream fout=new FileOutputStream(file);
+                switch(type)
+                {
+                    case TheApplet.FILTER_PFX:
+                        fout.write(getOwnPrivCert());
+                        break;
+                    case TheApplet.FILTER_CER:
+                        fout.write(getOwnPubCert());
+                        break;
+                    case TheApplet.FILTER_B64_CER:
+                        fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
+                        fout.write(Base64.encodeBytes(getOwnPubCert()).getBytes());
+                        fout.write("\n-----END CERTIFICATE-----\n".getBytes());
+                        break;
+                }
+                fout.close();
+              }
+            catch(Exception e)
+              {
+              }
+          }
       }
     else if(ae.getActionCommand().equals("ImportOwnCert"))
       {
@@ -1159,8 +1247,12 @@ class CertificatesPanel extends JPanel implements ActionListener
       }
     else if(ae.getActionCommand().equals("Import1"))
       setPrevPubCert(openFile(TheApplet.FILTER_CER));
+    else if(ae.getActionCommand().equals("Export1"))
+      exportCert(getPrevPubCert());
     else if(ae.getActionCommand().equals("Import2"))
       setNextPubCert(openFile(TheApplet.FILTER_CER));
+    else if(ae.getActionCommand().equals("Export2"))
+      exportCert(getNextPubCert());
   }
 
 
