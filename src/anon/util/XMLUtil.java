@@ -56,7 +56,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
-
 /**
  * This class provides an easy interface to XML methods.
  */
@@ -75,6 +74,7 @@ public class XMLUtil
 	public static void assertNotNull(Node a_node)
 		throws XMLParseException
 	{
+
 		if (a_node == null)
 		{
 			throw new XMLParseException(XMLParseException.NODE_NULL_TAG);
