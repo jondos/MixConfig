@@ -137,7 +137,8 @@ public final class NetworkPanel extends JPanel
 		c.weightx = 1;
 		c.weighty = 1;
 		panel1 = new JPanel(In_Layout);
-		panel1.setBorder(new TitledBorder("Incoming"));
+		panel1.setBorder(new TitledBorder("Listener Interfaces"));
+		panel1.setToolTipText("Interfaces the Mix should use for incoming connections (ListenerInterfaces)");
 		layout.setConstraints(panel1,c);
 		add(panel1);
 
@@ -342,6 +343,7 @@ public final class NetworkPanel extends JPanel
 		c.gridy = 1;
 		panel2 = new JPanel(Out_Layout);
 		panel2.setBorder(new TitledBorder("Outgoing"));
+		panel2.setToolTipText("Connection(s) to next Mix or Proxies.");
 		layout.setConstraints(panel2,c);
 		add(panel2);
 
