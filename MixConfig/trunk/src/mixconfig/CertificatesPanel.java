@@ -49,23 +49,26 @@ import mixconfig.wizard.ConfigWizardPanel;
  * configured Mix is not at the end of the cascade (Mix type is Last Mix), and the first certificate
  * is only enabled if the Mix type is not First Mix.
  */
-public class CertificatesPanel extends MixConfigPanel implements ChangeListener, CertPanel.CertCreationValidator
+public class CertificatesPanel extends MixConfigPanel implements ChangeListener,
+	CertPanel.CertCreationValidator
 {
-    /** A <CODE>CertPanel</CODE> for the next Mix's certificate. */
+	/** A <CODE>CertPanel</CODE> for the next Mix's certificate. */
 	private CertPanel m_nextCert;
-        /** A <CODE>CertPanel</CODE> for this Mix's certificate. */
+
+	/** A <CODE>CertPanel</CODE> for this Mix's certificate. */
 	private CertPanel m_ownCert;
-        /** A <CODE>CertPanel</CODE> for the previous Mix's certificate. */
+
+	/** A <CODE>CertPanel</CODE> for the previous Mix's certificate. */
 	private CertPanel m_prevCert;
 
 	/** Indicates whether this panel is part of the ConfigWizard (<code>true</code>) or
 	 *  the ConfigFrame (<code>false</code>). */
 	boolean m_wizard = false;
 
-        /** Constructs a new instance of <CODE>CertificatesPanel</CODE>.
-         * @throws IOException If an error occurs while loading data from the configuration object into one of
-         * the <CODE>CertPanel</CODE>s.
-         */
+	/** Constructs a new instance of <CODE>CertificatesPanel</CODE>.
+	 * @throws IOException If an error occurs while loading data from the configuration object into one of
+	 * the <CODE>CertPanel</CODE>s.
+	 */
 	public CertificatesPanel() throws IOException
 	{
 		GridBagLayout layout = new GridBagLayout();
@@ -80,7 +83,7 @@ public class CertificatesPanel extends MixConfigPanel implements ChangeListener,
 								  "Hint: You have to sent your public test " +
 								  "certificate to the operators of your " +
 								  "adjacent mixes", (PKCS12)null);
-		m_ownCert.setName("Certificates/OwnCertificate/X509PKCS12");
+		m_ownCert.setName("Certificates/OwnCertificate");
 		m_ownCert.setCertCreationValidator(this);
 		m_ownCert.addChangeListener(this);
 		c.gridx = 0;
@@ -94,7 +97,7 @@ public class CertificatesPanel extends MixConfigPanel implements ChangeListener,
 								   "Hint: You will get the public test " +
 								   "certificate from the operator of the " +
 								   "previous mix", (byte[])null);
-		m_prevCert.setName("Certificates/PrevMixCertificate/X509Certificate");
+		m_prevCert.setName("Certificates/PrevMixCertificate");
 		m_prevCert.setCertCreationValidator(this);
 		m_prevCert.addChangeListener(this);
 		c.gridx = 0;
@@ -106,7 +109,7 @@ public class CertificatesPanel extends MixConfigPanel implements ChangeListener,
 								   "Hint: You will get the public test " +
 								   "certificate from the operator of the " +
 								   "next mix", (byte[])null);
-		m_nextCert.setName("Certificates/NextMixCertificate/X509Certificate");
+		m_nextCert.setName("Certificates/NextMixCertificate");
 		m_nextCert.setCertCreationValidator(this);
 		m_nextCert.addChangeListener(this);
 		c.gridy = 2;
@@ -151,7 +154,7 @@ public class CertificatesPanel extends MixConfigPanel implements ChangeListener,
 
 			// in automatic configuration, certificates are not entered in the configuration;
 			// they are to be received from the InfoService instead
-			if(!m_wizard)
+			if (!m_wizard)
 			{
 				if (!m_prevCert.isEnabled() && m_prevCert.getCert() != null)
 				{
@@ -220,16 +223,16 @@ public class CertificatesPanel extends MixConfigPanel implements ChangeListener,
 		String mixID = getConfiguration().getAttribute("General/MixID");
 		mixID = URLEncoder.encode(mixID);
 		/* Needs JDK >= 1.4
-		try
-		{
-			mixID = URLEncoder.encode(mixID, "UTF-8");
-		}
-		catch (UnsupportedEncodingException uee)
-		{
-			// if UTF-8 encoding is not supported, return the unencoded string
-			// (this should not happen actually)
-		}
-		*/
+		   try
+		   {
+		 mixID = URLEncoder.encode(mixID, "UTF-8");
+		   }
+		   catch (UnsupportedEncodingException uee)
+		   {
+		 // if UTF-8 encoding is not supported, return the unencoded string
+		 // (this should not happen actually)
+		   }
+		 */
 		return "<Mix id=\"" + mixID + "\"/>";
 	}
 
@@ -246,7 +249,6 @@ public class CertificatesPanel extends MixConfigPanel implements ChangeListener,
 			"starting with a 'm' and containing only letters,\n" +
 			"digits, dots, underscores and minuses.";
 	}
-
 
 	protected void enableComponents()
 	{

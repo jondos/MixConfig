@@ -50,14 +50,13 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.OverlayLayout;
+import javax.swing.border.TitledBorder;
 
 import org.bouncycastle.asn1.DEROutputStream;
 import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.w3c.dom.Attr;
 import anon.util.Base64;
 import mixconfig.wizard.ConfigWizardPanel;
-import javax.swing.border.TitledBorder;
-import javax.swing.ButtonModel;
 
 public class GeneralPanel extends MixConfigPanel implements ActionListener
 {
@@ -356,10 +355,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		l.setConstraints(p2, gbc);
 		add(p2);
 
-		ButtonGroup loggingButtonGroup = new ButtonGroup();
-		loggingButtonGroup.add(m_rbConsole);
-		loggingButtonGroup.add(m_rbFile);
-		loggingButtonGroup.add(m_rbSyslog);
+		m_loggingButtonGroup = new ButtonGroup();
+		m_loggingButtonGroup.add(m_rbConsole);
+		m_loggingButtonGroup.add(m_rbFile);
+		m_loggingButtonGroup.add(m_rbSyslog);
 
 		// fire a dummy event to myself to initially enable/disable controls
 		setAutoSaveEnabled(false);
@@ -579,7 +578,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 
 		// if mix is run as daemon, we can't log to console so set log
 		// output to file.
-		if(!file)
+		if (!file)
 		{
 			// A bug in JDK 1.1.8 causes an infinite event loop, therefore
 			// event casting must be disabled
@@ -593,7 +592,14 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 	{
 		if (a == this.m_tfLogEncryptKeyName)
 		{
+			if (a.isEnabled())
+			{
 			getConfiguration().setAttribute(a.getName(), this.m_certLogEncKey);
+		}
+		else
+		{
+				getConfiguration().removeAttribute(a.getName());
+			}
 		}
 		else
 		{
@@ -622,10 +628,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 
 			if (!log)
 			{
-				mixConf.setAttribute(m_rbSyslog.getName(), false);
-				mixConf.setAttribute(m_rbConsole.getName(), false);
-				mixConf.setAttribute(m_tfFileName.getName(), (String)null);
-				mixConf.setAttribute("General/Logging/EncryptedLog/EncryptedLog", (String)null);
+				mixConf.removeAttribute(m_rbSyslog.getName());
+				mixConf.removeAttribute(m_rbConsole.getName());
+				mixConf.removeAttribute(m_tfFileName.getName());
+				mixConf.removeAttribute("General/Logging/EncryptedLog");
 				return;
 			}
 
@@ -673,14 +679,14 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 			if (value != null)
 			{
 				byte b[] = Base64.decode(value);
-				if(b != null)
+				if (b != null)
 				{
 					this.setEncKeyForLog(b);
 				}
 				else
 				{
 					JOptionPane.showMessageDialog(MixConfig.getMainWindow(),
-												  "Could not decode MixConfiguration/"+
+												  "Could not decode MixConfiguration/" +
 												  a.getName(),
 												  "Warning", JOptionPane.ERROR_MESSAGE);
 				}

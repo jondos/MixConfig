@@ -192,7 +192,8 @@ public class MixConfiguration
 		{
 			// no need to check for a null return value; Element.getAttribute(String)
 			// always returns a String object (though it may be empty)
-			urlDecode = ! ( (Element) n).getAttribute("xml:space").equals("preserve");
+			urlDecode = a_xmlPath.endsWith("MixID");
+				//! ( (Element) n).getAttribute("xml:space").equals("preserve");
 		}
 		else if (n instanceof Attr)
 		{
@@ -249,7 +250,7 @@ public class MixConfiguration
 	 */
 	public void setAttribute(String a_xmlPath, String value) throws UnsupportedEncodingException
 	{
-		setAttribute(a_xmlPath, value, null, true);
+		setAttribute(a_xmlPath, value, null, a_xmlPath.endsWith("MixID"));
 	}
 
 	/** Sets the value of the attribute with the specified name. The name must be of
@@ -271,8 +272,8 @@ public class MixConfiguration
 		for (int i = 0; i < nl.getLength(); i++)
 		{
 			n.removeChild(nl.item(i));
-
 		}
+
 		if (urlEncode)
 		{
 			a_value = URLEncoder.encode(a_value);
@@ -291,8 +292,8 @@ public class MixConfiguration
 		if (a_value != null)
 		{
 			n.appendChild(this.m_configuration.createTextNode(a_value));
-
 		}
+
 		if (n instanceof Element && a_attribute != null)
 		{
 			( (Element) n).setAttributeNode(a_attribute);
@@ -579,7 +580,7 @@ public class MixConfiguration
 				}
 
 				// no such node? try one of its attributes
-				if(n instanceof Element)
+				if (n instanceof Element)
 				{
 					Node m = n.getAttributes().getNamedItem(headPart);
 					if (m != null)

@@ -148,7 +148,7 @@ final public class OutgoingConnectionTableModel extends ConnectionTableModel
 		{
 			for (int i = getRowCount() - 1; i >= 0; i--)
 			{
-				if (getData(i).getType().equals("NextMix"))
+				if (getData(i).getType().equals("Mix"))
 				{
 					deleteData(i);
 				}

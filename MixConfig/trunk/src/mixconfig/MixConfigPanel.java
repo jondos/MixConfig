@@ -27,11 +27,12 @@
  */
 package mixconfig;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Vector;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Container;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
@@ -41,25 +42,38 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToggleButton.ToggleButtonModel;
-import java.util.Vector;
-import java.awt.Container;
-import java.io.IOException;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import anon.util.Base64;
-import javax.swing.JTable;
+import mixconfig.networkpanel.IPTextField;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.OutgoingConnectionTableModel;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Element;
-import mixconfig.networkpanel.IPTextField;
-import javax.swing.ButtonModel;
 
 /** This is the abstract superclass of all configuration panels. It saves
  * the data entered by the user to the underlying configuration object, and updates
- * the panels if the configuration changes.
+ * the panels if the configuration changes.<br>
+ * Loading data from the <code>MixConfiguration</code> object into the panel controls
+ * happens via the <code>load(..)</code> methods. They should be called only when a new empty
+ * configuration is created, or a configuration is loaded from a file. The only public
+ * <code>load</code> method is the one that iterates over all controls in the dialog
+ * and sets their values to the corresponding data from the configuration object (the
+ * corresponding XML keys are found via the <code>getName()</code> method in
+ * <code>java.awt.Component</code>).<br>
+ * Saving the controls' values to the configuration object is done via the <code>save()</code>
+ * methods. They should be called whenever the user changes the value of a control to keep
+ * the panels and the configuration object synchronized. To make this easier, this class
+ * implements the <code>ItemListener</code> and <code>FocusListener</code> interfaces.
+ * Controls that correspond to a configuration key should add this class to their listeners
+ * list; the event handler methods in this class will then take care of the data synchronisation
+ * between AWT/Swing components and the configuration object.
  * @author ronin &lt;ronin2@web.de&gt;
+ * @todo Find another way to synchronize non-ItemSelectables. The FocusListener is not a safe way.
  */
 public abstract class MixConfigPanel extends JPanel implements ItemListener, FocusListener
 {
@@ -112,13 +126,12 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 				}
 				else if (source instanceof JRadioButton)
 				{
-					if(ie.getStateChange() == ItemEvent.SELECTED)
+					if (ie.getStateChange() == ItemEvent.SELECTED)
 					{
 						save( (JRadioButton) source);
 					}
 				}
 			}
-
 		}
 		catch (Exception uee)
 		{
@@ -309,7 +322,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	}
 
 	/** Saves the values of a certificate panel to the configuration object. The value is only saved
-	 * if the component is currently enabled, otherwise, a <CODE>null</CODE> value is saved.
+	 * if the component is currently enabled, otherwise, the element with the same XML path
+	 * as the component's name is removed from the XML structure.
 	 * @param a A certificate panel
 	 * @throws IOException If an error occurs while writing the values to the configuration object
 	 */
@@ -317,22 +331,25 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	{
 		String name = a.getName();
 		byte[] b = a.getCert();
-		if (!a.isEnabled())
+		if (!a.isEnabled() || b == null)
 		{
-			b = null;
+			m_mixConf.removeAttribute(name);
 		}
-		m_mixConf.setAttribute(name, b);
-
-		if (name.endsWith("X509PKCS12"))
+		else
 		{
+			if (name.endsWith("OwnCertificate"))
+			{
+				m_mixConf.setAttribute(name + "/X509PKCS12", b);
 			b = a.getPubCert();
-			name = name.substring(0, name.lastIndexOf('/')) + "/X509Certificate";
-			m_mixConf.setAttribute(name, b);
+			}
+
+			m_mixConf.setAttribute(name + "/X509Certificate", b);
 		}
 	}
 
 	/** Saves the values of a text field to the configuration object. The value is only saved
-	 * if the component is currently enabled, otherwise, a <CODE>null</CODE> value is saved.
+	 * if the component is currently enabled, otherwise, the element with the same XML path
+	 * as the component's name is removed from the XML structure.
 	 * @param a A text field
 	 * @throws UnsupportedEncodingException String values are encoded with <CODE>javax.net.URLEncoder.encode(String, String)</CODE>;
 	 * the encoding is UTF-8. If this encoding is not supported, an exception is
@@ -343,13 +360,17 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		String s = a.getText().trim();
 		if (!a.isEnabled())
 		{
-			s = null;
+			m_mixConf.removeAttribute(a.getName());
 		}
+		else
+		{
 		m_mixConf.setAttribute(a.getName(), s);
 	}
+	}
 
-	/** Saves the values of a checkbox to the configuration object. The value is only saved
-	 * if the component is currently enabled, otherwise, a <CODE>null</CODE> value is saved.
+	/** Saves the values of a checkbox to the configuration object. If the component
+	 * is currently disabled, a value of <code>false</code> is saved no matter what
+	 * the selected state of the checkbox is.
 	 * @param a A checkbox
 	 * @throws UnsupportedEncodingException String values are encoded with <CODE>javax.net.URLEncoder.encode(String, String)</CODE>;
 	 * the encoding is UTF-8. If this encoding is not supported, an exception is
@@ -361,7 +382,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	}
 
 	/** Saves the values of a combo box to the configuration object. The value is only saved
-	 * if the component is currently enabled, otherwise, a <CODE>null</CODE> value is saved.
+	 * if the component is currently enabled, otherwise, the element with the same XML path
+	 * as the component's name is removed from the XML structure.
 	 * @param a A combo box
 	 * @throws UnsupportedEncodingException String values are encoded with <CODE>javax.net.URLEncoder.encode(String, String)</CODE>;
 	 * the encoding is UTF-8. If this encoding is not supported, an exception is
@@ -372,9 +394,12 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		int s = a.getSelectedIndex();
 		if (!a.isEnabled())
 		{
-			s = 0;
+			m_mixConf.removeAttribute(a.getName());
 		}
+		else
+		{
 		m_mixConf.setAttribute(a.getName(), s);
+	}
 	}
 
 	/** Saves the values of a radio button to the configuration object. This method does
@@ -438,7 +463,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	}
 
 	/** Loads the value with the same name as the specified combo box from the configuration object
-	 * and sets its value accordingly.
+	 * and sets its value accordingly. If the value in the configuration is not an <code>int<code>,
+	 * a value of 0 (zero) is assumed by default.
 	 * @param a A combo box
 	 */
 	protected void load(JComboBox a)
@@ -474,6 +500,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	{
 		NodeList nl;
 		Object o = a.getModel();
+		boolean prevAutoSave = this.m_autoSave;
+		this.setAutoSaveEnabled(false);
 		if (o instanceof IncomingConnectionTableModel)
 		{
 			IncomingConnectionTableModel in = (IncomingConnectionTableModel) o;
@@ -487,17 +515,22 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		else if (o instanceof OutgoingConnectionTableModel)
 		{
 			OutgoingConnectionTableModel out = (OutgoingConnectionTableModel) o;
-			nl = m_mixConf.getDocument().getElementsByTagName("NextMix");
-			if (nl.getLength() > 0)
+			nl = m_mixConf.getDocument().getElementsByTagName("Network");
+			if (nl.getLength() != 0)
 			{
-				out.readFromElement( (Element) nl.item(0));
-			}
-			nl = m_mixConf.getDocument().getElementsByTagName("Proxies");
-			if (nl.getLength() > 0)
+				Node n = nl.item(0).getFirstChild();
+				while (n != null)
+				{
+					if (n.getNodeName().equals("NextMix") ||
+						n.getNodeName().equals("Proxies"))
 			{
-				out.readFromElement( (Element) nl.item(0));
+						out.readFromElement( (Element) n);
+					}
+					n = n.getNextSibling();
 			}
 		}
+	}
+		this.setAutoSaveEnabled(prevAutoSave);
 	}
 
 	/** Loads the value of all components in the specified container. The method
@@ -555,35 +588,29 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 
 	/** Loads the value with the same name as the specified certificate panel from the configuration object
 	 * and sets its value accordingly.
-	 * @todo It seems that the tag X509Certificate denotes a Base64 encoded public
-	 * certificate whereas the tag X509PKCS12 denotes a Base64 encoded PKCS12
-	 * certificate structure.<br>
-	 * However, the original PaymentPanel was implemented in a way that it
-	 * puts a Base64 encoded PKCS12 structure into a X509Certificate tag.<br>
-	 * Additionally, the meaning of the elements
-	 * <code>Certificates/OwnCertificate/X509PKCS12</code> and
-	 * <code>Certificates/OwnCertificate/X509Certificate</code> are unclear.
-	 * Are they complementary, or are they different representations of the same
-	 * data? Are they both required, or is only one expected to be present?<br>
-	 * The mix executable seems to rely on the fact that the first child of
-	 * OwnCertificate is alway a PKCS12, and it ignores any other children of
-	 * OwnCertificate.
 	 * @param a A certificate panel
 	 * @throws IOException If an error occurs while writing the values to the configuration object
 	 */
 	protected void load(CertPanel a) throws IOException
 	{
 		String name = a.getName();
-		String cert = m_mixConf.getAttribute(name);
-
-		// Real difference between X509PKCS12 and X509Certificate is unknown;
-		// For the moment, we ignore X509Certificate if X509PKCS12 is present
-		// (the Mix executable does so anyway)
-
-		if (cert != null)
+		if (name.endsWith("OwnCertificate"))
 		{
-			a.setCert(Base64.decode(cert));
+			name = name + "/X509PKCS12";
 		}
+		else
+		{
+			name = name + "/X509Certificate";
+		}
+
+		String cert = m_mixConf.getAttribute(name);
+		byte b[] = null;
+
+		if (cert != null && !cert.equals(""))
+		{
+			b = Base64.decode(cert);
+		}
+		a.setCert(b);
 	}
 
 	/** This subclass of <code>javax.swing.JToggleButton.ToggleButtonModel</code> is required

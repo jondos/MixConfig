@@ -67,9 +67,24 @@ public class ConfigWizard extends JPanel implements ActionListener, ChangeListen
 
 		JLabel imageCanvas = null;
 
+		try
+		{
+			File f = new File(confWizLogoPath);
+			FileInputStream fis = new FileInputStream(f);
+			byte imageData[] = new byte[ (int) f.length()];
+			fis.read(imageData);
 
-		ImageIcon confWizLogo = MixConfig.loadImage(confWizLogoPath);
+			ImageIcon confWizLogo = new ImageIcon(Toolkit.getDefaultToolkit().createImage(imageData));
 		imageCanvas = new JLabel(confWizLogo);
+		}
+		catch(IOException ioe)
+		{
+			// Reading the logo may cause a FileNotFoundException, if the
+			// logo file does not reside in the VM's current directory.
+			// TODO: Find a safe way to determine the logo's path.
+			imageCanvas = new JLabel(ioe.getMessage());
+		}
+
 		m_wizPanel = new ConfigWizardPanel();
 		m_wizPanel.addChangeListener(this);
 

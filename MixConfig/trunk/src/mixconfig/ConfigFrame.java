@@ -97,7 +97,14 @@ public class ConfigFrame extends JPanel implements ActionListener
 		JMenuItem openMenuItem = new JMenuItem("Open...");
 		JMenuItem openclipItem = new JMenuItem("Open Using Clip Board");
 		JMenuItem checkItem = new JMenuItem("Check");
-		saveMenuItem = new JMenuItem("Save [none]");
+		saveMenuItem = new JMenuItem();
+		String curFileName = MixConfig.getCurrentFileName();
+		if(curFileName == null)
+		{
+			curFileName = "none";
+			saveMenuItem.setEnabled(false);
+		}
+		saveMenuItem.setText("Save [" + curFileName + "] ");
 		saveclipItem = new JMenuItem("Save Using Clip Board");
 		JMenuItem saveAsMenuItem = new JMenuItem("Save as...");
 
@@ -118,7 +125,6 @@ public class ConfigFrame extends JPanel implements ActionListener
 		checkItem.setActionCommand("Check");
 		saveMenuItem.setActionCommand("Save");
 		saveAsMenuItem.setActionCommand("SaveAs");
-		saveMenuItem.setEnabled(false);
 		if (parent == null)
 		{ // an applet
 			exitMenuItem.setEnabled(false);
@@ -378,12 +384,12 @@ public class ConfigFrame extends JPanel implements ActionListener
 		return r_cb;
 	}
 
-        /** Notifies the configuration panels about a possibly new underlying configuration
-         * object and makes them load the config data from the configuration object into
-         * their controls.
-         * @param m The configuration object to be set
-         * @throws IOException If an error occurs while loading data from the config object into a panel
-         */
+	/** Notifies the configuration panels about a possibly new underlying configuration
+	 * object and makes them load the config data from the configuration object into
+	 * their controls.
+	 * @param m The configuration object to be set
+	 * @throws IOException If an error occurs while loading data from the config object into a panel
+	 */
 	private void setConfiguration(MixConfiguration m) throws IOException
 	{
 		if (m == null)
@@ -400,18 +406,12 @@ public class ConfigFrame extends JPanel implements ActionListener
 		m_CertificatesPanel.setConfiguration(m);
 		m_DescriptionPanel.setConfiguration(m);
 		m_PaymentPanel.setConfiguration(m);
-
-		/*		m.addChangeListener(m_GeneralPanel);
-		  m.addChangeListener(m_NetworkPanel);
-		  m.addChangeListener(m_CertificatesPanel);
-		  m.addChangeListener(m_DescriptionPanel);
-		  m.addChangeListener(m_PaymentPanel);*/
 	}
 
-        /** Makes all of the configuration panels check their data for inconsistencies and
-         * returns possible error and warning messages as an array of <CODE>String</CODE>s.
-         * @return An array of <CODE>String</CODE> containing possible error messages
-         */
+	/** Makes all of the configuration panels check their data for inconsistencies and
+	 * returns possible error and warning messages as an array of <CODE>String</CODE>s.
+	 * @return An array of <CODE>String</CODE> containing possible error messages
+	 */
 	protected String[] check()
 	{
 		Vector errors[] = new Vector[4];

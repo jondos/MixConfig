@@ -79,7 +79,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.02.028"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.02.029"; //NEVER change the layout of this line!!
 
 	private static final String m_configFilePath = ".";
 	private static final String TITLE = "Mix Configuration Tool";
@@ -95,14 +95,42 @@ public class MixConfig extends JApplet
 	{
 		try
 		{
+			JFrame MainWindow = new JFrame();
+			m_MainWindow = MainWindow;
+
+			// evaluation of command line parameters
+			// two parameters are possible: --no-wizard and/or a file name.
+			// - the file parameter specifies the config file. If
+			//   no parameter is given, a default config file path is assumed
+			// - if the file does not exist, the config program is started with
+			//   the wizard interface, otherwise with the normal interface.
+			// - the user may force the start in the normal interface by specifying
+			//   the --no-wizard parameter
+
+			setCurrentFileName(null);
+
+			boolean force_no_wizard = false;
+			boolean force_wizard = false;
 			File f = null;
-			if (argv.length > 0)
+			for (int i = 0; i < argv.length; i++)
 			{
-				m_currentFileName = argv[0];
+				if (argv[i].equals("--no-wizard"))
+			{
+					force_no_wizard = true;
+				}
+				if (argv[i].equals("--wizard"))
+				{
+					force_wizard = true;
 			}
 			else
 			{
-				m_currentFileName = m_configFilePath + File.separatorChar + "MixConfig.xml";
+					setCurrentFileName(argv[i]);
+				}
+			}
+
+			if (m_currentFileName == null)
+			{
+				setCurrentFileName(m_configFilePath + File.separatorChar + "MixConfig.xml");
 			}
 
 			f = new File(m_currentFileName);
@@ -113,12 +141,28 @@ public class MixConfig extends JApplet
 			}
 			else
 			{
+				String message[] =
+					{
+					"The configuration file ",
+					m_currentFileName,
+					"does not exist.",
+					"Would you like to start the wizard interface to create it?"
+				};
 				m_mixConfiguration = new MixConfiguration();
-				//showWizard = true;
+				if (force_no_wizard)
+				{
+					showWizard = false;
+				}
+				else if (force_wizard)
+				{
+					showWizard = true;
+				}
+				else
+				{
+					showWizard = ask("Create new configuration", message);
+				}
 			}
 
-			JFrame MainWindow = new JFrame("Mix Configuration Tool");
-			m_MainWindow = MainWindow;
 			ImageIcon icon = loadImage("icon.gif");
 			if (icon != null)
 			{
@@ -150,8 +194,8 @@ public class MixConfig extends JApplet
 			if (!showWizard)
 			{
 				MainWindow.setJMenuBar( ( (ConfigFrame) m_mainPanel).getMenuBar());
-
 			}
+
 			MainWindow.setContentPane(m_mainPanel);
 			MainWindow.pack();
 			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -222,7 +266,7 @@ public class MixConfig extends JApplet
 		m_currentFileName = a_currentFileName;
 
 		StringBuffer s = new StringBuffer(TITLE);
-		if(m_currentFileName != null)
+		if (m_currentFileName != null)
 		{
 			s.append(" - ");
 			s.append(m_currentFileName);
