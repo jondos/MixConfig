@@ -22,25 +22,10 @@ public class TheApplet extends JApplet
 	public final static int FILTER_XML=2;
 	public final static int FILTER_PFX=4;
 	public final static int FILTER_B64_CER=8;
-	public final static String VERSION="00.01.017";
+	public final static String VERSION="00.01.018";
 
 	public static void main(String[] args)
 	{
-            /*
-			try
-			{
-					// Ansonsten funktioniert das Applet nicht, da beim Laden
-					// der Klasse auch alle Referenzen auf andere Klassen
-					// ueberprueft werden.
-					Security.addProvider((java.security.Provider)java.lang.Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider").newInstance());
-					//Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-			}
-			catch(Exception e)
-			{
-					e.printStackTrace();
-			}
-			//Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-	   */
 			JFrame MainWindow = new JFrame("Mix Configuration Tool");
 			m_MainWindow = MainWindow;
 			ImageIcon icon=loadImage("icon.gif");
