@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.SecureRandom;
 import java.util.Date;
@@ -65,34 +64,47 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
                 /** The 'create new certificate' button */
 	private JButton m_bttnCreateCert;
+
         /** The 'import certificate' button */
 	private JButton m_bttnImportPub;
+
         /** The 'export certificate' button */
 	private JButton m_bttnExportPub;
+
         /** The 'change certificate's password' button */
 	private JButton m_bttnChangePasswd;
+
         /** The 'remove certificate' button */
 	private JButton m_bttnRemoveCert;
+
         /** A text field for the subject name */
 	private JTextField m_textCertCN;
+
         /** A text field for the issuer name */
 	private JTextField m_textCertIssuer;
+
         /** A text field for the validity start date */
 	private JTextField m_textCertValidFrom;
+
         /** A text field for the validity end date */
 	private JTextField m_textCertValidTo;
+
         /** Indicates whether the certificate object is PKCS12 (<CODE>true</CODE>) or X.509 (<CODE>false</CODE>) */
 	private boolean m_certIsPKCS12;
+
         /** The certificate */
 	private Object m_cert;
+
         /** The password for the private certificate (<CODE>null</CODE> if the certificate
          * is an X.509 public certificate)
          */
 	private String m_privCertPasswd;
+
         /** The validator for newly generated certificates.
-         * @see #CertCreationValidator
+	 * @see mixconfig.CertPanel.CertCreationValidator
          */
 	private CertCreationValidator m_validator;
+
         /** The list of objects that listen to <CODE>ChangeEvent</CODE>s from this object */
 	private Vector m_changeListeners = new Vector();
 
@@ -485,6 +497,13 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 											   "PKCS12 certificate structures.");
 		}
 
+		if (cert == null)
+		{
+			this.m_cert = null;
+			this.clearCertInfo();
+		}
+		else
+		{
 		//Ok the problem is that an empty string (size =0) is different from an empty string (first char=0)
 		// so we try both...
 		char[] passwd = new char[0];
@@ -496,11 +515,12 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		catch (Exception e)
 		{
 			/* TODO: Catch only the exception thrown in case of wrong password */
+				e.printStackTrace();
 		}
 		passwd = new char[]
 			{
 			0};
-		do
+			while (true)
 		{
 			try
 			{
@@ -513,6 +533,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			catch (Exception e)
 			{
 				/* TODO: Catch only the exception thrown in case of wrong password */
+					e.printStackTrace();
 			}
 			PasswordBox pb =
 				new PasswordBox(
@@ -521,7 +542,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				PasswordBox.ENTER_PASSWORD, null);
 			pb.show();
 			passwd = pb.getPassword();
-		} while(passwd!=null);
+			}
+		}
+		enableButtons();
+		fireStateChanged();
 	}
 
         /** Sets the public certificate. If the stored certificate is PKCS12, the new
@@ -531,7 +555,14 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
          */
 	public void setPubCert(byte[] cert) throws IOException
 	{
-		if (this.m_certIsPKCS12 && m_cert != null)
+		if (cert == null)
+		{
+			this.m_cert = null;
+			this.clearCertInfo();
+		}
+		else
+		{
+			if (this.m_certIsPKCS12)
 		{
 			X509CertificateStructure cert1 = MixConfig.readCertificate(cert);
 			if (cert1 != null)
@@ -546,6 +577,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			new DEROutputStream(out).writeObject(x509cs);
 			m_cert = out.toByteArray();
+		}
 		}
 		enableButtons();
 		fireStateChanged();
@@ -563,9 +595,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	protected void fireStateChanged()
 	{
 		ChangeEvent e = new ChangeEvent(this);
-		for(int i=0;i<m_changeListeners.size();i++)
+		for (int i = 0; i < m_changeListeners.size(); i++)
 		{
-			((ChangeListener) m_changeListeners.elementAt(i)).stateChanged(e);
+			( (ChangeListener) m_changeListeners.elementAt(i)).stateChanged(e);
 		}
 	}
 
@@ -577,9 +609,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
          */
 	private void setPrivCert(byte[] cert, char[] passwd) throws InvalidKeyException, IOException
 	{
+		if (cert[0] != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
+		{
+			throw new RuntimeException("Not a PKCS 12 stream.");
+		}
 		PKCS12 pkcs12 = PKCS12.load(new ByteArrayInputStream(cert), passwd);
-		if(pkcs12==null)
-			throw new IOException("could not read PKCS12 cert...");
 		setPrivCert(pkcs12, new String(passwd));
 	}
 
@@ -961,18 +995,24 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	{
             /** The start date of the certificate's validity. */
 		private Date m_startDate;
+
                 /** The expiry date of the certificate. */
 		private Date m_endDate;
+
                 /** The password for the certificate to be generated. */
 		private char[] m_passwd;
+
                 /** A dialog to be shown as long as the certificate generation thread is busy. */
 		private BusyWindow m_notification;
+
                 /** The signer name for the certificate */
 		private String m_name;
+
                 /** A list of <CODE>ChangeListener</CODE>s that receive <CODE>ChangeEvent</CODE>s
                  * from this object.
                  */
 		private Vector m_changeListeners = new Vector();
+
                 /** The newly generated certificate. */
 		private byte[] m_cert;
 

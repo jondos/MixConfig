@@ -482,6 +482,8 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 
         public void tableChanged(TableModelEvent e)
 	{
+		if(this.isAutoSaveEnabled())
+		{
 		if (e.getSource() == table1.getModel())
 		{
 			save(table1);
@@ -489,6 +491,7 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 		if (e.getSource() == table2.getModel())
 		{
 			save(table2);
+			}
 		}
 	}
 

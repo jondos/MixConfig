@@ -276,7 +276,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 			"save the configuration and quit this wizard.",
 			"Click the 'Back' button if you want to make changes before",
 			"saving.",
-			"Click the 'Close' button to quit without saving."
+			"Click the 'Cancel' button to quit without saving."
 		};
 
 		finish.setBorder(new EmptyBorder(10, 10, 10, 10));

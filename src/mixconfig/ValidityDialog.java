@@ -115,10 +115,10 @@ class ValidityDialog extends JDialog
 		gbc.gridx = 1;
 		gbc.weightx = 5;
 
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(now);
-		cal.add(Calendar.YEAR, 1);
-		to = new DateTextField(cal.getTime());
+		Calendar cal2 = Calendar.getInstance();
+		cal2.setTime(now);
+		cal2.add(Calendar.YEAR, 1);
+		to = new DateTextField(cal2.getTime());
 		layout.setConstraints(to, gbc);
 		getContentPane().add(to);
 		gbc.gridx = 2;

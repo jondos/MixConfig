@@ -68,6 +68,7 @@ import org.bouncycastle.crypto.modes.CFBBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import anon.crypto.*;
+import java.util.Calendar;
 
 public class PGPtoX509Tool extends JDialog implements ActionListener
 {
@@ -332,7 +333,11 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		v3certgen.setSubject(x509jap);
 
 		v3certgen.setEndDate(new Time(new Date(2000000000000L)));
-		Date d = new Date(100, 11, 8, 1, 0, 0);
+		// this is deprecated
+		//Date d = new Date(100, 11, 8, 1, 0, 0);
+		Calendar cal = Calendar.getInstance();
+		cal.set(100, 11, 8, 1, 0, 0);
+		Date d = cal.getTime();
 		v3certgen.setStartDate(new Time(d));
 		v3certgen.setSerialNumber(new DERInteger(1));
 		X509CertificateStructure cert = v3certgen.sign(x509jap, tmpSecKey);
