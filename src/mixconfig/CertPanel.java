@@ -633,7 +633,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		if (m_bttnImportPub != null)
 		{
-			m_bttnImportPub.setEnabled(enabled && !cert);
+			m_bttnImportPub.setEnabled(enabled);
 		}
 		if (m_bttnExportPub != null)
 		{

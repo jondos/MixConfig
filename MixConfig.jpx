@@ -44,7 +44,7 @@
   <property category="sys" name="DocPath" value="doc"/>
   <property category="sys" name="ExcludeClassEnabled" value="0"/>
   <property category="sys" name="IncludeTestPath" value="1"/>
-  <property category="sys" name="JDK" value="java version 1.1.8_009"/>
+  <property category="sys" name="JDK" value="java version 1.4.2_05-b04"/>
   <property category="sys" name="LastTag" value="36"/>
   <property category="sys" name="Libraries" value="Swing;BouncyCastleLightForMixConfig;JUnit;junitx;XML-2.4;Log4j"/>
   <property category="sys" name="MakeStable" value="0"/>
