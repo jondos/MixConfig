@@ -102,7 +102,6 @@ public class Base64
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9         // Decimal 244 - 255 */
     };
 
-    private final static byte BAD_ENCODING    = -9; // Indicates error in encoding
     private final static byte WHITE_SPACE_ENC = -5; // Indicates white space in encoding
     private final static byte EQUALS_SIGN_ENC = -1; // Indicates equals sign in encoding
 
@@ -285,20 +284,6 @@ public class Base64
 
 
 /* ********  E N C O D I N G   M E T H O D S  ******** */
-
-
-    /**
-     * Encodes the first three bytes of array <var>threeBytes</var>
-     * and returns a four-byte array in Base64 notation.
-     *
-     * @param threeBytes the array to convert
-     * @return four byte array in Base64 notation.
-     * @since 1.3
-     */
-    private static byte[] encode3to4( byte[] threeBytes )
-    {   return encode3to4( threeBytes, 3 );
-    }   // end encodeToBytes
-
 
 
     /**
@@ -764,7 +749,7 @@ public class Base64
         byte   sbiDecode = 0;
         for( i = 0; i < len; i++ )
         {
-            sbiCrop = (byte)(source[i] & 0x7f); // Only the low seven bits
+            sbiCrop = (byte)(source[off+i] & 0x7f); // Only the low seven bits
             sbiDecode = DECODABET[ sbiCrop ];
 
             if( sbiDecode >= WHITE_SPACE_ENC ) // White space, Equals sign or better
@@ -787,7 +772,7 @@ public class Base64
             }   // end if: white space, equals sign or better
             else
             {
-                System.err.println( "Bad Base64 input character at " + i + ": " + source[i] + "(decimal)" );
+                System.err.println( "Bad Base64 input character at " + i + ": " + source[off+i] + "(decimal)" );
                 return null;
             }   // end else:
         }   // each input character
