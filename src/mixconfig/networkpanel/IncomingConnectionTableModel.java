@@ -3,6 +3,7 @@ package mixconfig.networkpanel;
 import org.w3c.dom.Node;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import anon.crypto.*;
 public final class IncomingConnectionTableModel extends ConnectionTableModel
 {
 		private static final String[] columnNames =

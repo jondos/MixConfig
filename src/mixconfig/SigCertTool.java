@@ -56,6 +56,7 @@ import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.asn1.DEROutputStream;
 import org.bouncycastle.asn1.DERInputStream;
+import anon.crypto.*;
 
 public class SigCertTool extends JDialog implements ActionListener
 	{

@@ -1,6 +1,7 @@
 package mixconfig.networkpanel;
 
 import org.w3c.dom.Node;
+import anon.crypto.*;
 
 final public class OutgoingConnectionTableModel extends ConnectionTableModel
 {

@@ -66,6 +66,7 @@ import org.bouncycastle.crypto.engines.CAST5Engine;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
+import anon.crypto.*;
 
 public class PGPtoX509Tool extends JDialog implements ActionListener
 {

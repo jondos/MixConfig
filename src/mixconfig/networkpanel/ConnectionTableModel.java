@@ -1,6 +1,7 @@
 package mixconfig.networkpanel;
 
 import javax.swing.table.AbstractTableModel;
+import anon.crypto.*;
 abstract public class ConnectionTableModel extends AbstractTableModel
 {
     private ConnectionData[] rows = new ConnectionData[0];

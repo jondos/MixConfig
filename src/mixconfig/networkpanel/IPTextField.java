@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import mixconfig.IntegerDocument;
+import anon.crypto.*;
 final public class IPTextField extends JPanel
 {
     private JTextField[] iptext;
