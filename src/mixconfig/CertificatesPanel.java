@@ -91,10 +91,13 @@ class CertificatesPanel extends JPanel implements ActionListener
         import2,
         export1,
         export2,
+        remove1,
+        remove2,
         create,
         m_bttnExportOwnPub,
         m_bttnImportOwnPub,
-        m_bttnChangePasswd;
+        m_bttnChangePasswd,
+        m_bttnRemoveOwnCert;
 
     byte[] m_ownPubCert;
     byte[] m_ownPrivCert;
@@ -161,7 +164,14 @@ class CertificatesPanel extends JPanel implements ActionListener
         m_bttnChangePasswd.setEnabled(false);
         Own.setConstraints(m_bttnChangePasswd, d);
         panel1.add(m_bttnChangePasswd);
-
+        m_bttnRemoveOwnCert = new JButton("Remove");
+        d.gridx = 5;
+        m_bttnRemoveOwnCert.addActionListener(this);
+        m_bttnRemoveOwnCert.setActionCommand("RemoveOwnCert");
+        m_bttnRemoveOwnCert.setEnabled(false);
+        Own.setConstraints(m_bttnRemoveOwnCert, d);
+        panel1.add(m_bttnRemoveOwnCert);
+        
         d.gridx = 0;
         d.gridy = 1;
         d.fill = GridBagConstraints.HORIZONTAL;
@@ -171,7 +181,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         text1 = new JTextField();
         text1.setEditable(false);
         d.gridx = 1;
-        d.gridwidth = 4;
+        d.gridwidth = 5;
         d.weightx = 1;
         Own.setConstraints(text1, d);
         panel1.add(text1);
@@ -186,7 +196,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         from_text1 = new JTextField();
         from_text1.setEditable(false);
         d.gridx = 1;
-        d.gridwidth = 4;
+        d.gridwidth = 5;
         d.weightx = 1;
         Own.setConstraints(from_text1, d);
         panel1.add(from_text1);
@@ -201,7 +211,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         to_text1 = new JTextField();
         to_text1.setEditable(false);
         d.gridx = 1;
-        d.gridwidth = 4;
+        d.gridwidth = 5;
         d.weightx = 1;
         Own.setConstraints(to_text1, d);
         panel1.add(to_text1);
@@ -223,6 +233,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         import1 = new JButton("Import...");
         e.gridx = 1;
         e.gridy = 0;
+        e.fill = GridBagConstraints.NONE;
         import1.addActionListener(this);
         import1.setActionCommand("Import1");
         Previous.setConstraints(import1, e);
@@ -232,8 +243,16 @@ class CertificatesPanel extends JPanel implements ActionListener
         export1.addActionListener(this);
         export1.setActionCommand("Export1");
         export1.setEnabled(false);
-        Own.setConstraints(export1, e);
+        Previous.setConstraints(export1, e);
         panel2.add(export1);
+        remove1 = new JButton("Remove");
+        e.gridx = 3;
+        remove1.addActionListener(this);
+        remove1.setActionCommand("Remove1");
+        remove1.setEnabled(false);
+        Previous.setConstraints(remove1, e);
+        panel2.add(remove1);
+        e.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel name2 = new JLabel("Name");
         e.gridx = 0;
@@ -258,7 +277,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         m_textPrevCertValidFrom = new JTextField(26);
         m_textPrevCertValidFrom.setEditable(false);
         e.gridx = 1;
-        e.gridwidth = 4;
+        e.gridwidth = 3;
         e.weightx = 1;
         Previous.setConstraints(m_textPrevCertValidFrom, e);
         panel2.add(m_textPrevCertValidFrom);
@@ -273,7 +292,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         m_textPrevCertValidTo = new JTextField(26);
         m_textPrevCertValidTo.setEditable(false);
         e.gridx = 1;
-        e.gridwidth = 4;
+        e.gridwidth = 3;
         e.weightx = 1;
         Previous.setConstraints(m_textPrevCertValidTo, e);
         panel2.add(m_textPrevCertValidTo);
@@ -291,6 +310,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         import2 = new JButton("Import...");
         f.gridx = 1;
         f.gridy = 0;
+        f.fill = GridBagConstraints.NONE;
         import2.addActionListener(this);
         import2.setActionCommand("Import2");
         Next.setConstraints(import2, f);
@@ -300,8 +320,16 @@ class CertificatesPanel extends JPanel implements ActionListener
         export2.addActionListener(this);
         export2.setActionCommand("Export2");
         export2.setEnabled(false);
-        Own.setConstraints(export2, f);
+        Next.setConstraints(export2, f);
         panel3.add(export2);
+        remove2 = new JButton("Remove");
+        f.gridx = 3;
+        remove2.addActionListener(this);
+        remove2.setActionCommand("Remove2");
+        remove2.setEnabled(false);
+        Next.setConstraints(remove2, f);
+        panel3.add(remove2);
+        f.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel name3 = new JLabel("Name");
         f.gridx = 0;
@@ -312,7 +340,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         m_textNextCertCN = new JTextField(26);
         m_textNextCertCN.setEditable(false);
         f.gridx = 1;
-        f.gridwidth = 5;
+        f.gridwidth = 3;
         f.weightx = 1;
         Next.setConstraints(m_textNextCertCN, f);
         panel3.add(m_textNextCertCN);
@@ -327,7 +355,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         m_textNextCertValidFrom = new JTextField(26);
         m_textNextCertValidFrom.setEditable(false);
         f.gridx = 1;
-        f.gridwidth = 5;
+        f.gridwidth = 3;
         f.weightx = 1;
         Next.setConstraints(m_textNextCertValidFrom, f);
         panel3.add(m_textNextCertValidFrom);
@@ -342,7 +370,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         m_textNextCertValidTo = new JTextField(26);
         m_textNextCertValidTo.setEditable(false);
         f.gridx = 1;
-        f.gridwidth = 5;
+        f.gridwidth = 3;
         f.weightx = 1;
         Next.setConstraints(m_textNextCertValidTo, f);
         panel3.add(m_textNextCertValidTo);
@@ -479,6 +507,7 @@ class CertificatesPanel extends JPanel implements ActionListener
                 m_ownPubCert = out.toByteArray();
                 m_bttnExportOwnPub.setEnabled(true);
                 m_bttnChangePasswd.setEnabled(true);
+                m_bttnRemoveOwnCert.setEnabled(true);
                 return true;
                 
                 /*                    
@@ -631,6 +660,7 @@ class CertificatesPanel extends JPanel implements ActionListener
                 m_ownPrivCert = null;
                 m_bttnExportOwnPub.setEnabled(false);
                 m_bttnChangePasswd.setEnabled(false);
+                m_bttnRemoveOwnCert.setEnabled(false);
             }
         }
         catch (PKCS12.IllegalCertificateException e)
@@ -681,6 +711,7 @@ class CertificatesPanel extends JPanel implements ActionListener
                 */
 
                 export1.setEnabled(true);
+                remove1.setEnabled(true);
             }
             else
             {
@@ -689,6 +720,7 @@ class CertificatesPanel extends JPanel implements ActionListener
                 m_textPrevCertValidTo.setText(null);
                 m_prevPubCert = null;
                 export1.setEnabled(false);
+                remove1.setEnabled(false);
             }
         }
         catch (Exception e)
@@ -727,6 +759,7 @@ class CertificatesPanel extends JPanel implements ActionListener
                 m_nextPubCert=cert1.getEncoded();
                 */
                 export2.setEnabled(true);
+                remove2.setEnabled(true);
             }
             else
             {
@@ -735,6 +768,7 @@ class CertificatesPanel extends JPanel implements ActionListener
                 m_textNextCertValidTo.setText(null);
                 m_nextPubCert = null;
                 export2.setEnabled(false);
+                remove2.setEnabled(false);
             }
         }
         catch (Exception e)
@@ -1586,6 +1620,8 @@ class CertificatesPanel extends JPanel implements ActionListener
             if (buff != null)
                 setOwnPrivCert(buff);
         }
+        else if (ae.getActionCommand().equals("RemoveOwnCert"))
+            setOwnPrivCert(null);
         else if (ae.getActionCommand().equals("Import1"))
         {
             byte [] cert;
@@ -1607,6 +1643,8 @@ class CertificatesPanel extends JPanel implements ActionListener
         }
         else if (ae.getActionCommand().equals("Export1"))
             exportCert(getPrevPubCert());
+        else if (ae.getActionCommand().equals("Remove1"))
+            setPrevPubCert(null);
         else if (ae.getActionCommand().equals("Import2"))
         {
             byte [] cert;
@@ -1628,6 +1666,8 @@ class CertificatesPanel extends JPanel implements ActionListener
         }
         else if (ae.getActionCommand().equals("Export2"))
             exportCert(getNextPubCert());
+        else if (ae.getActionCommand().equals("Remove2"))
+            setNextPubCert(null);
     }
 
     private byte[] openFile(int type)
