@@ -42,6 +42,7 @@ class ConnectionData
 		private String type; // Name of the XML element
 		private int flags;
 
+                public static final int TRANSPORT = 1; // Bit mask
 		public static final int TCP = 0;
 		public static final int UNIX = 1;
 		public static final int RAW = 0;
