@@ -425,6 +425,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
   public void actionPerformed(ActionEvent ae)
   {
     FileName.setEnabled(File.isSelected());
+    m_compressLog.setEnabled(File.isSelected());
   }
 
   public void itemStateChanged(ItemEvent ie)
