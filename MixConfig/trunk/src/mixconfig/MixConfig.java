@@ -58,7 +58,7 @@ import org.bouncycastle.asn1.ASN1TaggedObject;
 /** \mainpage
 This is a tool which one can use for creating a configuration file for a Mix. This configuration file
 contains an XML struct with the foolowing elements:
-\verbinclude MixConfiguration.xml
+\verbinclude "./MixConfiguration.xml"
 */
 public class MixConfig extends JApplet
 {

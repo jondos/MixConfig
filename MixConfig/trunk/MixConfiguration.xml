@@ -5,143 +5,143 @@
 
 <MixConfiguration version="0.1">  <!-- Root-Element -->
 <General>
-	<MixID> <!-- Each Mix gets an unique ID, ether chosen by the user or generate
-					Rules:
-						MixID::='m' (Letter|Digits|'.'|'_'|'-'){4:n}
-						Letter::='A'..'Z'|'a'..'z'
-						Digits::='0'..'9'
-	-->
-	</MixID>
-	<MixType> <!--- One of: FirstMix | MiddleMix | LastMix --> </MixType>
-	<MixName> <!-- human readble String which shortly describes the Mix --> </MixName>
-	<CascadeName>
-	<!-- human readable String which shortly describes the whole Mix-Cascade
-	Only available if MixType==FirstMix
-	--></CascadeName>
-	<Daemon> <!-- Should the mix run in the background as daemon ? Values: True | False --> </Daemon>
-	<UserID> <!-- The userid the Mix-process should use than running --> </UserID>
-	<NrOfFileDescriptors> <!-- max Number of file descriptors the mix should use --> </NrOfFileDescriptors>
+  <MixID> <!-- Each Mix gets an unique ID, ether chosen by the user or generate
+          Rules:
+            MixID::='m' (Letter|Digits|'.'|'_'|'-'){4:n}
+            Letter::='A'..'Z'|'a'..'z'
+            Digits::='0'..'9'
+  -->
+  </MixID>
+  <MixType> <!--- One of: FirstMix | MiddleMix | LastMix --> </MixType>
+  <MixName> <!-- human readble String which shortly describes the Mix --> </MixName>
+  <CascadeName>
+  <!-- human readable String which shortly describes the whole Mix-Cascade
+  Only available if MixType==FirstMix
+  --></CascadeName>
+  <Daemon> <!-- Should the mix run in the background as daemon ? Values: True | False --> </Daemon>
+  <UserID> <!-- The userid the Mix-process should use than running --> </UserID>
+  <NrOfFileDescriptors> <!-- max Number of file descriptors the mix should use --> </NrOfFileDescriptors>
 
-	<Logging>
-		<!-- Information of how to log some events -->
-		<!-- Only one of the following three is possible -->
-		<File compressed="True|False"><!--The file to which the log data should be writen--></File>
-		<SysLog>  <!-- Values: True | False --> </SysLog>
-		<Console> <!-- Values: True | False, must be False, if Daemon=True --> </Console>
-	</Logging>
+  <Logging>
+    <!-- Information of how to log some events -->
+    <!-- Only one of the following three is possible -->
+    <File compressed="True|False"><!--The file to which the log data should be writen--></File>
+    <SysLog>  <!-- Values: True | False --> </SysLog>
+    <Console> <!-- Values: True | False, must be False, if Daemon=True --> </Console>
+  </Logging>
 </General>
 
 <Network>
-	<ListenerInterfaces>
-		<!-- Describes on which interfaces (IP-Addresses etc.) the Mix should listen for incoming connections-->
+  <ListenerInterfaces>
+    <!-- Describes on which interfaces (IP-Addresses etc.) the Mix should listen for incoming connections-->
 
-		<ListenerInterface>
-			<!-- Describes one Listener, only first mixes could have more than one Listener-->
-			<!-- A Listener uses either TCP/IP or Unix Domain Sockets -->
+    <ListenerInterface>
+      <!-- Describes one Listener, only first mixes could have more than one Listener-->
+      <!-- A Listener uses either TCP/IP or Unix Domain Sockets -->
 
-			<!-- NEW: Type of Listener Interface-->
-			<NetworkProtocol><!-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></NetworkProtocol>
+      <!-- NEW: Type of Listener Interface-->
+      <NetworkProtocol><!-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></NetworkProtocol>
 
 
-			<!-- For TCP/IP (if type= */TCP) -->
-			<Host> <!-- Hostname or IP on which to listen --> </Host>
-			<IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
-			<Port> <!-- Port on which to listen--></Port>
+      <!-- For TCP/IP (if type= */TCP) -->
+      <Host> <!-- Hostname or IP on which to listen --> </Host>
+      <IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
+      <Port> <!-- Port on which to listen--></Port>
 
-			<!-- For Unix Domain Sockets (if type= */UNIX)-->
-			<File> <!-- Filename, which should be used for Unix Domain Sockets--> </File>
+      <!-- For Unix Domain Sockets (if type= */UNIX)-->
+      <File> <!-- Filename, which should be used for Unix Domain Sockets--> </File>
 
-	 </ListenerInterface>
+   </ListenerInterface>
 
-	</ListenerInterfaces>
+  </ListenerInterfaces>
 
-	<NextMix>
-	<!-- Describes how to connect to the next mix,
-			 only usefull for First- or MiddleMix -->
-			 <NetworkProtocol>	!-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></NetworkProtocol>
-			 <Host> hostname or ip of next Mix </Host>
-			 <IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
-			 <Port> port of next mix </Port>
+  <NextMix>
+  <!-- Describes how to connect to the next mix,
+       only usefull for First- or MiddleMix -->
+       <NetworkProtocol>  !-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></NetworkProtocol>
+       <Host> hostname or ip of next Mix </Host>
+       <IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
+       <Port> port of next mix </Port>
 
-			 <File> <!-- Filename, if unix Domain Sockets should be used --> </File>
+       <File> <!-- Filename, if unix Domain Sockets should be used --> </File>
 
-	</NextMix>
+  </NextMix>
 
-	<Proxies>
-	<!-- Describes which proxies are available for the last mix and how to reach them,
-			only useful for the last mix -->
+  <Proxies>
+  <!-- Describes which proxies are available for the last mix and how to reach them,
+      only useful for the last mix -->
 
-			<Proxy>
-				<!-- Describes one single proxy -->
-					<ProxyType> <!-- Type of Proxy, one of: HTTP|SOCKS --></ProxyType>
-					<NetworkProtocol>	!-- Network protocol -- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></NetworkProtocol>
-					<!-- How to reach this proxy ?-->
-					<Host> </Host>
-					<IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
-					<Port> </Port>
-					<File> </File>
+      <Proxy>
+        <!-- Describes one single proxy -->
+          <ProxyType> <!-- Type of Proxy, one of: HTTP|SOCKS --></ProxyType>
+          <NetworkProtocol> !-- Network protocol -- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></NetworkProtocol>
+          <!-- How to reach this proxy ?-->
+          <Host> </Host>
+          <IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
+          <Port> </Port>
+          <File> </File>
 
-			</Proxy>
+      </Proxy>
 
-	</Proxies>
-	<InfoService>
-		<!-- Describes how to connect to the InfoService -->
+  </Proxies>
+  <InfoService>
+    <!-- Describes how to connect to the InfoService -->
 
-			 <Host> hostname or ip of the InfoService </Host>
-			 <IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
-			 <Port> port of the InfoService </Port>
+       <Host> hostname or ip of the InfoService </Host>
+       <IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
+       <Port> port of the InfoService </Port>
 
-	</InfoService>
+  </InfoService>
 </Network>
 
 <Certificates>
 
-	<OwnCertificate>
-		<X509PKCS12>
-			<!-- Base64 encoded version of the DER encoded version of a PKCS#12 structure which includes the private key and X.509 Certificate -->
-		</X509PKCS12>
+  <OwnCertificate>
+    <X509PKCS12>
+      <!-- Base64 encoded version of the DER encoded version of a PKCS#12 structure which includes the private key and X.509 Certificate -->
+    </X509PKCS12>
 
-		<X509Certificate>
-			<!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
-			<!-- this is the public test certificate, which belongs to the certificate above -->
-		</X509Certificate>
-	</OwnCertificate>
+    <X509Certificate>
+      <!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
+      <!-- this is the public test certificate, which belongs to the certificate above -->
+    </X509Certificate>
+  </OwnCertificate>
 
-	<PrevMixCertificate>
-	<!-- X.509 Public Key Test Certificate of the key from the previous mix -->
-		<X509Certificate>
-			<!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
-		</X509Certificate>
-	</PrevMixCertificate>
+  <PrevMixCertificate>
+  <!-- X.509 Public Key Test Certificate of the key from the previous mix -->
+    <X509Certificate>
+      <!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
+    </X509Certificate>
+  </PrevMixCertificate>
 
-	<NextMixCertificate>
-	<!-- X.509 Public Key Test Certificate of the key from the next mix -->
-		<X509Certificate>
-			<!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
-		</X509Certificate>
-	</NextMixCertificate>
+  <NextMixCertificate>
+  <!-- X.509 Public Key Test Certificate of the key from the next mix -->
+    <X509Certificate>
+      <!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
+    </X509Certificate>
+  </NextMixCertificate>
 
 </Certificates>
 
 <Description>
-	<Location> <!-- Describes the location of the mix server -->
-		<City>    </City>
-		<Country> </Country>
-		<State> <!-- optional --> </State>
+  <Location> <!-- Describes the location of the mix server -->
+    <City>    </City>
+    <Country> </Country>
+    <State> <!-- optional --> </State>
 
-		<Position>
-			<Geo> <!--The geographical position of the mix server -->
-				<Longitude></Longitude>
-				<Latitude></Latitude>
-			</Geo>
-		</Position>
+    <Position>
+      <Geo> <!--The geographical position of the mix server -->
+        <Longitude></Longitude>
+        <Latitude></Latitude>
+      </Geo>
+    </Position>
 
-	</Location>
+  </Location>
 
-	<Operator> <!-- who is operating this mix? -->
-		<Organisation> <!-- The name of the operating organisation or a person's name for private operators --> </Organisation> 
-		<URL> <!-- a url that leads to more information on the operator, including contact information --> </URL> 
-	</Operator>
+  <Operator> <!-- who is operating this mix? -->
+    <Organisation> <!-- The name of the operating organisation or a person's name for private operators --> </Organisation> 
+    <URL> <!-- a url that leads to more information on the operator, including contact information --> </URL> 
+  </Operator>
 
 </Description>
 
