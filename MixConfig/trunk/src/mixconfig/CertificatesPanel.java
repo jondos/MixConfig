@@ -83,17 +83,16 @@ import org.bouncycastle.crypto.signers.DSASigner;
 
 class CertificatesPanel extends JPanel implements ActionListener
 {
-		JPanel panel1, panel2, panel3;
-		JTextField text1, from_text1, to_text1;
+		JTextField m_textOwnCertCN, m_textOwnCertValidFrom, m_textOwnCertValidTo;
 		JTextField m_textPrevCertCN, m_textPrevCertValidFrom, m_textPrevCertValidTo;
 		JTextField m_textNextCertCN, m_textNextCertValidFrom, m_textNextCertValidTo;
-		JButton import1,
-				import2,
-				export1,
-				export2,
-				remove1,
-				remove2,
-				create,
+		JButton m_bttnPrevCertImport,
+				m_btnnNextCertImport,
+				m_bttnPrevCertExport,
+				m_bttnNextCertExport,
+				m_bttnPrevCertRemove,
+				m_bttnNextCertRemove,
+				m_bttnCreateOwnCert,
 				m_bttnExportOwnPub,
 				m_bttnImportOwnPub,
 				m_bttnChangePasswd,
@@ -119,7 +118,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				c.insets = new Insets(10, 10, 10, 10);
 				c.fill = GridBagConstraints.HORIZONTAL;
 
-				panel1 = new JPanel(Own);
+				JPanel panel1 = new JPanel(Own);
 				GridBagConstraints d = new GridBagConstraints();
 				d.anchor = GridBagConstraints.NORTHWEST;
 				d.insets = new Insets(5, 5, 5, 5);
@@ -131,15 +130,15 @@ class CertificatesPanel extends JPanel implements ActionListener
 				layout.setConstraints(panel1, c);
 				add(panel1);
 
-				create = new JButton("Create a New One");
+				m_bttnCreateOwnCert = new JButton("Create a New One");
 				d.gridx = 1;
 				d.gridy = 0;
 				d.gridwidth = 1;
 				d.fill = GridBagConstraints.NONE;
-				create.addActionListener(this);
-				create.setActionCommand("Create");
-				Own.setConstraints(create, d);
-				panel1.add(create);
+				m_bttnCreateOwnCert.addActionListener(this);
+				m_bttnCreateOwnCert.setActionCommand("Create");
+				Own.setConstraints(m_bttnCreateOwnCert, d);
+				panel1.add(m_bttnCreateOwnCert);
 				m_bttnImportOwnPub = new JButton("Import...");
 				d.gridx = 2;
 				d.gridy = 0;
@@ -178,13 +177,13 @@ class CertificatesPanel extends JPanel implements ActionListener
 				JLabel name1 = new JLabel("Name");
 				Own.setConstraints(name1, d);
 				panel1.add(name1);
-				text1 = new JTextField();
-				text1.setEditable(false);
+				m_textOwnCertCN = new JTextField();
+				m_textOwnCertCN.setEditable(false);
 				d.gridx = 1;
 				d.gridwidth = 5;
 				d.weightx = 1;
-				Own.setConstraints(text1, d);
-				panel1.add(text1);
+				Own.setConstraints(m_textOwnCertCN, d);
+				panel1.add(m_textOwnCertCN);
 
 				JLabel from1 = new JLabel("Valid From");
 				d.gridx = 0;
@@ -193,13 +192,13 @@ class CertificatesPanel extends JPanel implements ActionListener
 				d.weightx = 0;
 				Own.setConstraints(from1, d);
 				panel1.add(from1);
-				from_text1 = new JTextField();
-				from_text1.setEditable(false);
+				m_textOwnCertValidFrom = new JTextField();
+				m_textOwnCertValidFrom.setEditable(false);
 				d.gridx = 1;
 				d.gridwidth = 5;
 				d.weightx = 1;
-				Own.setConstraints(from_text1, d);
-				panel1.add(from_text1);
+				Own.setConstraints(m_textOwnCertValidFrom, d);
+				panel1.add(m_textOwnCertValidFrom);
 
 				JLabel to1 = new JLabel("Valid To");
 				d.gridx = 0;
@@ -208,17 +207,17 @@ class CertificatesPanel extends JPanel implements ActionListener
 				d.weightx = 0;
 				Own.setConstraints(to1, d);
 				panel1.add(to1);
-				to_text1 = new JTextField();
-				to_text1.setEditable(false);
+				m_textOwnCertValidTo = new JTextField();
+				m_textOwnCertValidTo.setEditable(false);
 				d.gridx = 1;
 				d.gridwidth = 5;
 				d.weightx = 1;
-				Own.setConstraints(to_text1, d);
-				panel1.add(to_text1);
+				Own.setConstraints(m_textOwnCertValidTo, d);
+				panel1.add(m_textOwnCertValidTo);
 
 				c.gridx = 0;
 				c.gridy = 0;
-				panel2 = new JPanel(Previous);
+				JPanel panel2 = new JPanel(Previous);
 				GridBagConstraints e = new GridBagConstraints();
 				e.anchor = GridBagConstraints.NORTHWEST;
 				e.insets = new Insets(5, 5, 5, 5);
@@ -230,29 +229,29 @@ class CertificatesPanel extends JPanel implements ActionListener
 				layout.setConstraints(panel2, c);
 				add(panel2);
 
-				import1 = new JButton("Import...");
+				m_bttnPrevCertImport = new JButton("Import...");
 				e.gridx = 1;
 				e.gridy = 0;
 				e.fill = GridBagConstraints.NONE;
-				import1.addActionListener(this);
-				import1.setActionCommand("Import1");
-				import1.setEnabled(false);
-				Previous.setConstraints(import1, e);
-				panel2.add(import1);
-				export1 = new JButton("Export...");
+				m_bttnPrevCertImport.addActionListener(this);
+				m_bttnPrevCertImport.setActionCommand("Import1");
+				m_bttnPrevCertImport.setEnabled(false);
+				Previous.setConstraints(m_bttnPrevCertImport, e);
+				panel2.add(m_bttnPrevCertImport);
+				m_bttnPrevCertExport = new JButton("Export...");
 				e.gridx = 2;
-				export1.addActionListener(this);
-				export1.setActionCommand("Export1");
-				export1.setEnabled(false);
-				Previous.setConstraints(export1, e);
-				panel2.add(export1);
-				remove1 = new JButton("Remove");
+				m_bttnPrevCertExport.addActionListener(this);
+				m_bttnPrevCertExport.setActionCommand("Export1");
+				m_bttnPrevCertExport.setEnabled(false);
+				Previous.setConstraints(m_bttnPrevCertExport, e);
+				panel2.add(m_bttnPrevCertExport);
+				m_bttnPrevCertRemove = new JButton("Remove");
 				e.gridx = 3;
-				remove1.addActionListener(this);
-				remove1.setActionCommand("Remove1");
-				remove1.setEnabled(false);
-				Previous.setConstraints(remove1, e);
-				panel2.add(remove1);
+				m_bttnPrevCertRemove.addActionListener(this);
+				m_bttnPrevCertRemove.setActionCommand("Remove1");
+				m_bttnPrevCertRemove.setEnabled(false);
+				Previous.setConstraints(m_bttnPrevCertRemove, e);
+				panel2.add(m_bttnPrevCertRemove);
 				e.fill = GridBagConstraints.HORIZONTAL;
 
 				JLabel name2 = new JLabel("Name");
@@ -299,7 +298,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				panel2.add(m_textPrevCertValidTo);
 
 				c.gridy = 2;
-				panel3 = new JPanel(Next);
+				JPanel panel3 = new JPanel(Next);
 				GridBagConstraints f = new GridBagConstraints();
 				f.anchor = GridBagConstraints.NORTHWEST;
 				f.insets = new Insets(5, 5, 5, 5);
@@ -308,28 +307,28 @@ class CertificatesPanel extends JPanel implements ActionListener
 				layout.setConstraints(panel3, c);
 				add(panel3);
 
-				import2 = new JButton("Import...");
+				m_btnnNextCertImport = new JButton("Import...");
 				f.gridx = 1;
 				f.gridy = 0;
 				f.fill = GridBagConstraints.NONE;
-				import2.addActionListener(this);
-				import2.setActionCommand("Import2");
-				Next.setConstraints(import2, f);
-				panel3.add(import2);
-				export2 = new JButton("Export...");
+				m_btnnNextCertImport.addActionListener(this);
+				m_btnnNextCertImport.setActionCommand("Import2");
+				Next.setConstraints(m_btnnNextCertImport, f);
+				panel3.add(m_btnnNextCertImport);
+				m_bttnNextCertExport = new JButton("Export...");
 				f.gridx = 2;
-				export2.addActionListener(this);
-				export2.setActionCommand("Export2");
-				export2.setEnabled(false);
-				Next.setConstraints(export2, f);
-				panel3.add(export2);
-				remove2 = new JButton("Remove");
+				m_bttnNextCertExport.addActionListener(this);
+				m_bttnNextCertExport.setActionCommand("Export2");
+				m_bttnNextCertExport.setEnabled(false);
+				Next.setConstraints(m_bttnNextCertExport, f);
+				panel3.add(m_bttnNextCertExport);
+				m_bttnNextCertRemove = new JButton("Remove");
 				f.gridx = 3;
-				remove2.addActionListener(this);
-				remove2.setActionCommand("Remove2");
-				remove2.setEnabled(false);
-				Next.setConstraints(remove2, f);
-				panel3.add(remove2);
+				m_bttnNextCertRemove.addActionListener(this);
+				m_bttnNextCertRemove.setActionCommand("Remove2");
+				m_bttnNextCertRemove.setEnabled(false);
+				Next.setConstraints(m_bttnNextCertRemove, f);
+				panel3.add(m_bttnNextCertRemove);
 				f.fill = GridBagConstraints.HORIZONTAL;
 
 				JLabel name3 = new JLabel("Name");
@@ -386,8 +385,8 @@ class CertificatesPanel extends JPanel implements ActionListener
 
 		public void updateButtons(boolean hasPrevious, boolean hasNext)
 		{
-				import1.setEnabled(hasPrevious);
-				import2.setEnabled(hasNext);
+				m_bttnPrevCertImport.setEnabled(hasPrevious);
+				m_btnnNextCertImport.setEnabled(hasNext);
 		}
 
 		public byte[] getOwnPubCert()
@@ -421,76 +420,6 @@ class CertificatesPanel extends JPanel implements ActionListener
 				}
 		}
 
-		public X509CertificateStructure readCertificate(byte[] cert)
-				throws IOException
-		{
-				ByteArrayInputStream bin = null;
-
-				if (cert[0] != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
-				{
-						// Probably a Base64 encoded certificate
-						BufferedReader in =
-								new BufferedReader(
-										new InputStreamReader(new ByteArrayInputStream(cert)));
-						StringBuffer sbuf = new StringBuffer();
-						String line;
-
-						while ((line = in.readLine()) != null)
-						{
-								if (line.equals("-----BEGIN CERTIFICATE-----")
-										|| line.equals("-----BEGIN X509 CERTIFICATE-----"))
-										break;
-						}
-
-						while ((line = in.readLine()) != null)
-						{
-								if (line.equals("-----END CERTIFICATE-----")
-										|| line.equals("-----END X509 CERTIFICATE-----"))
-										break;
-								sbuf.append(line);
-						}
-						bin = new ByteArrayInputStream(Base64.decode(sbuf.toString()));
-				}
-
-				if (bin == null && cert[1] == 0x80)
-				{
-						// a BER encoded certificate
-						BERInputStream in =
-								new BERInputStream(new ByteArrayInputStream(cert));
-						ASN1Sequence seq = (ASN1Sequence) in.readObject();
-						DERObjectIdentifier oid = (DERObjectIdentifier) seq.getObjectAt(0);
-						if (oid.equals(PKCSObjectIdentifiers.signedData))
-								return new X509CertificateStructure(
-										(ASN1Sequence) new SignedData(
-												(ASN1Sequence) ((DERTaggedObject) seq
-												.getObjectAt(1))
-												.getObject())
-												.getCertificates()
-												.getObjectAt(0));
-				}
-				else
-				{
-						if (bin == null)
-								bin = new ByteArrayInputStream(cert);
-						// DERInputStream
-						DERInputStream in = new DERInputStream(bin);
-						ASN1Sequence seq = (ASN1Sequence) in.readObject();
-						if (seq.size() > 1
-								&& seq.getObjectAt(1) instanceof DERObjectIdentifier
-								&& seq.getObjectAt(0).equals(PKCSObjectIdentifiers.signedData))
-						{
-								return X509CertificateStructure.getInstance(
-										new SignedData(
-												ASN1Sequence.getInstance(
-														(ASN1TaggedObject) seq.getObjectAt(1),
-														true))
-												.getCertificates()
-												.getObjectAt(0));
-						}
-						return X509CertificateStructure.getInstance(seq);
-				}
-				throw (new RuntimeException("Couldn't read certificate."));
-		}
 
 		private boolean setOwnPrivCert(byte[] cert, char[] passwd)
 		{
@@ -504,10 +433,10 @@ class CertificatesPanel extends JPanel implements ActionListener
 
 								PKCS12 pkcs12 = PKCS12.load(new ByteArrayInputStream(cert), passwd);
 
-								from_text1.setText(
+								m_textOwnCertValidFrom.setText(
 										pkcs12.getX509cert().getStartDate().getDate().toString());
-								to_text1.setText(pkcs12.getX509cert().getEndDate().getDate().toString());
-								text1.setText(pkcs12.getX509cert().getSubject().toString());
+								m_textOwnCertValidTo.setText(pkcs12.getX509cert().getEndDate().getDate().toString());
+								m_textOwnCertCN.setText(pkcs12.getX509cert().getSubject().toString());
 								m_ownPrivCert = cert;
 								ByteArrayOutputStream out = new ByteArrayOutputStream();
 								new DEROutputStream(out).writeObject(pkcs12.getX509cert());
@@ -517,153 +446,12 @@ class CertificatesPanel extends JPanel implements ActionListener
 								m_bttnRemoveOwnCert.setEnabled(true);
 								return true;
 
-								/*
-								BERInputStream is =
-										new BERInputStream(new ByteArrayInputStream(cert));
-								ASN1Sequence dcs = (ASN1Sequence) is.readObject();
-								Pfx pfx = new Pfx(dcs);
-								ContentInfo cinfo = pfx.getAuthSafe();
-
-								if (!cinfo.getContentType().equals(PKCSObjectIdentifiers.data))
-										throw (
-												new RuntimeException("Does not contain any certificates."));
-
-								is =
-										new BERInputStream(
-												new ByteArrayInputStream(
-														((DEROctetString) cinfo.getContent()).getOctets()));
-								ContentInfo[] cinfos =
-										(new AuthenticatedSafe((ASN1Sequence) is.readObject()))
-												.getContentInfo();
-
-								for (int i = 0; i < cinfos.length; i++)
-								{
-										ASN1Sequence cseq;
-										if (cinfos[i]
-												.getContentType()
-												.equals(PKCSObjectIdentifiers.data))
-										{
-												DERInputStream dis =
-														new DERInputStream(
-																new ByteArrayInputStream(
-																		((DEROctetString) cinfos[i].getContent())
-																				.getOctets()));
-												cseq = (ASN1Sequence) dis.readObject();
-										}
-										else if (
-												cinfos[i].getContentType().equals(
-														PKCSObjectIdentifiers.encryptedData))
-										{
-												EncryptedData ed =
-														new EncryptedData(
-																(ASN1Sequence) cinfos[i].getContent());
-												String algId =
-														ed.getEncryptionAlgorithm().getObjectId().getId();
-												BlockCipher cipher;
-												int keysize;
-												if (algId.equals("1.2.840.113549.1.12.1.3"))
-														// PBE with SHA and 3-Key TripleDES-CBC
-												{
-														cipher = new DESedeEngine();
-														keysize = 192;
-												}
-												else if (algId.equals("1.2.840.113549.1.12.1.4"))
-														// PBE with SHA and 2-Key TripleDES-CBC
-												{
-														cipher = new DESedeEngine();
-														keysize = 128;
-												}
-												else if (algId.equals("1.2.840.113549.1.12.1.5"))
-														// PBE with SHA and 128 Bit-RC2-CBC
-												{
-														cipher = new RC2Engine();
-														keysize = 128;
-												}
-												else if (algId.equals("1.2.840.113549.1.12.1.6"))
-														// PBE with SHA and 40 Bit-RC2-CBC
-												{
-														cipher = new RC2Engine();
-														keysize = 40;
-												}
-												else
-												{
-														JOptionPane.showMessageDialog(
-																this,
-																"Algorithm '"
-																		+ algId
-																		+ "' is currently not supported.",
-																"Unknown algorithm",
-																JOptionPane.ERROR_MESSAGE);
-														return true;
-												}
-												PKCS12PBEParams pbeParams =
-														new PKCS12PBEParams(
-																(ASN1Sequence) ed
-																		.getEncryptionAlgorithm()
-																		.getParameters());
-												BERInputStream bis =
-														new BERInputStream(
-																new ByteArrayInputStream(
-																		PKCS12.codeData(
-																				false,
-																				ed.getContent().getOctets(),
-																				pbeParams,
-																				passwd,
-																				cipher,
-																				keysize)));
-												cseq = (ASN1Sequence) bis.readObject();
-										}
-										else
-												continue;
-
-										for (int j = 0; j < cseq.size(); j++)
-										{
-												SafeBag sb =
-														new SafeBag((ASN1Sequence) cseq.getObjectAt(j));
-												if (!sb
-														.getBagId()
-														.equals(PKCSObjectIdentifiers.certBag))
-														continue;
-
-												X509CertificateStructure c =
-														readCertificate(
-																((DEROctetString) new CertBag((ASN1Sequence) sb
-																		.getBagValue())
-																		.getCertValue())
-																		.getOctets());
-												from_text1.setText(
-														c.getStartDate().getDate().toString());
-												to_text1.setText(c.getEndDate().getDate().toString());
-												text1.setText(c.getSubject().toString());
-												m_ownPrivCert = cert;
-												ByteArrayOutputStream out = new ByteArrayOutputStream();
-												new DEROutputStream(out).writeObject(c);
-												m_ownPubCert = out.toByteArray();
-												m_bttnExportOwnPub.setEnabled(true);
-												m_bttnChangePasswd.setEnabled(true);
-												return true;
-										}
-								}
-								throw (new RuntimeException("Didn't found anything."));
-								*/
-								/*
-								KeyStore kstore = KeyStore.getInstance("PKCS12","BC");
-								kstore.load(new ByteArrayInputStream(cert),passwd);
-								X509Certificate c=(X509Certificate)kstore.getCertificate((String)kstore.aliases().nextElement());
-								from_text1.setText(c.getNotBefore().toString());
-								to_text1.setText(c.getNotAfter().toString());
-								text1.setText(c.getSubjectDN().getName());
-								m_ownPrivCert=cert;
-								m_ownPubCert=c.getEncoded();
-								m_bttnExportOwnPub.setEnabled(true);
-								m_bttnChangePasswd.setEnabled(true);
-								*/
 						}
 						else
 						{
-								from_text1.setText(null);
-								to_text1.setText(null);
-								text1.setText(null);
+								m_textOwnCertValidFrom.setText(null);
+								m_textOwnCertValidTo.setText(null);
+								m_textOwnCertCN.setText(null);
 								m_ownPrivCert = null;
 								m_bttnExportOwnPub.setEnabled(false);
 								m_bttnChangePasswd.setEnabled(false);
@@ -698,7 +486,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				{
 						if (cert != null)
 						{
-								X509CertificateStructure cert1 = readCertificate(cert);
+								X509CertificateStructure cert1 = MixConfig.readCertificate(cert);
 								m_textPrevCertCN.setText(cert1.getSubject().toString());
 								m_textPrevCertValidFrom.setText(
 										cert1.getStartDate().getDate().toString());
@@ -717,8 +505,8 @@ class CertificatesPanel extends JPanel implements ActionListener
 								m_prevPubCert=cert1.getEncoded();
 								*/
 
-								export1.setEnabled(true);
-								remove1.setEnabled(true);
+								m_bttnPrevCertExport.setEnabled(true);
+								m_bttnPrevCertRemove.setEnabled(true);
 						}
 						else
 						{
@@ -726,8 +514,8 @@ class CertificatesPanel extends JPanel implements ActionListener
 								m_textPrevCertValidFrom.setText(null);
 								m_textPrevCertValidTo.setText(null);
 								m_prevPubCert = null;
-								export1.setEnabled(false);
-								remove1.setEnabled(false);
+								m_bttnPrevCertExport.setEnabled(false);
+								m_bttnPrevCertRemove.setEnabled(false);
 						}
 				}
 				catch (Exception e)
@@ -748,7 +536,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				{
 						if (cert != null)
 						{
-								X509CertificateStructure cert1 = readCertificate(cert);
+								X509CertificateStructure cert1 = MixConfig.readCertificate(cert);
 								m_textNextCertCN.setText(cert1.getSubject().toString());
 								m_textNextCertValidFrom.setText(
 										cert1.getStartDate().getDate().toString());
@@ -765,8 +553,8 @@ class CertificatesPanel extends JPanel implements ActionListener
 								m_textNextCertValidTo.setText(cert1.getNotAfter().toString());
 								m_nextPubCert=cert1.getEncoded();
 								*/
-								export2.setEnabled(true);
-								remove2.setEnabled(true);
+								m_bttnNextCertExport.setEnabled(true);
+								m_bttnNextCertRemove.setEnabled(true);
 						}
 						else
 						{
@@ -774,8 +562,8 @@ class CertificatesPanel extends JPanel implements ActionListener
 								m_textNextCertValidFrom.setText(null);
 								m_textNextCertValidTo.setText(null);
 								m_nextPubCert = null;
-								export2.setEnabled(false);
-								remove2.setEnabled(false);
+								m_bttnNextCertExport.setEnabled(false);
+								m_bttnNextCertRemove.setEnabled(false);
 						}
 				}
 				catch (Exception e)
@@ -1179,12 +967,9 @@ class CertificatesPanel extends JPanel implements ActionListener
 				{
 						public Object construct()
 						{
-								V3TBSCertificateGenerator v3certgen =
-										new V3TBSCertificateGenerator();
+								X509CertGenerator v3certgen =new X509CertGenerator();
 								v3certgen.setStartDate(new DERUTCTime(vdialog.from.getDate()));
 								v3certgen.setEndDate(new DERUTCTime(vdialog.to.getDate()));
-								v3certgen.setIssuer(
-										new X509Name("CN=<Mix id=\"" + mixid + "\"/>"));
 								v3certgen.setSubject(
 										new X509Name("CN=<Mix id=\"" + mixid + "\"/>"));
 								v3certgen.setSerialNumber(new DERInteger(1));
@@ -1195,182 +980,24 @@ class CertificatesPanel extends JPanel implements ActionListener
 										DSAParametersGenerator pGen = new DSAParametersGenerator();
 										DSAKeyPairGenerator kpGen = new DSAKeyPairGenerator();
 										pGen.init(1024, 20, random);
-										kpGen.init(
-												new DSAKeyGenerationParameters(
-														random,
-														pGen.generateParameters()));
-										final AsymmetricCipherKeyPair ackp =
-												kpGen.generateKeyPair();
-										final DSAParameters dsaPars =
-												((DSAPrivateKeyParameters) ackp.getPrivate())
-														.getParameters();
-										final DSAParams dsaSpec = new DSAParams()
-										{
-												public BigInteger getG()
-												{
-														return dsaPars.getG();
-												}
-
-												public BigInteger getP()
-												{
-														return dsaPars.getP();
-												}
-
-												public BigInteger getQ()
-												{
-														return dsaPars.getQ();
-												}
-										};
-										final DERObject derParam =
-												new DSAParameter(
-														dsaPars.getP(),
-														dsaPars.getQ(),
-														dsaPars.getG())
-														.getDERObject();
-										KeyPair kp = new KeyPair(new DSAPublicKey()
-										{
-												public BigInteger getY()
-												{
-														return ((DSAPublicKeyParameters) ackp.getPublic())
-																.getY();
-												}
-												public DSAParams getParams()
-												{
-														return dsaSpec;
-												}
-												public String getAlgorithm()
-												{
-														return "DSA";
-												}
-												public String getFormat()
-												{
-														return "X.509";
-												}
-												public byte[] getEncoded()
-												{
-														ByteArrayOutputStream bOut =
-																new ByteArrayOutputStream();
-														DEROutputStream dOut = new DEROutputStream(bOut);
-														try
-														{
-																dOut.writeObject(
-																		new SubjectPublicKeyInfo(
-																				new AlgorithmIdentifier(
-																						X9ObjectIdentifiers.id_dsa,
-																						derParam),
-																				new DERInteger(getY())));
-																dOut.close();
-														}
-														catch (IOException e)
-														{
-																throw new RuntimeException("IOException while encoding public key");
-														}
-														return bOut.toByteArray();
-												}
-										}, new DSAPrivateKey()
-										{
-												public BigInteger getX()
-												{
-														return (
-																(DSAPrivateKeyParameters) ackp.getPrivate())
-																.getX();
-												}
-												public DSAParams getParams()
-												{
-														return dsaSpec;
-												}
-												public String getAlgorithm()
-												{
-														return "DSA";
-												}
-												public String getFormat()
-												{
-														return "PKCS#8";
-												}
-												public byte[] getEncoded()
-												{
-														ByteArrayOutputStream bOut =
-																new ByteArrayOutputStream();
-														DEROutputStream dOut = new DEROutputStream(bOut);
-														try
-														{
-																dOut.writeObject(
-																		new PrivateKeyInfo(
-																				new AlgorithmIdentifier(
-																						X9ObjectIdentifiers.id_dsa,
-																						derParam),
-																				new DERInteger(getX())));
-																dOut.close();
-														}
-														catch (IOException e)
-														{
-																throw new RuntimeException("IOException while encoding private key");
-														}
-														return bOut.toByteArray();
-												}
-										});
-
-										/*
-										KeyPairGenerator kpg=KeyPairGenerator.getInstance("DSA");
-										kpg.initialize(1024);
-										KeyPair kp=kpg.generateKeyPair();
-										*/
+										kpGen.init(	new DSAKeyGenerationParameters(	random,pGen.generateParameters()));
+										AsymmetricCipherKeyPair ackp =kpGen.generateKeyPair();
+										MyDSAPublicKey pubKey=new MyDSAPublicKey((DSAPublicKeyParameters)ackp.getPublic());
+										MyDSAPrivateKey privKey=new MyDSAPrivateKey((DSAPrivateKeyParameters)ackp.getPrivate());
 
 										v3certgen.setSubjectPublicKeyInfo(
 												new SubjectPublicKeyInfo(
-														(ASN1Sequence) new DERInputStream(new ByteArrayInputStream(kp
-																.getPublic()
-																.getEncoded()))
+														(ASN1Sequence) new DERInputStream(new ByteArrayInputStream(pubKey.getEncoded()))
 																.readObject()));
-										AlgorithmIdentifier algID =
-												new AlgorithmIdentifier(
-														X9ObjectIdentifiers.id_dsa_with_sha1);
-										v3certgen.setSignature(algID);
-
-										DSASigner signer = new DSASigner();
-										SHA1Digest digest = new SHA1Digest();
-										signer.init(true, ackp.getPrivate());
-
-										/*
-										Signature sig = Signature.getInstance("DSA");
-										sig.initSign(kp.getPrivate());
-										*/
-
-										TBSCertificateStructure tbsCert =
-												v3certgen.generateTBSCertificate();
-										ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-										(new DEROutputStream(bOut)).writeObject(tbsCert);
-										digest.update(bOut.toByteArray(), 0, bOut.size());
-										byte[] hash = new byte[digest.getDigestSize()];
-										digest.doFinal(hash, 0);
-										BigInteger[] sig = signer.generateSignature(hash);
-										DEREncodableVector sigv = new DEREncodableVector();
-										sigv.add(new DERInteger(sig[0]));
-										sigv.add(new DERInteger(sig[1]));
-										DEREncodableVector seqv = new DEREncodableVector();
-										seqv.add(tbsCert);
-										seqv.add(algID);
-										seqv.add(new DERBitString(new DERSequence(sigv)));
 										X509CertificateStructure x509cert =
-												new X509CertificateStructure(new DERSequence(seqv));
+												v3certgen.sign(new X509Name("CN=<Mix id=\"" + mixid + "\"/>"),privKey);
 
-										//PKCS12 generation
-										/*
-										JDKPKCS12KeyStore store = new JDKPKCS12KeyStore(null);
-										X509CertificateObject certobj=new X509CertificateObject(x509cert);
-										Certificate[] chain=new Certificate[] {certobj};
-
-										store.engineSetKeyEntry("<Mix id=\""+mixid+"\"/>",(Key) kp.getPrivate(), null, chain, kp.getPublic());
-										ByteArrayOutputStream out=new ByteArrayOutputStream();
-										store.engineStore(out,passwd,kp.getPublic());
-										out.close();
-										*/
 										PKCS12 pkcs12 =
 												new PKCS12(
 														"<Mix id=\"" + mixid + "\"/>",
-														kp.getPrivate(),
+														privKey,
 														x509cert,
-														kp.getPublic());
+														pubKey);
 										ByteArrayOutputStream out = new ByteArrayOutputStream();
 										pkcs12.store(out, passwd);
 										out.close();
@@ -1613,7 +1240,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 						byte[] buff;
 						try
 						{
-								buff = openFile(MixConfig.FILTER_PFX);
+								buff = MixConfig.openFile(MixConfig.FILTER_PFX);
 						}
 						catch(Exception e)
 						{
@@ -1636,7 +1263,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 						byte [] cert;
 						try
 						{
-								cert = openFile(MixConfig.FILTER_CER);
+								cert = MixConfig.openFile(MixConfig.FILTER_CER);
 						}
 						catch(Exception e)
 						{
@@ -1659,7 +1286,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 						byte [] cert;
 						try
 						{
-								cert = openFile(MixConfig.FILTER_CER);
+								cert = MixConfig.openFile(MixConfig.FILTER_CER);
 						}
 						catch(Exception e)
 						{
@@ -1678,32 +1305,8 @@ class CertificatesPanel extends JPanel implements ActionListener
 				else if (ae.getActionCommand().equals("Remove2"))
 						setNextPubCert(null);
 		}
-
-		private byte[] openFile(int type)
-		{
-				File file =
-						MixConfig
-								.showFileDialog(MixConfig.OPEN_DIALOG, type)
-								.getSelectedFile();
-				if (file != null)
-				{
-						try
-						{
-								byte[] buff = new byte[(int) file.length()];
-								FileInputStream fin = new FileInputStream(file);
-								fin.read(buff);
-								fin.close();
-								return buff;
-						}
-						catch (Exception e)
-						{
-								System.out.println("Error reading: " + file);
-								return null;
-						}
-				}
-				return null;
-		}
 }
+
 
 class BusyWindow extends javax.swing.JWindow implements ActionListener
 {
