@@ -18,6 +18,7 @@ import java.awt.Toolkit;
 import java.math.BigInteger;
 
 import java.io.*;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
@@ -1217,25 +1218,13 @@ class BusyWindow extends javax.swing.JWindow implements ActionListener
 	layout.setConstraints(label, gbc);
 	p.add(label);
 	gbc.gridy++;
-	final java.awt.Image img = Toolkit.getDefaultToolkit().getImage("busy.gif");
+	ImageIcon img=TheApplet.loadImage("busy.gif");
 	MediaTracker mt = new MediaTracker(this);
-	mt.addImage(img,1);
-	try { mt.waitForAll(); } catch(Exception e) {}
-	JComponent imgComp = new JPanel()
-	    {
-		public void paintComponent(Graphics g)
-		{
-		    g.drawImage(img,0,0, this);
-//                    super.paint(g);
-		}
-
-		public Dimension getPreferredSize()
-		{
-		    return new Dimension(img.getWidth(null), img.getHeight(null));
-		}
-	    };
-	layout.setConstraints(imgComp, gbc);
-	p.add(imgComp);
+	mt.addImage(img.getImage(),1);
+	try { mt.waitForAll(); } catch(Exception e) {e.printStackTrace();}
+	label=new JLabel(img);
+	layout.setConstraints(label, gbc);
+	p.add(label);
 /* Funktioniert nicht. Der Abbruch wird irgendwo abgefangen.
 	gbc.gridy++;
 	JButton button = new JButton("Cancel");
