@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- 
-  The following packages should by in the classpath:
+  The following packages should be in the classpath:
     - Ant (http://ant.apache.org/)
     - GenJar (http://genjar.sourceforge.net/)
     - Java Compiler (In Java 1.4.1 lib/tools.jar of the JDK)
