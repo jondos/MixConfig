@@ -5,7 +5,7 @@ import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.security.Security;
+// import java.security.Security;
 
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -26,6 +26,7 @@ public class TheApplet extends JApplet
 
 	public static void main(String[] args)
 	{
+            /*
 			try
 			{
 					// Ansonsten funktioniert das Applet nicht, da beim Laden
@@ -39,6 +40,7 @@ public class TheApplet extends JApplet
 					e.printStackTrace();
 			}
 			//Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+	   */
 			JFrame MainWindow = new JFrame("Mix Configuration Tool");
 			m_MainWindow = MainWindow;
 			ImageIcon icon=loadImage("icon.gif");
