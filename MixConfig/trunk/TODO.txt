@@ -1,35 +1,8 @@
 
 TODO:
 
-*Einlesen von cinfig files sollte es warnen, wenn keine Versionsnummer
- im <MixConfiguration> Elementen gefunden wurde (alte config files),
- oder wenn eine andere als die aktuelle gefunden wurde.
-
 *Beim Generieren von neuen Certificates sollte im Passwort-Dialog eine
  Warnung stehen (von wegen unbeaufsichtigtem Starten)
-
-*Trotz FirstMix wird gewarnt, dass kein "Previous Mix Certificate" da ist.
- Ebenso wird bei Last Mix das fehlende "Next Mix Certificate" beklagt.
- Bei diesen Mixtypen sollten nicht nur diese checks sondern auch die
- entsprechenden Import buttons im Certificates-Dialog disabled sein.
-
-*checks die noch nett waeren:
- -minimalangaben fuer "Outgoing" verbindungen: 
-  (unixsocket und filename) oder ((hostname oder ipadrdress) und port)
- -minimalangaben fuer "Incoming" verbindungen:
-  (unixsocket und filename) oder port
-
-*Der check sagt "The Host field should not be blank" bzw "Port field".
- Ein Hinweis, dass damit die "Info Service"-Angaben gemeint sind 
- waere gut. Ich hab erst mal bei den Connections gesucht. :-)
-
-*Speichern des config files sollte ".xml" an den filename anhaengen, wenn
- der Nutzer das nicht selbst eingibt.
-
-*Oeffnen und Speichern koennte sich das zuletzt benutzte Verzeichnis merken.
-
-*soll bei "Description"  "State" (Bundes-)Staat heissen, oder sollte 
- stattdessen/zusaetzlich "Country" hin?
 
 *die geographic position sachen sollten entweder eine richtige hilfe
 bekommen (welches format soll da rein), oder sollten weg.
@@ -37,6 +10,4 @@ bekommen (welches format soll da rein), oder sollten weg.
 *was soll der "Show on Map"-Knopf mal machen? Momentan tut er ja erst mal
  nix. 
 
-*Certificates von Next oder Previous sollte man auch wieder rausloeschen
- koennen (nicht nur Importieren oder Exportieren). 
-
+*build.xml sollte die JARs evntl. aus dem Netz holen.
