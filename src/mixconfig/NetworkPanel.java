@@ -1,33 +1,37 @@
 package mixconfig;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JRadioButton;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.DefaultCellEditor;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Frame;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+
+import org.w3c.dom.Node;
 
 class ConnectionData
 {
@@ -251,7 +255,7 @@ class ConnectionData
 				node = ((org.w3c.dom.Element)node).getFirstChild();
 				while(node!=null)
 				{
-						if(node.getNodeType()==node.TEXT_NODE)
+						if(node.getNodeType()==Node.TEXT_NODE)
 						{
 								data = ((org.w3c.dom.Text)node).getData();
 								break;
@@ -309,70 +313,6 @@ class ConnectionData
 								n = "";
 						return new ConnectionData(t, trans, n, ptype);
 				}
-		}
-}
-
-/**
- *  A document that accepts only non-negatives.
- */
-class IntegerDocument extends PlainDocument
-{
-		int max;
-		Component which;
-
-		IntegerDocument(int maxval, Component comp)
-		{
-				super();
-				max = maxval;
-				which = comp;
-		}
-
-		IntegerDocument(int maxval)
-		{
-				super();
-				max = maxval;
-				which = null;
-		}
-
-		IntegerDocument()
-		{
-				super();
-				max = 0;
-				which = null;
-		}
-
-		IntegerDocument(Component comp)
-		{
-				super();
-				max = 0;
-				which = comp;
-		}
-
-		public void insertString(int offset, String str, AttributeSet attr)
-						throws BadLocationException
-		{
-				if(str==null)
-						return;
-
-				String p1 = getText(0,offset);
-				String p2 = getText(offset, getLength()-offset);
-				String res = "";
-
-				for(int i=0;i<str.length();i++)
-						if(!Character.isDigit(str.charAt(i)))
-								java.awt.Toolkit.getDefaultToolkit().beep();
-						else
-						{
-								String sstr = str.substring(i,i+1);
-								int val = Integer.parseInt(p1+res+sstr+p2,10);
-								if(max>0 && val>max)
-										java.awt.Toolkit.getDefaultToolkit().beep();
-								else
-										res+=sstr;
-						}
-				super.insertString(offset,res,attr);
-				if(which!=null && max>0 && getLength()>0 && 10*Integer.parseInt(getText(0,getLength()),10)>max)
-						which.transferFocus();
 		}
 }
 
@@ -865,14 +805,14 @@ class OutgoingDialog extends ConnectionDialog
 
 				int ptype;
 				if(data==null)
-						ptype = data.HTTP_PROXY;
+						ptype = ConnectionData.HTTP_PROXY;
 				else
-						ptype = data.getFlags() & data.PROXY_MASK;
+						ptype = data.getFlags() & ConnectionData.PROXY_MASK;
 
 				rc.anchor = GridBagConstraints.CENTER;
 				rc.gridwidth = 3;
 				proxytype = new ButtonGroup();
-				JRadioButton t = new JRadioButton("HTTP",ptype!=data.SOCKS_PROXY);
+				JRadioButton t = new JRadioButton("HTTP",ptype!=ConnectionData.SOCKS_PROXY);
 				t.setActionCommand("HTTP");
 				layout.setConstraints(t,rc);
 				getContentPane().add(t);
@@ -881,7 +821,7 @@ class OutgoingDialog extends ConnectionDialog
 						firstone = t;
 
 				rc.gridx+=4;
-				t = new JRadioButton("Socks",ptype==data.SOCKS_PROXY);
+				t = new JRadioButton("Socks",ptype==ConnectionData.SOCKS_PROXY);
 				t.setActionCommand("Socks");
 				layout.setConstraints(t,rc);
 				getContentPane().add(t);
@@ -913,7 +853,7 @@ class OutgoingDialog extends ConnectionDialog
 				rc.gridy = 0;
 				rc.weightx = 0;
 
-				if(MyFrame.m_GeneralPanel.getMixType().equals("LastMix"))
+				if(ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix"))
 						addType(data, layout, lc, rc);
 				else
 						proxytype = null;
@@ -1075,7 +1015,7 @@ class IncomingModel extends ConnectionModel
 						org.w3c.dom.Node child = iface.getFirstChild();
 						while(child!=null)
 						{
-								if(child.getNodeType() == child.ELEMENT_NODE)
+								if(child.getNodeType() == Node.ELEMENT_NODE)
 								{
 										ConnectionData data = ConnectionData.createFromElement(
 														"ListenerInterface", (org.w3c.dom.Element)child);
@@ -1112,7 +1052,7 @@ class OutgoingModel extends ConnectionModel
 						case TYPE:
 								if(data.getType().equals("Proxy"))
 								{
-										switch(data.getFlags()&data.PROXY_MASK)
+										switch(data.getFlags()&ConnectionData.PROXY_MASK)
 										{
 												case ConnectionData.NO_PROXY:
 														return "Proxy";
@@ -1188,7 +1128,7 @@ class OutgoingModel extends ConnectionModel
 						org.w3c.dom.Node child = out.getFirstChild();
 						while(child!=null)
 						{
-								if(child.getNodeType() == child.ELEMENT_NODE)
+								if(child.getNodeType() == Node.ELEMENT_NODE)
 								{
 										ConnectionData data = ConnectionData.createFromElement(
 														"Proxy", (org.w3c.dom.Element)child);
@@ -1545,7 +1485,7 @@ class NetworkPanel extends JPanel
 										{
 												public void tableChanged(TableModelEvent e)
 												{
-														if(!MyFrame.m_GeneralPanel.getMixType().equals("LastMix"))
+														if(!ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix"))
 																ob.setEnabled(omodel.getRowCount()==0);
 														else
 																ob.setEnabled(true);
@@ -1559,7 +1499,7 @@ class NetworkPanel extends JPanel
 														if(a.getActionCommand().equals("Add"))
 														{
 																OutgoingDialog dialog = new OutgoingDialog(TheApplet.getMainWindow(),
-																				(MyFrame.m_GeneralPanel.getMixType().equals("LastMix"))?"Add Proxy":"Add Next Mix",
+																				(ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix"))?"Add Proxy":"Add Next Mix",
 																				omodel);
 																dialog.show();
 														}
@@ -1584,7 +1524,7 @@ class NetworkPanel extends JPanel
 														if(a.getActionCommand().equals("Change"))
 														{
 																OutgoingDialog dialog = new OutgoingDialog(TheApplet.getMainWindow(),
-																				(MyFrame.m_GeneralPanel.getMixType().equals("LastMix"))?"Change Proxy":"Change Next Mix",
+																				(ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix"))?"Change Proxy":"Change Next Mix",
 																				omodel,
 																				((OutgoingModel)table2.getModel()).getData(table2.getSelectedRow()));
 																dialog.show();
@@ -1665,7 +1605,7 @@ class NetworkPanel extends JPanel
 		IP_Text.setText("");
 		f.gridx = 1;
 		f.weightx = 0;
-		f.fill = f.NONE;
+		f.fill = GridBagConstraints.NONE;
 		Info_Layout.setConstraints(IP_Text,f);
 		panel3.add(IP_Text);
 
