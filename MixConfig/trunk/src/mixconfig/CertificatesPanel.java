@@ -2,6 +2,10 @@ package mixconfig;
 import java.util.Date;
 import java.util.Calendar;
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.MediaTracker;
+import java.awt.Graphics;
 import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -9,12 +13,15 @@ import java.awt.Insets;
 import java.awt.Frame;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.Toolkit;
 
 import java.math.BigInteger;
 
 import java.io.*;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
@@ -24,20 +31,34 @@ import javax.swing.JFrame;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.AttributeSet;
+import javax.swing.BorderFactory;
 import java.net.URLEncoder;
-
 
 import javax.swing.border.TitledBorder;
 import java.security.cert.Certificate;
 import java.security.cert.*;
 import java.security.*;
+import java.security.interfaces.*;
+import java.security.spec.DSAParameterSpec;
 import org.bouncycastle.jce.X509V3CertificateGenerator;
 import org.bouncycastle.jce.provider.*;
-import org.bouncycastle.asn1.x509.X509Name;
 
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.pkcs.*;
 import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.asn1.x9.*;
+import org.bouncycastle.crypto.generators.DSAParametersGenerator;
+import org.bouncycastle.crypto.generators.DSAKeyPairGenerator;
+import org.bouncycastle.crypto.params.DSAKeyGenerationParameters;
+import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
+import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
+import org.bouncycastle.crypto.params.DSAParameters;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.signers.DSASigner;
+import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.CipherParameters;
+
+import SwingWorker;
 
 class CertificatesPanel extends JPanel implements ActionListener
   {
@@ -880,74 +901,177 @@ class CertificatesPanel extends JPanel implements ActionListener
 
     public void generateNewCert()
     {
-      String mixid=MyFrame.m_GeneralPanel.getMixID();
+      String oMixid=MyFrame.m_GeneralPanel.getMixID();
 
-      if(mixid==null || mixid.length()==0)
+      if(oMixid==null || oMixid.length()==0)
       {
          javax.swing.JOptionPane.showMessageDialog(this,
                  MyFrame.m_GeneralPanel.getMixAuto().equals("True")?
                  "Please enter main incoming connection in the network panel.":
                  "Please enter Mix ID in general panel.",
                  "No Mix ID!", javax.swing.JOptionPane.ERROR_MESSAGE);
-          return;
+         return;
       }
 
-      ValidityDialog vdialog = new ValidityDialog(TheApplet.getMainWindow(), "Validity");
+      final ValidityDialog vdialog = new ValidityDialog(TheApplet.getMainWindow(), "Validity");
       vdialog.show();
       if(vdialog.from==null)
           return;
       PasswordBox dialog = new PasswordBox(TheApplet.getMainWindow(),"New Password",PasswordBox.NEW_PASSWORD);
       dialog.show();
-      char[] passwd=dialog.getPassword();
+      final char[] passwd=dialog.getPassword();
       if(passwd==null)
         return;
-      mixid=URLEncoder.encode(mixid);
-      X509V3CertificateGenerator gen=new X509V3CertificateGenerator();
-      gen.setSignatureAlgorithm("DSAWITHSHA1");
-      /*
-      gen.setNotBefore(new Date(System.currentTimeMillis()));
-      gen.setNotAfter(new Date(System.currentTimeMillis()+3600*1000*24*365 ));
-      */
-      gen.setNotBefore(vdialog.from.getDate());
-      gen.setNotAfter(vdialog.to.getDate());
-      gen.setIssuerDN(new X509Name("CN=<Mix id=\""+mixid+"\"/>"));
-      gen.setSubjectDN(new X509Name("CN=<Mix id=\""+mixid+"\"/>"));
-      gen.setSerialNumber(new BigInteger("1"));
+      final String mixid=URLEncoder.encode(oMixid);
 
-      try
+      final BusyWindow waitWindow = new BusyWindow( TheApplet.getMainWindow(),
+              "Generating Key Pair.");
+
+      SwingWorker worker = new SwingWorker()
       {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-        KeyPairGenerator kpg=KeyPairGenerator.getInstance("DSA","BC");
-        kpg.initialize(1024);
-        KeyPair kp=kpg.generateKeyPair();
-        gen.setPublicKey(kp.getPublic());
-        X509Certificate cert=gen.generateX509Certificate(kp.getPrivate());
-        //m_ownPubCert=cert.getEncoded();
+          public Object construct()
+          {
+              V3TBSCertificateGenerator v3certgen=new V3TBSCertificateGenerator();
+              v3certgen.setStartDate(new DERUTCTime(vdialog.from.getDate()));
+              v3certgen.setEndDate(new DERUTCTime(vdialog.to.getDate()));
+              v3certgen.setIssuer(new X509Name("CN=<Mix id=\""+mixid+"\"/>"));
+              v3certgen.setSubject(new X509Name("CN=<Mix id=\""+mixid+"\"/>"));
+              v3certgen.setSerialNumber(new DERInteger(1));
 
-        //PKCS12 generation
-        KeyStore kstore = KeyStore.getInstance("PKCS12","BC");
-        kstore.load(null, null);
+              try
+              {
+                  SecureRandom random = new SecureRandom();
+                  DSAParametersGenerator pGen = new DSAParametersGenerator();
+                  DSAKeyPairGenerator kpGen = new DSAKeyPairGenerator();
+                  pGen.init(1024,20,random);
+                  kpGen.init(new DSAKeyGenerationParameters(random, pGen.generateParameters()));
+                  final AsymmetricCipherKeyPair ackp = kpGen.generateKeyPair();
+                  DSAParameters dsaPars = ((DSAPrivateKeyParameters)ackp.getPrivate()).getParameters();
+                  final DSAParams dsaSpec = new DSAParameterSpec(dsaPars.getP(), dsaPars.getQ(), dsaPars.getG());
+                  final DERObject derParam = new DSAParameter(dsaPars.getP(), dsaPars.getQ(), dsaPars.getG()).getDERObject();
+                  KeyPair kp = new KeyPair(
+                      new DSAPublicKey()
+                      {
+                          public BigInteger getY() { return ((DSAPublicKeyParameters)ackp.getPublic()).getY(); }
+                          public DSAParams getParams() { return dsaSpec; }
+                          public String getAlgorithm() { return "DSA"; }
+                          public String getFormat() { return "X.509"; }
+                          public byte[] getEncoded()
+                          {
+                              ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+                              DEROutputStream dOut = new DEROutputStream(bOut);
+                              try
+                              {
+                                  dOut.writeObject(
+                                      new SubjectPublicKeyInfo(
+                                          new AlgorithmIdentifier(X9ObjectIdentifiers.id_dsa, derParam),
+                                          new DERInteger(getY())));
+                                  dOut.close();
+                              }
+                              catch(IOException e)
+                              {
+                                  throw new RuntimeException("IOException while encoding public key");
+                              }
+                              return bOut.toByteArray();
+                          }
+                      },
+                      new DSAPrivateKey()
+                      {
+                          public BigInteger getX() { return ((DSAPrivateKeyParameters)ackp.getPrivate()).getX(); }
+                          public DSAParams getParams() { return dsaSpec; }
+                          public String getAlgorithm() { return "DSA"; }
+                          public String getFormat() { return "PKCS#8"; }
+                          public byte[] getEncoded()
+                          {
+                              ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+                              DEROutputStream dOut = new DEROutputStream(bOut);
+                              try
+                              {
+                                  dOut.writeObject(
+                                      new PrivateKeyInfo(
+                                          new AlgorithmIdentifier(X9ObjectIdentifiers.id_dsa, derParam),
+                                          new DERInteger(getX())));
+                                  dOut.close();
+                              }
+                              catch(IOException e)
+                              {
+                                  throw new RuntimeException("IOException while encoding private key");
+                              }
+                              return bOut.toByteArray();
+                          }
+                      });
 
-        Certificate[] chain=new  Certificate[1];
-        chain[0] = cert;
-        kstore.setKeyEntry("<Mix id=\""+mixid+"\"/>",(Key)kp.getPrivate(),passwd, chain);
-        ByteArrayOutputStream out=new ByteArrayOutputStream();
+                  /*
+                  KeyPairGenerator kpg=KeyPairGenerator.getInstance("DSA");
+                  kpg.initialize(1024);
+                  KeyPair kp=kpg.generateKeyPair();
+                  */
 
-        //BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        //passwd = br.readLine();
-        kstore.store(out, passwd);
-        setOwnPrivCert(out.toByteArray(),passwd);
-      }
-      catch(Exception e)
-      {
-        System.out.println("Error in Key generation and storage!!");
-        e.printStackTrace();
-      }
+                  v3certgen.setSubjectPublicKeyInfo( new SubjectPublicKeyInfo((DERConstructedSequence)new DERInputStream(
+                                                    new ByteArrayInputStream(kp.getPublic().getEncoded())).readObject()));
+                  AlgorithmIdentifier algID=new AlgorithmIdentifier(X9ObjectIdentifiers.id_dsa_with_sha1);
+                  v3certgen.setSignature(algID);
+
+                  DSASigner signer = new DSASigner();
+                  SHA1Digest digest = new SHA1Digest();
+                  signer.init(true, ackp.getPrivate());
+
+                  /*
+                  Signature sig = Signature.getInstance("DSA");
+                  sig.initSign(kp.getPrivate());
+                  */
+
+                  TBSCertificateStructure tbsCert = v3certgen.generateTBSCertificate();
+                  ByteArrayOutputStream   bOut = new ByteArrayOutputStream();
+                  (new DEROutputStream(bOut)).writeObject(tbsCert);
+                  digest.update(bOut.toByteArray(),0,bOut.size());
+                  byte[] hash = new byte[digest.getDigestSize()];
+                  digest.doFinal(hash, 0);
+                  BigInteger[] sig = signer.generateSignature(hash);
+                  DEREncodableVector sigv = new DEREncodableVector();
+                  sigv.add(new DERInteger(sig[0]));
+                  sigv.add(new DERInteger(sig[1]));
+                  DERConstructedSequence seq=new DERConstructedSequence();
+                  seq.addObject(tbsCert);
+                  seq.addObject(algID);
+                  seq.addObject(new DERBitString(new DERSequence(sigv)));
+                  X509CertificateStructure x509cert=new  X509CertificateStructure(seq);
+
+                  //PKCS12 generation
+                  JDKPKCS12KeyStore store = new JDKPKCS12KeyStore(null);
+                  X509CertificateObject certobj=new X509CertificateObject(x509cert);
+                  Certificate[] chain=new Certificate[] {certobj};
+
+                  store.engineSetKeyEntry("<Mix id=\""+mixid+"\"/>",(Key) kp.getPrivate(), null, chain, kp.getPublic());
+                  ByteArrayOutputStream out=new ByteArrayOutputStream();
+                  store.engineStore(out,passwd,kp.getPublic());
+                  out.close();
+                  return out.toByteArray();
+              }
+              catch(Exception e)
+              {
+                  if(Thread.interrupted())
+                      return null;
+                   System.out.println("Error in Key generation and storage!!");
+                   e.printStackTrace();
+              }
+              return null;
+          }
+
+          public void finished()
+          {
+              Object cert = get();
+              if(cert!=null)
+                  setOwnPrivCert((byte[])cert, passwd);
+              waitWindow.dispose();
+          }
+      };
+      waitWindow.setSwingWorker(worker);
+      worker.start();
     }
 
   public void actionPerformed(ActionEvent ae)
   {
-
     if(ae.getActionCommand().equals("Create"))
     {
       generateNewCert();
@@ -1064,3 +1188,85 @@ class CertificatesPanel extends JPanel implements ActionListener
         return null;
       }
   }
+
+class BusyWindow extends javax.swing.JWindow implements ActionListener
+{
+    private SwingWorker sw;
+
+    public BusyWindow(Frame parent, String reason)
+    {
+        super(parent);
+        JPanel p = new JPanel();
+        p.setBorder(BorderFactory.createRaisedBevelBorder());
+        getContentPane().add(p);
+
+        GridBagLayout layout=new GridBagLayout();
+        p.setLayout(layout);
+
+        // Constraints for the labels
+        GridBagConstraints gbc=new GridBagConstraints();
+        gbc.anchor =GridBagConstraints.CENTER;
+        gbc.insets = new Insets(5,5,5,5);
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        JComponent label = new JLabel(reason);
+        gbc.gridx = 0;
+        gbc.weightx = 0;
+        layout.setConstraints(label, gbc);
+        p.add(label);
+        gbc.gridy++;
+        label = new JLabel("Please wait.");
+        layout.setConstraints(label, gbc);
+        p.add(label);
+        gbc.gridy++;
+        final java.awt.Image img = Toolkit.getDefaultToolkit().getImage("busy.gif");
+        MediaTracker mt = new MediaTracker(this);
+        mt.addImage(img,1);
+        try { mt.waitForAll(); } catch(Exception e) {}
+        JComponent imgComp = new JPanel()
+            {
+                public void paintComponent(Graphics g)
+                {
+                    g.drawImage(img,0,0, this);
+//                    super.paint(g);
+                }
+
+                public Dimension getPreferredSize()
+                {
+                    return new Dimension(img.getWidth(null), img.getHeight(null));
+                }
+            };
+        layout.setConstraints(imgComp, gbc);
+        p.add(imgComp);
+/* Funktioniert nicht. Der Abbruch wird irgendwo abgefangen.
+        gbc.gridy++;
+        JButton button = new JButton("Cancel");
+        button.addActionListener(this);
+        layout.setConstraints(button, gbc);
+        p.add(button);
+*/
+        this.pack();
+        Dimension d = parent.getSize();
+        Dimension d2 = this.getSize();
+        Point l = parent.getLocation();
+        this.setLocation(l.x+(d.width-d2.width)/2, l.y+(d.height-d2.height)/2);
+        this.setVisible(true);
+    }
+
+    public void update(Graphics g)
+    {
+       paint(g);
+       System.out.print("Update called\n");
+    }
+
+    public void setSwingWorker(SwingWorker s)
+    {
+        sw = s;
+    }
+
+    public void actionPerformed(ActionEvent ev)
+    {
+        if(sw!=null)
+            sw.interrupt();
+    }
+}
