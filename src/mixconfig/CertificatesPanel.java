@@ -179,7 +179,7 @@ public class CertificatesPanel extends MixConfigPanel implements ChangeListener,
 				}
 			}
 		}
-		catch (IOException ioe)
+		catch (Exception ioe)
 		{
 			// Needs JDK 1.4+
 			// throw new RuntimeException(ioe);
