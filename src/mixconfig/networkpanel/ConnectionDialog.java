@@ -31,6 +31,12 @@ abstract class ConnectionDialog extends JDialog
 
 		protected ConnectionData getData()
 			{
+				boolean bHidden=false;
+				boolean bVirtual=false;
+				if(m_checkboxVirtual!=null&&m_checkboxVirtual.isSelected())
+					bVirtual=true;
+				if(m_checkboxHidden!=null&&m_checkboxHidden.isSelected())
+					bHidden=true;
 				if(m_bttngrpType.getSelection().getActionCommand().equals("TCP"))
 					{
 						int[] ips = new int[4];
@@ -51,8 +57,8 @@ abstract class ConnectionDialog extends JDialog
 																		ips,
 																		(iptext[4].getText().length()==0)?0:Integer.parseInt(iptext[4].getText(),10),
 																		0,
-																		m_checkboxVirtual.isSelected(),
-																		m_checkboxHidden.isSelected());
+																		bVirtual,
+																		bHidden);
 					}
 				else
 					return new ConnectionData(getType(),
