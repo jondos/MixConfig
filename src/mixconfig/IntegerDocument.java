@@ -41,28 +41,28 @@ public class IntegerDocument extends PlainDocument {
 		int max;
 		Component which;
 
-		IntegerDocument(int maxval, Component comp)
+		public IntegerDocument(int maxval, Component comp)
 		{
 						super();
 						max = maxval;
 						which = comp;
 		}
 
-		IntegerDocument(int maxval)
+		public IntegerDocument(int maxval)
 		{
 						super();
 						max = maxval;
 						which = null;
 		}
 
-		IntegerDocument()
+		public IntegerDocument()
 		{
 						super();
 						max = 0;
 						which = null;
 		}
 
-		IntegerDocument(Component comp)
+		public IntegerDocument(Component comp)
 		{
 						super();
 						max = 0;
