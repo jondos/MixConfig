@@ -169,17 +169,31 @@
 
 </Description>
 
-<Accounting> <!-- if payment is enabled-->
+<Accounting>
+	<!-- This section contains the configuration for the accounting instance (payment functionality). -->
+
 	<PaymentInstance>
-		<Host/>
-		<Port/>
+		<!-- For the payment functionality to work, the accounting instance needs to connect to
+			the JPI (Java Payment Instance) to settle cost confirmations -->
+		<Host><!-- Hostname or IP(v4) Address --></Host>
+			<!-- The Hostname or IP Address of the JPI -->
+		<Port><!-- Port number --></Port>
+			<!-- The TCP Port Number of the JPI -->
 	</PaymentInstance>
+
 	<Database>
-		<Host/>
-		<Port/>
-		<DBName/>
-		<Username/>
+		<!-- The accounting instance needs to connect to a PostgresQL server to store cost
+			confirmations and some other data which must be stored persistent -->
+		<Host><!-- Hostname or IP(v4) Address --></Host>
+			<!-- The Hostname or IP Address of the PostgresQL server -->
+		<Port><!-- Port number --></Port>
+			<!-- The TCP Port Number of the PostgresQL server -->
+		<DBName><!-- Database name --></DBName>
+			<!-- The name of the database that should be used -->
+		<Username><!-- Database Username -->/Username>
+			<!-- The PostgresQL user name -->
 	</Database>
+
 </Accounting>
 
 </MixConfiguration>
