@@ -1,293 +1,330 @@
 package mixconfig.networkpanel;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+
 final public class ConnectionData
-{
-    private int transport;
-    private String name;
-    private int[] ipaddr;
-    private int port;
-    private String type; // Name of the XML element
-    private int flags;
+	{
+		public static final int TRANSPORT = 1; // Bit mask
+		public static final int TCP = 0;
+		public static final int UNIX = 1;
+		public static final int RAW = 0;
+		public static final int SSL = 2;
+		public static final int RAW_TCP = RAW|TCP;
+		public static final int RAW_UNIX = RAW|UNIX;
+		public static final int SSL_TCP = SSL|TCP;
+		public static final int SSL_UNIX = SSL|UNIX;
 
-                public static final int TRANSPORT = 1; // Bit mask
-    public static final int TCP = 0;
-    public static final int UNIX = 1;
-    public static final int RAW = 0;
-    public static final int SSL = 2;
-    public static final int RAW_TCP = RAW|TCP;
-    public static final int RAW_UNIX = RAW|UNIX;
-    public static final int SSL_TCP = SSL|TCP;
-    public static final int SSL_UNIX = SSL|UNIX;
+		public static final int PROXY_MASK = 3;
 
-    public static final int PROXY_MASK = 3;
+		public static final int NO_PROXY = 0;
+		public static final int HTTP_PROXY = 1;
+		public static final int SOCKS_PROXY = 2;
 
-    public static final int NO_PROXY = 0;
-    public static final int HTTP_PROXY = 1;
-    public static final int SOCKS_PROXY = 2;
+		private int m_iTransport;
+		private String m_strHostname;
+		private int[] m_arIPAddr;
+		private int m_iPort;
+		private String m_strXMLNodeName; // Name of the XML element
+		private int m_iFlags;
+		private boolean m_bIsVirtual=false;
+		private boolean m_bIsHidden=false;
 
-    void setFlags(int f)
-    {
-        flags = f;
-    }
+		ConnectionData(String x, int t, String n, int[] addr, int p)
+			{
+				setType(x);
+				setTransport(t);
+				setName(n);
+				setIPAddr(addr);
+				setPort(p);
+				setFlags(0);
+				setIsVirtual(false);
+				setIsHidden(false);
+			}
 
-    int getFlags()
-    {
-        return flags;
-    }
+		ConnectionData(String x, int t, String n, String addr, int p, int f,boolean virtual,boolean hidden)
+			{
+				setType(x);
+				setTransport(t);
+				setName(n);
+				setIPAddr(addr);
+				setPort(p);
+				setFlags(f);
+				setIsVirtual(virtual);
+				setIsHidden(hidden);
+			}
 
-    void setType(String t)
-    {
-        type = t;
-    }
+		ConnectionData(String x, int t, String n, int[] addr, int p, int f,boolean virtual,boolean hidden)
+			{
+				setType(x);
+				setTransport(t);
+				setName(n);
+				setIPAddr(addr);
+				setPort(p);
+				setFlags(f);
+				setIsVirtual(virtual);
+				setIsHidden(hidden);
+			}
 
-    String getType()
-    {
-        return type;
-    }
+		ConnectionData(String x, int t, String n, int f)
+			{
+				setType(x);
+				setTransport(t);
+				setName(n);
+				m_arIPAddr = null;
+				setPort(0);
+				setFlags(f);
+				setIsVirtual(false);
+				setIsHidden(false);
+			}
 
-    void setTransport(int t)
-    {
-        transport = t;
-    }
+		ConnectionData(String x, int t, String n)
+			{
+				setType(x);
+				setTransport(t);
+				setName(n);
+				m_arIPAddr = null;
+				setPort(0);
+				setFlags(0);
+				setIsVirtual(false);
+				setIsHidden(false);
+			}
 
-    public int getTransport()
-    {
-        return transport;
-    }
+		ConnectionData deepClone()
+			{
+				return new ConnectionData(m_strXMLNodeName, m_iTransport, m_strHostname, m_arIPAddr, m_iPort, m_iFlags,m_bIsVirtual,m_bIsHidden);
+			}
 
-    void setName(String n)
-    {
-        name = n;
-    }
+		void setFlags(int f)
+			{
+				m_iFlags = f;
+			}
 
-    public String getName()
-    {
-        return name;
-    }
+		int getFlags()
+			{
+				return m_iFlags;
+			}
 
-    void setIPAddr(int[] addr)
-    {
-        if(addr==null)
-            ipaddr = null;
-        else
-            ipaddr = (int[])addr.clone();
-    }
+		void setType(String t)
+			{
+				m_strXMLNodeName = t;
+			}
 
-    void setIPAddr(String addr)
-    {
-        if(addr==null)
-        {
-            ipaddr = null;
-            return;
-        }
-        int idx = 0;
-        int[] myaddr = new int[4];
+		String getType()
+			{
+				return m_strXMLNodeName;
+			}
 
-        for(int i=0;i<4;i++)
-        {
-            int newidx = (i==3)?addr.length():addr.indexOf('.',idx);
-            myaddr[i] = Integer.parseInt(addr.substring(idx,newidx),10);
-            idx = newidx+1;
-        }
-        ipaddr = myaddr;
-    }
+		void setTransport(int t)
+			{
+				m_iTransport = t;
+			}
 
-    int[] getIPAddr()
-    {
-        return ipaddr;
-//        return (ipaddr==null)?null:((int[])ipaddr.clone());
-    }
+		public int getTransport()
+			{
+				return m_iTransport;
+			}
 
-    void setPort(int p)
-    {
-        port = p;
-    }
+		void setName(String n)
+			{
+				m_strHostname = n;
+			}
 
-    public int getPort()
-    {
-        return port;
-    }
+		public String getName()
+			{
+				return m_strHostname;
+			}
 
-    ConnectionData(String x, int t, String n, int[] addr, int p)
-    {
-        setType(x);
-        setTransport(t);
-        setName(n);
-        setIPAddr(addr);
-        setPort(p);
-        setFlags(0);
-    }
+		void setIPAddr(int[] addr)
+			{
+				if(addr==null)
+						m_arIPAddr = null;
+				else
+						m_arIPAddr = (int[])addr.clone();
+			}
 
-    ConnectionData(String x, int t, String n)
-    {
-        setType(x);
-        setTransport(t);
-        setName(n);
-        ipaddr = null;
-        setPort(0);
-        setFlags(0);
-    }
+		void setIPAddr(String addr)
+			{
+				if(addr==null)
+					{
+						m_arIPAddr = null;
+						return;
+					}
+				int idx = 0;
+				int[] myaddr = new int[4];
 
-    ConnectionData(String x, int t, String n, String addr, int p)
-    {
-        setType(x);
-        setTransport(t);
-        setName(n);
-        setIPAddr(addr);
-        setPort(p);
-        setFlags(0);
-    }
+				for(int i=0;i<4;i++)
+				{
+						int newidx = (i==3)?addr.length():addr.indexOf('.',idx);
+						myaddr[i] = Integer.parseInt(addr.substring(idx,newidx),10);
+						idx = newidx+1;
+				}
+				m_arIPAddr = myaddr;
+		}
 
-    ConnectionData(String x, int t, String n, int[] addr, int p, int f)
-    {
-        setType(x);
-        setTransport(t);
-        setName(n);
-        setIPAddr(addr);
-        setPort(p);
-        setFlags(f);
-    }
+		int[] getIPAddr()
+			{
+				return m_arIPAddr;
+			}
 
-    ConnectionData(String x, int t, String n, int f)
-    {
-        setType(x);
-        setTransport(t);
-        setName(n);
-        ipaddr = null;
-        setPort(0);
-        setFlags(f);
-    }
+		void setPort(int p)
+			{
+				m_iPort = p;
+			}
 
-    ConnectionData(String x, int t, String n, String addr, int p, int f)
-    {
-        setType(x);
-        setTransport(t);
-        setName(n);
-        setIPAddr(addr);
-        setPort(p);
-        setFlags(f);
-    }
+		public int getPort()
+			{
+				return m_iPort;
+			}
 
-    ConnectionData deepClone()
-    {
-        return new ConnectionData(type, transport, name, ipaddr, port, flags);
-    }
+		void setIsHidden(boolean b)
+			{
+				m_bIsHidden=b;
+			}
 
-    org.w3c.dom.Element createAsElement(org.w3c.dom.Document doc)
-    {
-        org.w3c.dom.Element iface = doc.createElement(type);
-        org.w3c.dom.Element data;
-        if((flags&PROXY_MASK)!=NO_PROXY)
-        {
-            data = doc.createElement("ProxyType");
-            data.appendChild(doc.createTextNode(((flags&PROXY_MASK)==HTTP_PROXY)?"HTTP":"SOCKS"));
-            iface.appendChild(data);
-        }
-        data = doc.createElement("NetworkProtocol");
-        data.appendChild(doc.createTextNode(
-                (((transport&SSL)==0)?"RAW/":"SSL/")+
-                (((transport&UNIX)==0)?"TCP":"UNIX")));
-        iface.appendChild(data);
-        if((transport&UNIX)==0) // TCP?
-        {
-            data = doc.createElement("Host");
-            data.appendChild(doc.createTextNode(name));
-            iface.appendChild(data);
-            if(ipaddr!=null)
-            {
-                data = doc.createElement("IP");
-                data.appendChild(doc.createTextNode(
-                        ipaddr[0]+"."+ipaddr[1]+"."+ipaddr[2]+"."+ipaddr[3]));
-                iface.appendChild(data);
-            }
-            data = doc.createElement("Port");
-            data.appendChild(doc.createTextNode(String.valueOf(port)));
-            iface.appendChild(data);
-        }
-        else // UNIX?
-        {
-            data = doc.createElement("File");
-            data.appendChild(doc.createTextNode(name));
-            iface.appendChild(data);
-        }
-        return iface;
-    }
+		public boolean isHidden()
+			{
+				return m_bIsHidden;
+			}
 
-    static private String elementData(org.w3c.dom.Element iface, String name)
-    {
-        org.w3c.dom.Node node;
-        String data = null;
-        org.w3c.dom.NodeList nlist = iface.getElementsByTagName(name);
-        if(nlist.getLength()==0 || (node=nlist.item(0)).getNodeType()!=org.w3c.dom.Node.ELEMENT_NODE)
-            return null;
-        node = ((org.w3c.dom.Element)node).getFirstChild();
-        while(node!=null)
-        {
-            if(node.getNodeType()==Node.TEXT_NODE)
-            {
-                data = ((org.w3c.dom.Text)node).getData();
-                break;
-            }
-        }
-        return data;
-    }
+		void setIsVirtual(boolean b)
+			{
+				m_bIsVirtual=b;
+			}
 
-    static ConnectionData createFromElement(String t, org.w3c.dom.Element iface)
-    {
-      try{
-        if(!iface.getTagName().equals(t))
-            return null;
+		public boolean isVirtual()
+			{
+				return m_bIsVirtual;
+			}
 
-        int trans, ptype;
-        String n, ip=null, data;
-        int p=0;
+		Element createAsElement(Document docOwner)
+			{
+				Element elemRoot = docOwner.createElement(m_strXMLNodeName);
+				Element data;
+				if(isHidden())
+					elemRoot.setAttribute("hidden","True");
+				if(isVirtual())
+					elemRoot.setAttribute("virtual","True");
+				if((m_iFlags&PROXY_MASK)!=NO_PROXY)
+					{
+						data = docOwner.createElement("ProxyType");
+						data.appendChild(docOwner.createTextNode(((m_iFlags&PROXY_MASK)==HTTP_PROXY)?"HTTP":"SOCKS"));
+						elemRoot.appendChild(data);
+					}
+				data = docOwner.createElement("NetworkProtocol");
+				data.appendChild(docOwner.createTextNode(
+								(((m_iTransport&SSL)==0)?"RAW/":"SSL/")+
+								(((m_iTransport&UNIX)==0)?"TCP":"UNIX")));
+				elemRoot.appendChild(data);
+				if((m_iTransport&UNIX)==0) // TCP?
+				{
+						data = docOwner.createElement("Host");
+						data.appendChild(docOwner.createTextNode(m_strHostname));
+						elemRoot.appendChild(data);
+						if(m_arIPAddr!=null)
+						{
+								data = docOwner.createElement("IP");
+								data.appendChild(docOwner.createTextNode(
+												m_arIPAddr[0]+"."+m_arIPAddr[1]+"."+m_arIPAddr[2]+"."+m_arIPAddr[3]));
+								elemRoot.appendChild(data);
+						}
+						data = docOwner.createElement("Port");
+						data.appendChild(docOwner.createTextNode(String.valueOf(m_iPort)));
+						elemRoot.appendChild(data);
+				}
+				else // UNIX?
+				{
+						data = docOwner.createElement("File");
+						data.appendChild(docOwner.createTextNode(m_strHostname));
+						elemRoot.appendChild(data);
+				}
+				return elemRoot;
+		}
 
-  data = elementData(iface, "ProxyType");
-  if(data == null)
-      ptype = NO_PROXY;
-  else if(data.equalsIgnoreCase("HTTP"))
-      ptype = HTTP_PROXY;
-  else
-      ptype = SOCKS_PROXY;
-        data = elementData(iface, "NetworkProtocol");
-        if(data.equalsIgnoreCase("RAW/UNIX"))
-            trans = RAW_UNIX;
-        else if(data.equalsIgnoreCase("RAW/TCP"))
-            trans = RAW_TCP;
-        else if(data.equalsIgnoreCase("SSL/UNIX"))
-            trans = SSL_UNIX;
-        else if(data.equalsIgnoreCase("SSL/TCP"))
-            trans = SSL_TCP;
-        else if(elementData(iface, "File")!=null)
-            trans = RAW_UNIX;
-        else
-            trans = RAW_TCP;
-        if((trans&UNIX)==0)
-        {
-            n = elementData(iface, "Host");
-            if(n==null)
-                n = "";
-            ip = elementData(iface, "IP");
-            data = elementData(iface, "Port");
-            if(data==null)
-                p = 0;
-            else
-                p = Integer.parseInt(data);
-            return new ConnectionData(t, trans, n, ip, p, ptype);
-        }
-        else
-        {
-            n = elementData(iface, "File");
-            if(n==null)
-                n = "";
-            return new ConnectionData(t, trans, n, ptype);
-        }
-      }
-      catch(Exception e)
-      {
-        System.out.println("Network interface not set");
-        return null;
-      }
-        }
+		static private String elementData(Element iface, String name)
+		{
+				Node node;
+				String data = null;
+				NodeList nlist = iface.getElementsByTagName(name);
+				if(nlist.getLength()==0 || (node=nlist.item(0)).getNodeType()!=org.w3c.dom.Node.ELEMENT_NODE)
+						return null;
+				node = ((Element)node).getFirstChild();
+				while(node!=null)
+				{
+						if(node.getNodeType()==Node.TEXT_NODE)
+						{
+								data = ((org.w3c.dom.Text)node).getData();
+								break;
+						}
+				}
+				return data;
+		}
+
+		static ConnectionData createFromElement(String t, Element elemRoot)
+		{
+			try{
+				if(!elemRoot.getTagName().equals(t))
+						return null;
+
+				int trans, ptype;
+				String n, ip=null, data;
+				int p=0;
+				boolean hidden=false,virtual=false;
+				String tmp=elemRoot.getAttribute("hidden");
+				if(tmp!=null&&tmp.equals("True"))
+					hidden=true;
+				tmp=elemRoot.getAttribute("virtual");
+				if(tmp!=null&&tmp.equals("True"))
+					virtual=true;
+
+	data = elementData(elemRoot, "ProxyType");
+	if(data == null)
+			ptype = NO_PROXY;
+	else if(data.equalsIgnoreCase("HTTP"))
+			ptype = HTTP_PROXY;
+	else
+			ptype = SOCKS_PROXY;
+				data = elementData(elemRoot, "NetworkProtocol");
+				if(data.equalsIgnoreCase("RAW/UNIX"))
+						trans = RAW_UNIX;
+				else if(data.equalsIgnoreCase("RAW/TCP"))
+						trans = RAW_TCP;
+				else if(data.equalsIgnoreCase("SSL/UNIX"))
+						trans = SSL_UNIX;
+				else if(data.equalsIgnoreCase("SSL/TCP"))
+						trans = SSL_TCP;
+				else if(elementData(elemRoot, "File")!=null)
+						trans = RAW_UNIX;
+				else
+						trans = RAW_TCP;
+				if((trans&UNIX)==0)
+				{
+						n = elementData(elemRoot, "Host");
+						if(n==null)
+								n = "";
+						ip = elementData(elemRoot, "IP");
+						data = elementData(elemRoot, "Port");
+						if(data==null)
+								p = 0;
+						else
+								p = Integer.parseInt(data);
+						return new ConnectionData(t, trans, n, ip, p, ptype,virtual,hidden);
+				}
+				else
+				{
+						n = elementData(elemRoot, "File");
+						if(n==null)
+								n = "";
+						return new ConnectionData(t, trans, n, ptype);
+				}
+			}
+			catch(Exception e)
+			{
+				System.out.println("Network interface not set");
+				return null;
+			}
+				}
 }

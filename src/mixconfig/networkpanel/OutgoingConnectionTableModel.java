@@ -2,7 +2,7 @@ package mixconfig.networkpanel;
 
 import org.w3c.dom.Node;
 
-final public class OutgoingModel extends ConnectionModel
+final public class OutgoingConnectionTableModel extends ConnectionTableModel
 {
     private static final String[] columnNames =
             {"No.", "Type", "Transport", "Host / FileName",

@@ -1,7 +1,7 @@
 package mixconfig.networkpanel;
 
 import javax.swing.table.AbstractTableModel;
-abstract public class ConnectionModel extends AbstractTableModel
+abstract public class ConnectionTableModel extends AbstractTableModel
 {
     private ConnectionData[] rows = new ConnectionData[0];
 
