@@ -907,8 +907,8 @@ public class ConfigFrame extends JPanel implements ActionListener
 						e1 = doc.createElement("X509Certificate");
 						e.appendChild(e1);
 						t = doc.createTextNode(Base64.encode(cert, true));
-						e1.setAttribute("xml:space", "preserve");
 						e1.appendChild(t);
+						e1.setAttribute("xml:space", "preserve");
 					}
 				}
 			}
