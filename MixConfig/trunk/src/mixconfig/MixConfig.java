@@ -79,7 +79,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.02.029"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.02.031"; //NEVER change the layout of this line!!
 
 	private static final String m_configFilePath = ".";
 	private static final String TITLE = "Mix Configuration Tool";
@@ -98,15 +98,6 @@ public class MixConfig extends JApplet
 			JFrame MainWindow = new JFrame();
 			m_MainWindow = MainWindow;
 
-			// evaluation of command line parameters
-			// two parameters are possible: --no-wizard and/or a file name.
-			// - the file parameter specifies the config file. If
-			//   no parameter is given, a default config file path is assumed
-			// - if the file does not exist, the config program is started with
-			//   the wizard interface, otherwise with the normal interface.
-			// - the user may force the start in the normal interface by specifying
-			//   the --no-wizard parameter
-
 			setCurrentFileName(null);
 
 			boolean force_no_wizard = false;
@@ -115,39 +106,58 @@ public class MixConfig extends JApplet
 			for (int i = 0; i < argv.length; i++)
 			{
 				if (argv[i].equals("--no-wizard"))
-			{
+				{
 					force_no_wizard = true;
 				}
 				if (argv[i].equals("--wizard"))
 				{
 					force_wizard = true;
-			}
-			else
-			{
+				}
+				if (argv[i].equals("--help"))
+				{
+					usage();
+					System.exit(0);
+				}
+				else
+				{
 					setCurrentFileName(argv[i]);
 				}
 			}
 
-			if (m_currentFileName == null)
+			if (m_currentFileName != null)
 			{
-				setCurrentFileName(m_configFilePath + File.separatorChar + "MixConfig.xml");
-			}
+				f = new File(m_currentFileName);
 
-			f = new File(m_currentFileName);
-
-			if (f != null && f.exists())
-			{
-				m_mixConfiguration = new MixConfiguration(new FileReader(f));
+				if (f != null && f.exists())
+				{
+					m_mixConfiguration = new MixConfiguration(new FileReader(f));
+				}
+				else
+				{
+					String message[] =
+						{
+						"The configuration file ",
+						m_currentFileName,
+						"does not exist.",
+						"Would you like to start the wizard interface to create it?"
+					};
+					m_mixConfiguration = new MixConfiguration();
+					if (force_no_wizard)
+					{
+						showWizard = false;
+					}
+					else if (force_wizard)
+					{
+						showWizard = true;
+					}
+					else
+					{
+						showWizard = ask("Create new configuration", message);
+					}
+				}
 			}
 			else
 			{
-				String message[] =
-					{
-					"The configuration file ",
-					m_currentFileName,
-					"does not exist.",
-					"Would you like to start the wizard interface to create it?"
-				};
 				m_mixConfiguration = new MixConfiguration();
 				if (force_no_wizard)
 				{
@@ -159,6 +169,12 @@ public class MixConfig extends JApplet
 				}
 				else
 				{
+					String message[] =
+						{
+						"Would you like to start the wizard interface to create a new " +
+						"configuration?"
+					};
+
 					showWizard = ask("Create new configuration", message);
 				}
 			}
@@ -207,6 +223,30 @@ public class MixConfig extends JApplet
 		{
 			MixConfig.handleException(e);
 		}
+	}
+
+	/**
+	 * Displays a short help message about available command line options for this class.
+	 */
+	public static void usage()
+	{
+		String message[] =
+			{
+			"Usage: java -cp <classpath> mixconfig.MixConfig [options] [configfilename]",
+			"where options is one of",
+			"--wizard     Always start with wizard interface, don't ask",
+			"--no-wizard  Never start with wizard interface, don't ask",
+			"--help       Show this message and exit",
+			"",
+			"If no option is given, and no file name is given or the specified file",
+			"does not exist, the user is asked whether to use the wizard interface",
+			"or the standard interface."
+		};
+		for (int i = 0; i < message.length; i++)
+		{
+			System.out.println(message[i]);
+		}
+		MixConfig.info("Usage", message);
 	}
 
 	public void init() // For the applet.
