@@ -16,7 +16,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,7 +36,6 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
     private String m_urlString;
     private JLabel map;
     private JSlider s;
-    private JPanel p;
 
     public MapBox(Frame parent,String lat,String lon,int level) throws Exception
     {
@@ -220,10 +218,7 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
 
     public void setPosition(String lati,String longi) throws Exception
       {
-        double lat=Double.valueOf(lati).doubleValue();
-        double lon=Double.valueOf(longi).doubleValue();
-
-        BufferedInputStream bissmall,bisbig;
+        BufferedInputStream bissmall;
         String Title = "";
         try
           {
@@ -233,7 +228,7 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
             URL urlsmall = new URL(site);
             bissmall = new BufferedInputStream(urlsmall.openStream(),500);
 
-            int i = 0,j = 0;
+            int j = 0;
             char small[] = {'i','z','e','=','b','i','g'};
 
             while(true)
