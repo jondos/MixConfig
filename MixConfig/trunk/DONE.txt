@@ -46,3 +46,4 @@ bekommen (welches format soll da rein), oder sollten weg.
  nix. 
  -> Bei Applets deaktiviert
  
+*build.xml sollte die JARs evntl. aus dem Netz holen.

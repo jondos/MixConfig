@@ -1,29 +1,83 @@
 <?xml version="1.0"?>
-<!-- This build.xml requires the bouncycastle- and xml-JARs in a directory ./jar -->
+<!-- 
+  The following packages should by in the classpath:
+    - Ant (http://ant.apache.org/)
+    - GenJar (http://genjar.sourceforge.net/)
+    - Java Compiler (In Java 1.4.1 lib/tools.jar of the JDK)
+  
+  This build.xml automatically downloads the JARs of Xerces and
+  BouncyCastle into the 'jars' directory.
+-->
 <project name="MixConfig" default="jar" basedir=".">
-  <taskdef name="genjar" classname="org.apache.tools.ant.taskdefs.optional.genjar.GenJar"/>
   <property name="build.dir" value="classes"/>
   <property name="src.dir" value="src"/>
   <property name="incjars.dir" value="jars"/>
   <property name="jar.dir" value="."/>
   <property name="app.jar" value="MixConfig.jar"/>
   <property environment="env"/>
+  
   <path id="class.path">
     <fileset dir="${incjars.dir}">
       <include name="*.jar"/>
     </fileset>
     <pathelement location="${build.dir}"/>
   </path>
-  <target name="init">
+
+  <target name="get.xerces" unless="xerces.present">
+    <mkdir dir="${incjars.dir}"/>
+    <mkdir dir="${incjars.dir}/tmp"/>
+    <get src="http://xml.apache.org/dist/xerces-j/Xerces-J-bin.2.4.0.zip" dest="${incjars.dir}/tmp/xerces.zip" verbose="true"/>
+    <unzip src="${incjars.dir}/tmp/xerces.zip" dest="${incjars.dir}/tmp">
+      <patternset>
+        <include name="**/xercesImpl.jar" />
+        <include name="**/xml-apis.jar" />
+      </patternset>
+    </unzip>
+    <move todir="${incjars.dir}" flatten="true">
+      <fileset dir="${incjars.dir}/tmp">
+        <include name="**/xercesImpl.jar" />
+        <include name="**/xml-apis.jar" />
+      </fileset>
+    </move>
+    <delete dir="${incjars.dir}/tmp"/>
+  </target>
+  <target name="get.lcrypto" unless="lcrypto.present">
+    <mkdir dir="${incjars.dir}"/>
+    <mkdir dir="${incjars.dir}/tmp"/>
+    <get src="http://www.bouncycastle.org/download/lcrypto-jdk11-119.zip" dest="${incjars.dir}/tmp/lcrypto.zip" verbose="true"/>
+    <unzip src="${incjars.dir}/tmp/lcrypto.zip" dest="${incjars.dir}/tmp">
+      <patternset>
+        <include name="**/classes/**" />
+      </patternset>
+    </unzip>
+    <move todir="${incjars.dir}/tmp/lclasses">
+      <fileset dir="${incjars.dir}/tmp">
+        <include name="**/classes/**" />
+      </fileset>
+      <mapper type="regexp" from="^.*/classes/(.*)$$" to="\1"/>
+    </move>
+    <jar destfile="${incjars.dir}/lcrypto.jar" basedir="${incjars.dir}/tmp/lclasses"/>
+    <delete dir="${incjars.dir}/tmp"/>
+  </target>
+  
+  <target name="check">
+    <available file="${incjars.dir}/xercesImpl.jar" property="xerces.present"/>
+    <available file="${incjars.dir}/lcrypto.jar" property="lcrypto.present"/>
+  </target>
+  
+  <target name="init" depends="check,get.xerces,get.lcrypto">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${jar.dir}"/>
   </target>
+
   <target name="compile" depends="init">
     <javac srcdir="${src.dir}" destdir="${build.dir}">
       <classpath refid="class.path"/>
     </javac>
   </target>
+  
   <target name="jar" depends="init,compile">
+    <taskdef name="genjar" classname="org.apache.tools.ant.taskdefs.optional.genjar.GenJar"/>
     <genjar jarfile="${jar.dir}/${app.jar}">
       <class name="mixconfig.MixConfig"/>
       <class name="org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"/>
