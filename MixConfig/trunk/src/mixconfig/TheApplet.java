@@ -47,7 +47,7 @@ class MyFrame extends JPanel implements ActionListener
     private JMenuItem saveMenuItem,saveclipItem;
 
     protected static GeneralPanel m_GeneralPanel;
-    private static NetworkPanel m_NetworkPanel;
+    protected static NetworkPanel m_NetworkPanel;
     private static CertificatesPanel m_CertificatesPanel;
     private static DescriptionPanel m_DescriptionPanel;
 
@@ -66,6 +66,7 @@ class MyFrame extends JPanel implements ActionListener
       JMenuItem exitMenuItem = new JMenuItem("Exit");
       JMenuItem openMenuItem = new JMenuItem("Open...");
       JMenuItem openclipItem = new JMenuItem("Open Using Clip Board");
+      JMenuItem checkItem = new JMenuItem("Check");
       saveMenuItem = new JMenuItem("Save [none]");
       saveclipItem = new JMenuItem("Save Using Clip Board");
       JMenuItem saveAsMenuItem = new JMenuItem("Save as...");
@@ -74,6 +75,7 @@ class MyFrame extends JPanel implements ActionListener
       exitMenuItem.addActionListener(this);
       openMenuItem.addActionListener(this);
       openclipItem.addActionListener(this);
+      checkItem.addActionListener(this);
       saveMenuItem.addActionListener(this);
       saveclipItem.addActionListener(this);
       saveAsMenuItem.addActionListener(this);
@@ -83,6 +85,7 @@ class MyFrame extends JPanel implements ActionListener
       openMenuItem.setActionCommand("Open");
       saveclipItem.setActionCommand("SaveClip");
       openclipItem.setActionCommand("OpenClip");
+      checkItem.setActionCommand("Check");
       saveMenuItem.setActionCommand("Save");
       saveAsMenuItem.setActionCommand("SaveAs");
       saveMenuItem.setEnabled(false);
@@ -92,6 +95,7 @@ class MyFrame extends JPanel implements ActionListener
       fileMenu.add(openMenuItem);
       fileMenu.add(openclipItem);
       fileMenu.addSeparator();
+      fileMenu.add(checkItem);
       fileMenu.add(saveMenuItem);
       fileMenu.add(saveAsMenuItem);
       fileMenu.add(saveclipItem);
@@ -139,49 +143,114 @@ class MyFrame extends JPanel implements ActionListener
           //dispose();
           System.exit(0);
       }
+      else if(evt.getActionCommand().equals("Check"))
+      {
+          String[] msg = check();
+          if(msg!=null && msg.length>0)
+              JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+                      msg, "Errors", JOptionPane.INFORMATION_MESSAGE);
+          else
+              JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+                      "No errors found.", "Check", JOptionPane.INFORMATION_MESSAGE);
+      }
       else if(evt.getActionCommand().equals("Save"))
       {
-          if(m_aktFileName!= null && check())
+          if(m_aktFileName!= null)
               save(m_aktFileName);
       }
       else if(evt.getActionCommand().equals("SaveAs"))
       {
-          //if(check())
+          try
           {
-              try
+              File file = TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_XML).getSelectedFile();
+              if(file!=null)
               {
-                  File file = TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_XML).getSelectedFile();
-                  if(file!=null)
-                  {
-                      save(file.getCanonicalPath());
-                      saveMenuItem.setText("Save ["+file.getName()+"] ");
-                      saveMenuItem.setEnabled(true);
-                      m_aktFileName=file.getCanonicalPath();
-                      setTitle(TITLE+" - "+m_aktFileName);
-                  }
+                  save(file.getCanonicalPath());
+                  saveMenuItem.setText("Save ["+file.getName()+"] ");
+                  saveMenuItem.setEnabled(true);
+                  m_aktFileName=file.getCanonicalPath();
+                  setTitle(TITLE+" - "+m_aktFileName);
               }
-              catch(Exception e){};
           }
+          catch(Exception e){};
       }
       else if(evt.getActionCommand().equals("OpenClip"))
       {
+          Clipboard cb = null;
+          try
+          {
+              cb = (Clipboard) getToolkit().getClass().getMethod("getSystemSelection", new Class[] {}).invoke(getToolkit(),new Object[] {});
+          }
+          catch(Exception ex) {}
+          if(cb == null)
+              cb = getToolkit().getSystemClipboard();
+          Transferable data = cb.getContents(this);
+          if(data==null)
+              JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+                  "There is no data in the clipboard.", "Open",
+                  JOptionPane.ERROR_MESSAGE);
+          else if(data.isDataFlavorSupported(DataFlavor.stringFlavor))
+          {
+              String text = null;
+              try
+              {
+                  text = (String)data.getTransferData(DataFlavor.stringFlavor);
+                  JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+                      text, "Open",
+                      JOptionPane.INFORMATION_MESSAGE);
+              }
+              catch(java.io.IOException ex)
+              {
+                  JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+                      "Can't read clipboard data.", "Open",
+                      JOptionPane.ERROR_MESSAGE);
+              }
+              catch(UnsupportedFlavorException ex)
+              {
+                  JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+                      "Can't read clipboard data as text.", "Open",
+                      JOptionPane.ERROR_MESSAGE);
+              }
+              finally
+              {
+                  if(text != null)
+                      open_internal(text.getBytes());
+              }
+          }
+          else
+              JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+                  "There is no text in the clipboard.", "Open",
+                  JOptionPane.ERROR_MESSAGE);
+          /*
           ClipFrame Open = new ClipFrame("Paste a file to be opened in the area provided.",true);
           open_internal(Open.getText().getBytes());
+          */
       }
       else if(evt.getActionCommand().equals("SaveClip"))
       {
+          getToolkit().getSystemClipboard().setContents(
+                  new StringSelection(new String(save_internal())),
+                  new ClipboardOwner()
+                      {
+                          public void lostOwnership( Clipboard cb, Transferable co)
+                          {
+                              // Don't care.
+                          }
+                      }
+                  );
+          JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+              "Configuration saved into clipboard.", "Save", JOptionPane.INFORMATION_MESSAGE);
+          /*
           try
           {
-              if(check())
-              {
-                  ClipFrame Save = new ClipFrame("Copy and Save this file in a new Location.",false);
-                  Save.setText(new String(save_internal()));
-              }
+              ClipFrame Save = new ClipFrame("Copy and Save this file in a new Location.",false);
+              Save.setText(new String(save_internal()));
           }
           catch(Exception e)
           {
               e.printStackTrace();
           }
+          */
       }
       else if(evt.getActionCommand().equals("Open"))
       {
@@ -525,7 +594,7 @@ class MyFrame extends JPanel implements ActionListener
 	      Element elemLog = doc.createElement("SysLog");
 	      elemLogging.appendChild(elemLog);
 	    }
-	    if(LogInfo.equals("Logtofile"))
+	    if(LogInfo.equals("Logtodir"))
 	    {
 	      String filename = m_GeneralPanel.getFileName();
 	      Element elemLog = doc.createElement("File");
@@ -541,7 +610,9 @@ class MyFrame extends JPanel implements ActionListener
               elemNetwork.appendChild(m_NetworkPanel.getIncomingModel().createAsElement(doc));
           if(m_NetworkPanel.getOutgoingModel()!=null)
           {
-              elemNetwork.appendChild(m_NetworkPanel.getOutgoingModel().createMixAsElement(doc));
+              org.w3c.dom.Element mix = m_NetworkPanel.getOutgoingModel().createMixAsElement(doc);
+              if(mix!=null)
+                  elemNetwork.appendChild(mix);
               elemNetwork.appendChild(m_NetworkPanel.getOutgoingModel().createProxiesAsElement(doc));
           }
 	  Element elemInfoSer = doc.createElement("InfoService");
@@ -663,81 +734,33 @@ class MyFrame extends JPanel implements ActionListener
 
     // To check for Errors or Missing Fields while writing a file.....
 
-    private boolean check()
+    private String[] check()
     {
-      if(m_GeneralPanel.getMixName().equals(""))
-      {
-        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Please enter a Mix Name.",
-                            "Error in General Panel!",JOptionPane.ERROR_MESSAGE);
-	      return false;
-      }
-      if(m_GeneralPanel.getMixID().equals(""))
-      {
-        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Mix ID field is blank.",
-                            "Error in General Panel!",JOptionPane.ERROR_MESSAGE);
-	      return false;
-      }
-
-      if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
-      {
-        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Own Mix Certificate is missing.",
-                          "Error in Certificates Panel!",JOptionPane.ERROR_MESSAGE);
-        return false;
-      }
-      if(m_CertificatesPanel.getPrevPubCert()==null)
-      {
-          JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Previous Mix Certificate is missing.",
-                            "Error in Certificates Panel!",JOptionPane.ERROR_MESSAGE);
-	        return false;
-      }
-      if(m_CertificatesPanel.getNextPubCert()==null)
-      {
-         JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Next Mix Certificate is missing.",
-                            "Error in Certificates Panel!",JOptionPane.ERROR_MESSAGE);
-	        return false;
-      }
-
-      if(m_DescriptionPanel.getCity().equals(""))
-      {
-        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"The city field cannot be left blank!",
-                            "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
-	      return false;
-      }
-      if(m_DescriptionPanel.getState().equals(""))
-      {
-        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"The state field cannot be left blank!",
-                            "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
-	      return false;
-      }
-      if(m_DescriptionPanel.getLatitude().equals("") && !m_DescriptionPanel.getLongitude().equals(""))
-      {
-        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Fill in the Latitude.",
-                            "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
-	      return false;
-      }
-      if(!m_DescriptionPanel.getLatitude().equals("") && m_DescriptionPanel.getLongitude().equals(""))
-      {
-        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Fill in the Longitude.",
-                            "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
-	      return false;
-      }
-
-      if(m_NetworkPanel.getHost().equals(""))
-      {
-        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"The HOST field should not be blank.",
-                            "Error in Network Panel!",JOptionPane.ERROR_MESSAGE);
-	      return false;
-      }
-      if(m_NetworkPanel.getPort().equals(""))
-      {
-        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"The PORT field should not be blank.",
-                            "Error in Network Panel!",JOptionPane.ERROR_MESSAGE);
-	      return false;
-      }
-
-        return true;
+        java.util.Stack errors = new java.util.Stack();
+        if(m_GeneralPanel.getMixName().equals(""))
+            errors.push("Mix Name not entered in General Panel.");
+        if(m_GeneralPanel.getMixID().equals(""))
+            errors.push("Mix ID field is blank in General Panel.");
+        if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
+            errors.push("Own Mix Certificate is missing in Certificates Panel.");
+        if(m_CertificatesPanel.getPrevPubCert()==null)
+            errors.push("Previous Mix Certificate is missing in Certificates Panel.");
+        if(m_CertificatesPanel.getNextPubCert()==null)
+            errors.push("Next Mix Certificate is missing in Certificates Panel.");
+        if(m_DescriptionPanel.getCity().equals(""))
+            errors.push("The city field cannot be left blank in Description Panel.");
+        if(m_DescriptionPanel.getState().equals(""))
+            errors.push("The state field cannot be left blank in Description Panel.");
+        if(m_DescriptionPanel.getLatitude().equals("") && !m_DescriptionPanel.getLongitude().equals(""))
+            errors.push("Latitude is missing in Description Panel.");
+        if(!m_DescriptionPanel.getLatitude().equals("") && m_DescriptionPanel.getLongitude().equals(""))
+            errors.push("Longitude is missing in Description Panel.");
+        if(m_NetworkPanel.getHost().equals(""))
+            errors.push("The Host field should not be blank in Network Panel.");
+        if(m_NetworkPanel.getPort().equals(""))
+            errors.push("The Port field should not be blank in Network Panel.");
+        return (String[]) errors.toArray(new String[] {});
     }
-
 }
 
 
@@ -750,6 +773,7 @@ public class TheApplet extends JApplet
   public final static int FILTER_CER=1;
   public final static int FILTER_XML=2;
   public final static int FILTER_PFX=4;
+  public final static int FILTER_B64_CER=8;
   public final static String VERSION="00.01.013";
 
   public static void main(String[] args)
@@ -805,6 +829,8 @@ public class TheApplet extends JApplet
         fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
         if((filter_type&FILTER_CER)!=0)
           fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_CER));
+        if((filter_type&FILTER_B64_CER)!=0)
+          fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_B64_CER));
         if((filter_type&FILTER_XML)!=0)
           fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_XML));
         if((filter_type&FILTER_PFX)!=0)
