@@ -31,15 +31,16 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JSeparator;
 
-class IncomingData
+class ConnectionData
 {
-    private int serial;
     private boolean main;
     private int transport;
     private String name;
     private int[] ipaddr;
     private int port;
+    private String type; // Name of the XML element
 
     public static final int TCP = 0;
     public static final int UNIX = 1;
@@ -50,14 +51,14 @@ class IncomingData
     public static final int SSL_TCP = SSL|TCP;
     public static final int SSL_UNIX = SSL|UNIX;
 
-    void setSerialNr(int s)
+    void setType(String t)
     {
-        serial = s;
+        type = t;
     }
 
-    int getSerialNr()
+    String getType()
     {
-        return serial;
+        return type;
     }
 
     void setIsMain(boolean m)
@@ -128,9 +129,9 @@ class IncomingData
         return port;
     }
 
-    IncomingData(int s, boolean m, int t, String n, int[] addr, int p)
+    ConnectionData(String x, boolean m, int t, String n, int[] addr, int p)
     {
-        setSerialNr(s);
+        setType(x);
         setIsMain(m);
         setTransport(t);
         setName(n);
@@ -138,9 +139,9 @@ class IncomingData
         setPort(p);
     }
 
-    IncomingData(int s, boolean m, int t, String n)
+    ConnectionData(String x, boolean m, int t, String n)
     {
-        setSerialNr(s);
+        setType(x);
         setIsMain(m);
         setTransport(t);
         setName(n);
@@ -148,9 +149,9 @@ class IncomingData
         setPort(0);
     }
 
-    IncomingData(int s, boolean m, int t, String n, String addr, int p)
+    ConnectionData(String x, boolean m, int t, String n, String addr, int p)
     {
-        setSerialNr(s);
+        setType(x);
         setIsMain(m);
         setTransport(t);
         setName(n);
@@ -158,16 +159,15 @@ class IncomingData
         setPort(p);
     }
 
-    IncomingData deepClone()
+    ConnectionData deepClone()
     {
-        return new IncomingData(serial, main, transport, name, ipaddr, port);
+        return new ConnectionData(type, main, transport, name, ipaddr, port);
     }
 
     org.w3c.dom.Element createAsElement(org.w3c.dom.Document doc)
     {
-        org.w3c.dom.Element iface = doc.createElement("ListenerInterface");
+        org.w3c.dom.Element iface = doc.createElement(type);
         iface.setAttribute("main",main?"True":"False");
-        iface.setAttribute("nr", Integer.toString(serial));
         org.w3c.dom.Element data = doc.createElement("Type");
         data.appendChild(doc.createTextNode(
                 (((transport&SSL)==0)?"RAW/":"SSL/")+
@@ -217,21 +217,17 @@ class IncomingData
         return data;
     }
 
-    static IncomingData createFromElement(org.w3c.dom.Element iface)
+    static ConnectionData createFromElement(String t, org.w3c.dom.Element iface)
     {
-
-        if(!iface.getTagName().equals("ListenerInterface"))
+        if(!iface.getTagName().equals(t))
             return null;
 
-        int ser;
         boolean m;
         int trans;
         String n, ip=null, data;
         int p=0;
 
         m = iface.getAttribute("main").equalsIgnoreCase("True");
-        try {ser = Integer.parseInt(iface.getAttribute("nr"));}
-        catch(NumberFormatException e) {ser = 0;}
         data = elementData(iface, "Type");
         if(data.equalsIgnoreCase("RAW/UNIX"))
             trans = RAW_UNIX;
@@ -246,23 +242,26 @@ class IncomingData
         if((trans&UNIX)==0)
         {
             n = elementData(iface, "Host");
+            if(n==null)
+                return null;
             ip = elementData(iface, "IP");
             data = elementData(iface, "Port");
             if(data==null)
                 return null;
             p = Integer.parseInt(data);
+            return new ConnectionData(t, m, trans, n, ip, p);
         }
         else
         {
             n = elementData(iface, "File");
+            if(n==null)
+                return null;
+            return new ConnectionData(t, m, trans, n);
         }
-        if(n==null)
-            return null;
-        return new IncomingData(ser, m, trans, n, ip, p);
     }
 }
 
-class IncomingDialog extends JDialog
+abstract class ConnectionDialog extends JDialog
 {
     /**
      *  A document that accepts only non-negatives.
@@ -318,12 +317,14 @@ class IncomingDialog extends JDialog
         }
     }
 
-    private JTextField serial, nametext, iptext[];
+    private JTextField nametext, iptext[];
     private JCheckBox main;
     private ButtonGroup ssl, stype;
     private JLabel namelabel, iplabel[];
+    protected javax.swing.JComponent firstone;
+    abstract protected String getType();
 
-    private IncomingData getData()
+    protected ConnectionData getData()
     {
         if(stype.getSelection().getActionCommand().equals("TCP"))
         {
@@ -339,97 +340,54 @@ class IncomingDialog extends JDialog
                     ips[i] = Integer.parseInt(iptext[i].getText(),10);
             }
 
-            return new IncomingData((serial.getText().length()==0)?0:Integer.parseInt(serial.getText(),10),
-                                    main.isSelected(),
-                                    ssl.getSelection().getActionCommand().equals("SSL")?IncomingData.SSL_TCP:IncomingData.RAW_TCP,
+            return new ConnectionData(getType(), (main==null)?false:main.isSelected(),
+                                    ssl.getSelection().getActionCommand().equals("SSL")?ConnectionData.SSL_TCP:ConnectionData.RAW_TCP,
                                     nametext.getText(),
                                     ips,
                                     (iptext[4].getText().length()==0)?0:Integer.parseInt(iptext[4].getText(),10));
         }
         else
-            return new IncomingData(Integer.parseInt(serial.getText(),10),
-                                    main.isSelected(),
-                                    ssl.getSelection().getActionCommand().equals("SSL")?IncomingData.SSL_UNIX:IncomingData.RAW_UNIX,
+            return new ConnectionData(getType(), (main==null)?false:main.isSelected(),
+                                    ssl.getSelection().getActionCommand().equals("SSL")?ConnectionData.SSL_UNIX:ConnectionData.RAW_UNIX,
                                     nametext.getText());
     }
 
-    private void createDialog(final IncomingData data, final IncomingModel where)
+    protected void addMain(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
     {
-        setSize(500,350);
-
-        GridBagLayout layout=new GridBagLayout();
-        getContentPane().setLayout(layout);
-
-        GridBagConstraints lc=new GridBagConstraints();
-        lc.anchor =GridBagConstraints.WEST;
-        lc.insets = new Insets(5,5,5,5);
-        lc.gridx = 0;
-        lc.gridy = 0;
-        lc.weightx = 1;
-        JLabel label = new JLabel("Serial Number");
-        layout.setConstraints(label,lc);
-        getContentPane().add(label);
-
-
-        GridBagConstraints rc=new GridBagConstraints();
-        rc.anchor = GridBagConstraints.WEST;
-        rc.insets = new Insets(5,5,5,5);
-        rc.gridx = 1;
-        rc.gridy = 0;
-        rc.weightx = 0;
-        rc.gridwidth = 7;
-        serial = new JTextField(14);
-        serial.setMinimumSize(serial.getPreferredSize());
-        serial.setDocument(new IntegerDocument());
-        if(data!=null)
-            serial.setText(String.valueOf(data.getSerialNr()));
-        layout.setConstraints(serial,rc);
-        getContentPane().add(serial);
-
-        ActionListener nextfocusaction = new ActionListener()
-            {
-                public void actionPerformed(ActionEvent evt)
-                {
-                    ((Component)evt.getSource()).transferFocus();
-                }
-            };
-        serial.addActionListener(nextfocusaction);
-
-        rc.gridx = 8;
-        rc.gridwidth = 1;
+        rc.gridx--;
+        rc.gridwidth = 8;
         if(data==null)
-            main = new JCheckBox("Main");
+            main = new JCheckBox("Main Connection");
         else
-            main = new JCheckBox("Main",data.getIsMain());
+            main = new JCheckBox("Main Connection",data.getIsMain());
         layout.setConstraints(main,rc);
         getContentPane().add(main);
-
         lc.gridy++;
-        label = new JLabel("Transport");
+        rc.gridy++;
+        rc.gridx++;
+        if(firstone==null)
+            firstone = main;
+    }
+
+    protected void addTransport(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
+    {
+        JLabel label = new JLabel("Transport");
         layout.setConstraints(label, lc);
         getContentPane().add(label);
+        lc.gridy+=2;
 
         int ttype;
         if(data==null)
-            ttype = IncomingData.RAW_TCP;
+            ttype = ConnectionData.RAW_TCP;
         else
             ttype = data.getTransport();
-        rc.gridy++;
-        rc.gridx = 1;
+        rc.anchor = GridBagConstraints.CENTER;
         rc.gridwidth = 3;
-        ssl = new ButtonGroup();
-        JRadioButton t = new JRadioButton("Raw",(ttype & IncomingData.SSL)==0);
-        t.setActionCommand("Raw");
-        layout.setConstraints(t,rc);
-        getContentPane().add(t);
-        ssl.add(t);
-        rc.gridy++;
-        t = new JRadioButton("SSL",(ttype & IncomingData.SSL)!=0);
-        t.setActionCommand("SSL");
-        layout.setConstraints(t,rc);
-        getContentPane().add(t);
-        ssl.add(t);
-
+        stype = new ButtonGroup();
+        JRadioButton t = new JRadioButton("TCP",(ttype & ConnectionData.UNIX)==0);
+        if(firstone==null)
+            firstone = t;
+        t.setActionCommand("TCP");
         ActionListener tcpunixswitcher = new ActionListener()
             {
                 public void actionPerformed(ActionEvent ev)
@@ -443,31 +401,65 @@ class IncomingDialog extends JDialog
                     }
                 }
             };
-        rc.gridy--;
-        rc.gridx+=4;
-        stype = new ButtonGroup();
-        t = new JRadioButton("TCP",(ttype & IncomingData.UNIX)==0);
-        t.setActionCommand("TCP");
+
         t.addActionListener(tcpunixswitcher);
         layout.setConstraints(t,rc);
         getContentPane().add(t);
         stype.add(t);
         rc.gridy++;
-        t = new JRadioButton("Unix",(ttype & IncomingData.UNIX)!=0);
+        t = new JRadioButton("Unix",(ttype & ConnectionData.UNIX)!=0);
         t.setActionCommand("Unix");
         t.addActionListener(tcpunixswitcher);
         layout.setConstraints(t,rc);
         getContentPane().add(t);
         stype.add(t);
 
-        boolean isHost = ((ttype&IncomingData.UNIX)==0);
-        lc.gridy+=2;
+        rc.gridy--;
+        rc.gridx+=3;
+        rc.gridwidth=1;
+        rc.gridheight=2;
+        JSeparator vertLine = new JSeparator(JSeparator.VERTICAL);
+        rc.fill=GridBagConstraints.VERTICAL;
+        layout.setConstraints(vertLine,rc);
+        rc.fill=GridBagConstraints.NONE;
+        getContentPane().add(vertLine);
+
+        rc.gridx++;
+        rc.gridwidth=3;
+        rc.gridheight=1;
+        ssl = new ButtonGroup();
+        t = new JRadioButton("Raw",(ttype & ConnectionData.SSL)==0);
+        t.setActionCommand("Raw");
+        layout.setConstraints(t,rc);
+        getContentPane().add(t);
+        ssl.add(t);
+        rc.gridy++;
+        t = new JRadioButton("SSL",(ttype & ConnectionData.SSL)!=0);
+        t.setActionCommand("SSL");
+        layout.setConstraints(t,rc);
+        getContentPane().add(t);
+        ssl.add(t);
+        rc.gridy++;
+        rc.gridx-=4;
+    }
+
+    protected final ActionListener nextfocusaction = new ActionListener()
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
+                ((Component)evt.getSource()).transferFocus();
+            }
+        };
+
+    protected void addName(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
+    {
+        boolean isHost = stype.getSelection().getActionCommand().equals("TCP");
         namelabel = new JLabel(isHost?"Host Name":"File Name");
         layout.setConstraints(namelabel, lc);
         getContentPane().add(namelabel);
+        lc.gridy++;
 
-        rc.gridx=1;
-        rc.gridy++;
+        rc.anchor = GridBagConstraints.WEST;
         rc.gridwidth = 7;
         if(data==null)
             nametext = new JTextField(14);
@@ -477,7 +469,14 @@ class IncomingDialog extends JDialog
         layout.setConstraints(nametext,rc);
         getContentPane().add(nametext);
         nametext.addActionListener(nextfocusaction);
+        rc.gridy++;
+        if(firstone==null)
+            firstone = nametext;
+    }
 
+    protected void addIP(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
+    {
+        boolean isHost = stype.getSelection().getActionCommand().equals("TCP");
         iplabel = new JLabel[5];
         iptext = new JTextField[5];
         int[] ips;
@@ -485,11 +484,10 @@ class IncomingDialog extends JDialog
             ips = data.getIPAddr();
         else
             ips = null;
-        lc.gridy++;
         GridBagConstraints ic=new GridBagConstraints();
         ic.anchor = GridBagConstraints.WEST;
         ic.insets = new Insets(1,5,1,1);
-        ic.gridx = 0;
+        ic.gridx = lc.gridx;
         ic.gridy = lc.gridy;
         ic.weightx = 0;
         for(int i=0;i<4;i++)
@@ -513,34 +511,47 @@ class IncomingDialog extends JDialog
             if(i==0)
                 ic.insets.left=1;
         }
-
         lc.gridy++;
+        rc.gridy++;
+        if(firstone==null)
+            firstone = iptext[0];
+    }
+
+    protected void addPort(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
+    {
+        boolean isHost = stype.getSelection().getActionCommand().equals("TCP");
         iplabel[4] = new JLabel("Port");
         layout.setConstraints(iplabel[4], lc);
         getContentPane().add(iplabel[4]);
         iplabel[4].setEnabled(isHost);
+        lc.gridy++;
 
-        rc.gridx=1;
-        rc.gridy+=2;
         rc.gridwidth = 7;
         iptext[4] = new JTextField(5);
         iptext[4].setMinimumSize(iptext[4].getPreferredSize());
         iptext[4].setDocument(new IntegerDocument(65535));
-        if(data!=null)
+        if(isHost && data!=null)
             iptext[4].setText(String.valueOf(data.getPort()));
         layout.setConstraints(iptext[4],rc);
         getContentPane().add(iptext[4]);
         iptext[4].addActionListener(nextfocusaction);
         iptext[4].setEnabled(isHost);
+        rc.gridy++;
+        if(firstone==null)
+            firstone = iptext[4];
+    }
 
+    protected void addKeys(final ConnectionData data, final ConnectionModel where, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
+    {
         GridBagLayout keylayout = new GridBagLayout();
         JPanel keys = new JPanel(keylayout);
-        rc.weightx=1;
-        rc.gridx=0;
-        rc.gridy=0;
-        rc.gridwidth=1;
-        rc.fill=GridBagConstraints.HORIZONTAL;
-        rc.insets = new Insets(1,1,1,1);
+        GridBagConstraints kc = new GridBagConstraints();
+        kc.weightx=1;
+        kc.gridx=0;
+        kc.gridy=0;
+        kc.gridwidth=1;
+        kc.fill=GridBagConstraints.HORIZONTAL;
+        kc.insets = new Insets(1,1,1,1);
         JButton key;
         if(data==null)
         {
@@ -567,9 +578,9 @@ class IncomingDialog extends JDialog
                 });
         }
         key.setActionCommand("Ok");
-        keylayout.setConstraints(key,rc);
+        keylayout.setConstraints(key,kc);
         keys.add(key);
-        rc.gridx++;
+        kc.gridx++;
         key = new JButton("Cancel");
         key.addActionListener(new ActionListener()
             {
@@ -578,36 +589,288 @@ class IncomingDialog extends JDialog
                     dispose();
                 }
             });
-        keylayout.setConstraints(key,rc);
+        keylayout.setConstraints(key,kc);
         keys.add(key);
-        lc.gridy++;
-        lc.gridwidth=9;
+        if(firstone==null)
+            firstone = key;
+        lc.gridwidth=8;
         lc.fill=GridBagConstraints.HORIZONTAL;
         layout.setConstraints(keys,lc);
         getContentPane().add(keys);
+        lc.gridy++;
+    }
+
+    ConnectionDialog(JFrame parent, String title)
+    {
+        super(parent, title, false);
+    }
+}
+
+class IncomingDialog extends ConnectionDialog
+{
+    protected String getType()
+    {
+        return "ListenerInterface";
+    }
+
+    private void createDialog(final ConnectionData data, final IncomingModel where)
+    {
+        setSize(500,350);
+
+        GridBagLayout layout=new GridBagLayout();
+        getContentPane().setLayout(layout);
+
+        // Constraints for the labels
+        GridBagConstraints lc=new GridBagConstraints();
+        lc.anchor =GridBagConstraints.WEST;
+        lc.insets = new Insets(5,5,5,5);
+        lc.gridx = 0;
+        lc.gridy = 0;
+        lc.weightx = 1;
+
+        // Constraints for all the other things...
+        GridBagConstraints rc=new GridBagConstraints();
+        rc.anchor = GridBagConstraints.WEST;
+        rc.insets = new Insets(5,5,5,5);
+        rc.gridx = 1;
+        rc.gridy = 0;
+        rc.weightx = 0;
+
+//        addMain(data, layout, lc, rc);
+        addTransport(data, layout, lc, rc);
+        addName(data, layout, lc, rc);
+        addIP(data, layout, lc, rc);
+        addPort(data, layout, lc, rc);
+        addKeys(data, where, layout, lc, rc);
+
         pack();
-        serial.requestFocus();
+        firstone.requestFocus();
     }
 
     IncomingDialog(JFrame parent, String title, final IncomingModel where)
     {
-       super(parent,title,false);
+       super(parent,title);
        createDialog(null,where);
        this.setLocationRelativeTo(parent);
     }
 
-    IncomingDialog(JFrame parent, String title, final IncomingModel where, IncomingData data)
+    IncomingDialog(JFrame parent, String title, final IncomingModel where, ConnectionData data)
     {
-       super(parent,title,false);
+       super(parent,title);
        createDialog(data,where);
        this.setLocationRelativeTo(parent);
     }
 }
 
-class IncomingModel extends AbstractTableModel
+class OutgoingDialog extends ConnectionDialog
+{
+    private ButtonGroup type;
+
+    protected String getType()
+    {
+        return type.getSelection().getActionCommand().equals("Proxy")?"Proxy":"NextMix";
+    }
+
+    protected void addType(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
+    {
+        JLabel label = new JLabel("Type");
+        layout.setConstraints(label, lc);
+        getContentPane().add(label);
+        lc.gridy++;
+
+        boolean isMix;
+        if(data==null)
+            isMix = true;
+        else
+            isMix = !data.getType().equals("Proxy");
+        rc.anchor = GridBagConstraints.CENTER;
+        rc.gridwidth = 3;
+        type = new ButtonGroup();
+        JRadioButton t = new JRadioButton("Mix",isMix);
+        t.setActionCommand("Mix");
+        layout.setConstraints(t,rc);
+        getContentPane().add(t);
+        type.add(t);
+        if(firstone==null)
+            firstone = t;
+
+        rc.gridx+=4;
+        t = new JRadioButton("Proxy",!isMix);
+        t.setActionCommand("Proxy");
+        layout.setConstraints(t,rc);
+        getContentPane().add(t);
+        type.add(t);
+        rc.gridy++;
+        rc.gridx-=4;
+    }
+
+    private void createDialog(final ConnectionData data, final OutgoingModel where)
+    {
+        setSize(500,350);
+
+        GridBagLayout layout=new GridBagLayout();
+        getContentPane().setLayout(layout);
+
+        // Constraints for the labels
+        GridBagConstraints lc=new GridBagConstraints();
+        lc.anchor =GridBagConstraints.WEST;
+        lc.insets = new Insets(5,5,5,5);
+        lc.gridx = 0;
+        lc.gridy = 0;
+        lc.weightx = 1;
+
+        // Constraints for all the other things...
+        GridBagConstraints rc=new GridBagConstraints();
+        rc.anchor = GridBagConstraints.WEST;
+        rc.insets = new Insets(5,5,5,5);
+        rc.gridx = 1;
+        rc.gridy = 0;
+        rc.weightx = 0;
+
+//        addMain(data, layout, lc, rc);
+        addType(data, layout, lc, rc);
+        addTransport(data, layout, lc, rc);
+        addName(data, layout, lc, rc);
+        addIP(data, layout, lc, rc);
+        addPort(data, layout, lc, rc);
+        addKeys(data, where, layout, lc, rc);
+
+        pack();
+        firstone.requestFocus();
+    }
+
+    OutgoingDialog(JFrame parent, String title, final OutgoingModel where)
+    {
+       super(parent,title);
+       createDialog(null,where);
+       this.setLocationRelativeTo(parent);
+    }
+
+    OutgoingDialog(JFrame parent, String title, final OutgoingModel where, ConnectionData data)
+    {
+       super(parent,title);
+       createDialog(data,where);
+       this.setLocationRelativeTo(parent);
+    }
+}
+
+abstract class ConnectionModel extends AbstractTableModel
+{
+    private ConnectionData[] rows = new ConnectionData[0];
+
+    public int getRowCount()
+    {
+        return rows.length;
+    }
+
+    public boolean hasMain(int row)
+    {
+        return true;
+    }
+
+    public boolean isCellEditable(int row, int col)
+    {
+        return (col==1) && hasMain(row);
+    }
+
+    public void setMain(boolean m, int row)
+    {
+        int i;
+
+        ConnectionData data = getData(row);
+        if(data==null || data.getIsMain()==m)
+            return;
+        data.setIsMain(m);
+        fireTableRowsUpdated(row, row);
+        if(m)
+        {
+            for(i=0;i<rows.length;i++)
+                if(i!=row && hasMain(i) && rows[i].getIsMain())
+                {
+                    rows[i].setIsMain(false);
+                    fireTableRowsUpdated(i, i);
+                }
+        }
+        else
+            for(i=0;i<rows.length;i++)
+                if(i!=row && hasMain(i))
+                {
+                    if(!rows[i].getIsMain())
+                    {
+                        rows[i].setIsMain(true);
+                        fireTableRowsUpdated(i,i);
+                    }
+                    return;
+                }
+    }
+
+    public void setValueAt(Object ob, int row, int col)
+    {
+        if(col!=1 || !(ob instanceof Boolean))
+            return;
+        setMain(((Boolean)ob).booleanValue(), row);
+    }
+
+    void addData(ConnectionData data)
+    {
+        boolean newMain = data.getIsMain();
+        ConnectionData[] nrows = new ConnectionData[rows.length+1];
+        for(int i=0;i<rows.length;i++)
+        {
+            nrows[i] = rows[i];
+            if(newMain && nrows[i].getIsMain())
+            {
+                nrows[i].setIsMain(false);
+                fireTableRowsUpdated(i,i);
+            }
+        }
+        nrows[rows.length] = data;
+        rows = nrows;
+        if(nrows.length==1)
+            data.setIsMain(true);
+        fireTableRowsInserted(rows.length-1,rows.length-1);
+    }
+
+    ConnectionData getData(int index)
+    {
+        if(index<0 || index>=rows.length)
+            return null;
+        return rows[index];
+    }
+
+    void changeData(ConnectionData data, ConnectionData olddata)
+    {
+        for(int i=0;i<rows.length;i++)
+            if(rows[i]==olddata)
+            {
+                rows[i]=data;
+                data.setIsMain(olddata.getIsMain());
+                fireTableRowsUpdated(i,i);
+                return;
+            }
+        addData(data);
+    }
+
+    void deleteData(int index)
+    {
+        if(index>=0 && index<rows.length)
+        {
+            ConnectionData[] nrows = new ConnectionData[rows.length-1];
+            setMain(false, index);
+            for(int i=0;i<index;i++)
+                nrows[i] = rows[i];
+            for(int i=index+1;i<rows.length;i++)
+                nrows[i-1] = rows[i];
+            rows = nrows;
+            fireTableRowsDeleted(index,index);
+        }
+    }
+}
+
+class IncomingModel extends ConnectionModel
 {
     private static final String[] columnNames =
-            {"Serial No.", "Main", "Transport", "Host / FileName",
+            {"No.", "Main", "Transport", "Host / FileName",
              "IP Address", "Port" };
 
     public static final int SERIAL_NR = 0;
@@ -617,20 +880,19 @@ class IncomingModel extends AbstractTableModel
     public static final int IP_ADDR = 4;
     public static final int PORT = 5;
 
-    private IncomingData[] rows = new IncomingData[0];
-
     public Object getValueAt(int row, int column)
     {
-        if(row>=rows.length || row<0)
+        ConnectionData data = getData(row);
+        if(data==null)
             return null;
         switch(column)
         {
-            case SERIAL_NR: return new Integer(rows[row].getSerialNr());
-            case IS_MAIN: return new Boolean(rows[row].getIsMain());
-            case TRANSPORT: return new Integer(rows[row].getTransport());
-            case NAME: return rows[row].getName();
-            case IP_ADDR: return rows[row].getIPAddr();
-            case PORT: return new Integer(rows[row].getPort());
+            case SERIAL_NR: return new Integer(row+1);
+            case IS_MAIN: return new Boolean(data.getIsMain());
+            case TRANSPORT: return new Integer(data.getTransport());
+            case NAME: return data.getName();
+            case IP_ADDR: return data.getIPAddr();
+            case PORT: return new Integer(data.getPort());
         }
         return null;
     }
@@ -654,107 +916,16 @@ class IncomingModel extends AbstractTableModel
         return 6;
     }
 
-    public int getRowCount()
-    {
-        return rows.length;
-    }
-
-    public boolean isCellEditable(int row, int col)
-    {
-        return false;
-    }
-
     public String getColumnName(int col)
     {
         return columnNames[col];
     }
 
-    // Und nun selbst ausgedachte Funktionen:
-    void addData(IncomingData data)
-    {
-        boolean newMain = data.getIsMain();
-        IncomingData[] nrows = new IncomingData[rows.length+1];
-        for(int i=0;i<rows.length;i++)
-        {
-            nrows[i] = rows[i];
-            if(newMain && nrows[i].getIsMain())
-            {
-                nrows[i].setIsMain(false);
-                fireTableRowsUpdated(i,i);
-            }
-        }
-        nrows[rows.length] = data;
-        rows = nrows;
-        if(nrows.length==1)
-            data.setIsMain(true);
-        fireTableRowsInserted(rows.length-1,rows.length-1);
-    }
-
-    IncomingData getData(int index)
-    {
-        if(index<0 || index>=rows.length)
-            return null;
-        return rows[index];
-    }
-
-    void changeData(IncomingData data, IncomingData olddata)
-    {
-        for(int i=0;i<rows.length;i++)
-            if(rows[i]==olddata)
-            {
-                rows[i]=data;
-                if(data.getIsMain() && !olddata.getIsMain())
-                {
-                    for(int j=0;j<rows.length;j++)
-                        if(j!=i && rows[j].getIsMain())
-                        {
-                            rows[j].setIsMain(false);
-                            fireTableRowsUpdated(j,j);
-                        }
-                }
-                else if(!data.getIsMain() && olddata.getIsMain())
-                {
-                    if(i==0 && rows.length>1)
-                    {
-                        rows[1].setIsMain(true);
-                        fireTableRowsUpdated(1,1);
-                    }
-                    else
-                    {
-                        rows[0].setIsMain(true);
-                        fireTableRowsUpdated(0,0);
-                    }
-                }
-                fireTableRowsUpdated(i,i);
-                return;
-            }
-        addData(data);
-    }
-
-    void deleteData(int index)
-    {
-        if(index>=0 && index<rows.length)
-        {
-            IncomingData[] nrows = new IncomingData[rows.length-1];
-            boolean wasMain = rows[index].getIsMain();
-            for(int i=0;i<index;i++)
-                nrows[i] = rows[i];
-            for(int i=index+1;i<rows.length;i++)
-                nrows[i-1] = rows[i];
-            rows = nrows;
-            fireTableRowsDeleted(index,index);
-            if(wasMain && rows.length>0)
-            {
-                rows[0].setIsMain(true);
-                fireTableRowsUpdated(0,0);
-            }
-        }
-    }
     org.w3c.dom.Element createAsElement(org.w3c.dom.Document doc)
     {
         org.w3c.dom.Element ifaces = doc.createElement("ListenerInterfaces");
-        for(int i=0;i<rows.length;i++)
-            ifaces.appendChild(rows[i].createAsElement(doc));
+        for(int i=0;i<getRowCount();i++)
+            ifaces.appendChild(getData(i).createAsElement(doc));
         return ifaces;
     }
 
@@ -762,18 +933,134 @@ class IncomingModel extends AbstractTableModel
     {
         if(iface.getTagName().equals("ListenerInterfaces"))
         {
-            rows = new IncomingData[0];
+            for(int i=getRowCount()-1;i>=0;i--)
+                deleteData(i);
             org.w3c.dom.Node child = iface.getFirstChild();
             while(child!=null)
             {
                 if(child.getNodeType() == child.ELEMENT_NODE)
                 {
-                    IncomingData data = IncomingData.createFromElement((org.w3c.dom.Element)child);
+                    ConnectionData data = ConnectionData.createFromElement(
+                            "ListenerInterface", (org.w3c.dom.Element)child);
                     if(data!=null)
                         addData(data);
                 }
                 child = child.getNextSibling();
             }
+        }
+    }
+}
+
+class OutgoingModel extends ConnectionModel
+{
+    private static final String[] columnNames =
+            {"No.", "Main", "Type", "Transport", "Host / FileName",
+             "IP Address", "Port" };
+
+    public static final int SERIAL_NR = 0;
+    public static final int IS_MAIN = 1;
+    public static final int TYPE = 2;
+    public static final int TRANSPORT = 3;
+    public static final int NAME = 4;
+    public static final int IP_ADDR = 5;
+    public static final int PORT = 6;
+
+    public boolean hasMain(int row)
+    {
+      return (getData(row)!=null && getData(row).getType().equals("Proxy"));
+    }
+
+    public Object getValueAt(int row, int column)
+    {
+        ConnectionData data = getData(row);
+        if(data==null)
+            return null;
+        switch(column)
+        {
+            case SERIAL_NR: return new Integer(row+1);
+            case IS_MAIN: return new Boolean(data.getIsMain());
+            case TYPE: return data.getType().equals("Proxy")?"Proxy":"Mix";
+            case TRANSPORT: return new Integer(data.getTransport());
+            case NAME: return data.getName();
+            case IP_ADDR: return data.getIPAddr();
+            case PORT: return new Integer(data.getPort());
+        }
+        return null;
+    }
+
+    public Class getColumnClass(int column)
+    {
+        switch(column)
+        {
+            case SERIAL_NR: return Integer.class;
+            case IS_MAIN: return Boolean.class;
+            case NAME: return String.class;
+            case PORT: return Integer.class;
+            // Type, Transport und IP-Addresse muessen wir in der Tabelle
+            // gesondert behandeln.
+        }
+        return Object.class;
+    }
+
+    public int getColumnCount()
+    {
+        return 7;
+    }
+
+    public String getColumnName(int col)
+    {
+        return columnNames[col];
+    }
+
+    org.w3c.dom.Element createProxiesAsElement(org.w3c.dom.Document doc)
+    {
+        org.w3c.dom.Element proxies = doc.createElement("Proxies");
+        for(int i=0;i<getRowCount();i++)
+            if(getData(i).getType().equals("Proxy"))
+                proxies.appendChild(getData(i).createAsElement(doc));
+        return proxies;
+    }
+
+    org.w3c.dom.Element createMixAsElement(org.w3c.dom.Document doc)
+    {
+        for(int i=0;i<getRowCount();i++)
+            if(getData(i).getType().equals("NextMix"))
+            {
+                org.w3c.dom.Element mix = getData(i).createAsElement(doc);
+                mix.removeAttribute("main");
+                return mix;
+            }
+        return null;
+    }
+
+    void readFromElement(org.w3c.dom.Element out)
+    {
+        if(out.getTagName().equals("Proxies"))
+        {
+            for(int i=getRowCount()-1;i>=0;i--)
+                if(getData(i).getType().equals("Proxy"))
+                    deleteData(i);
+            org.w3c.dom.Node child = out.getFirstChild();
+            while(child!=null)
+            {
+                if(child.getNodeType() == child.ELEMENT_NODE)
+                {
+                    ConnectionData data = ConnectionData.createFromElement(
+                            "Proxy", (org.w3c.dom.Element)child);
+                    if(data!=null)
+                        addData(data);
+                }
+                child = child.getNextSibling();
+            }
+        }
+        else if(out.getTagName().equals("NextMix"))
+        {
+            for(int i=getRowCount()-1;i>=0;i--)
+                if(getData(i).getType().equals("NextMix"))
+                    deleteData(i);
+            ConnectionData data = ConnectionData.createFromElement("NextMix", out);
+            if(data!=null)
+                addData(data);
         }
     }
 }
@@ -784,10 +1071,16 @@ class NetworkPanel extends JPanel
    JTable table1,table2;
    JTextField Host_Text,IP_Text,Port_Text;
    IncomingModel imodel;
+   OutgoingModel omodel;
 
    public IncomingModel getIncomingModel()
    {
        return imodel;
+   }
+
+   public OutgoingModel getOutgoingModel()
+   {
+       return omodel;
    }
 
    public String getTable1(int x,int y)
@@ -868,10 +1161,9 @@ class NetworkPanel extends JPanel
     layout.setConstraints(panel1,c);
     add(panel1);
 
-    int[] columnSizes1 = {70, 50, 75, 110, 85, 65};
+    int[] columnSizes1 = {15, 25, 60, 170, 110, 40};
     // table1 = new JTable(data1, columnNames1);
 
-    imodel = new IncomingModel();
     final TableCellRenderer IPRenderer = new DefaultTableCellRenderer()
     {
         protected void setValue(Object v)
@@ -882,6 +1174,7 @@ class NetworkPanel extends JPanel
             {
                 int[] ips = (int[])v;
                 super.setValue(ips[0]+"."+ips[1]+"."+ips[2]+"."+ips[3]);
+                setHorizontalAlignment(CENTER);
             }
         }
     };
@@ -890,11 +1183,11 @@ class NetworkPanel extends JPanel
         protected void setValue(Object v)
         {
             int t = ((Integer)v).intValue();
-            if(t<0)
+            if(t<=0)
                 super.setValue("");
             else
             {
-                super.setHorizontalAlignment(RIGHT);
+                setHorizontalAlignment(CENTER);
                 super.setValue(v.toString());
             }
         }
@@ -905,10 +1198,28 @@ class NetworkPanel extends JPanel
         {
             int t = ((Integer)v).intValue();
             super.setValue(
-                    (((t&IncomingData.SSL)==0)?"Raw, ":"SSL, ")+
-                    (((t&IncomingData.UNIX)==0)?"TCP":"Unix"));
+                    (((t&ConnectionData.SSL)==0)?"Raw/":"SSL/")+
+                    (((t&ConnectionData.UNIX)==0)?"TCP":"Unix"));
+            setHorizontalAlignment(CENTER);
         }
     };
+    final TableCellRenderer centeringRenderer = new DefaultTableCellRenderer()
+    {
+        protected void setValue(Object v)
+        {
+            super.setValue(v);
+            setHorizontalAlignment(CENTER);
+        }
+    };
+    final TableCellRenderer emptyRenderer = new DefaultTableCellRenderer()
+    {
+        protected void setValue(Object v)
+        {
+            super.setValue("");
+        }
+    };
+
+    imodel = new IncomingModel();
     table1 = new JTable(imodel)
     {
         public TableCellRenderer getCellRenderer(int row, int column)
@@ -1040,112 +1351,155 @@ class NetworkPanel extends JPanel
         panel1.add(InButton);
     }
 
+    // Now the outgoing connections
     c.gridx = 0;
     c.gridy = 1;
     panel2 = new JPanel(Out_Layout);
     panel2.setBorder(new TitledBorder("Outgoing"));
     layout.setConstraints(panel2,c);
     add(panel2);
+//    int[] columnSizes1 = {15, 25, 60, 170, 110, 40};
 
-    Object[][] data2 = {
-            {"  1","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""}};
+    int[] columnSizes2 = {15, 25, 40, 60, 130, 110, 40};
+    omodel = new OutgoingModel();
+    table2 = new JTable(omodel)
+    {
+        public TableCellRenderer getCellRenderer(int row, int column)
+        {
+            switch(column)
+            {
+                case 1:
+                    if(!omodel.hasMain(row))
+                        return emptyRenderer;
+                    return super.getCellRenderer(row, column);
+                case 2:
+                    return centeringRenderer;
+                case 3:
+                    return transportRenderer;
+                case 5:
+                    return IPRenderer;
+                case 6:
+                    return PortRenderer;
+                default:
+                    return super.getCellRenderer(row, column);
+            }
+        }
+    };
 
-        String[] columnNames2 = {"Serial No.",
-	                         "Main",
-				 "Kind",
-                                 "Transport",
-                                 "Host / FileName",
-                                 "IP Address",
-                                 "Port"};
+    JScrollPane scrollPane2 = new JScrollPane(table2,
+            ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-      table2 = new JTable(data2, columnNames2);
+    // Man kann nur eine Zeile selektieren
+    table2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+    table2.setPreferredScrollableViewportSize(new Dimension(450,90));
 
-      int v2 = ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
-      int h2 = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
-      JScrollPane scrollPane2 = new JScrollPane(table2,v2,h2);
+    for(int Index=0; Index<columnSizes2.length;Index++)
+    {
+        TableColumn column = table2.getColumnModel().getColumn(Index);
+        column.setPreferredWidth(columnSizes2[Index]);
+        // Die Spalten kann der Nutzer ruhig anpassen, wenn eine
+        // Spalte zu klein ist (z.B. aufgrund anderer Schriftarten)
+        // column.setMinWidth(columnSizes1[Index]);
+        // column.setMaxWidth(columnSizes1[Index]);
+    }
 
-      TableColumn transport2 = table2.getColumnModel().getColumn(3);
-      JComboBox comboBox2 = new JComboBox();
-      comboBox2.addItem("TCP");
-      comboBox2.addItem("UNIX");
-      transport2.setCellEditor(new DefaultCellEditor(comboBox2));
-
-      TableColumn kind = table2.getColumnModel().getColumn(2);
-      JComboBox comboBox3 = new JComboBox();
-      comboBox3.addItem("MIX");
-      comboBox3.addItem("HTTP Proxy");
-      comboBox3.addItem("SOCKS Proxy");
-      kind.setCellEditor(new DefaultCellEditor(comboBox3));
-
-      TableColumn main2 = table2.getColumnModel().getColumn(1);
-      JCheckBox checkBox2 = new JCheckBox();
-      main2.setCellEditor(new DefaultCellEditor(checkBox2));
-      table2.setPreferredScrollableViewportSize(new Dimension(450,90));
-
-    table2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-    int vColIndex = 0;
-    TableColumn col = table2.getColumnModel().getColumn(vColIndex);
-    int width = 60;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 50;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 85;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 75;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 110;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 70;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 60;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-
-
-    GridBagConstraints e=new GridBagConstraints();
-    e.anchor=GridBagConstraints.CENTER;
-    e.insets=new Insets(10,10,10,10);
-    e.gridx = 0;
-    e.gridy = 0;
-    e.weightx = 1;
-    e.weighty = 1;
-    e.fill = GridBagConstraints.BOTH;
-    Out_Layout.setConstraints(scrollPane2,e);
+    d.anchor=GridBagConstraints.CENTER;
+    d.insets=new Insets(10,10,10,10);
+    d.gridx = 0;
+    d.gridy = 0;
+    d.weightx = 1;
+    d.weighty = 1;
+    d.gridheight = 3;
+    d.fill = GridBagConstraints.BOTH;
+    Out_Layout.setConstraints(scrollPane2,d);
     panel2.add(scrollPane2);
+
+    for(int Nr=0;Nr<3;Nr++)
+    {
+        JButton OutButton;
+        switch (Nr)
+        {
+            case 0:
+                OutButton = new JButton("Add");
+                OutButton.setActionCommand("Add");
+                OutButton.addActionListener(new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent a)
+                        {
+                            if(a.getActionCommand().equals("Add"))
+                            {
+                                OutgoingDialog dialog = new OutgoingDialog(TheApplet.getMainWindow(),"Add",omodel);
+                                dialog.show();
+                            }
+                        }
+                    });
+                break;
+            case 1: final JButton cb = new JButton("Change");
+                OutButton = cb;
+                table2.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+                    {
+                        public void valueChanged(ListSelectionEvent e)
+                        {
+                            if(e.getValueIsAdjusting())
+                                return;
+                            cb.setEnabled(!((ListSelectionModel) e.getSource()).isSelectionEmpty());
+                        }
+                    });
+                cb.setEnabled(false);
+                cb.setActionCommand("Change");
+                cb.addActionListener(new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent a)
+                        {
+                            if(a.getActionCommand().equals("Change"))
+                            {
+                                OutgoingDialog dialog = new OutgoingDialog(TheApplet.getMainWindow(),"Change",omodel,
+                                        ((OutgoingModel)table2.getModel()).getData(table2.getSelectedRow()));
+                                dialog.show();
+                            }
+                        }
+                    });
+                break;
+            case 2: final JButton db = new JButton("Delete");
+                OutButton = db;
+                table2.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+                    {
+                        public void valueChanged(ListSelectionEvent e)
+                        {
+                            if(e.getValueIsAdjusting())
+                                return;
+                            db.setEnabled(!((ListSelectionModel) e.getSource()).isSelectionEmpty());
+                        }
+
+                    });
+                db.setEnabled(false);
+                db.setActionCommand("Delete");
+                db.addActionListener(new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent a)
+                        {
+                            if(a.getActionCommand().equals("Delete"))
+                            {
+                                ((OutgoingModel)table2.getModel()).deleteData(table2.getSelectedRow());
+                            }
+                        }
+                    });
+                break;
+            default:
+                throw(new RuntimeException("Unknown Button should be created."));
+        }
+        GridBagConstraints ibd = new GridBagConstraints();
+        ibd.anchor=GridBagConstraints.NORTHWEST;
+        ibd.insets = new Insets(10,10,10,10);
+        ibd.gridx = 1;
+        ibd.gridy = Nr;
+        ibd.weightx = 0.1;
+        ibd.weighty = 0.2;
+        ibd.fill = GridBagConstraints.HORIZONTAL;
+        Out_Layout.setConstraints(OutButton, ibd);
+        panel2.add(OutButton);
+    }
 
     c.gridx = 0;
     c.gridy = 2;
