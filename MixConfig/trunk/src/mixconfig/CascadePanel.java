@@ -98,7 +98,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		BoxLayout vb = new BoxLayout(this, BoxLayout.Y_AXIS);
 		setLayout(vb);
 
-		JPanel c = new JPanel(new FlowLayout(/*FlowLayout.LEADING*/));
+		JPanel c = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JLabel jl = new JLabel("Name of new cascade: ");
 		jl.setPreferredSize(new Dimension(200, 30));
 		m_cascadeName = new JTextField();
