@@ -35,6 +35,10 @@ import org.bouncycastle.jce.X509V3CertificateGenerator;
 import org.bouncycastle.jce.provider.*;
 import org.bouncycastle.asn1.x509.X509Name;
 
+import org.bouncycastle.asn1.*;
+import org.bouncycastle.asn1.pkcs.*;
+import org.bouncycastle.asn1.x509.*;
+
 class CertificatesPanel extends JPanel implements ActionListener
   {
     JPanel panel1,panel2,panel3;
@@ -116,6 +120,7 @@ class CertificatesPanel extends JPanel implements ActionListener
     Own.setConstraints(name1,d);
     panel1.add(name1);
     text1 = new JTextField();
+    text1.setEditable(false);
     d.gridx = 1;
     d.gridwidth = 4;
     d.weightx = 1;
@@ -313,12 +318,124 @@ class CertificatesPanel extends JPanel implements ActionListener
         }
     }
 
+    public X509CertificateStructure readCertificate(byte[] cert)
+            throws IOException
+    {
+        ByteArrayInputStream bin=null;
+
+        if(cert[0]!=(DERInputStream.SEQUENCE|DERInputStream.CONSTRUCTED))
+        {
+            // Probably a Base64 encoded certificate
+            BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(cert)));
+            StringBuffer sbuf = new StringBuffer();
+            String line;
+
+            while((line=in.readLine())!=null)
+            {
+                if(line.equals("-----BEGIN CERTIFICATE-----") ||
+                   line.equals("-----BEGIN X509 CERTIFICATE-----"))
+                    break;
+            }
+
+            while((line=in.readLine())!=null)
+            {
+                if(line.equals("-----END CERTIFICATE-----") ||
+                   line.equals("-----END X509 CERTIFICATE-----"))
+                    break;
+                sbuf.append(line);
+            }
+            bin = new ByteArrayInputStream(Base64.decode(sbuf.toString()));
+        }
+
+        if(bin==null && cert[1]==0x80)
+        {
+            // a BER encoded certificate
+            BERInputStream in = new BERInputStream(new ByteArrayInputStream(cert));
+            ASN1Sequence seq = (ASN1Sequence)in.readObject();
+            DERObjectIdentifier oid = (DERObjectIdentifier)seq.getObjectAt(0);
+            if(oid.equals(PKCSObjectIdentifiers.signedData))
+                return new X509CertificateStructure(
+                        (ASN1Sequence)new SignedData((ASN1Sequence)((DERTaggedObject)seq.getObjectAt(1)).getObject()).getCertificates().getObjectAt(0));
+        }
+        else
+        {
+            if(bin==null)
+                bin = new ByteArrayInputStream(cert);
+            // DERInputStream
+            DERInputStream in = new DERInputStream(bin);
+            ASN1Sequence seq = (ASN1Sequence)in.readObject();
+            if(seq.size()>1 && seq.getObjectAt(1) instanceof DERObjectIdentifier &&
+                seq.getObjectAt(0).equals(PKCSObjectIdentifiers.signedData))
+            {
+                return X509CertificateStructure.getInstance(
+                        new SignedData(ASN1Sequence.getInstance((ASN1TaggedObject)seq.getObjectAt(1),true)).getCertificates().getObjectAt(0));
+            }
+            return X509CertificateStructure.getInstance(seq);
+        }
+        throw(new RuntimeException("Couldn't read certificate."));
+    }
+
     private boolean setOwnPrivCert(byte[] cert, char[] passwd)
-      {
+    {
         try
-          {
+        {
             if(cert!=null)
-              {
+            {
+                /* -- This stuff with the light weight API --
+                if(cert[0]!=(DERInputStream.SEQUENCE|DERInputStream.CONSTRUCTED))
+                    throw(new RuntimeException("Not a PKCS 12 stream."));
+                BERInputStream is = new BERInputStream(new ByteArrayInputStream(cert));
+                DERConstructedSequence dcs = (DERConstructedSequence) is.readObject();
+                Pfx pfx = new Pfx(dcs);
+                ContentInfo cinfo = pfx.getAuthSafe();
+                // Todo: Check MAC
+
+                if(!cinfo.getContentType().equals(PKCSObjectIdentifiers.data))
+                    throw(new RuntimeException("Does not contain any certificates."));
+
+                is = new BERInputStream(new ByteArrayInputStream(
+                        ((DEROctetString)cinfo.getContent()).getOctets()));
+                ContentInfo[] cinfos = (new AuthenticatedSafe((DERConstructedSequence)is.readObject())).getContentInfo();
+                for(int i=0;i<cinfos.length;i++)
+                {
+                    System.out.println(i+": "+cinfos[i].getContentType().getId());
+                    DERConstructedSequence cseq;
+                    if(cinfos[i].getContentType().equals(PKCSObjectIdentifiers.data))
+                    {
+                        DERInputStream dis = new DERInputStream(new ByteArrayInputStream(
+                                ((DEROctetString)cinfos[i].getContent()).getOctets()));
+                        cseq = (DERConstructedSequence)dis.readObject();
+                    }
+                    else if(cinfos[i].getContentType().equals(PKCSObjectIdentifiers.encryptedData))
+                    {
+                        // EncryptedData ed = new EncryptedData((DERConstructedSequence)cinfos[i].getContent());
+                        // TODO: Decrypt this...
+                        continue;
+                    }
+                    else
+                        continue;
+
+                    for(int j=0;j<cseq.getSize();j++)
+                    {
+                        SafeBag sb = new SafeBag((DERConstructedSequence)cseq.getObjectAt(j));
+                        if(!sb.getBagId().equals(PKCSObjectIdentifiers.certBag))
+                            continue;
+
+                        X509CertificateStructure c = readCertificate(((DEROctetString)new CertBag((ASN1Sequence)sb.getBagValue()).getCertValue()).getOctets());
+                        from_text1.setText(c.getStartDate().getDate().toString());
+                        to_text1.setText(c.getEndDate().getDate().toString());
+                        text1.setText(c.getSubject().toString());
+                        m_ownPrivCert=cert;
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        new DEROutputStream(out).writeObject(c);
+                        m_ownPubCert=out.toByteArray();
+                        m_bttnExportOwnPub.setEnabled(true);
+                        m_bttnChangePasswd.setEnabled(true);
+                        return true;
+                    }
+                }
+                throw(new RuntimeException("Didn't found anything."));
+                */
                 KeyStore kstore = KeyStore.getInstance("PKCS12","BC");
                 kstore.load(new ByteArrayInputStream(cert),passwd);
                 X509Certificate c=(X509Certificate)kstore.getCertificate((String)kstore.aliases().nextElement());
@@ -329,56 +446,66 @@ class CertificatesPanel extends JPanel implements ActionListener
                 m_ownPubCert=c.getEncoded();
                 m_bttnExportOwnPub.setEnabled(true);
                 m_bttnChangePasswd.setEnabled(true);
-           }
+            }
             else
-              {
+            {
                 from_text1.setText(null);
                 to_text1.setText(null);
                 text1.setText(null);
                 m_ownPrivCert=null;
                 m_bttnExportOwnPub.setEnabled(false);
                 m_bttnChangePasswd.setEnabled(false);
-              }
-          }
+            }
+        }
         catch(Exception e)
-          {
+        {
             return false;
-          }
+        }
         return true;
-      }
+    }
 
     public byte[] getPrevPubCert()
-      {
+    {
         return m_prevPubCert;
-      }
+    }
 
     public void setPrevPubCert(byte[] cert)
-      {
+    {
         try
-          {
+        {
             if(cert!=null)
-              {
+            {
+                X509CertificateStructure cert1 = readCertificate(cert);
+                m_textPrevCertCN.setText(cert1.getSubject().toString());
+                m_textPrevCertValidFrom.setText(cert1.getStartDate().getDate().toString());
+                m_textPrevCertValidTo.setText(cert1.getEndDate().getDate().toString());
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                new DEROutputStream(out).writeObject(cert1);
+                m_prevPubCert=out.toByteArray();
+
+                /*
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
                 X509Certificate cert1 = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(cert));
                 m_textPrevCertCN.setText(cert1.getSubjectDN().getName());
                 m_textPrevCertValidFrom.setText(cert1.getNotBefore().toString());
                 m_textPrevCertValidTo.setText(cert1.getNotAfter().toString());
                 m_prevPubCert=cert1.getEncoded();
-              }
+                */
+            }
             else
-              {
+            {
                 m_textPrevCertCN.setText(null);
                 m_textPrevCertValidFrom.setText(null);
                 m_textPrevCertValidTo.setText(null);
                 m_prevPubCert=null;
-              }
-          }
+            }
+        }
         catch(Exception e)
-          {
+        {
             System.out.println("Prev Cert not set: "+e.getMessage());
             setPrevPubCert(null);
-          }
-      }
+        }
+    }
 
     public byte[] getNextPubCert()
       {
@@ -391,12 +518,21 @@ class CertificatesPanel extends JPanel implements ActionListener
           {
             if(cert!=null)
               {
+                X509CertificateStructure cert1 = readCertificate(cert);
+                m_textNextCertCN.setText(cert1.getSubject().toString());
+                m_textNextCertValidFrom.setText(cert1.getStartDate().getDate().toString());
+                m_textNextCertValidTo.setText(cert1.getEndDate().getDate().toString());
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                new DEROutputStream(out).writeObject(cert1);
+                m_nextPubCert=out.toByteArray();
+                /*
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
                 X509Certificate cert1 = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(cert));
                 m_textNextCertCN.setText(cert1.getSubjectDN().getName());
                 m_textNextCertValidFrom.setText(cert1.getNotBefore().toString());
                 m_textNextCertValidTo.setText(cert1.getNotAfter().toString());
                 m_nextPubCert=cert1.getEncoded();
+                */
               }
             else
               {
@@ -744,6 +880,18 @@ class CertificatesPanel extends JPanel implements ActionListener
 
     public void generateNewCert()
     {
+      String mixid=MyFrame.m_GeneralPanel.getMixID();
+
+      if(mixid==null || mixid.length()==0)
+      {
+         javax.swing.JOptionPane.showMessageDialog(this,
+                 MyFrame.m_GeneralPanel.getMixAuto().equals("True")?
+                 "Please enter main incoming connection in the network panel.":
+                 "Please enter Mix ID in general panel.",
+                 "No Mix ID!", javax.swing.JOptionPane.ERROR_MESSAGE);
+          return;
+      }
+
       ValidityDialog vdialog = new ValidityDialog(TheApplet.getMainWindow(), "Validity");
       vdialog.show();
       if(vdialog.from==null)
@@ -753,7 +901,6 @@ class CertificatesPanel extends JPanel implements ActionListener
       char[] passwd=dialog.getPassword();
       if(passwd==null)
         return;
-      String mixid=MyFrame.m_GeneralPanel.getMixID();
       mixid=URLEncoder.encode(mixid);
       X509V3CertificateGenerator gen=new X509V3CertificateGenerator();
       gen.setSignatureAlgorithm("DSAWITHSHA1");
