@@ -6,12 +6,26 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-// import java.security.Security;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+
+import org.bouncycastle.asn1.x509.X509CertificateStructure;
+import org.bouncycastle.asn1.DERInputStream;
+import org.bouncycastle.asn1.BERInputStream;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.pkcs.SignedData;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.DERTaggedObject;
+import org.bouncycastle.asn1.ASN1TaggedObject;
 
 public class MixConfig extends JApplet
 {
@@ -24,7 +38,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML=2;
 	public final static int FILTER_PFX=4;
 	public final static int FILTER_B64_CER=8;
-	public final static String VERSION="00.02.005";
+	public final static String VERSION="00.02.006";
 
 	public static void main(String[] args)
 	{
@@ -102,5 +116,101 @@ public class MixConfig extends JApplet
 				m_fileCurrentDir = fd2.getCurrentDirectory();
 				return fd2;
 			}
+
+		public static byte[] openFile(int type)
+			{
+				File file =
+
+							showFileDialog(MixConfig.OPEN_DIALOG, type)
+							.getSelectedFile();
+			if (file != null)
+			{
+					try
+					{
+							byte[] buff = new byte[(int) file.length()];
+							FileInputStream fin = new FileInputStream(file);
+							fin.read(buff);
+							fin.close();
+							return buff;
+					}
+					catch (Exception e)
+					{
+							System.out.println("Error reading: " + file);
+							return null;
+					}
+			}
+			return null;
+	}
+
+		public static X509CertificateStructure readCertificate(byte[] cert)
+				throws IOException
+		{
+				ByteArrayInputStream bin = null;
+
+				if (cert[0] != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
+				{
+						// Probably a Base64 encoded certificate
+						BufferedReader in =
+								new BufferedReader(
+										new InputStreamReader(new ByteArrayInputStream(cert)));
+						StringBuffer sbuf = new StringBuffer();
+						String line;
+
+						while ((line = in.readLine()) != null)
+						{
+								if (line.equals("-----BEGIN CERTIFICATE-----")
+										|| line.equals("-----BEGIN X509 CERTIFICATE-----"))
+										break;
+						}
+
+						while ((line = in.readLine()) != null)
+						{
+								if (line.equals("-----END CERTIFICATE-----")
+										|| line.equals("-----END X509 CERTIFICATE-----"))
+										break;
+								sbuf.append(line);
+						}
+						bin = new ByteArrayInputStream(Base64.decode(sbuf.toString()));
+				}
+
+				if (bin == null && cert[1] == 0x80)
+				{
+						// a BER encoded certificate
+						BERInputStream in =
+								new BERInputStream(new ByteArrayInputStream(cert));
+						ASN1Sequence seq = (ASN1Sequence) in.readObject();
+						DERObjectIdentifier oid = (DERObjectIdentifier) seq.getObjectAt(0);
+						if (oid.equals(PKCSObjectIdentifiers.signedData))
+								return new X509CertificateStructure(
+										(ASN1Sequence) new SignedData(
+												(ASN1Sequence) ((DERTaggedObject) seq
+												.getObjectAt(1))
+												.getObject())
+												.getCertificates()
+												.getObjectAt(0));
+				}
+				else
+				{
+						if (bin == null)
+								bin = new ByteArrayInputStream(cert);
+						// DERInputStream
+						DERInputStream in = new DERInputStream(bin);
+						ASN1Sequence seq = (ASN1Sequence) in.readObject();
+						if (seq.size() > 1
+								&& seq.getObjectAt(1) instanceof DERObjectIdentifier
+								&& seq.getObjectAt(0).equals(PKCSObjectIdentifiers.signedData))
+						{
+								return X509CertificateStructure.getInstance(
+										new SignedData(
+												ASN1Sequence.getInstance(
+														(ASN1TaggedObject) seq.getObjectAt(1),
+														true))
+												.getCertificates()
+												.getObjectAt(0));
+						}
+						return X509CertificateStructure.getInstance(seq);
+				}
+				throw (new IOException("Couldn't read certificate."));
+		}
 
 }

@@ -60,8 +60,13 @@ public class ConfigFrame extends JPanel implements ActionListener
 				m_MenuBar = new JMenuBar();
 				//setJMenuBar(mb);
 				JMenu fileMenu = new JMenu("File");
+				fileMenu.setMnemonic('F');
 				m_MenuBar.add(fileMenu);
+				JMenu toolsMenu = new JMenu("Tools");
+				toolsMenu.setMnemonic('T');
+				m_MenuBar.add(toolsMenu);
 				JMenu helpMenu = new JMenu("Help");
+				helpMenu.setMnemonic('H');
 				m_MenuBar.add(helpMenu);
 
 				JMenuItem newMenuItem = new JMenuItem("New");
@@ -91,12 +96,12 @@ public class ConfigFrame extends JPanel implements ActionListener
 				saveMenuItem.setActionCommand("Save");
 				saveAsMenuItem.setActionCommand("SaveAs");
 				saveMenuItem.setEnabled(false);
-																if(parent==null) // an applet
-																{
-																		exitMenuItem.setEnabled(false);
-																		openMenuItem.setEnabled(false);
-																		saveAsMenuItem.setEnabled(false);
-																}
+				if(parent==null) // an applet
+					{
+						exitMenuItem.setEnabled(false);
+						openMenuItem.setEnabled(false);
+						saveAsMenuItem.setEnabled(false);
+					}
 
 				fileMenu.add(newMenuItem);
 				fileMenu.addSeparator();
@@ -109,6 +114,12 @@ public class ConfigFrame extends JPanel implements ActionListener
 				fileMenu.add(saveclipItem);
 				fileMenu.addSeparator();
 				fileMenu.add(exitMenuItem);
+
+				JMenuItem toolCertSigMenuItem = new JMenuItem("Sign a public Key Certificat...");
+				toolsMenu.add(toolCertSigMenuItem);
+				toolCertSigMenuItem.setActionCommand("toolCertSigMenuItem");
+				toolCertSigMenuItem.addActionListener(this);
+
 
 				JMenuItem aboutMenuItem = new JMenuItem("About...");
 				helpMenu.add(aboutMenuItem);
@@ -139,7 +150,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 		public void actionPerformed(ActionEvent evt)
 		{
 				if (evt.getActionCommand().equals("New"))
-				{
+					{
 						int ret =
 								JOptionPane.showConfirmDialog(
 										MixConfig.getMainWindow(),
@@ -148,14 +159,14 @@ public class ConfigFrame extends JPanel implements ActionListener
 										JOptionPane.OK_CANCEL_OPTION);
 						if (ret == JOptionPane.OK_OPTION)
 								reset();
-				}
+					}
 				else if (evt.getActionCommand().equals("Exit"))
-				{
+					{
 						//dispose();
 						System.exit(0);
-				}
+					}
 				else if (evt.getActionCommand().equals("Check"))
-				{
+					{
 						String[] msg = check();
 						if (msg != null && msg.length > 0)
 								JOptionPane.showMessageDialog(
@@ -317,8 +328,13 @@ public class ConfigFrame extends JPanel implements ActionListener
 										e.printStackTrace();
 								}
 						}
-				}
-				else if (evt.getActionCommand().equals("About"))
+					}
+				else if (evt.getActionCommand().equals("toolCertSigMenuItem"))
+					{
+						 new SigCertTool(MixConfig.getMainWindow());
+					}
+
+			else if (evt.getActionCommand().equals("About"))
 				{
 						JOptionPane.showMessageDialog(
 								MixConfig.getMainWindow(),
