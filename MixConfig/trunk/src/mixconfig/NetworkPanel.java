@@ -1526,6 +1526,18 @@ class NetworkPanel extends JPanel
     Info_Layout.setConstraints(Host_Text,f);
     panel3.add(Host_Text);
 
+    DocumentListener MixIDUpdater = new DocumentListener()
+    {
+        public void changedUpdate(DocumentEvent ev) {}
+        public void insertUpdate(DocumentEvent ev)
+        {
+            MyFrame.m_GeneralPanel.updateMixId();
+        }
+        public void removeUpdate(DocumentEvent ev)
+        {
+            MyFrame.m_GeneralPanel.updateMixId();
+        }
+    };
     JLabel IP = new JLabel("IP");
     f.gridy = 1;
     f.gridx = 0;
@@ -1534,6 +1546,7 @@ class NetworkPanel extends JPanel
     panel3.add(IP);
     IP_Text = new JTextField(38);
     IP_Text.setText("");
+    IP_Text.getDocument().addDocumentListener(MixIDUpdater);
     f.gridx = 1;
     f.weightx = 1;
     Info_Layout.setConstraints(IP_Text,f);
@@ -1547,6 +1560,7 @@ class NetworkPanel extends JPanel
     panel3.add(port);
     Port_Text = new JTextField(38);
     Port_Text.setText("");
+    Port_Text.getDocument().addDocumentListener(MixIDUpdater);
     f.gridx = 1;
     Info_Layout.setConstraints(Port_Text,f);
     panel3.add(Port_Text);
