@@ -15,7 +15,7 @@ class DescriptionPanel extends JPanel implements ActionListener
   {
     private JPanel panel1;
     public static JButton map;
-    private JTextField text1,text2,longi,lati;
+    private JTextField text1,text2,text3,longi,lati;
     private MapBox box;
 
     public DescriptionPanel()
@@ -58,9 +58,23 @@ class DescriptionPanel extends JPanel implements ActionListener
       d.gridy = 2;
       d.weightx = 0;
       d.gridwidth = 1;
-      JLabel state = new JLabel("Country");
+      JLabel state = new JLabel("State");
       forpanel.setConstraints(state,d);
       panel1.add(state);
+      text3 = new JTextField(20);
+      d.gridx = 1;
+      d.gridwidth = 3;
+      d.weightx = 1;
+      forpanel.setConstraints(text3,d);
+      panel1.add(text3);
+
+      d.gridx = 0;
+      d.gridy = 3;
+      d.weightx = 0;
+      d.gridwidth = 1;
+      JLabel country = new JLabel("Country");
+      forpanel.setConstraints(country,d);
+      panel1.add(country);
       text2 = new JTextField(20);
       d.gridx = 1;
       d.gridwidth = 3;
@@ -69,7 +83,7 @@ class DescriptionPanel extends JPanel implements ActionListener
       panel1.add(text2);
 
       d.gridx = 0;
-      d.gridy = 3;
+      d.gridy = 4;
       d.weightx = 1;
       d.gridwidth = 3;
       JLabel pos = new JLabel("Geographical Position");
@@ -84,7 +98,7 @@ class DescriptionPanel extends JPanel implements ActionListener
       forpanel.setConstraints(map,d);
       panel1.add(map);
       JLabel longitude = new JLabel("Longitude");
-      d.gridy = 4;
+      d.gridy = 5;
       d.gridx = 0;
       d.weightx = 0;
       forpanel.setConstraints(longitude,d);
@@ -96,7 +110,7 @@ class DescriptionPanel extends JPanel implements ActionListener
       forpanel.setConstraints(longi,d);
       panel1.add(longi);
       JLabel latitude = new JLabel("Latitude");
-      d.gridy = 5;
+      d.gridy = 6;
       d.gridx = 0;
       d.weightx = 0;
       d.gridwidth = 1;
@@ -116,9 +130,14 @@ class DescriptionPanel extends JPanel implements ActionListener
       return text1.getText();
     }
 
-    public String getState()
+    public String getCountry()
     {
       return text2.getText();
+    }
+
+    public String getState()
+    {
+      return text3.getText();
     }
 
     public String getLongitude()
@@ -135,9 +154,13 @@ class DescriptionPanel extends JPanel implements ActionListener
     {
       text1.setText(city);
     }
+    public void setCountry(String country)
+    {
+      text2.setText(country);
+    }
     public void setState(String state)
     {
-      text2.setText(state);
+      text3.setText(state);
     }
     public void setLati(String latitude)
     {
