@@ -848,9 +848,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 						fout.write(m_cert.getX509Certificate().toByteArray());
 						break;
 					case MixConfig.FILTER_B64_CER:
-						fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
 						fout.write(m_cert.getX509Certificate().toByteArray(true));
-						fout.write("\n-----END CERTIFICATE-----\n".getBytes());
 						break;
 				}
 				fout.close();
@@ -865,9 +863,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				"I/O error while saving, try clipboard. " +
 				"Copy and Save this file in a new Location.",
 				false);
-			Save.setText("-----BEGIN CERTIFICATE-----\n" +
-						 m_cert.getX509Certificate().toByteArray(true) +
-						 "\n-----END CERTIFICATE-----\n");
+			Save.setText(new String(m_cert.getX509Certificate().toByteArray(true)));
 			Save.show();
 		}
 	}

@@ -173,15 +173,17 @@ public class ChoicePanel extends JPanel implements ActionListener
 		}
 		else if (ae.getActionCommand().equals(CMD_NOWIZ))
 		{
-			m_cardLayout.show(this, CARD_NO_WIZ);
 			m_Parent.setJMenuBar( ( (ConfigFrame) m_mainPanel_nowiz).getMenuBar());
+			m_cardLayout.show(this, CARD_NO_WIZ);
+			m_Parent.pack();
 		}
 		else if (ae.getActionCommand().equals(CMD_LOAD))
 		{
-			m_cardLayout.show(this, CARD_NO_WIZ);
 			m_Parent.setJMenuBar( ( (ConfigFrame) m_mainPanel_nowiz).getMenuBar());
 			((ConfigFrame)m_mainPanel_nowiz).actionPerformed(new ActionEvent(this,
 				ActionEvent.ACTION_PERFORMED, ConfigFrame.CMD_OPEN_FILE));
+			m_cardLayout.show(this, CARD_NO_WIZ);
+			m_Parent.pack();
 		} //end else if
 	}
 	catch (Exception e)
