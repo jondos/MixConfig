@@ -3,9 +3,11 @@
 
 <!-- XML File for Mix Configuration -->
 
-<MixConfiguration version="0.2">  <!-- Root-Element -->
+<MixConfiguration version="0.3">  <!-- Root-Element -->
 <!-- Changes in Version 0.2:
 		- added attr 'hidden' and 'virtual' to ListenerInterface
+	- Changes in Version 0.3:
+		- added Encryption Key for Log
 -->
 <General>
 	<MixID> <!-- Each Mix gets an unique ID, ether chosen by the user or generate
@@ -31,7 +33,16 @@
 		<File compressed="True|False"><!--The file to which the log data should be writen--></File>
 		<SysLog>  <!-- Values: True | False --> </SysLog>
 		<Console> <!-- Values: True | False, must be False, if Daemon=True --> </Console>
-	</Logging>
+		<EncryptionKey> <!-- Key used for encrpyted log -->
+			<KeyInfo>
+				<X509Data>
+					<X509Certificate>
+						...
+						</X509Certificate>
+					</X509Data>
+				</KeyInfo>
+			</EncryptionKey>
+		</Logging>
 </General>
 
 <Network>
