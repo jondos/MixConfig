@@ -777,6 +777,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 						ByteArrayOutputStream fout = new ByteArrayOutputStream();
 
 						OutputFormat format = new OutputFormat(doc,"UTF-8", true);
+						format.setLineWidth(0);//avoid line wrapping
 						XMLSerializer serial = new XMLSerializer(fout, format);
 						serial.serialize(doc);
 						fout.close();
