@@ -76,7 +76,7 @@ class ClipFrame extends Frame implements ActionListener
 
   public void OpenFile()
   {
-    String data = Area.getText();
+ /*   String data = Area.getText();
     int i = 0,j = 0,index,k = 1;
     String find2 = "";
 
@@ -277,6 +277,7 @@ class ClipFrame extends Frame implements ActionListener
      find = "<Latitude>";
      index = search(data,find);
      MyFrame.m_DescriptionPanel.setLati(getString(data,index));
+  */
   }
 
   private String getString(String data, int index)
