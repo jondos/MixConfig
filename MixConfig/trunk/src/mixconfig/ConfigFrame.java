@@ -147,6 +147,17 @@ public class ConfigFrame
 		toolsMenu.add(toolCertSigMenuItem);
 		toolCertSigMenuItem.setActionCommand("toolCertSigMenuItem");
 		toolCertSigMenuItem.addActionListener(this);
+		JMenuItem toolPGPMenuItem = new JMenuItem(
+				"Converts PGP to X.509...");
+			toolsMenu.add(toolPGPMenuItem);
+			toolPGPMenuItem.setActionCommand("toolPGPMenuItem");
+			toolPGPMenuItem.addActionListener(this);
+
+		JMenuItem toolEncLogMenuItem = new JMenuItem(
+				"Display encrypted Mix log...");
+			toolsMenu.add(toolEncLogMenuItem);
+			toolEncLogMenuItem.setActionCommand("toolEncLogMenuItem");
+			toolEncLogMenuItem.addActionListener(this);
 
 		JMenuItem aboutMenuItem = new JMenuItem("About...");
 		helpMenu.add(aboutMenuItem);
@@ -336,8 +347,13 @@ public class ConfigFrame
 			}
 		}
 		else if (evt.getActionCommand().equals("toolCertSigMenuItem")) {
-			new SigCertTool(MixConfig.getMainWindow());
-		}
+			new SigCertTool(MixConfig.getMainWindow());}
+			else if (evt.getActionCommand().equals("toolEncLogMenuItem")) {
+				new EncryptedLogTool(MixConfig.getMainWindow());}
+				else if (evt.getActionCommand().equals("toolPGPMenuItem")) {
+					new PGPtoX509Tool(MixConfig.getMainWindow());
+
+	}
 
 		else if (evt.getActionCommand().equals("About")) {
 			JOptionPane.showMessageDialog(
@@ -753,7 +769,8 @@ public class ConfigFrame
 						e1.appendChild(e);
 						e1=doc.createElement("X509Certificate");
 						e.appendChild(e1);
-						t=doc.createTextNode(Base64.encodeBytes(cert));
+						t=doc.createTextNode(Base64.encodeBytes(cert,true));
+						e1.setAttribute("xml:space", "preserve");
 						e1.appendChild(t);
 					}
 				}

@@ -67,11 +67,12 @@ public class MixConfig extends JApplet
 	private static File m_fileCurrentDir;
 	public final static int SAVE_DIALOG=1;
 	public final static int OPEN_DIALOG=2;
+	public final static int FILTER_ALL=0;
 	public final static int FILTER_CER=1;
 	public final static int FILTER_XML=2;
 	public final static int FILTER_PFX=4;
 	public final static int FILTER_B64_CER=8;
-	public final static String VERSION="00.02.018"; //NEVER change the layout of this line!!
+	public final static String VERSION="00.02.020"; //NEVER change the layout of this line!!
 
 	public static void main(String[] args)
 	{
