@@ -91,6 +91,12 @@ public class ConfigFrame extends JPanel implements ActionListener
 				saveMenuItem.setActionCommand("Save");
 				saveAsMenuItem.setActionCommand("SaveAs");
 				saveMenuItem.setEnabled(false);
+                                if(parent==null) // an applet
+                                {
+                                    exitMenuItem.setEnabled(false);
+                                    openMenuItem.setEnabled(false);
+                                    saveAsMenuItem.setEnabled(false);
+                                }
 
 				fileMenu.add(newMenuItem);
 				fileMenu.addSeparator();
@@ -181,6 +187,10 @@ public class ConfigFrame extends JPanel implements ActionListener
 												.getSelectedFile();
 								if (file != null)
 								{
+                                                                                String fname = file.getName();
+                                                                                if (!fname.toLowerCase().endsWith(".xml"))
+                                                                                        file = new File(file.getParent(), fname + ".xml");
+                                                                                                
 										save(file.getCanonicalPath());
 										saveMenuItem.setText("Save [" + file.getName() + "] ");
 										saveMenuItem.setEnabled(true);
@@ -388,7 +398,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 
 		private void open_internal(byte[] config)
 		{
-				reset();
+                                reset();
 				try
 				{
 						DocumentBuilderFactory factory =
@@ -397,6 +407,60 @@ public class ConfigFrame extends JPanel implements ActionListener
 						Document doc = docBuilder.parse(new ByteArrayInputStream(config));
 
 						Element root = doc.getDocumentElement();
+                                                if(!root.getNodeName().equals("MixConfiguration"))
+                                                {
+                                                    JOptionPane.showMessageDialog(
+                                                            MixConfig.getMainWindow(),
+                                                            "The root element '"+root.getNodeName()+"'\nin the XML file is unknown.",
+                                                            "Unknown XML format.",
+                                                            JOptionPane.ERROR_MESSAGE);
+                                                    return;
+                                                }
+                                                String ver = root.getAttribute("version");
+                                                if(ver==null || ver.length()==0)
+                                                {
+                                                    int ret =
+                                                            JOptionPane.showConfirmDialog(
+                                                                    MixConfig.getMainWindow(),
+                                                                    "This file does not contain any version information,\nso information may be lost.\nDo you want to continue?",
+                                                                    "Old XML file!",
+                                                                    JOptionPane.OK_CANCEL_OPTION);
+                                                    if (ret != JOptionPane.OK_OPTION)
+                                                            return;
+                                                }
+                                                else
+                                                {
+                                                    int[] version = new int[] {0,0,0};
+                                                    int p = 0;
+                                                    for(int i=0;i<3;i++)
+                                                    {
+                                                        int q = ver.indexOf('.',p);
+                                                        try
+                                                        {
+                                                            version[i] = Integer.parseInt((q<0)?ver.substring(p):ver.substring(p,q));
+                                                        }
+                                                        catch(NumberFormatException e)
+                                                        {
+                                                            break;
+                                                        }
+                                                        if(q<0)
+                                                            break;
+                                                        else
+                                                            p = q+1;
+                                                    }
+                                                    
+                                                    if(version[0]>0 || version[1]>1)
+                                                    {
+                                                        int ret =
+                                                                JOptionPane.showConfirmDialog(
+                                                                        MixConfig.getMainWindow(),
+                                                                        "The version of this file is newer than this utility,\nso information may not be read properly.\nDo you want to continue?",
+                                                                        "XML file too new!",
+                                                                        JOptionPane.OK_CANCEL_OPTION);
+                                                        if (ret != JOptionPane.OK_OPTION)
+                                                                return;
+                                                    }
+                                                }
 						Element elemGeneral = getChild(root, "General");
 						Element elemType = getChild(elemGeneral, "MixType");
 						String MixType = getElementValue(elemType, null);
@@ -845,20 +909,58 @@ public class ConfigFrame extends JPanel implements ActionListener
 
 				if (m_NetworkPanel.getIncomingModel().getRowCount() == 0)
 						errors.addElement("No Incoming Connection given in Network Panel.");
+                                else
+                                {
+                                    int rows = m_NetworkPanel.getIncomingModel().getRowCount();
+                                    for(int i=0;i<rows;i++)
+                                    {
+                                        ConnectionData data = m_NetworkPanel.getIncomingModel().getData(i);
+                                        if((data.getTransport()&ConnectionData.TRANSPORT)==ConnectionData.TCP)
+                                        {
+                                            if(data.getPort()==0)
+                                                errors.addElement("Incoming connection no. "+(i+1)+" has no port set.");
+                                        }
+                                        else
+                                        {
+                                            if(data.getName()==null || data.getName().length()==0)
+                                                errors.addElement("Incoming connection no. "+(i+1)+" has no filename set.");
+                                        }
+                                    }
+                                }
 				if (m_NetworkPanel.getOutgoingModel().getRowCount() == 0)
 						errors.addElement("No Outgoing Connection given in Network Panel.");
-				else if (!m_GeneralPanel.getMixType().equals("LastMix"))
-				{
+				else
+                                {
+                                    int rows = m_NetworkPanel.getOutgoingModel().getRowCount();
+                                    for(int i=0;i<rows;i++)
+                                    {
+                                        ConnectionData data = m_NetworkPanel.getOutgoingModel().getData(i);
+                                        if((data.getTransport()&ConnectionData.TRANSPORT)==ConnectionData.TCP)
+                                        {
+                                            if(data.getName()==null || data.getName().length()==0)
+                                                errors.addElement("Outgoing connection no. "+(i+1)+" has no host name set.");
+                                            if(data.getPort()==0)
+                                                errors.addElement("Outgoing connection no. "+(i+1)+" has no port set.");
+                                        }
+                                        else
+                                        {
+                                            if(data.getName()==null || data.getName().length()==0)
+                                                errors.addElement("Outgoing connection no. "+(i+1)+" has no filename set.");
+                                        }
+                                    }
+                                    if (!m_GeneralPanel.getMixType().equals("LastMix"))
+                                    {
 						if (m_NetworkPanel.getOutgoingModel().getRowCount() > 1)
 								errors.addElement(
 										"Too many Outgoing Connections in Network Panel.");
+                                    }
 				}
 				if (m_NetworkPanel.getHost().equals(""))
 						errors.addElement(
-								"The Host field should not be blank in Network Panel.");
+								"The Host field for the Info Service should not be blank in Network Panel.");
 				if (m_NetworkPanel.getPort().equals(""))
 						errors.addElement(
-								"The Port field should not be blank in Network Panel.");
+								"The Port field for the Info Service should not be blank in Network Panel.");
 				if (!m_NetworkPanel.IP_Text.isEmpty()
 						&& !m_NetworkPanel.IP_Text.isCorrect())
 						errors.addElement(
@@ -868,12 +970,31 @@ public class ConfigFrame extends JPanel implements ActionListener
 						|| m_CertificatesPanel.getOwnPubCert() == null)
 						errors.addElement(
 								"Own Mix Certificate is missing in Certificates Panel.");
-				if (m_CertificatesPanel.getPrevPubCert() == null)
-						errors.addElement(
-								"Previous Mix Certificate is missing in Certificates Panel.");
-				if (m_CertificatesPanel.getNextPubCert() == null)
+				if (m_GeneralPanel.getMixType().equals("FirstMix"))
+				{
+                                        if(m_CertificatesPanel.getPrevPubCert() != null)
+                                                errors.addElement(
+                                                        "Previous Mix Certificate is present, but there is no previous mix.");
+                                }
+                                else
+                                {
+                                        if(m_CertificatesPanel.getPrevPubCert() == null)                        
+                                                errors.addElement(
+                                                        "Previous Mix Certificate is missing in Certificates Panel.");
+                                }
+                                    
+				if (m_GeneralPanel.getMixType().equals("LastMix"))
+                                {
+                                        if(m_CertificatesPanel.getNextPubCert() != null)
+                                                errors.addElement(
+                                                                 "Next Mix Certificate is present, but there is no next mix.");
+                                }
+                                else
+                                {
+                                        if(m_CertificatesPanel.getNextPubCert() == null)
 						errors.addElement(
 								"Next Mix Certificate is missing in Certificates Panel.");
+                                }
 
 				if (m_DescriptionPanel.getCity().equals(""))
 						errors.addElement(
