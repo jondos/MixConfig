@@ -19,7 +19,7 @@ import java.awt.Insets;
 class GeneralPanel extends JPanel implements ItemListener,ActionListener
 {
   private JComboBox m_comboboxMixType;
-  private JTextField MixName,MixID,FileName,ID_Text,num_file;
+  private JTextField MixName,CascadeName,MixID,FileName,ID_Text,num_file;
   private JCheckBox Auto,m_checkboxDaemon,m_checkboxLogging,m_checkboxUserID,m_checkboxNrOfFileDes;
   private JRadioButton Console,File,Syslog;
   private ButtonGroup bg;
@@ -46,14 +46,34 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     m_comboboxMixType.addItem("Last Mix");
     c.weightx=1;
     c.gridx=1;
-    c.gridy=0;
     c.gridwidth = 3;
     layout.setConstraints(m_comboboxMixType,c);
     add(m_comboboxMixType);
+    m_comboboxMixType.addItemListener(new ItemListener()
+        {
+            public void itemStateChanged(ItemEvent e)
+            {
+                CascadeName.setEnabled(m_comboboxMixType.getSelectedIndex()==0);
+            }
+        });
+
+    JLabel j1a = new JLabel("Cascade Name");
+    c.gridx=0;
+    c.gridy++;
+    c.gridwidth = 1;
+    layout.setConstraints(j1a,c);
+    add(j1a);
+    CascadeName = new JTextField(20);
+    CascadeName.setText("");
+    c.gridx=1;
+    c.gridwidth = 3;
+    c.weightx = 1;
+    layout.setConstraints(CascadeName,c);
+    add(CascadeName);
 
     JLabel j2 = new JLabel("Mix Name");
     c.gridx=0;
-    c.gridy=1;
+    c.gridy++;
     c.gridwidth = 1;
     c.weightx = 0;
     layout.setConstraints(j2,c);
@@ -61,7 +81,6 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     MixName = new JTextField(20);
     MixName.setText("");
     c.gridx=1;
-    c.gridy=1;
     c.gridwidth = 3;
     c.weightx = 1;
     layout.setConstraints(MixName,c);
@@ -69,14 +88,14 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
 
     JLabel j3 = new JLabel("Mix ID");
     c.gridx=0;
-    c.gridy=2;
+    c.gridy++;
     c.gridwidth = 1;
     c.weightx = 0;
     layout.setConstraints(j3,c);
     add(j3);
     Auto = new JCheckBox("Automatically Generated");
     c.gridx=1;
-    c.gridy=2;
+    c.gridy++;
     c.gridwidth = 3;
     c.weightx = 1;
     layout.setConstraints(Auto,c);
@@ -86,13 +105,13 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     MixID = new JTextField(20);
     MixID.setText("");
     c.gridx=1;
-    c.gridy=3;
+    c.gridy++;
     c.gridwidth = 3;
     layout.setConstraints(MixID,c);
     add(MixID);
 
     m_checkboxUserID = new JCheckBox("Set User ID on Execution");
-    c.gridy = 5;
+    c.gridy++;
     c.gridx = 0;
     c.gridwidth = 1;
     c.weightx = 0;
@@ -109,7 +128,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
 
     m_checkboxNrOfFileDes = new JCheckBox("Set Number of File Descriptors");
     c.weightx = 0;
-    c.gridy = 6;
+    c.gridy++;
     c.gridx = 0;
     c.gridwidth = 1;
     m_checkboxNrOfFileDes.addItemListener(this);
@@ -125,21 +144,20 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
 
     m_checkboxDaemon = new JCheckBox("Run as Daemon");
     c.gridx = 0;
-    c.gridy = 7;
+    c.gridy++;
     m_checkboxDaemon.addItemListener(this);
     layout.setConstraints(m_checkboxDaemon,c);
     add(m_checkboxDaemon);
 
     m_checkboxLogging = new JCheckBox("Enable Logging");
     c.gridx = 0;
-    c.gridy = 8;
+    c.gridy++;
     m_checkboxLogging.addItemListener(this);
     layout.setConstraints(m_checkboxLogging,c);
     add(m_checkboxLogging);
 
     Console = new JRadioButton("Log to Console");
     c.gridx = 1;
-    c.gridy = 9;
     c.weightx = 1;
     Console.setActionCommand("LogtoConsole");
     Console.addActionListener(this);
@@ -147,9 +165,9 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     add(Console);
     Console.setEnabled(false);
 
-    File = new JRadioButton("Log to directory");
-    c.gridy = 10;
+    File = new JRadioButton("Log to Directory");
     c.weightx = 0;
+    c.gridy++;
     File.addActionListener(this);
     File.setActionCommand("Logtodir");
     layout.setConstraints(File,c);
@@ -159,7 +177,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     FileName = new JTextField(20);
     FileName.setText("");
     c.gridx = 1;
-    c.gridy = 11;
+    c.gridy++;
     c.weightx = 1;
     layout.setConstraints(FileName,c);
     add(FileName);
@@ -167,7 +185,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
 
     Syslog = new JRadioButton("Log to Syslog");
     c.gridx = 1;
-    c.gridy = 12;
+    c.gridy++;
     Syslog.addActionListener(this);
     Syslog.setActionCommand("LogtoSyslog");
     layout.setConstraints(Syslog,c);
@@ -185,6 +203,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     {
        setMixType(null);
        setMixName(null);
+       setCascadeName(null);
        setUserID(null);
        setLogging(false,false,false,null);
        setFileDes(null);
@@ -205,6 +224,11 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
             return "FirstMix";
         }
     }
+
+  public String getCascadeName()
+  {
+      return CascadeName.getText();
+  }
 
   public String getMixName()
     {
@@ -289,6 +313,11 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
       m_comboboxMixType.setSelectedIndex(0);
   }
 
+  public void setCascadeName(String name)
+  {
+    CascadeName.setText(name);
+  }
+
   public void setMixName(String name)
   {
     MixName.setText(name);
@@ -336,8 +365,25 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
 
   public void updateMixId()
   {
-      if(Auto.isSelected())
-          MixID.setText(java.net.URLEncoder.encode(MyFrame.m_NetworkPanel.getIP()+":"+MyFrame.m_NetworkPanel.getPort()));
+      if(!Auto.isSelected())
+          return;
+
+      IncomingModel im = MyFrame.m_NetworkPanel.getIncomingModel();
+      for(int i=0;i<im.getRowCount();i++)
+      {
+          ConnectionData data = im.getData(i);
+          if(!data.getIsMain())
+              continue;
+          int[] ipaddr = data.getIPAddr();
+          String ipstr = "";
+          if(ipaddr!=null)
+              for(int j=0;j<ipaddr.length;j++)
+                  ipstr += ((j==0)?"":".")+ipaddr[j];
+          MixID.setText(java.net.URLEncoder.encode(
+                   ipstr+":"+data.getPort()));
+          return;
+      }
+      MixID.setText("");
   }
   public void itemStateChanged(ItemEvent ie)
   {
