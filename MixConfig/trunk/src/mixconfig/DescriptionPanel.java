@@ -18,7 +18,7 @@ class DescriptionPanel extends JPanel implements ActionListener
     private JTextField text1,text2,text3,longi,lati;
     private MapBox box;
 
-    public DescriptionPanel()
+    public DescriptionPanel(boolean isApplet)
     {
       GridBagLayout layout=new GridBagLayout();
       setLayout(layout);
@@ -87,11 +87,13 @@ class DescriptionPanel extends JPanel implements ActionListener
       d.weightx = 1;
       d.gridwidth = 3;
       JLabel pos = new JLabel("Geographical Position");
+      pos.setToolTipText("Example: University of Technology Dresden, CS Department: Longitude: 13.761, Latitude: 51.053");
       forpanel.setConstraints(pos,d);
       panel1.add(pos);
       map = new JButton("Show on Map");
       map.addActionListener(this);
       map.setActionCommand("Map");
+      map.setEnabled(!isApplet);
       d.gridx = 3;
       d.gridwidth = 1;
       d.weightx = 1;
@@ -104,6 +106,8 @@ class DescriptionPanel extends JPanel implements ActionListener
       forpanel.setConstraints(longitude,d);
       panel1.add(longitude);
       longi = new JTextField(20);
+      longi.setDocument(new FloatDocument(-360,360));
+      longi.setToolTipText("Longitude in degrees. (0.0-360.0)");
       d.gridx = 1;
       d.gridwidth = 3;
       d.weightx = 1;
@@ -117,6 +121,8 @@ class DescriptionPanel extends JPanel implements ActionListener
       forpanel.setConstraints(latitude,d);
       panel1.add(latitude);
       lati = new JTextField(20);
+      lati.setDocument(new FloatDocument(-90,90));
+      lati.setToolTipText("Latitude in degrees. (-90.0: South Pole, 0: Equator, 90.0: North Pole)");
       d.gridx = 1;
       d.weightx = 1;
       d.gridwidth = 3;
