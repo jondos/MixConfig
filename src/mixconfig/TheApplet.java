@@ -33,8 +33,6 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.security.Security;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
 
 //  Creating a Frame.........
 
@@ -814,7 +812,12 @@ public class TheApplet extends JApplet
 
   public static void main(String[] args)
   {
-    Security.addProvider(new BouncyCastleProvider());
+      try
+      {
+          Security.addProvider((java.security.Provider)java.lang.Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider").newInstance());
+      }
+      catch(Exception e) {}
+    //Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
     JFrame MainWindow = new JFrame("Mix Configuration Tool");
     m_MainWindow = MainWindow;
     ImageIcon icon=loadImage("icon.gif");
