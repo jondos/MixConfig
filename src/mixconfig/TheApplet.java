@@ -68,11 +68,11 @@ import org.bouncycastle.crypto.BlockCipher;
 
     JMenuItem newMenuItem = new JMenuItem("New");
     JMenuItem exitMenuItem = new JMenuItem("Exit");
-    JMenuItem openMenuItem = new JMenuItem("Open");
+    JMenuItem openMenuItem = new JMenuItem("Open...");
     JMenuItem openclipItem = new JMenuItem("Open Using Clip Board");
     saveMenuItem = new JMenuItem("Save [none]");
     saveclipItem = new JMenuItem("Save Using Clip Board");
-    JMenuItem saveAsMenuItem = new JMenuItem("Save as");
+    JMenuItem saveAsMenuItem = new JMenuItem("Save as...");
 
     newMenuItem.addActionListener(this);
     exitMenuItem.addActionListener(this);
@@ -157,7 +157,7 @@ import org.bouncycastle.crypto.BlockCipher;
            {
                save(mySaveFile);
                filename = fd2.getFile();
-               saveMenuItem.setText("save ["+filename+"] ");
+               saveMenuItem.setText("Save ["+filename+"] ");
                saveMenuItem.setEnabled(true);
            }
          }
@@ -251,15 +251,7 @@ import org.bouncycastle.crypto.BlockCipher;
      m_NetworkPanel.IP_Text.setText("");
      m_NetworkPanel.Port_Text.setText("");
 
-     m_CertificatesPanel.from_text1.setText("");
-     m_CertificatesPanel.to_text1.setText("");
-     m_CertificatesPanel.text1.setText("");
-     m_CertificatesPanel.from_text2.setText("");
-     m_CertificatesPanel.to_text2.setText("");
-     m_CertificatesPanel.text2.setText("");
-     m_CertificatesPanel.from_text3.setText("");
-     m_CertificatesPanel.to_text3.setText("");
-     m_CertificatesPanel.text3.setText("");
+     m_CertificatesPanel.clear();
 
      m_DescriptionPanel.setCity("");
      m_DescriptionPanel.setLati("");
@@ -269,18 +261,30 @@ import org.bouncycastle.crypto.BlockCipher;
 
    private Element getChild(Node node,String name)
     {
+      if(node==null)
+        return null;
       Node tmp=node.getFirstChild();
       while(tmp!=null)
-	{
-	  if(tmp.getNodeName().equals(name))
-	    {
-	      if(tmp.getNodeType()==Node.ELEMENT_NODE)
-	        return (Element)tmp;
-	    }
-	  tmp=tmp.getNextSibling();
-	}
+        {
+          if(tmp.getNodeName().equals(name))
+            {
+              if(tmp.getNodeType()==Node.ELEMENT_NODE)
+                return (Element)tmp;
+            }
+          tmp=tmp.getNextSibling();
+        }
       return null;
     }
+
+    private String getElementValue(Element elem,String def)
+      {
+        if(elem==null)
+          return def;
+        Node n=elem.getFirstChild();
+        if(n==null||n.getNodeType()!=n.TEXT_NODE)
+          return def;
+        return n.getNodeValue();
+      }
 
    public void open(String fileName)
     {
@@ -395,8 +399,11 @@ import org.bouncycastle.crypto.BlockCipher;
 	    }
 	    j++;
 	    elemPort = getChild(elemInterface,"Port");
-	    port = elemPort.getFirstChild().getNodeValue();
-	    m_NetworkPanel.setTable1(port,i,j);
+	    if(elemPort!=null)
+        {
+          port = getElementValue(elemPort,"");
+	        m_NetworkPanel.setTable1(port,i,j);
+        }
 	  }
 	  else
 	  {
@@ -437,18 +444,18 @@ import org.bouncycastle.crypto.BlockCipher;
 	  {
 	    j++;
 	    elemHost = getChild(elemInterface,"Host");
-	    host = elemHost.getFirstChild().getNodeValue();
+	    host = getElementValue(elemHost,"");
 	    m_NetworkPanel.setTable2(host,i,j);
 	    j++;
 	    elemIP = getChild(elemInterface,"IP");
 	    if(elemIP != null)
 	    {
-	      IP = elemIP.getFirstChild().getNodeValue();
+	      IP = getElementValue(elemIP,"");
 	      m_NetworkPanel.setTable2(IP,i,j);
 	    }
 	    j++;
 	    elemPort = getChild(elemInterface,"Port");
-	    port = elemPort.getFirstChild().getNodeValue();
+	    port = getElementValue(elemPort,"");
 	    m_NetworkPanel.setTable2(port,i,j);
 	  }
 	  else
@@ -479,60 +486,49 @@ import org.bouncycastle.crypto.BlockCipher;
 
 	Element elemCertificates = getChild(root,"Certificates");
 	Element elemOwnCert = getChild(elemCertificates,"OwnCertificate");
-	elemName = getChild(elemOwnCert,"Name");
-	String name = elemName.getFirstChild().getNodeValue();
-	m_CertificatesPanel.setName1(name);
-	Element elemValidFrom = getChild(elemOwnCert,"ValidFrom");
-	String from = elemValidFrom.getFirstChild().getNodeValue();
-	m_CertificatesPanel.setFrom1(from);
-	Element elemValidTo = getChild(elemOwnCert,"ValidTill");
-	String validto = elemValidTo.getFirstChild().getNodeValue();
-	m_CertificatesPanel.setTo1(validto);
+	Element elem = getChild(elemOwnCert,"X509PKCS12");
+	String name = getElementValue(elem,null);
+  if(name!=null)
+    {
+      PasswordBox pb=new PasswordBox(TheApplet.myFrame,"Enter the password",PasswordBox.ENTER_PASSWORD);
+      pb.show();
+      m_CertificatesPanel.setOwnPrivCert(Base64.decode(name),pb.getPassword());
+    }
+  else
+    m_CertificatesPanel.setOwnPrivCert(null,null);
+	Element elemPrevCert = getChild(elemCertificates,"PrevMixCertificate");
+	elem = getChild(elemPrevCert,"X509Certificate");
+	name = getElementValue(elem,null);
+	if(name==null)
+    m_CertificatesPanel.setPrevPubCert(null);
+  else
+    m_CertificatesPanel.setPrevPubCert(Base64.decode(name));
 
-	Element elemPrevCert = getChild(elemCertificates,"PreviousCertificate");
-	elemName = getChild(elemPrevCert,"Name");
-	name = elemName.getFirstChild().getNodeValue();
-	m_CertificatesPanel.setName2(name);
-	elemValidFrom = getChild(elemPrevCert,"ValidFrom");
-	from = elemValidFrom.getFirstChild().getNodeValue();
-	m_CertificatesPanel.setFrom2(from);
-	elemValidTo = getChild(elemPrevCert,"ValidTill");
-	validto = elemValidTo.getFirstChild().getNodeValue();
-	m_CertificatesPanel.setTo2(validto);
-
-	Element elemNextCert = getChild(elemCertificates,"NextCertificate");
-	elemName = getChild(elemNextCert,"Name");
-	name = elemName.getFirstChild().getNodeValue();
-	m_CertificatesPanel.setName3(name);
-	elemValidFrom = getChild(elemNextCert,"ValidFrom");
-	from = elemValidFrom.getFirstChild().getNodeValue();
-	m_CertificatesPanel.setFrom3(from);
-	elemValidTo = getChild(elemNextCert,"ValidTill");
-	validto = elemValidTo.getFirstChild().getNodeValue();
-	m_CertificatesPanel.setTo3(validto);
+	Element elemNextCert = getChild(elemCertificates,"NextMixCertificate");
+	elem = getChild(elemPrevCert,"X509Certificate");
+	name = getElementValue(elem,null);
+	if(name==null)
+    m_CertificatesPanel.setNextPubCert(null);
+  else
+    m_CertificatesPanel.setNextPubCert(Base64.decode(name));
 
 	Element elemDescription = getChild(root,"Description");
-	Element elemCity = getChild(elemDescription,"City");
-	String city = elemCity.getFirstChild().getNodeValue();
+	Element elemLocation=getChild(elemDescription,"Location");
+  Element elemCity = getChild(elemLocation,"City");
+	String city = getElementValue(elemCity,null);
 	m_DescriptionPanel.setCity(city);
-        Element elemState = getChild(elemDescription,"State");
-	String state = elemState.getFirstChild().getNodeValue();
+  Element elemState = getChild(elemLocation,"State");
+	String state = getElementValue(elemState,null);
 	m_DescriptionPanel.setState(state);
 
-	Element elemLongi = getChild(elemDescription,"Longitude");
-	if(elemLongi != null)
-	{
-	  String longi = elemLongi.getFirstChild().getNodeValue();
-	  m_DescriptionPanel.setLongi(longi);
-	}
-	Element elemLati = getChild(elemDescription,"Latitude");
-	if(elemLati != null)
-	{
-	  String lati = elemLati.getFirstChild().getNodeValue();
-	  m_DescriptionPanel.setLati(lati);
-	}
+  Element elemGeo=getChild(getChild(elemLocation,"Position"),"Geo");
+	Element elemLongi = getChild(elemGeo,"Longitude");
+  String longi = getElementValue(elemLongi,null);
+  m_DescriptionPanel.setLongi(longi);
 
-
+	Element elemLati = getChild(elemGeo,"Latitude");
+  String lati = getElementValue(elemLati,null);
+  m_DescriptionPanel.setLati(lati);
 	}
       catch(Exception e)
 	{
@@ -815,92 +811,43 @@ import org.bouncycastle.crypto.BlockCipher;
 	  Element elemOwn = doc.createElement("OwnCertificate");
 	  elemCertificate.appendChild(elemOwn);
 
-	  Element elemName = doc.createElement("Name");
-	  elemOwn.appendChild(elemName);
-          String Name = m_CertificatesPanel.getOwnName();
-	  Text text10 = doc.createTextNode(Name);
-	  elemName.appendChild(text10);
+	  Element elem = doc.createElement("X509PKCS12");
+	  elemOwn.appendChild(elem);
+    byte[] buff = m_CertificatesPanel.getOwnPrivCert();
+	  buff=Base64.encode(buff);
+    Text text = doc.createTextNode(new String(buff));
+	  elem.appendChild(text);
+	  elem = doc.createElement("X509Certificate");
+	  elemOwn.appendChild(elem);
+    buff = m_CertificatesPanel.getOwnPubCert();
+	  buff=Base64.encode(buff);
+    text = doc.createTextNode(new String(buff));
+	  elem.appendChild(text);
 
-	  Element elemFrom = doc.createElement("ValidFrom");
-	  elemOwn.appendChild(elemFrom);
-          String From = m_CertificatesPanel.getOwnFrom();
-	  text10 = doc.createTextNode(From);
-	  elemFrom.appendChild(text10);
-
-	  Element elemTo = doc.createElement("ValidTill");
-	  elemOwn.appendChild(elemTo);
-          String To = m_CertificatesPanel.getOwnTo();
-	  text10 = doc.createTextNode(To);
-	  elemTo.appendChild(text10);
-
-	  Element elemPrevious = doc.createElement("PreviousCertificate");
+	  Element elemPrevious = doc.createElement("PrevMixCertificate");
 	  elemCertificate.appendChild(elemPrevious);
+	  elem = doc.createElement("X509Certificate");
+    elemPrevious.appendChild(elem);
+    buff = m_CertificatesPanel.getPrevPubCert();
+	  buff=Base64.encode(buff);
+    text = doc.createTextNode(new String(buff));
+	  elem.appendChild(text);
 
-	  elemName = doc.createElement("Name");
-	  elemPrevious.appendChild(elemName);
-          Name = m_CertificatesPanel.getPreviousName();
-	  text10 = doc.createTextNode(Name);
-	  elemName.appendChild(text10);
-
-	  elemFrom = doc.createElement("ValidFrom");
-	  elemPrevious.appendChild(elemFrom);
-          From = m_CertificatesPanel.getPreviousFrom();
-	  text10 = doc.createTextNode(From);
-	  elemFrom.appendChild(text10);
-
-	  elemTo = doc.createElement("ValidTill");
-	  elemPrevious.appendChild(elemTo);
-          To = m_CertificatesPanel.getPreviousTo();
-	  text10 = doc.createTextNode(To);
-	  elemTo.appendChild(text10);
-
-          //for the certificate
-
-          Element root2 = doc2.createElement("PreviousCertificate");
-          doc2.appendChild(root2);
-          elemName = doc2.createElement("Name");
-	  root2.appendChild(elemName);
-          Name = m_CertificatesPanel.getPreviousName();
-	  text10 = doc2.createTextNode(Name);
-	  elemName.appendChild(text10);
-
-	  elemFrom = doc2.createElement("ValidFrom");
-	  root2.appendChild(elemFrom);
-          From = m_CertificatesPanel.getPreviousFrom();
-	  text10 = doc2.createTextNode(From);
-	  elemFrom.appendChild(text10);
-
-	  elemTo = doc2.createElement("ValidTill");
-	  root2.appendChild(elemTo);
-          To = m_CertificatesPanel.getPreviousTo();
-	  text10 = doc2.createTextNode(To);
-	  elemTo.appendChild(text10);
-
-	  Element elemNext = doc.createElement("NextCertificate");
+    Element elemNext = doc.createElement("NextMixCertificate");
 	  elemCertificate.appendChild(elemNext);
-
-	  elemName = doc.createElement("Name");
-	  elemNext.appendChild(elemName);
-          Name = m_CertificatesPanel.getNextName();
-	  text10 = doc.createTextNode(Name);
-	  elemName.appendChild(text10);
-
-	  elemFrom = doc.createElement("ValidFrom");
-	  elemNext.appendChild(elemFrom);
-          From = m_CertificatesPanel.getNextFrom();
-	  text10 = doc.createTextNode(From);
-	  elemFrom.appendChild(text10);
-
-	  elemTo = doc.createElement("ValidTill");
-	  elemNext.appendChild(elemTo);
-          To = m_CertificatesPanel.getNextTo();
-	  text10 = doc.createTextNode(To);
-	  elemTo.appendChild(text10);
+	  elem = doc.createElement("X509Certificate");
+    elemNext.appendChild(elem);
+    buff = m_CertificatesPanel.getNextPubCert();
+	  buff=Base64.encode(buff);
+    text = doc.createTextNode(new String(buff));
+	  elem.appendChild(text);
 
 	  Element elemDescription = doc.createElement("Description");
 	  root.appendChild(elemDescription);
-	  Element elemCity = doc.createElement("City");
-	  elemDescription.appendChild(elemCity);
+	  Element elemLocation=doc.createElement("Location");
+    elemDescription.appendChild(elemLocation);
+    Element elemCity = doc.createElement("City");
+	  elemLocation.appendChild(elemCity);
 	  String city = m_DescriptionPanel.getCity();
 	  Text text11 = doc.createTextNode(city);
 	  elemCity.appendChild(text11);
@@ -908,22 +855,23 @@ import org.bouncycastle.crypto.BlockCipher;
 	  String State = m_DescriptionPanel.getState();
 	  text11 = doc.createTextNode(State);
 	  Element elemState = doc.createElement("State");
-	  elemDescription.appendChild(elemState);
+	  elemLocation.appendChild(elemState);
 	  elemState.appendChild(text11);
 
-	  String Position = m_DescriptionPanel.getLongitude();
-	  if(!Position.equals(""))
-	  {
-	    Element elemLong = doc.createElement("Longitude");
-	    text11 = doc.createTextNode(Position);
-	    elemDescription.appendChild(elemLong);
-	    elemLong.appendChild(text11);
-	    Position = m_DescriptionPanel.getLatitude();
-	    Element elemLati = doc.createElement("Latitude");
-	    text11 = doc.createTextNode(Position);
-	    elemDescription.appendChild(elemLati);
-	    elemLati.appendChild(text11);
-	  }
+	  Element elemPosition=doc.createElement("Position");
+    elemLocation.appendChild(elemPosition);
+    Element elemGeo=doc.createElement("Geo");
+    elemPosition.appendChild(elemGeo);
+    String Position = m_DescriptionPanel.getLongitude();
+	  Element elemLong = doc.createElement("Longitude");
+	  text11 = doc.createTextNode(Position);
+	  elemGeo.appendChild(elemLong);
+	  elemLong.appendChild(text11);
+	  Position = m_DescriptionPanel.getLatitude();
+	  Element elemLati = doc.createElement("Latitude");
+	  text11 = doc.createTextNode(Position);
+	  elemLati.appendChild(text11);
+	  elemGeo.appendChild(elemLati);
 
 	  //Writing to File...
 	  ByteArrayOutputStream fout=new ByteArrayOutputStream();
@@ -963,66 +911,24 @@ import org.bouncycastle.crypto.BlockCipher;
 	return false;
       }
 
-      if(m_CertificatesPanel.getOwnName().equals(""))
-      {
+ if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
+       {
         dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Own Mix Certificate Name is missing!");
+	dialog.setlabel("Own Mix Certificate is missing!");
 	dialog.setVisible(true);
 	return false;
       }
-      if(m_CertificatesPanel.getOwnFrom().equals(""))
+      if(m_CertificatesPanel.getPrevPubCert()==null)
       {
         dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Confirm Own Certificates Validity.");
+	dialog.setlabel("Previous Mix Certificate is missing!");
 	dialog.setVisible(true);
 	return false;
       }
-      if(m_CertificatesPanel.getOwnTo().equals(""))
+      if(m_CertificatesPanel.getNextPubCert()==null)
       {
         dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Confirm Own Certificates Validity");
-	dialog.setVisible(true);
-	return false;
-      }
-      if(m_CertificatesPanel.getPreviousName().equals(""))
-      {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Previous Mix Certificate Name is missing!");
-	dialog.setVisible(true);
-	return false;
-      }
-      if(m_CertificatesPanel.getPreviousFrom().equals(""))
-      {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Confirm Previous Certificates Validity.");
-	dialog.setVisible(true);
-	return false;
-      }
-      if(m_CertificatesPanel.getPreviousTo().equals(""))
-      {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Confirm Previous Certificates Validity");
-	dialog.setVisible(true);
-	return false;
-      }
-      if(m_CertificatesPanel.getNextName().equals(""))
-      {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Next Mix Certificate Name is missing!");
-	dialog.setVisible(true);
-	return false;
-      }
-      if(m_CertificatesPanel.getNextFrom().equals(""))
-      {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Confirm Next Certificates Validity.");
-	dialog.setVisible(true);
-	return false;
-      }
-      if(m_CertificatesPanel.getNextTo().equals(""))
-      {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Confirm Next Certificates Validity");
+	dialog.setlabel("Next Mix Certificate is missing!");
 	dialog.setVisible(true);
 	return false;
       }
@@ -1083,9 +989,10 @@ public class TheApplet extends JApplet
 
   public static void main(String[] args)
   {
-    JFrame window = new JFrame();
+    Security.addProvider(new BouncyCastleProvider());
+    JFrame window = new JFrame("MixConfiguration Tool");
     myFrame = new MyFrame();
-    myFrame.setBounds(10,10,600,650);
+    //myFrame.setBounds(10,10,600,650);
 
     window.addWindowListener(new WindowAdapter()
     {
@@ -1096,17 +1003,20 @@ public class TheApplet extends JApplet
     });
 
     window.setJMenuBar(myFrame.getJMenuBar());
-    window.getContentPane().add(myFrame.getContentPane());
+    window.setContentPane(myFrame.getContentPane());
     window.pack();
     window.show();
   }
 
    public void init()
   {
+    Security.addProvider(new BouncyCastleProvider());
+
     myFrame = new MyFrame();
     myFrame.setBounds(10,10,600,650);
     setJMenuBar(myFrame.getJMenuBar());
     setContentPane(myFrame.getContentPane());
+
   }
 
 }
@@ -1776,654 +1686,8 @@ class NetworkPanel extends JPanel
 }
 
 
-class CertificatesPanel extends JPanel implements ActionListener
-{
-   JPanel panel1,panel2,panel3;
-   JTextField text1,from_text1,to_text1;
-   JTextField text2,from_text2,to_text2;
-   JTextField text3,from_text3,to_text3;
-   JButton import1,import2,create;
-
-   public String getOwnName()
-   {
-     return text1.getText();
-   }
-   public String getOwnFrom()
-   {
-     return from_text1.getText();
-   }
-   public String getOwnTo()
-   {
-     return to_text1.getText();
-   }
-
-   public String getPreviousName()
-   {
-     return text2.getText();
-   }
-   public String getPreviousFrom()
-   {
-     return from_text2.getText();
-   }
-   public String getPreviousTo()
-   {
-     return to_text2.getText();
-   }
-
-   public String getNextName()
-   {
-     return text3.getText();
-   }
-   public String getNextFrom()
-   {
-     return from_text3.getText();
-   }
-   public String getNextTo()
-   {
-     return to_text3.getText();
-   }
-
-   public void setName1(String name)
-   {
-     text1.setText(name);
-   }
-   public void setFrom1(String from)
-   {
-     from_text1.setText(from);
-   }
-   public void setTo1(String to)
-   {
-     to_text1.setText(to);
-   }
-
-   public void setName2(String name)
-   {
-     text2.setText(name);
-   }
-   public void setFrom2(String from)
-   {
-     from_text2.setText(from);
-   }
-   public void setTo2(String to)
-   {
-     to_text2.setText(to);
-   }
-
-   public void setName3(String name)
-   {
-     text3.setText(name);
-   }
-   public void setFrom3(String from)
-   {
-     from_text3.setText(from);
-   }
-   public void setTo3(String to)
-   {
-     to_text3.setText(to);
-   }
-
-   public CertificatesPanel()
-  {
-    GridBagLayout layout=new GridBagLayout();
-    setLayout(layout);
-    GridBagLayout Own=new GridBagLayout();
-    GridBagLayout Previous=new GridBagLayout();
-    GridBagLayout Next=new GridBagLayout();
-
-    GridBagConstraints c=new GridBagConstraints();
-    c.anchor=GridBagConstraints.NORTHWEST;
-    c.insets=new Insets(10,10,10,10);
-    c.fill = GridBagConstraints.HORIZONTAL;
-
-    panel1 = new JPanel(Own);
-    GridBagConstraints d=new GridBagConstraints();
-    d.anchor=GridBagConstraints.NORTHWEST;
-    d.insets=new Insets(5,5,5,5);
-    panel1.setBorder(BorderFactory.createTitledBorder("Own Mix Certificate"));
-    c.gridx = 0;
-    c.gridy = 0;
-    c.weightx = 1;
-    c.weighty = 1;
-    layout.setConstraints(panel1,c);
-    add(panel1);
-
-    create = new JButton("Create a New One");
-    d.gridx = 1;
-    d.gridy = 0;
-    d.gridwidth = 1;
-    d.fill = GridBagConstraints.HORIZONTAL;
-    create.addActionListener(this);
-    create.setActionCommand("Create");
-    Own.setConstraints(create,d);
-    panel1.add(create);
-    JButton passwd = new JButton("Change Password");
-    d.gridx = 3;
-    passwd.addActionListener(this);
-    passwd.setActionCommand("passwd");
-    Own.setConstraints(passwd,d);
-    panel1.add(passwd);
-
-    d.gridx = 0;
-    d.gridy = 1;
-    d.fill = GridBagConstraints.HORIZONTAL;
-    JLabel name1 = new JLabel("Name");
-    Own.setConstraints(name1,d);
-    panel1.add(name1);
-    text1 = new JTextField(20);
-    d.gridx = 1;
-    d.gridwidth = 3;
-    d.weightx = 1;
-    Own.setConstraints(text1,d);
-    panel1.add(text1);
-
-    JLabel from1 = new JLabel("Valid From");
-    d.gridx = 0;
-    d.gridy = 2;
-    d.gridwidth = 1;
-    d.weightx = 0;
-    Own.setConstraints(from1,d);
-    panel1.add(from1);
-    from_text1 = new JTextField(20);
-    d.gridx = 1;
-    d.gridwidth = 3;
-    d.weightx = 1;
-    Own.setConstraints(from_text1,d);
-    panel1.add(from_text1);
-
-    JLabel to1 = new JLabel("Valid To");
-    d.gridx = 0;
-    d.gridy = 3;
-    d.gridwidth = 1;
-    d.weightx = 0;
-    Own.setConstraints(to1,d);
-    panel1.add(to1);
-    to_text1 = new JTextField(20);
-    d.gridx = 1;
-    d.gridwidth = 3;
-    d.weightx = 1;
-    Own.setConstraints(to_text1,d);
-    panel1.add(to_text1);
-
-    c.gridx = 0;
-    c.gridy = 1;
-    panel2 = new JPanel(Previous);
-    GridBagConstraints e=new GridBagConstraints();
-    e.anchor=GridBagConstraints.NORTHWEST;
-    e.insets=new Insets(5,5,5,5);
-    e.fill = GridBagConstraints.HORIZONTAL;
-  /*  panel2.setBorder(BorderFactory.createCompoundBorder(
-		BorderFactory.createTitledBorder("Previous Mix Certificate"),
-		BorderFactory.createEmptyBorder(0,0,0,0))); */
-    panel2.setBorder(BorderFactory.createTitledBorder("Previous Mix Certificate"));
-    layout.setConstraints(panel2,c);
-    add(panel2);
-
-    import1 = new JButton("Import...");
-    e.gridx = 1;
-    e.gridy = 0;
-    import1.addActionListener(this);
-    import1.setActionCommand("Import1");
-    Previous.setConstraints(import1,e);
-    panel2.add(import1);
-
-    JLabel name2 = new JLabel("Name");
-    e.gridx = 0;
-    e.gridy = 1;
-    Previous.setConstraints(name2,e);
-    panel2.add(name2);
-    text2 = new JTextField(26);
-    e.gridx = 1;
-    e.gridwidth = 3;
-    e.weightx = 1;
-    Previous.setConstraints(text2,e);
-    panel2.add(text2);
-
-    JLabel from2 = new JLabel("Valid From");
-    e.gridx = 0;
-    e.gridy = 2;
-    e.gridwidth = 1;
-    e.weightx = 0;
-    Previous.setConstraints(from2,e);
-    panel2.add(from2);
-    from_text2 = new JTextField(26);
-    e.gridx = 1;
-    e.gridwidth = 4;
-    e.weightx = 1;
-    Previous.setConstraints(from_text2,e);
-    panel2.add(from_text2);
-
-    JLabel to2 = new JLabel("Valid To");
-    e.gridx = 0;
-    e.gridy = 3;
-    e.gridwidth = 1;
-    e.weightx = 0;
-    Previous.setConstraints(to2,e);
-    panel2.add(to2);
-    to_text2 = new JTextField(26);
-    e.gridx = 1;
-    e.gridwidth = 4;
-    e.weightx = 1;
-    Previous.setConstraints(to_text2,e);
-    panel2.add(to_text2);
-
-    c.gridy = 2;
-    panel3 = new JPanel(Next);
-    GridBagConstraints f=new GridBagConstraints();
-    f.anchor=GridBagConstraints.NORTHWEST;
-    f.insets=new Insets(5,5,5,5);
-    f.fill = GridBagConstraints.HORIZONTAL;
-    panel3.setBorder(BorderFactory.createCompoundBorder(
-		BorderFactory.createTitledBorder("Next Mix Certificate"),
-		BorderFactory.createEmptyBorder(0,0,0,0)));
-    layout.setConstraints(panel3,c);
-    add(panel3);
-
-    import2 = new JButton("Import...");
-    f.gridx = 1;
-    f.gridy = 0;
-    import2.addActionListener(this);
-    import2.setActionCommand("Import2");
-    Next.setConstraints(import2,f);
-    panel3.add(import2);
-
-    JLabel name3 = new JLabel("Name");
-    f.gridx = 0;
-    f.gridy = 1;
-    f.weightx = 0;
-    Next.setConstraints(name3,f);
-    panel3.add(name3);
-    text3 = new JTextField(26);
-    f.gridx = 1;
-    f.gridwidth = 5;
-    f.weightx = 1;
-    Next.setConstraints(text3,f);
-    panel3.add(text3);
-
-    JLabel from3 = new JLabel("Valid From");
-    f.gridx = 0;
-    f.gridy = 2;
-    f.gridwidth = 1;
-    f.weightx = 0;
-    Next.setConstraints(from3,f);
-    panel3.add(from3);
-    from_text3 = new JTextField(26);
-    f.gridx = 1;
-    f.gridwidth = 5;
-    f.weightx = 1;
-    Next.setConstraints(from_text3,f);
-    panel3.add(from_text3);
-
-    JLabel to3 = new JLabel("Valid To");
-    f.gridx = 0;
-    f.gridy = 3;
-    f.gridwidth = 1;
-    f.weightx = 0;
-    Next.setConstraints(to3,f);
-    panel3.add(to3);
-    to_text3 = new JTextField(26);
-    f.gridx = 1;
-    f.gridwidth = 5;
-    f.weightx = 1;
-    Next.setConstraints(to_text3,f);
-    panel3.add(to_text3);
-  }
-
-  public void actionPerformed(ActionEvent ae)
-  {
-    PasswdBox dialog;
-
-    if(ae.getActionCommand().equals("Create"))
-    {
-      Security.addProvider(new BouncyCastleProvider());
-
-      String mixid = MyFrame.m_GeneralPanel.MixID.getText();
-      mixid=URLEncoder.encode(mixid);
-      X509V3CertificateGenerator gen=new X509V3CertificateGenerator();
-      gen.setSignatureAlgorithm("DSAWITHSHA1");
-      gen.setNotBefore(new Date(System.currentTimeMillis() - 50000));
-      gen.setNotAfter(new Date(System.currentTimeMillis() + 50000));
-
-      gen.setIssuerDN(new X509Name("CN=<Mix id=\""+mixid+"\"/>"));
-      gen.setSubjectDN(new X509Name("CN=<Mix id=\""+mixid+"\"/>"));
-      gen.setSerialNumber(new BigInteger("1"));
-
-      try
-      {
-        Security.addProvider(new BouncyCastleProvider());
-        KeyPairGenerator kpg=KeyPairGenerator.getInstance("DSA");
-        kpg.initialize(1024);
-        KeyPair kp=kpg.generateKeyPair();
-        gen.setPublicKey(kp.getPublic());
-        X509Certificate cert=gen.generateX509Certificate(kp.getPrivate());
-
-        //PKCS12 generation
-        KeyStore kstore = KeyStore.getInstance("PKCS12","BC");
-        kstore.load(null, null);
-
-        Certificate[] chain=new  Certificate[1];
-        chain[0] = cert;
-        kstore.setKeyEntry("<Mix id=\""+mixid+"\"/>",(Key)kp.getPrivate(),(char[])null, chain);
-        ByteArrayOutputStream out=new ByteArrayOutputStream();
-
-        String passwd = "geetugarg";
-        //BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        //passwd = br.readLine();
-        kstore.store(out, passwd.toCharArray());
-
-        byte[] b = out.toByteArray();
-        FileOutputStream fout = new FileOutputStream("garg.crt");
-        fout.write(b);
-        fout.close();
-
-      }
-      catch(Exception e)
-      {
-        System.out.println("Error in Key generation and storage!!");
-        e.printStackTrace();
-      }
-    }
-
-    if(ae.getActionCommand().equals("passwd"))
-    {
-      dialog = new PasswdBox(TheApplet.myFrame,"Change Password");
-      dialog.setVisible(true);
-    }
-
-    if(ae.getActionCommand().equals("Import1"))
-    {
-       FileDialog fd = new FileDialog(TheApplet.myFrame,"Open File",FileDialog.LOAD);
-       fd.show();
-       String myFile = fd.getDirectory()+fd.getFile();
-     if(fd.getFile() != null)
-     {
-       try
-       {
-         FileInputStream fin = new FileInputStream(myFile);
-         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-         X509Certificate cert1 = (X509Certificate)cf.generateCertificate(fin);
-         text2.setText(cert1.getSubjectDN().getName());
-         from_text2.setText(cert1.getNotBefore().toString());
-         to_text2.setText(cert1.getNotAfter().toString());
-
-         byte[] bytes = cert1.getEncoded();
-         Base64 base = new Base64();
-         byte[] encoded = base.encode(bytes);
-         String PrevMix = encoded.toString();
-      }
-      catch(Exception e)
-	{
-	  System.out.println("Error in getting certificate");
-	  e.printStackTrace();
-	}
-      }
-
-    }
-    if(ae.getActionCommand().equals("Import2"))
-    {
-       FileDialog fd = new FileDialog(TheApplet.myFrame,"Open File",FileDialog.LOAD);
-       fd.show();
-       String myFile = fd.getDirectory()+fd.getFile();
-
-      if(fd.getFile() != null)
-      {
-       try
-       {
-         FileInputStream fin = new FileInputStream("self.crt");
-         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-         X509Certificate cert1 = (X509Certificate)cf.generateCertificate(fin);
-         text3.setText(cert1.getSubjectDN().getName());
-         from_text3.setText(cert1.getNotBefore().toString());
-         to_text3.setText(cert1.getNotAfter().toString());
-
-         byte[] bytes = cert1.getEncoded();
-         Base64 base = new Base64();
-         byte[] encoded = base.encode(bytes);
-         String PrevMix = encoded.toString();
-      }
-      catch(Exception e)
-	{
-	  System.out.println("Error in getting certificate");
-	  e.printStackTrace();
-	}
-      }
-    }
-  }
-}
 
 
-class DescriptionPanel extends JPanel implements ActionListener
-{
-  JPanel panel1;
-  public static JButton map;
-  JTextField text1,text2,longi,lati;
-  public static MapBox box;
-
-  public String getCity()
-  {
-    return text1.getText();
-  }
-
-  public String getState()
-  {
-    return text2.getText();
-  }
-
-  public String getLongitude()
-  {
-    return longi.getText();
-  }
-
-  public String getLatitude()
-  {
-    return lati.getText();
-  }
-
-  public void setCity(String city)
-  {
-    text1.setText(city);
-  }
-  public void setState(String state)
-  {
-    text2.setText(state);
-  }
-  public void setLati(String latitude)
-  {
-   lati.setText(latitude);
-  }
-  public void setLongi(String longitude)
-  {
-    longi.setText(longitude);
-  }
-
-  public DescriptionPanel()
-  {
-    GridBagLayout layout=new GridBagLayout();
-    setLayout(layout);
-    GridBagConstraints c=new GridBagConstraints();
-    c.anchor=GridBagConstraints.NORTHWEST;
-    c.insets=new Insets(10,10,10,10);
-
-    GridBagLayout forpanel = new GridBagLayout();
-    GridBagConstraints d = new GridBagConstraints();
-    d.anchor=GridBagConstraints.NORTHWEST;
-    d.insets=new Insets(10,10,10,10);
-
-    c.gridx = 0;
-    c.gridy = 0;
-    c.weightx = 1;
-    c.weighty = 1;
-    c.fill = GridBagConstraints.HORIZONTAL;
-    panel1 = new JPanel(forpanel);
-    panel1.setBorder(BorderFactory.createCompoundBorder(
-		BorderFactory.createTitledBorder("Location"),
-		BorderFactory.createEmptyBorder(0,0,0,0)));
-    layout.setConstraints(panel1,c);
-    add(panel1);
-
-    d.gridx = 0;
-    d.gridy = 0;
-    d.fill = GridBagConstraints.HORIZONTAL;
-    JLabel city = new JLabel("City");
-    forpanel.setConstraints(city,d);
-    panel1.add(city);
-    text1 = new JTextField(20);
-    d.gridx = 1;
-    d.weightx = 1;
-    d.gridwidth = 3;
-    forpanel.setConstraints(text1,d);
-    panel1.add(text1);
-
-    d.gridx = 0;
-    d.gridy = 2;
-    d.weightx = 0;
-    d.gridwidth = 1;
-    JLabel state = new JLabel("State");
-    forpanel.setConstraints(state,d);
-    panel1.add(state);
-    text2 = new JTextField(20);
-    d.gridx = 1;
-    d.gridwidth = 3;
-    d.weightx = 1;
-    forpanel.setConstraints(text2,d);
-    panel1.add(text2);
-
-    d.gridx = 0;
-    d.gridy = 3;
-    d.weightx = 1;
-    d.gridwidth = 3;
-    JLabel pos = new JLabel("Geographical Position");
-    forpanel.setConstraints(pos,d);
-    panel1.add(pos);
-    map = new JButton("Show Map");
-    map.addActionListener(this);
-    map.setActionCommand("Map");
-    d.gridx = 3;
-    d.gridwidth = 1;
-    d.weightx = 1;
-    forpanel.setConstraints(map,d);
-    panel1.add(map);
-    JLabel longitude = new JLabel("Longitude");
-    d.gridy = 4;
-    d.gridx = 0;
-    d.weightx = 0;
-    forpanel.setConstraints(longitude,d);
-    panel1.add(longitude);
-    longi = new JTextField(20);
-    d.gridx = 1;
-    d.gridwidth = 3;
-    d.weightx = 1;
-    forpanel.setConstraints(longi,d);
-    panel1.add(longi);
-    JLabel latitude = new JLabel("Latitude");
-    d.gridy = 5;
-    d.gridx = 0;
-    d.weightx = 0;
-    d.gridwidth = 1;
-    forpanel.setConstraints(latitude,d);
-    panel1.add(latitude);
-    lati = new JTextField(20);
-    d.gridx = 1;
-    d.weightx = 1;
-    d.gridwidth = 3;
-    forpanel.setConstraints(lati,d);
-    panel1.add(lati);
-  }
-
- public void actionPerformed(ActionEvent ae)
-    {
-      if(ae.getActionCommand().equals("Map"))
-      {
-          String Title = getMapIcon();
-          box = new MapBox(TheApplet.myFrame,Title,5);
-          box.setVisible(true);
-          map.setText("Update");
-          map.setActionCommand("Update");
-      }
-
-      if(ae.getActionCommand().equals("Update"))
-      {
-        String Title = getMapIcon();
-        box.setTitle(Title);
-        try
-        {
-          URL icon = new URL(MapBox.m_IconString);
-          ImageIcon MapIcon = new ImageIcon(icon);
-          box.map.setIcon(MapIcon);
-          box.s.setValue(5);
-        }
-        catch(Exception e)
-        {
-          e.printStackTrace();
-        }
-      }
-    }
-
-    public String getMapIcon()
-    {
-       BufferedInputStream bissmall,bisbig;
-       String Title = "";
-        try
-        {
-          String site = "http://www.mapquest.com/maps/map.adp?latlongtype=decimal&latitude="+lati.getText()+"&longitude="+longi.getText();
-          Title = "The location shown on the Map is :  Latitude = "+lati.getText()+"  Longitude = "+ longi.getText();
-          URL urlsmall = new URL(site);
-          bissmall = new BufferedInputStream(urlsmall.openStream(),500);
-
-          int i = 0,j = 0;
-          char small[] = {'i','z','e','=','b','i','g'};
-
-          while(true)
-          {
-            if((char)bissmall.read() == 's')
-            {
-               for(j = 0; j < 7; j++)
-                 if((char)bissmall.read() != small[j])
-                   break;
-            }
-            if(j == 7)
-              break;
-          }
-          String add_url = "http://www.mapquest.com/maps/map.adp?size=big";
-          char address;
-          address = (char)bissmall.read();
-          while(address != '"')
-          {
-             add_url += address;
-             address = (char)bissmall.read();
-          }
-
-          URL urlbig = new URL(add_url);
-          bisbig = new BufferedInputStream(urlbig.openStream(),500);
-          char big[] = {'q','m','a','p','g','e','n','d'};
-          while(true)
-          {
-            if((char)bisbig.read() == 'm')
-            {
-               for(j = 0; j < 8; j++)
-                 if((char)bisbig.read() != big[j])
-                   break;
-            }
-            if(j == 8)
-              break;
-          }
-          String big_url = "http://mq-mapgend.websys.aol.com:80/";
-          address = (char)bisbig.read();
-          while(address != '"')
-          {
-             big_url += address;
-             address = (char)bisbig.read();
-          }
-          MapBox.m_IconString = big_url;
-          MapBox.m_urlString = add_url;
-        }
-        catch(Exception e)
-        {
-          e.printStackTrace();
-        }
-        return Title;
-    }
-
-}
 
 
 
@@ -2518,71 +1782,6 @@ class DialogBox extends Dialog implements ActionListener
   }
 
 
-class PasswdBox extends Dialog implements ActionListener
- {
-   JPasswordField text1,text2,text3;
-
-   PasswdBox(MyFrame parent,String title)
-   {
-     super(parent,title,false);
-     GridBagLayout layout=new GridBagLayout();
-     setLayout(layout);
-     GridBagConstraints c=new GridBagConstraints();
-     c.anchor=GridBagConstraints.CENTER;
-     c.insets=new Insets(10,10,10,10);
-     setSize(400,200);
-
-      JLabel old = new JLabel("Enter Old Password");
-      c.gridx = 0;
-      c.gridy = 0;
-      layout.setConstraints(old,c);
-      add(old);
-      text1 = new JPasswordField(20);
-      text1.setEchoChar('*');
-      c.gridx = 3;
-      c.weightx = 1;
-      layout.setConstraints(text1,c);
-      add(text1);
-
-      JLabel new1 = new JLabel("Enter New Password");
-      c.gridx = 0;
-      c.gridy = 1;
-      c.weightx = 0;
-      layout.setConstraints(new1,c);
-      add(new1);
-      text2 = new JPasswordField(20);
-      text2.setEchoChar('*');
-      c.gridx = 3;
-      c.weightx = 1;
-      layout.setConstraints(text2,c);
-      add(text2);
-
-      JLabel new2 = new JLabel("Confirm Password");
-      c.gridx = 0;
-      c.gridy = 2;
-      c.weightx = 0;
-      layout.setConstraints(new2,c);
-      add(new2);
-      text3 = new JPasswordField(20);
-      text3.setEchoChar('*');
-      c.gridx = 3;
-      c.weightx = 1;
-      layout.setConstraints(text3,c);
-      add(text3);
-
-       Button b = new Button("OK");
-       c.gridx = 3;
-       c.gridy = 3;
-       layout.setConstraints(b,c);
-       add(b);
-       b.addActionListener(this);
-    }
-
-    public void actionPerformed(ActionEvent ae)
-    {
-      dispose();
-    }
-  }
 
 
 /*
