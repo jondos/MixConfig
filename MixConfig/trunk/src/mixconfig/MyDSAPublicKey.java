@@ -45,24 +45,23 @@ public class MyDSAPublicKey implements DSAPublicKey
 				return "X.509";
 			}
 
+		public SubjectPublicKeyInfo getAsSubjectPublicKeyInfo()
+			{
+				DERObject derParam = new DSAParameter( 	m_params.getP(),
+																								m_params.getQ(),
+																								m_params.getG()).getDERObject();
+				AlgorithmIdentifier algID=new AlgorithmIdentifier(X9ObjectIdentifiers.id_dsa,
+																													derParam);
+				return new SubjectPublicKeyInfo(algID, new DERInteger(getY()));
+			}
+
 		public byte[] getEncoded()
 			{
 				ByteArrayOutputStream bOut =new ByteArrayOutputStream();
 				DEROutputStream dOut = new DEROutputStream(bOut);
 				try
 					{
-						DERObject derParam =
-						new DSAParameter(
-								m_params.getP(),
-								m_params.getQ(),
-								m_params.getG())
-								.getDERObject();
-
-						dOut.writeObject(
-													new SubjectPublicKeyInfo(
-															new AlgorithmIdentifier(X9ObjectIdentifiers.id_dsa,
-																											derParam),
-													new DERInteger(getY())));
+						dOut.writeObject(getAsSubjectPublicKeyInfo());
 						dOut.close();
 					}
 				catch (IOException e)
