@@ -22,6 +22,9 @@ import mixconfig.MixConfigPanel;
 import mixconfig.MixConfiguration;
 import mixconfig.PaymentPanel;
 import mixconfig.networkpanel.NetworkPanel;
+import mixconfig.CascadePanel;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 
 /**
  * A class that represents a wizard.
@@ -74,13 +77,18 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 	{
 		setLayout(m_layout);
 		setBorder(new EtchedBorder());
-		m_pages = new Container[6];
+		m_pages = new Container[8];
 		m_pages[0] = new GeneralPanel();
-		m_pages[1] = new NetworkPanel();
-		m_pages[2] = new CertificatesPanel();
-		m_pages[3] = new DescriptionPanel(false);
-		m_pages[4] = new PaymentPanel();
-		m_pages[5] = makeFinishPanel();
+		// the next one is skipped when user selects last mix
+		m_pages[1] = new SimpleNetworkPanel();
+		// the next one is skipped when user selects first or middle mix
+		m_pages[2] = new NetworkPanel();
+		m_pages[3] = new CertificatesPanel();
+		m_pages[4] = new DescriptionPanel(false);
+		m_pages[5] = new PaymentPanel();
+		// the next one is skipped when user selects first or middle mix
+		m_pages[6] = new CascadePanel();
+		m_pages[7] = makeFinishPanel();
 
 		setConfiguration(null);
 
@@ -88,6 +96,9 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		{
 			add(m_pages[i], m_pages[i].getClass().getName());
 		}
+
+		// network panel is initially disabled
+		m_pages[2].setEnabled(false);
 
 		m_layout.first(this);
 		m_state = STATE_BEGIN;
@@ -103,6 +114,26 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		}
 		m_currentPage++;
 		m_layout.next(this);
+
+		Integer i =
+			new Integer(MixConfig.getMixConfiguration().getAttribute("General/MixType"));
+
+		// skip certain panels
+		if( ! m_pages[m_currentPage].isEnabled())
+/*		if ( (i.intValue() != MixConfiguration.MIXTYPE_LAST &&
+			  (m_pages[m_currentPage] instanceof CascadePanel ||
+			   m_pages[m_currentPage] instanceof NetworkPanel))
+			||
+			(i.intValue() == MixConfiguration.MIXTYPE_LAST &&
+			 m_pages[m_currentPage] instanceof SimpleNetworkPanel)
+			||
+			(i.intValue() != MixConfiguration.MIXTYPE_FIRST &&
+			 m_pages[m_currentPage] instanceof PaymentPanel)
+			)*/
+		{
+			forward();
+		}
+
 		fireStateChanged();
 	}
 
@@ -116,6 +147,13 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		}
 		m_currentPage--;
 		m_layout.previous(this);
+
+		// skip certain panels
+		if( ! m_pages[m_currentPage].isEnabled())
+		{
+			back();
+		}
+
 		fireStateChanged();
 	}
 
@@ -206,10 +244,10 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		}
 		Vector errors = null;
 
-		if (m_pages[m_currentPage] instanceof MixConfigPanel)
+		if (m_pages[m_currentPage].isEnabled() &&
+			m_pages[m_currentPage] instanceof MixConfigPanel)
 		{
 			errors = ( (MixConfigPanel) m_pages[m_currentPage]).check();
-
 		}
 		if (errors != null && errors.size() > 0)
 		{
@@ -248,6 +286,14 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		}
 	}
 
+        /** Sets the specified configuration object. If the object is <CODE>null</CODE>, the
+         * object returned by <CODE>mixconfig.MixConfig.getMixConfiguration()</CODE> is
+         * set instead.<br>
+         * This method will also call the <CODE>setConfiguration(MixConfiguration)</CODE>
+         * method of all contained <CODE>mixconfig.MixConfigPanel</CODE> instances.
+         * @param m A <CODE>MixConfiguration</CODE> object to be edited in the wizard
+         * @throws IOException If an I/O error occurs while setting the configuration
+         */
 	private void setConfiguration(MixConfiguration m) throws IOException
 	{
 		if (m == null)

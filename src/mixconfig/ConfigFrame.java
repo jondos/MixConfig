@@ -56,6 +56,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.xml.sax.SAXException;
 import mixconfig.networkpanel.NetworkPanel;
+import java.awt.Dimension;
 
 /**
  * The Frame of the MixConfig Application.
@@ -64,6 +65,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 {
 	private JFrame m_Parent;
 	private JMenuBar m_MenuBar;
+private JTabbedPane m_tabbedPane;
 
 	//public static boolean New;
 	private JMenuItem saveMenuItem, saveclipItem;
@@ -72,6 +74,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 	private static NetworkPanel m_NetworkPanel;
 	private static CertificatesPanel m_CertificatesPanel;
 	private static DescriptionPanel m_DescriptionPanel;
+	private static CascadePanel m_CascadePanel;
 
 	// added by Bastian Voigt (Why static??)
 	protected static PaymentPanel m_PaymentPanel;
@@ -166,28 +169,34 @@ public class ConfigFrame extends JPanel implements ActionListener
 		aboutMenuItem.setActionCommand("About");
 		aboutMenuItem.addActionListener(this);
 
-		JTabbedPane jtp = new JTabbedPane();
+		m_tabbedPane = new JTabbedPane();
 		m_GeneralPanel = new GeneralPanel();
 		m_NetworkPanel = new NetworkPanel();
 		m_CertificatesPanel = new CertificatesPanel();
 		m_DescriptionPanel = new DescriptionPanel(parent == null);
+		m_CascadePanel = new CascadePanel();
 
 		//added by Bastian Voigt
 		m_PaymentPanel = new PaymentPanel();
 
-		jtp.addTab("General", m_GeneralPanel);
-		jtp.addTab("Network", m_NetworkPanel);
-		jtp.addTab("Certificates", m_CertificatesPanel);
-		jtp.addTab("Description", m_DescriptionPanel);
-		jtp.setBorder(new EmptyBorder(10, 10, 10, 10));
+		m_tabbedPane.addTab("General", m_GeneralPanel);
+		m_tabbedPane.addTab("Network", m_NetworkPanel);
+		m_tabbedPane.addTab("Cascade", m_CascadePanel);
+		m_tabbedPane.addTab("Certificates", m_CertificatesPanel);
+		m_tabbedPane.addTab("Description", m_DescriptionPanel);
+		m_tabbedPane.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		//added by Bastian Voigt
-		jtp.addTab("Payment", m_PaymentPanel);
+		m_tabbedPane.addTab("Payment", m_PaymentPanel);
 
 		setLayout(new BorderLayout());
-		add(jtp, BorderLayout.CENTER);
+		add(m_tabbedPane, BorderLayout.CENTER);
 
 		setConfiguration(MixConfig.getMixConfiguration());
+
+		Dimension d = new Dimension(800, 700);
+		setSize(d);
+		setPreferredSize(d);
 	}
 
 	public JMenuBar getMenuBar()
@@ -347,11 +356,18 @@ public class ConfigFrame extends JPanel implements ActionListener
 		}
 	}
 
+        /** Clears all data in the panels and restarts with a new configuration object.
+         * @throws SAXException If an XML error occurs
+         * @throws IOException If a communication error occurs
+         * @throws ParserConfigurationException If an XML error occurs
+         */        
 	private void reset() throws SAXException, IOException, ParserConfigurationException
 	{
 		saveMenuItem.setText("Save [none]");
 		saveMenuItem.setEnabled(false);
 		MixConfig.setCurrentFileName(null);
+		setConfiguration(new MixConfiguration());
+		m_tabbedPane.setSelectedComponent(m_GeneralPanel);
 	}
 
 	private Clipboard getClipboard()
@@ -403,6 +419,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 
 		m_GeneralPanel.setConfiguration(m);
 		m_NetworkPanel.setConfiguration(m);
+		m_CascadePanel.setConfiguration(m);
 		m_CertificatesPanel.setConfiguration(m);
 		m_DescriptionPanel.setConfiguration(m);
 		m_PaymentPanel.setConfiguration(m);
@@ -414,11 +431,12 @@ public class ConfigFrame extends JPanel implements ActionListener
 	 */
 	protected String[] check()
 	{
-		Vector errors[] = new Vector[4];
+		Vector errors[] = new Vector[5];
 		errors[0] = m_GeneralPanel.check();
 		errors[1] = m_NetworkPanel.check();
 		errors[2] = m_CertificatesPanel.check();
 		errors[3] = m_DescriptionPanel.check();
+		errors[4] = m_CascadePanel.check();
 
 		int size = 0;
 		for (int i = 0; i < errors.length; i++)

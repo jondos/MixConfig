@@ -520,15 +520,12 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			passwd = new char[]
 				{
 				0};
-			while (true)
+			while (passwd!=null)
 			{
 				try
 				{
-					if (passwd != null)
-					{
-						setPrivCert(cert, passwd);
-						break;
-					}
+					setPrivCert(cert, passwd);
+					break;
 				}
 				catch (Exception e)
 				{

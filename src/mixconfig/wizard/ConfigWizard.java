@@ -22,6 +22,7 @@ import org.xml.sax.SAXException;
 import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
 import java.io.FileInputStream;
+import java.awt.Dimension;
 
 /** A class that displays the Mix configuration panels as a wizard. To the left of
  * the panel, a logo is displayed; at the bottom, there are three navigation
@@ -55,9 +56,11 @@ public class ConfigWizard extends JPanel implements ActionListener, ChangeListen
 	private JButton m_bttnClose;
 
 	/** Constructs a new instance of <CODE>ConfigWizard</CODE>
+         * @throws ParserConfigurationException If an XML error occurs while the wizard is active
+         * @throws SAXException If an XML error occurs while the wizard is active
 	 * @throws IOException If an I/O error occurs while saving the configuration
 	 */
-	public ConfigWizard() throws IOException // -- DEBUG: , SAXException, ParserConfigurationException
+	public ConfigWizard() throws IOException, ParserConfigurationException, SAXException
 	{
 		// DEBUG
 //		MixConfig.setMixConfiguration(new MixConfiguration(new java.io.FileReader(
@@ -77,7 +80,7 @@ public class ConfigWizard extends JPanel implements ActionListener, ChangeListen
 			ImageIcon confWizLogo = new ImageIcon(Toolkit.getDefaultToolkit().createImage(imageData));
 		imageCanvas = new JLabel(confWizLogo);
 		}
-		catch(IOException ioe)
+		catch (IOException ioe)
 		{
 			// Reading the logo may cause a FileNotFoundException, if the
 			// logo file does not reside in the VM's current directory.
@@ -105,6 +108,10 @@ public class ConfigWizard extends JPanel implements ActionListener, ChangeListen
 		m_bttnForward.addActionListener(this);
 		m_bttnBack.addActionListener(this);
 		m_bttnClose.addActionListener(this);
+
+		Dimension d = new Dimension(900, 700);
+		setSize(d);
+		setPreferredSize(d);
 
 		stateChanged(null);
 	}
@@ -185,7 +192,7 @@ public class ConfigWizard extends JPanel implements ActionListener, ChangeListen
 		String fileName = MixConfig.getCurrentFileName();
 		File file;
 
-		if(fileName != null)
+		if (fileName != null)
 		{
 			file = new File(fileName);
 		}
@@ -203,7 +210,7 @@ public class ConfigWizard extends JPanel implements ActionListener, ChangeListen
 				file = new File(file.getParent(), fname + ".xml");
 			}
 			mixConf.save(new FileWriter(file.getCanonicalPath()));
-			MixConfig.info("Configuration saved", "Configuration saved as "+file);
+			MixConfig.info("Configuration saved", "Configuration saved as " + file);
 		}
 
 		return file != null;

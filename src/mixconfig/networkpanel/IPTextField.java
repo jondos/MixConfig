@@ -147,6 +147,17 @@ final public class IPTextField extends JPanel
 		}
 	}
 
+	public void setEnabled(boolean enabled)
+	{
+		for(int i=0;i<iptext.length;i++)
+		{
+			if(iptext[i] != null)
+			{
+				iptext[i].setEnabled(enabled);
+			}
+		}
+	}
+
 	public boolean isEmpty()
 	{
 		for (int i = 0; i < 4; i++)
