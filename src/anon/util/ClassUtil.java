@@ -27,15 +27,14 @@
  */
 package anon.util;
 
-import java.io.File;
-import java.io.PrintStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * This class performs some basic operations related to Class objects.
@@ -76,7 +75,8 @@ public final class ClassUtil
 
 		pointIndex = classname.lastIndexOf('.');
 
-		if (pointIndex >= 0) {
+		if (pointIndex >= 0)
+		{
 			classname = classname.substring(pointIndex + 1, classname.length());
 		}
 
@@ -228,23 +228,18 @@ public final class ClassUtil
 		// generate a url with this class as resource
 		classResource = a_rootClass.getName();
 		classResource = "/" + classResource;
-		classResource = classResource.replace('.','/');
+		classResource = classResource.replace('.', '/');
 		classResource += ".class";
 		try
 		{
 			classDirectory = Class.forName(a_rootClass.getName()).getResource(classResource).toString();
-			classDirectory = URLDecoder.decode(classDirectory, "UTF-8");
+			classDirectory = URLDecoder.decode(classDirectory);
 		}
 		catch (ClassNotFoundException a_e)
 		{
 			// not possible, this class DOES exist
 			classDirectory = null;
 		}
-        catch (UnsupportedEncodingException a_e)
-        {
-          // should not happen
-          classDirectory = null;
-        }
 
 		// check whether it is a jar file or a directory
 		if (classDirectory.startsWith(JAR_FILE))
@@ -253,7 +248,7 @@ public final class ClassUtil
 			Enumeration entries;
 
 			classDirectory = classDirectory.substring(
-						 JAR_FILE.length(), classDirectory.indexOf(classResource) - 1);
+				JAR_FILE.length(), classDirectory.indexOf(classResource) - 1);
 
 			// look in the cache if the class directory has already been read
 			if (ms_loadedDirectories.contains(classDirectory))
@@ -263,7 +258,7 @@ public final class ClassUtil
 			}
 			ms_loadedDirectories.addElement(classDirectory);
 
-            classDirectory = toSystemSpecificFileName(classDirectory);
+			classDirectory = toSystemSpecificFileName(classDirectory);
 
 			try
 			{
@@ -282,7 +277,7 @@ public final class ClassUtil
 				while (entries.hasMoreElements())
 				{
 					Class classObject;
-					classObject = toClass(new File((((ZipEntry) entries.nextElement())).toString()),
+					classObject = toClass(new File( ( ( (ZipEntry) entries.nextElement())).toString()),
 										  (File)null);
 
 					if (classObject != null)
@@ -414,13 +409,14 @@ public final class ClassUtil
 	 * @return a system specific file name
 	 */
 	private static String toSystemSpecificFileName(String a_filename)
-    {
-      if (a_filename.charAt(2) == ':') {
-        a_filename = a_filename.substring(1, a_filename.length());
-      }
+	{
+		if (a_filename.charAt(2) == ':')
+		{
+			a_filename = a_filename.substring(1, a_filename.length());
+		}
 
-      a_filename = a_filename.replace('/', File.separatorChar);
+		a_filename = a_filename.replace('/', File.separatorChar);
 
-      return a_filename;
-    }
+		return a_filename;
+	}
 }

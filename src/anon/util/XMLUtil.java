@@ -63,6 +63,70 @@ public class XMLUtil
 	private static DocumentBuilder ms_DocumentBuilder;
 
 	/**
+	 * Throws an XMLParseException if the given XML node is null.
+	 * @param a_node an XML node
+	 * @throws XMLParseException if the given XML node is null
+	 */
+	public static void assertNotNull(Node a_node)
+		throws XMLParseException
+	{
+		if (a_node == null)
+		{
+			throw new XMLParseException(XMLParseException.NODE_NULL_TAG);
+		}
+	}
+
+	/**
+	 * Throws an XMLParseException if the given XML node has not the expected name or if it is null.
+	 * If the given node is an XML document, the document element is returned. Otherwise, the given
+	 * node is returned.
+	 * @param a_node an XML node
+	 * @param a_strExpectedName the node`s expected name
+	 * @return If the given node is an XML document, the document element is returned. Otherwise,
+	 * the given node is returned.
+	 * @throws XMLParseException if the given node has not the expected name or if it is null
+	 */
+	public static Node assertNodeName(Node a_node, String a_strExpectedName)
+		throws XMLParseException
+	{
+		if (a_node == null)
+		{
+			throw new XMLParseException(XMLParseException.NODE_NULL_TAG,
+										"Expected node '" + a_strExpectedName
+										+ "' is NULL!");
+		}
+
+		a_node = getDocumentElement(a_node);
+
+		if (!a_node.getNodeName().equals(a_strExpectedName))
+		{
+			throw new XMLParseException(a_node.getNodeName(),
+										"Node '" + a_node.getNodeName()
+										+ "' has not the expected name: '"
+										+ a_strExpectedName + "'");
+		}
+
+		return a_node;
+	}
+
+	/**
+	 * If the current node is of the type XML document, this method returns the document
+	 * element. Otherwise, the node is returned unchanged.
+	 * @param a_node an XML node
+	 * @return if the current node is of the type XML document, this method returns the document
+	 * element; otherwise, the node is returned unchanged
+	 */
+	public static Node getDocumentElement(Node a_node)
+	{
+		if (a_node instanceof Document)
+		{
+			a_node = ( (Document) a_node).getDocumentElement();
+		}
+
+		return a_node;
+	}
+
+	/**
 	 *
 	 * @param n Node
 	 * @param defaultValue int
@@ -136,17 +200,22 @@ public class XMLUtil
 
 	/**
 	 * Returns the value of the specified attribute of an XML element as String.
-	 * @param a_element an XML element
+	 * @param a_node an XML node
 	 * @param a_attribute an attribute`s name
 	 * @param a_default the default value
 	 * @return the value of the specified attribute as String if the element has this attribute;
 	 *         otherwise, the default value is returned
 	 */
-	public static String parseAttribute(Element a_element, String a_attribute, String a_default)
+	public static String parseAttribute(Node a_node, String a_attribute, String a_default)
 	{
 		try
 		{
-			Attr at = a_element.getAttributeNode(a_attribute);
+			if (a_node instanceof Document)
+			{
+				a_node = ((Document)a_node).getDocumentElement();
+			}
+
+			Attr at = ((Element)a_node).getAttributeNode(a_attribute);
 			return at.getValue().trim();
 		}
 		catch (Exception a_e)
@@ -157,20 +226,19 @@ public class XMLUtil
 
 	/**
 	 * Returns the value of the specified attribute of an XML element as boolean.
-	 * @param a_element an XML element
+	 * @param a_node an XML node
 	 * @param a_attribute an attribute`s name
 	 * @param a_default the default value
 	 * @return the value of the specified attribute as boolean if the element has this attribute;
 	 *         otherwise, the default value is returned
 	 */
-	public static boolean parseAttribute(Element a_element, String a_attribute, boolean a_default)
+	public static boolean parseAttribute(Node a_node, String a_attribute, boolean a_default)
 	{
 		boolean b = a_default;
 
 		try
 		{
-			Attr at = a_element.getAttributeNode(a_attribute);
-			String tmpStr = at.getValue().trim();
+			String tmpStr = parseAttribute(a_node, a_attribute, null);
 			if (tmpStr.equalsIgnoreCase("true"))
 			{
 				b = true;
@@ -189,20 +257,19 @@ public class XMLUtil
 
 	/**
 	 * Returns the value of the specified attribute of an XML element as int.
-	 * @param a_element an XML element
+	 * @param a_node an XML node
 	 * @param a_attribute an attribute`s name
 	 * @param a_default the default value
 	 * @return the value of the specified attribute as int if the element has this attribute;
 	 *         otherwise, the default value is returned
 	 */
-	public static int parseAttribute(Element a_element, String a_attribute, int a_default)
+	public static int parseAttribute(Node a_node, String a_attribute, int a_default)
 	{
 		int i = a_default;
 
 		try
 		{
-			Attr at = a_element.getAttributeNode(a_attribute);
-			i = Integer.parseInt(at.getValue());
+			i = Integer.parseInt(parseAttribute(a_node, a_attribute, null));
 		}
 		catch (Exception ex)
 		{
@@ -299,11 +366,11 @@ public class XMLUtil
 					{ ///@todo parsing of Documents which contains quoted chars are wrong under JAXP 1.0
 						if (a_node.getNodeType() == Node.ENTITY_REFERENCE_NODE)
 						{
-							s = s + a_node.getFirstChild().getNodeValue();
+							s += a_node.getFirstChild().getNodeValue();
 						}
 						else
 						{
-							s = s + a_node.getNodeValue();
+							s+=  a_node.getNodeValue();
 						}
 						a_node = a_node.getNextSibling();
 					}
@@ -577,7 +644,7 @@ public class XMLUtil
 		switch (type)
 		{
 
-			case Document.ELEMENT_NODE:
+			case Node.ELEMENT_NODE:
 			{
 				Element newelement = a_doc.createElement(a_source.getNodeName());
 				NamedNodeMap srcattr = a_source.getAttributes();
@@ -593,7 +660,7 @@ public class XMLUtil
 				break;
 			}
 
-			case Document.ATTRIBUTE_NODE:
+			case Node.ATTRIBUTE_NODE:
 			{
 				newnode = a_doc.createAttribute(a_source.getNodeName());
 				newnode.setNodeValue(a_source.getNodeValue());
@@ -601,19 +668,23 @@ public class XMLUtil
 				break;
 			}
 
-			case Document.TEXT_NODE:
+			case Node.TEXT_NODE:
+			{
+				Node tmpParent = a_source.getParentNode();
+				if (tmpParent != null && tmpParent.getNodeType() != Node.ATTRIBUTE_NODE)
 			{
 				newnode = a_doc.createTextNode(a_source.getNodeValue());
+				}
 				break;
 			}
 
-			case Document.CDATA_SECTION_NODE:
+			case Node.CDATA_SECTION_NODE:
 			{
 				newnode = a_doc.createCDATASection(a_source.getNodeValue());
 				break;
 			}
 
-			case Document.ENTITY_REFERENCE_NODE:
+			case Node.ENTITY_REFERENCE_NODE:
 			{
 				newnode = a_doc.createEntityReference(a_source.getNodeName());
 				a_bDeep = false; // ????? Right Thing?
@@ -622,7 +693,7 @@ public class XMLUtil
 				break;
 			}
 
-			case Document.ENTITY_NODE:
+			case Node.ENTITY_NODE:
 			{
 				/*Entity srcentity = (Entity) source;
 				  Entity newentity = doc.createEntity(source.getNodeName());
@@ -635,20 +706,20 @@ public class XMLUtil
 				//break;
 			}
 
-			case Document.PROCESSING_INSTRUCTION_NODE:
+			case Node.PROCESSING_INSTRUCTION_NODE:
 			{
 				newnode = a_doc.createProcessingInstruction(a_source.getNodeName(),
 					a_source.getNodeValue());
 				break;
 			}
 
-			case Document.COMMENT_NODE:
+			case Node.COMMENT_NODE:
 			{
 				newnode = a_doc.createComment(a_source.getNodeValue());
 				break;
 			}
 
-			case Document.DOCUMENT_TYPE_NODE:
+			case Node.DOCUMENT_TYPE_NODE:
 			{
 				/*	DocumentType doctype = (DocumentType) source;
 				 DocumentType newdoctype =
@@ -685,14 +756,14 @@ public class XMLUtil
 
 			}
 
-			case Document.DOCUMENT_FRAGMENT_NODE:
+			case Node.DOCUMENT_FRAGMENT_NODE:
 			{
 				newnode = a_doc.createDocumentFragment();
 				// No name, kids carry value
 				break;
 			}
 
-			case Document.NOTATION_NODE:
+			case Node.NOTATION_NODE:
 			{
 				/*
 				   Notation srcnotation = (Notation) source;
@@ -707,7 +778,7 @@ public class XMLUtil
 
 			}
 
-			case Document.DOCUMENT_NODE: // Document can't be child of Document
+			case Node.DOCUMENT_NODE: // Document can't be child of Document
 			default:
 			{ // Unknown node type
 				throw new Exception("HIERARCHY_REQUEST_ERR");
@@ -721,7 +792,15 @@ public class XMLUtil
 				 srckid != null;
 				 srckid = srckid.getNextSibling())
 			{
-				newnode.appendChild(importNode(a_doc, srckid, true));
+				if (newnode != null)
+				{
+					Node n = importNode(a_doc, srckid, true);
+
+					if (n != null)
+					{
+						newnode.appendChild(n);
+					}
+				}
 			}
 		}
 
@@ -882,7 +961,7 @@ public class XMLUtil
 	 */
 	public static void removeComments(Node a_node)
 	{
-		if (a_node.getNodeType() != Document.COMMENT_NODE)
+		if (a_node.getNodeType() != Node.COMMENT_NODE)
 		{
 			removeCommentsInternal(a_node, a_node);
 		}
@@ -1104,7 +1183,7 @@ public class XMLUtil
 		}
 
 		// if this is empty text, remove it!
-		if (a_element.getNodeType() == Document.TEXT_NODE &&
+		if (a_element.getNodeType() == Node.TEXT_NODE &&
 			a_element.getNodeValue().trim().length() == 0)
 		{
 			a_element.getParentNode().removeChild(a_element);
@@ -1113,7 +1192,7 @@ public class XMLUtil
 
 		// do this, if this is not the root element and no text node
 		if ( (a_element.getOwnerDocument().getDocumentElement() != a_element) &&
-			(a_element.getNodeType() != Document.TEXT_NODE))
+			(a_element.getNodeType() != Node.TEXT_NODE))
 		{
 			// insert a new line before this element, if this is the first element
 			if (a_element == a_element.getParentNode().getFirstChild())
@@ -1163,13 +1242,13 @@ public class XMLUtil
 	 */
 	private static int removeCommentsInternal(Node a_node, Node a_parentNode)
 	{
-		if (a_node.getNodeType() == Document.COMMENT_NODE)
+		if (a_node.getNodeType() == Node.COMMENT_NODE)
 		{
 			a_parentNode.removeChild(a_node);
 			return 1;
 		}
 
-		if (a_node.getNodeType() == Document.TEXT_NODE)
+		if (a_node.getNodeType() == Node.TEXT_NODE)
 		{
 			if (a_node.getNodeValue().trim().length() == 0)
 			{

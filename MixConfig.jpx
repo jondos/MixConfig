@@ -90,5 +90,4 @@
   <file path="MixConfiguration.dtd"/>
   <file path="MixConfiguration.xml"/>
   <file path="TheApplet.html"/>
-  <file path="src/java/net/URLDecoder.java"/>
 </project>
