@@ -6,6 +6,7 @@ import java.awt.Toolkit;
 import java.awt.BorderLayout;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
+import java.awt.Frame;
 import java.io.*;
 
 import java.net.URLEncoder;
@@ -176,82 +177,71 @@ class MyFrame extends JPanel implements ActionListener
       }
       else if(evt.getActionCommand().equals("OpenClip"))
       {
-          Clipboard cb = null;
           try
           {
-              cb = (Clipboard) getToolkit().getClass().getMethod("getSystemSelection", new Class[] {}).invoke(getToolkit(),new Object[] {});
-          }
-          catch(Exception ex) {}
-          if(cb == null)
-              cb = getToolkit().getSystemClipboard();
-          Transferable data = cb.getContents(this);
-          if(data==null)
-              JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-                  "There is no data in the clipboard.", "Open",
-                  JOptionPane.ERROR_MESSAGE);
-          else if(data.isDataFlavorSupported(DataFlavor.stringFlavor))
-          {
-              String text = null;
+              Clipboard cb = null;
               try
               {
-                  text = (String)data.getTransferData(DataFlavor.stringFlavor);
-/*                  JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-                      text, "Open",
-                      JOptionPane.INFORMATION_MESSAGE);
-*/
+                  cb = (Clipboard) getToolkit().getClass().getMethod("getSystemSelection", new Class[] {}).invoke(getToolkit(),new Object[] {});
               }
-              catch(java.io.IOException ex)
+              catch(Exception ex) {}
+              if(cb == null)
+                  cb = getToolkit().getSystemClipboard();
+              Transferable data = cb.getContents(this);
+              if(data!=null && data.isDataFlavorSupported(DataFlavor.stringFlavor))
               {
-                  JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-                      "Can't read clipboard data.", "Open",
-                      JOptionPane.ERROR_MESSAGE);
-              }
-              catch(UnsupportedFlavorException ex)
-              {
-                  JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-                      "Can't read clipboard data as text.", "Open",
-                      JOptionPane.ERROR_MESSAGE);
-              }
-              finally
-              {
-                  if(text != null)
-                      open_internal(text.getBytes());
+                  String text = (String)data.getTransferData(DataFlavor.stringFlavor);
+                  open_internal(text.getBytes());
+                  return;
               }
           }
-          else
-              JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-                  "There is no text in the clipboard.", "Open",
-                  JOptionPane.ERROR_MESSAGE);
-          /*
+          catch(Exception e) { }
           ClipFrame Open = new ClipFrame("Paste a file to be opened in the area provided.",true);
+          Open.show();
           open_internal(Open.getText().getBytes());
-          */
       }
       else if(evt.getActionCommand().equals("SaveClip"))
       {
-          getToolkit().getSystemClipboard().setContents(
-                  new StringSelection(new String(save_internal())),
-                  new ClipboardOwner()
-                      {
-                          public void lostOwnership( Clipboard cb, Transferable co)
+          try
+          {
+              Clipboard cb = null;
+              try
+              {
+                  cb = (Clipboard) getToolkit().getClass().getMethod("getSystemSelection", new Class[] {}).invoke(getToolkit(),new Object[] {});
+              }
+              catch(Exception ex) {}
+              if(cb == null)
+                  cb = getToolkit().getSystemClipboard();
+              cb.setContents(
+                      new StringSelection(new String(save_internal())),
+                      new ClipboardOwner()
                           {
-                              // Don't care.
+                              public void lostOwnership( Clipboard cb, Transferable co)
+                              {
+                                  // Don't care.
+                              }
                           }
-                      }
-                  );
-          JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-              "Configuration saved into clipboard.", "Save", JOptionPane.INFORMATION_MESSAGE);
-          /*
+                      );
+/*
+              JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+                  "Configuration saved into clipboard.", "Save", JOptionPane.INFORMATION_MESSAGE);
+              return;
+*/
+          }
+          catch(Exception e) { }
+          // There are some problems with the access of the
+          // clipboard, so after the try to copy it, we
+          // still offer the ClipFrame.
           try
           {
               ClipFrame Save = new ClipFrame("Copy and Save this file in a new Location.",false);
               Save.setText(new String(save_internal()));
+              Save.show();
           }
           catch(Exception e)
           {
               e.printStackTrace();
           }
-          */
       }
       else if(evt.getActionCommand().equals("Open"))
       {
@@ -732,32 +722,80 @@ class MyFrame extends JPanel implements ActionListener
 
     // To check for Errors or Missing Fields while writing a file.....
 
+    private boolean isNumber(String str)
+    {
+        try
+        {
+            Integer.parseInt(str, 10);
+            return true;
+        }
+        catch(NumberFormatException ev)
+        {
+            return false;
+        }
+    }
     private String[] check()
     {
-        java.util.Stack errors = new java.util.Stack();
+        java.util.Vector errors = new java.util.Vector();
+
         if(m_GeneralPanel.getMixName().equals(""))
-            errors.push("Mix Name not entered in General Panel.");
+            errors.addElement("Mix Name not entered in General Panel.");
+        if(m_GeneralPanel.getMixType().equals("FirstMix") &&
+           m_GeneralPanel.getCascadeName().equals(""))
+            errors.addElement("Cascade Name not entered in General Panel.");
         if(m_GeneralPanel.getMixID().equals(""))
-            errors.push("Mix ID field is blank in General Panel.");
-        if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
-            errors.push("Own Mix Certificate is missing in Certificates Panel.");
-        if(m_CertificatesPanel.getPrevPubCert()==null)
-            errors.push("Previous Mix Certificate is missing in Certificates Panel.");
-        if(m_CertificatesPanel.getNextPubCert()==null)
-            errors.push("Next Mix Certificate is missing in Certificates Panel.");
-        if(m_DescriptionPanel.getCity().equals(""))
-            errors.push("The city field cannot be left blank in Description Panel.");
-        if(m_DescriptionPanel.getState().equals(""))
-            errors.push("The state field cannot be left blank in Description Panel.");
-        if(m_DescriptionPanel.getLatitude().equals("") && !m_DescriptionPanel.getLongitude().equals(""))
-            errors.push("Latitude is missing in Description Panel.");
-        if(!m_DescriptionPanel.getLatitude().equals("") && m_DescriptionPanel.getLongitude().equals(""))
-            errors.push("Longitude is missing in Description Panel.");
+            errors.addElement("Mix ID field is blank in General Panel.");
+        if(m_GeneralPanel.getUserID()!=null &&
+           m_GeneralPanel.getUserID().equals(""))
+            errors.addElement("User ID not entered in General Panel.");
+        if(m_GeneralPanel.getUserID()!=null &&
+           m_GeneralPanel.getUserID().equals(""))
+            errors.addElement("User ID not entered in General Panel.");
+        if(m_GeneralPanel.getFileDes()!=null &&
+           !isNumber(m_GeneralPanel.getFileDes()))
+            errors.addElement("Number of File Descriptors is not a number in General Panel.");
+        if(m_GeneralPanel.getEnabled().equals("Logtodir") &&
+           m_GeneralPanel.getFileName().equals(""))
+            errors.addElement("No directory for logging entered in General Panel.");
+
+        if(m_NetworkPanel.getIncomingModel().getRowCount()==0)
+            errors.addElement("No Incoming Connection given in Network Panel.");
+        if(m_NetworkPanel.getOutgoingModel().getRowCount()==0)
+            errors.addElement("No Outgoing Connection given in Network Panel.");
+        else if(!m_GeneralPanel.getMixType().equals("LastMix"))
+        {
+            if(m_NetworkPanel.getOutgoingModel().getRowCount()>1)
+                errors.addElement("Too many Outgoing Connections in Network Panel.");
+        }
         if(m_NetworkPanel.getHost().equals(""))
-            errors.push("The Host field should not be blank in Network Panel.");
+            errors.addElement("The Host field should not be blank in Network Panel.");
         if(m_NetworkPanel.getPort().equals(""))
-            errors.push("The Port field should not be blank in Network Panel.");
-        return (String[]) errors.toArray(new String[] {});
+            errors.addElement("The Port field should not be blank in Network Panel.");
+        if(!m_NetworkPanel.IP_Text.isEmpty() &&
+           !m_NetworkPanel.IP_Text.isCorrect())
+            errors.addElement("IP of Info Service is not correct in Network Panel.");
+
+        if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
+            errors.addElement("Own Mix Certificate is missing in Certificates Panel.");
+        if(m_CertificatesPanel.getPrevPubCert()==null)
+            errors.addElement("Previous Mix Certificate is missing in Certificates Panel.");
+        if(m_CertificatesPanel.getNextPubCert()==null)
+            errors.addElement("Next Mix Certificate is missing in Certificates Panel.");
+
+        if(m_DescriptionPanel.getCity().equals(""))
+            errors.addElement("The city field cannot be left blank in Description Panel.");
+        if(m_DescriptionPanel.getState().equals(""))
+            errors.addElement("The state field cannot be left blank in Description Panel.");
+        if(m_DescriptionPanel.getLatitude().equals("") && !m_DescriptionPanel.getLongitude().equals(""))
+            errors.addElement("Latitude is missing in Description Panel.");
+        if(!m_DescriptionPanel.getLatitude().equals("") && m_DescriptionPanel.getLongitude().equals(""))
+            errors.addElement("Longitude is missing in Description Panel.");
+
+        String[] asString = new String[errors.size()];
+        for(int i=0;i<asString.length;i++)
+            asString[i] = (String)errors.elementAt(i);
+        // return (String[]) errors.toArray(new String[] {});
+        return asString;
     }
 }
 
@@ -765,7 +803,7 @@ class MyFrame extends JPanel implements ActionListener
 public class TheApplet extends JApplet
 {
   private static MyFrame myFrame;
-  private static JFrame m_MainWindow;
+  private static Frame m_MainWindow;
   public final static int SAVE_DIALOG=1;
   public final static int OPEN_DIALOG=2;
   public final static int FILTER_CER=1;
@@ -777,13 +815,14 @@ public class TheApplet extends JApplet
   public static void main(String[] args)
   {
     Security.addProvider(new BouncyCastleProvider());
-    m_MainWindow = new JFrame("Mix Configuration Tool");
+    JFrame MainWindow = new JFrame("Mix Configuration Tool");
+    m_MainWindow = MainWindow;
     ImageIcon icon=loadImage("icon.gif");
     if(icon!=null)
       m_MainWindow.setIconImage(icon.getImage());
-    myFrame = new MyFrame(m_MainWindow);
+    myFrame = new MyFrame(MainWindow);
 
-    m_MainWindow.addWindowListener(new WindowAdapter()
+    MainWindow.addWindowListener(new WindowAdapter()
     {
        public void windowClosing(WindowEvent e)
        {
@@ -791,27 +830,31 @@ public class TheApplet extends JApplet
        }
     });
 
-    m_MainWindow.setJMenuBar(myFrame.getMenuBar());
-    m_MainWindow.setContentPane(myFrame);
-    m_MainWindow.pack();
+    MainWindow.setJMenuBar(myFrame.getMenuBar());
+    MainWindow.setContentPane(myFrame);
+    MainWindow.pack();
     Dimension d=Toolkit.getDefaultToolkit().getScreenSize();
-    Dimension size=m_MainWindow.getSize();
-    m_MainWindow.setLocation((d.width-size.width)/2,(d.height-size.height)/2);
-    m_MainWindow.show();
+    Dimension size=MainWindow.getSize();
+    MainWindow.setLocation((d.width-size.width)/2,(d.height-size.height)/2);
+    MainWindow.show();
   }
 
-   public void init()
+   public void init() // For the applet.
   {
     //Security.addProvider(new BouncyCastleProvider());
-    m_MainWindow=null;
+
+    // Let's search for the parent frame:
+    java.awt.Component comp = this;
+    while((comp=comp.getParent())!=null &&
+          !(comp instanceof java.awt.Frame));
+    m_MainWindow=(Frame) comp;
     myFrame = new MyFrame(null);
     //myFrame.pack();//setBounds(10,10,600,650);
     setJMenuBar(myFrame.getMenuBar());
     setContentPane(myFrame);
-
   }
 
-  public static JFrame getMainWindow()
+  public static Frame getMainWindow()
     {
       return m_MainWindow;
     }
@@ -823,16 +866,19 @@ public class TheApplet extends JApplet
 
      public static JFileChooser showFileDialog(int type, int filter_type)
       {
+        SimpleFileFilter active = null;
         JFileChooser fd2= new JFileChooser();
         fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
         if((filter_type&FILTER_CER)!=0)
-          fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_CER));
+          fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_CER));
         if((filter_type&FILTER_B64_CER)!=0)
-          fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_B64_CER));
+          fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_B64_CER));
         if((filter_type&FILTER_XML)!=0)
-          fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_XML));
+          fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_XML));
         if((filter_type&FILTER_PFX)!=0)
           fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_PFX));
+        if(active!=null)
+            fd2.setFileFilter(active);
         fd2.setFileHidingEnabled(false);
         if(type==SAVE_DIALOG)
           fd2.showSaveDialog(myFrame);
