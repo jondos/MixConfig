@@ -565,7 +565,8 @@ abstract class ConnectionDialog extends JDialog
 				rc.gridy++;
 				t = new JRadioButton("SSL",(ttype & ConnectionData.SSL)!=0);
 				t.setActionCommand("SSL");
-				layout.setConstraints(t,rc);
+				t.setEnabled(false);
+        layout.setConstraints(t,rc);
 				getContentPane().add(t);
 				ssl.add(t);
 				rc.gridy++;
