@@ -28,6 +28,7 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMA
 package mixconfig;
 
 import java.io.File;
+import anon.crypto.*;
 	 class SimpleFileFilter extends javax.swing.filechooser.FileFilter
 			{
 				private String m_strDesc;
