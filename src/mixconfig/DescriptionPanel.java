@@ -107,8 +107,8 @@ class DescriptionPanel extends JPanel implements ActionListener
       forpanel.setConstraints(longitude,d);
       panel1.add(longitude);
       longi = new JTextField(20);
-      longi.setDocument(new FloatDocument(-360,360));
-      longi.setToolTipText("Longitude in degrees east from Greenwich. ( 0.0 - 360.0)");
+      longi.setDocument(new FloatDocument(-180,180));
+      longi.setToolTipText("Longitude in degrees east from Greenwich. ( -180.0 to 180.0)");
       d.gridx = 1;
       d.gridwidth = 3;
       d.weightx = 1;
@@ -132,7 +132,7 @@ class DescriptionPanel extends JPanel implements ActionListener
 
 
       c.gridx = 0;
-      c.gridy = 2;
+      c.gridy = 1;
       c.weightx = 1;
       c.weighty = 1;
       c.fill = GridBagConstraints.HORIZONTAL;
@@ -147,11 +147,11 @@ class DescriptionPanel extends JPanel implements ActionListener
       d.gridwidth = 1;
       d.fill = GridBagConstraints.HORIZONTAL;
       JLabel op_org = new JLabel("Organisation");
-      op_org.setToolTipText("This should contain the operating organisation's or a person's name for private persons.");
       forpanel.setConstraints(op_org,d);
       panel2.add(op_org);
 
       operatororg = new JTextField(60);
+      operatororg.setToolTipText("This should contain the operating organisation's or a person's name for private persons.");
       d.gridx = 1;
       d.weightx = 1;
       d.gridwidth = 3;
@@ -164,11 +164,11 @@ class DescriptionPanel extends JPanel implements ActionListener
       d.gridwidth = 1;
 
       JLabel op_url = new JLabel("URL");
-      op_url.setToolTipText("This should contain a URL that will lead to more information about the operator including contact information.");
       forpanel.setConstraints(op_url,d);
       panel2.add(op_url);
 
       operatorurl = new JTextField(20);
+      operatorurl.setToolTipText("This should contain a URL that will lead to more information about the operator including contact information.");
       d.gridx = 1;
       d.gridwidth = 3;
       d.weightx = 1;
