@@ -2,6 +2,7 @@ package mixconfig;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 import javax.swing.JRadioButton;
@@ -13,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -111,6 +113,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     c.weightx = 0;
     layout.setConstraints(genButton, c);
     add(genButton);
+    final Component myComponent = this;
     genButton.addActionListener(
         new ActionListener()
         {
@@ -118,6 +121,21 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
                     "abcdefghijklmnopqrstuvwxyz0123456789.-_";
             public void actionPerformed(ActionEvent ev)
             {
+                String oMixid=MixID.getText();
+
+                if(oMixid!=null && oMixid.length()!=0)
+                {
+                    if(JOptionPane.showConfirmDialog(myComponent,
+                        "It is generally not a good idea to change a Mix ID.\n" +
+                        "You should proceed only if you know what you're doing." +
+                        ((ConfigFrame.m_CertificatesPanel.getOwnPrivCert()==null)?"":
+                        "\nA new Mix ID may also invalidate your certificate."),
+                        "Change of Mix ID.",
+                        JOptionPane.OK_CANCEL_OPTION, 
+                        JOptionPane.WARNING_MESSAGE)!=JOptionPane.OK_OPTION)
+                            return;
+                }
+
                 String str = "m";
                 for(int i=0;i<10;i++)
                 {
