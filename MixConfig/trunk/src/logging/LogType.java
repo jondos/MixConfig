@@ -25,23 +25,31 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
+
 /* Hint: This file may be only a copy of the original file which is always in the JAP source tree!
  * If you change something - do not forget to add the changes also to the JAP source tree!
  */
-package anon;
+package logging;
 
-public final class ErrorCodes
+final public class LogType
 {
-	public final static int E_SUCCESS = 0;
-	public final static int E_UNKNOWN = -1;
-	public final static int E_ALREADY_CONNECTED = -4;
-	public final static int E_INVALID_SERVICE = -5;
-	public final static int E_CONNECT = -6;
-	public final static int E_NOT_CONNECTED = -9;
-	public final static int E_PROTOCOL_NOT_SUPPORTED = -10;
-	public final static int E_INVALID_CERTIFICATE = -20;
-	public final static int E_INVALID_KEY = -21;
-	public final static int E_SIGNATURE_CHECK_FIRSTMIX_FAILED = -22;
-	public final static int E_SIGNATURE_CHECK_OTHERMIX_FAILED = -23;
+	public final static int NUL = 0;
 
+	/** Indicates a GUI related message (binary: <code>00000001</code>) */
+	public final static int GUI = 1;
+
+	/** Indicates a network related message (binary: <code>00000010</code>) */
+	public final static int NET = 2;
+
+	/** Indicates a thread related message (binary: <code>00000100</code>) */
+	public final static int THREAD = 4;
+
+	/** Indicates a misc message (binary: <code>00001000</code>) */
+	public final static int MISC = 8;
+
+	/** Indicates a pay message (binary: <code>00001000</code>) */
+	public final static int PAY = 16;
+
+	/** Indicates all messagea*/
+	public final static int ALL = GUI + NET + THREAD + MISC + PAY;
 }

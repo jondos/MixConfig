@@ -249,13 +249,15 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 					throw (new RuntimeException("Not a PKCS 12 stream."));
 				}
 
-				PKCS12 pkcs12 = PKCS12.load(new ByteArrayInputStream(cert), passwd);
+				PKCS12 pkcs12 = PKCS12.getInstance(new ByteArrayInputStream(cert), passwd);
 
 				m_textDecryptWithCertValidFrom.setText(
-					pkcs12.getX509cert().getStartDate().getDate().toString());
-				m_textDecryptWithCertValidTo.setText(pkcs12.getX509cert().getEndDate().getDate().toString());
-				m_textDecryptWithCertCN.setText(pkcs12.getX509cert().getSubject().toString());
-				m_keyDecryptWith = (MyRSAPrivateKey) pkcs12.getPrivKey();
+					pkcs12.getX509Certificate().getStartDate().getDate().toString());
+				m_textDecryptWithCertValidTo.setText(
+								pkcs12.getX509Certificate().getEndDate().getDate().toString());
+				m_textDecryptWithCertCN.setText(
+								pkcs12.getX509Certificate().getSubject().toString());
+				m_keyDecryptWith = (MyRSAPrivateKey) pkcs12.getPrivateKey();
 				return true;
 
 			}
@@ -266,16 +268,6 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 				m_textDecryptWithCertCN.setText(null);
 				m_keyDecryptWith = null;
 			}
-		}
-		catch (PKCS12.IllegalCertificateException e)
-		{
-			JOptionPane.showMessageDialog(
-				this,
-				e.getMessage(),
-				"Error while reading the certificate.",
-				JOptionPane.ERROR_MESSAGE);
-			return true;
-
 		}
 		catch (Throwable e)
 		{

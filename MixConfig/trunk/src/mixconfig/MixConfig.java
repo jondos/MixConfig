@@ -27,17 +27,16 @@
  */
 package mixconfig;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -50,22 +49,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.ASN1TaggedObject;
-import org.bouncycastle.asn1.BERInputStream;
-import org.bouncycastle.asn1.DERInputStream;
-import org.bouncycastle.asn1.DERObjectIdentifier;
-import org.bouncycastle.asn1.DERTaggedObject;
-import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.bouncycastle.asn1.pkcs.SignedData;
-import org.bouncycastle.asn1.x509.X509CertificateStructure;
-import anon.util.Base64;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
+import logging.SystemErrLog;
 import mixconfig.wizard.ConfigWizard;
-import java.io.FileReader;
-import javax.swing.JEditorPane;
-import java.awt.TextArea;
+
 /** \mainpage
  This is a tool which one can use for creating a configuration file for a Mix. This configuration file
  contains an XML struct with the foolowing elements:
@@ -80,7 +70,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.02.033"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.02.034"; //NEVER change the layout of this line!!
 
 	private static final String m_configFilePath = ".";
 	private static final String TITLE = "Mix Configuration Tool";
@@ -98,6 +88,8 @@ public class MixConfig extends JApplet
 	{
 		try
 		{
+			LogHolder.setLogInstance(new SystemErrLog());
+
 			JFrame MainWindow = new JFrame();
 			m_MainWindow = MainWindow;
 
@@ -121,6 +113,19 @@ public class MixConfig extends JApplet
 					usage();
 					System.exit(0);
 				}
+				if (argv[i].equals("--logDetail"))
+				{
+					try
+					{
+						i++;
+						LogHolder.setDetailLevel(Integer.parseInt(argv[i]));
+					}
+					catch (Exception a_e)
+					{
+						usage();
+						System.exit(1);
+					}
+				}
 				else
 				{
 					setCurrentFileName(argv[i]);
@@ -133,6 +138,7 @@ public class MixConfig extends JApplet
 
 				if (f != null && f.exists())
 				{
+					LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Read the configuration...");
 					m_mixConfiguration = new MixConfiguration(new FileReader(f));
 				}
 				else
@@ -220,6 +226,7 @@ public class MixConfig extends JApplet
 			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 			Dimension size = MainWindow.getSize();
 			MainWindow.setLocation( (d.width - size.width) / 2, (d.height - size.height) / 2);
+			LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Show the GUI...");
 			MainWindow.show();
 		}
 		catch (Exception e)
@@ -241,6 +248,7 @@ public class MixConfig extends JApplet
 			"--wizard     Always start with wizard interface, don't ask",
 			"--no-wizard  Never start with wizard interface, don't ask",
 			"--help       Show this message and exit",
+			"--logDetail  Sets the detail level of log messages (lowest is 0)",
 			"",
 			"If no option is given, and no file name is given or the specified file",
 			"does not exist, the user is asked whether to use the wizard interface",
@@ -469,83 +477,5 @@ public class MixConfig extends JApplet
 			}
 		}
 		return null;
-	}
-
-	public static X509CertificateStructure readCertificate(byte[] cert) throws IOException
-	{
-		ByteArrayInputStream bin = null;
-
-		if (cert[0] != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
-		{
-			// Probably a Base64 encoded certificate
-			BufferedReader in =
-				new BufferedReader(
-				new InputStreamReader(new ByteArrayInputStream(cert)));
-			StringBuffer sbuf = new StringBuffer();
-			String line;
-
-			while ( (line = in.readLine()) != null)
-			{
-				if (line.equals("-----BEGIN CERTIFICATE-----")
-					|| line.equals("-----BEGIN X509 CERTIFICATE-----"))
-				{
-					break;
-				}
-			}
-
-			while ( (line = in.readLine()) != null)
-			{
-				if (line.equals("-----END CERTIFICATE-----")
-					|| line.equals("-----END X509 CERTIFICATE-----"))
-				{
-					break;
-				}
-				sbuf.append(line);
-			}
-			bin = new ByteArrayInputStream(Base64.decode(sbuf.toString()));
-		}
-
-		if (bin == null && cert[1] == 0x80)
-		{
-			// a BER encoded certificate
-			BERInputStream in =
-				new BERInputStream(new ByteArrayInputStream(cert));
-			ASN1Sequence seq = (ASN1Sequence) in.readObject();
-			DERObjectIdentifier oid = (DERObjectIdentifier) seq.getObjectAt(0);
-			if (oid.equals(PKCSObjectIdentifiers.signedData))
-			{
-				return new X509CertificateStructure(
-					(ASN1Sequence)new SignedData(
-					(ASN1Sequence) ( (DERTaggedObject) seq
-									.getObjectAt(1))
-					.getObject())
-					.getCertificates()
-					.getObjectAt(0));
-			}
-		}
-		else
-		{
-			if (bin == null)
-			{
-				bin = new ByteArrayInputStream(cert);
-				// DERInputStream
-			}
-			DERInputStream in = new DERInputStream(bin);
-			ASN1Sequence seq = (ASN1Sequence) in.readObject();
-			if (seq.size() > 1
-				&& seq.getObjectAt(1) instanceof DERObjectIdentifier
-				&& seq.getObjectAt(0).equals(PKCSObjectIdentifiers.signedData))
-			{
-				return X509CertificateStructure.getInstance(
-					new SignedData(
-					ASN1Sequence.getInstance(
-					(ASN1TaggedObject) seq.getObjectAt(1),
-					true))
-					.getCertificates()
-					.getObjectAt(0));
-			}
-			return X509CertificateStructure.getInstance(seq);
-		}
-		throw (new IOException("Couldn't read certificate."));
 	}
 }

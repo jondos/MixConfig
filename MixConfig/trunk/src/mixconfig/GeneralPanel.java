@@ -56,6 +56,7 @@ import org.bouncycastle.asn1.DEROutputStream;
 import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.w3c.dom.Attr;
 import anon.util.Base64;
+import anon.crypto.JAPCertificate;
 import mixconfig.wizard.ConfigWizardPanel;
 import javax.swing.JTabbedPane;
 
@@ -473,11 +474,9 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		{
 			if (cert != null)
 			{
-				X509CertificateStructure cert1 = MixConfig.readCertificate(cert);
+				JAPCertificate cert1 = JAPCertificate.getInstance(cert);
 				m_tfLogEncryptKeyName.setText(cert1.getSubject().toString());
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				new DEROutputStream(out).writeObject(cert1);
-				m_certLogEncKey = out.toByteArray();
+				m_certLogEncKey = cert1.toByteArray();
 			}
 			else
 			{
