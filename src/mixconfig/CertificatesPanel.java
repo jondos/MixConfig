@@ -125,7 +125,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         d.insets = new Insets(5, 5, 5, 5);
         panel1.setBorder(new TitledBorder("Own Mix Certificate"));
         c.gridx = 0;
-        c.gridy = 0;
+        c.gridy = 1;
         c.weightx = 1;
         c.weighty = 1;
         layout.setConstraints(panel1, c);
@@ -217,7 +217,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         panel1.add(to_text1);
 
         c.gridx = 0;
-        c.gridy = 1;
+        c.gridy = 0;
         panel2 = new JPanel(Previous);
         GridBagConstraints e = new GridBagConstraints();
         e.anchor = GridBagConstraints.NORTHWEST;
