@@ -93,6 +93,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         export2,
         create,
         m_bttnExportOwnPub,
+        m_bttnImportOwnPub,
         m_bttnChangePasswd;
 
     byte[] m_ownPubCert;
@@ -136,14 +137,14 @@ class CertificatesPanel extends JPanel implements ActionListener
         create.setActionCommand("Create");
         Own.setConstraints(create, d);
         panel1.add(create);
-        JButton bttn = new JButton("Import...");
+        m_bttnImportOwnPub = new JButton("Import...");
         d.gridx = 2;
         d.gridy = 0;
         d.gridwidth = 1;
-        bttn.addActionListener(this);
-        bttn.setActionCommand("ImportOwnCert");
-        Own.setConstraints(bttn, d);
-        panel1.add(bttn);
+        m_bttnImportOwnPub.addActionListener(this);
+        m_bttnImportOwnPub.setActionCommand("ImportOwnCert");
+        Own.setConstraints(m_bttnImportOwnPub, d);
+        panel1.add(m_bttnImportOwnPub);
         m_bttnExportOwnPub = new JButton("Export...");
         d.gridx = 3;
         d.gridy = 0;
@@ -1358,50 +1359,75 @@ class CertificatesPanel extends JPanel implements ActionListener
     {
         if (cert == null)
             return;
-        JFileChooser fd =
-            TheApplet.showFileDialog(
-                TheApplet.SAVE_DIALOG,
-                TheApplet.FILTER_CER | TheApplet.FILTER_B64_CER);
-        FileFilter ff = fd.getFileFilter();
-        int type;
-        if (ff instanceof SimpleFileFilter)
-            type = ((SimpleFileFilter) ff).getFilterType();
-        else
-            type = TheApplet.FILTER_B64_CER;
-        File file = fd.getSelectedFile();
-        if (file != null)
+        try
         {
-            String fname = file.getName();
-            if (fname.indexOf('.') < 0)
-                switch (type)
-                {
-                    case TheApplet.FILTER_CER :
-                        file = new File(file.getParent(), fname + ".der.cer");
-                        break;
-                    case TheApplet.FILTER_B64_CER :
-                        file = new File(file.getParent(), fname + ".b64.cer");
-                        break;
-                }
-            try
+            JFileChooser fd =
+                TheApplet.showFileDialog(
+                    TheApplet.SAVE_DIALOG,
+                    TheApplet.FILTER_CER | TheApplet.FILTER_B64_CER);
+            FileFilter ff = fd.getFileFilter();
+            int type;
+            if (ff instanceof SimpleFileFilter)
+                type = ((SimpleFileFilter) ff).getFilterType();
+            else
+                type = TheApplet.FILTER_B64_CER;
+            File file = fd.getSelectedFile();
+            if (file != null)
             {
-                FileOutputStream fout = new FileOutputStream(file);
-                switch (type)
+                String fname = file.getName();
+                if (fname.indexOf('.') < 0)
+                    switch (type)
+                    {
+                        case TheApplet.FILTER_CER :
+                            file = new File(file.getParent(), fname + ".der.cer");
+                            break;
+                        case TheApplet.FILTER_B64_CER :
+                            file = new File(file.getParent(), fname + ".b64.cer");
+                            break;
+                    }
+                try
                 {
-                    case TheApplet.FILTER_CER :
-                        fout.write(cert);
-                        break;
-                    case TheApplet.FILTER_B64_CER :
-                        fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
-                        fout.write(Base64.encodeBytes(cert).getBytes());
-                        fout.write("\n-----END CERTIFICATE-----\n".getBytes());
-                        break;
+                    FileOutputStream fout = new FileOutputStream(file);
+                    switch (type)
+                    {
+                        case TheApplet.FILTER_CER :
+                            fout.write(cert);
+                            break;
+                        case TheApplet.FILTER_B64_CER :
+                            fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
+                            fout.write(Base64.encodeBytes(cert).getBytes());
+                            fout.write("\n-----END CERTIFICATE-----\n".getBytes());
+                            break;
+                    }
+                    fout.close();
                 }
-                fout.close();
+                catch (Exception e)
+                {
+                }
             }
-            catch (Exception e)
-            {
-            }
+            return;
         }
+        catch(Exception e)
+        {
+        }
+        // Wenn wir hier sind, hat etwas nicht geklapppt.
+        
+        try
+        {
+            ClipFrame Save =
+                new ClipFrame(
+                    "Copy and Save this file in a new Location.",
+                    false);
+            Save.setText("-----BEGIN CERTIFICATE-----\n"+
+                         Base64.encodeBytes(cert)+
+                         "\n-----END CERTIFICATE-----\n");
+            Save.show();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        
     }
 
     public void actionPerformed(ActionEvent ae)
@@ -1458,76 +1484,148 @@ class CertificatesPanel extends JPanel implements ActionListener
         }
         else if (ae.getActionCommand().equalsIgnoreCase("ExportOwnPubCert"))
         {
-            JFileChooser fd =
-                TheApplet.showFileDialog(
-                    TheApplet.SAVE_DIALOG,
-                    TheApplet.FILTER_CER
-                        | TheApplet.FILTER_B64_CER
-                        | TheApplet.FILTER_PFX);
-            File file = fd.getSelectedFile();
-            FileFilter ff = fd.getFileFilter();
-            int type;
-            if (ff instanceof SimpleFileFilter)
-                type = ((SimpleFileFilter) ff).getFilterType();
-            else
-                type = TheApplet.FILTER_B64_CER;
-            if (file != null)
+            try
             {
-                String fname = file.getName();
-                if (fname.indexOf('.') < 0)
-                    switch (type)
-                    {
-                        case TheApplet.FILTER_PFX :
-                            file = new File(file.getParent(), fname + ".pfx");
-                            break;
-                        case TheApplet.FILTER_CER :
-                            file =
-                                new File(file.getParent(), fname + ".der.cer");
-                            break;
-                        case TheApplet.FILTER_B64_CER :
-                            file =
-                                new File(file.getParent(), fname + ".b64.cer");
-                            break;
-                    }
-                try
+                JFileChooser fd =
+                    TheApplet.showFileDialog(
+                        TheApplet.SAVE_DIALOG,
+                        TheApplet.FILTER_CER
+                            | TheApplet.FILTER_B64_CER
+                            | TheApplet.FILTER_PFX);
+                File file = fd.getSelectedFile();
+                FileFilter ff = fd.getFileFilter();
+                int type;
+                if (ff instanceof SimpleFileFilter)
+                    type = ((SimpleFileFilter) ff).getFilterType();
+                else
+                    type = TheApplet.FILTER_B64_CER;
+                if (file != null)
                 {
-                    FileOutputStream fout = new FileOutputStream(file);
-                    switch (type)
+                    String fname = file.getName();
+                    if (fname.indexOf('.') < 0)
+                        switch (type)
+                        {
+                            case TheApplet.FILTER_PFX :
+                                file = new File(file.getParent(), fname + ".pfx");
+                                break;
+                            case TheApplet.FILTER_CER :
+                                file =
+                                    new File(file.getParent(), fname + ".der.cer");
+                                break;
+                            case TheApplet.FILTER_B64_CER :
+                                file =
+                                    new File(file.getParent(), fname + ".b64.cer");
+                                break;
+                        }
+                    try
                     {
-                        case TheApplet.FILTER_PFX :
-                            fout.write(getOwnPrivCert());
-                            break;
-                        case TheApplet.FILTER_CER :
-                            fout.write(getOwnPubCert());
-                            break;
-                        case TheApplet.FILTER_B64_CER :
-                            fout.write(
-                                "-----BEGIN CERTIFICATE-----\n".getBytes());
-                            fout.write(
-                                Base64.encodeBytes(getOwnPubCert()).getBytes());
-                            fout.write(
-                                "\n-----END CERTIFICATE-----\n".getBytes());
-                            break;
+                        FileOutputStream fout = new FileOutputStream(file);
+                        switch (type)
+                        {
+                            case TheApplet.FILTER_PFX :
+                                fout.write(getOwnPrivCert());
+                                break;
+                            case TheApplet.FILTER_CER :
+                                fout.write(getOwnPubCert());
+                                break;
+                            case TheApplet.FILTER_B64_CER :
+                                fout.write(
+                                    "-----BEGIN CERTIFICATE-----\n".getBytes());
+                                fout.write(
+                                    Base64.encodeBytes(getOwnPubCert()).getBytes());
+                                fout.write(
+                                    "\n-----END CERTIFICATE-----\n".getBytes());
+                                break;
+                        }
+                        fout.close();
                     }
-                    fout.close();
+                    catch (Exception e)
+                    {
+                    }
                 }
-                catch (Exception e)
-                {
-                }
+                return;
             }
+            catch(Exception e)
+            {}
+
+            try
+            {
+                ClipFrame Save =
+                    new ClipFrame(
+                        "Copy and Save this file in a new Location.",
+                        false);
+                Save.setText("-----BEGIN CERTIFICATE-----\n"+
+                    Base64.encodeBytes(getOwnPubCert())+
+                    "\n-----END CERTIFICATE-----\n");
+                Save.show();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
         }
         else if (ae.getActionCommand().equals("ImportOwnCert"))
         {
-            byte[] buff = openFile(TheApplet.FILTER_PFX);
+            byte[] buff;
+            try
+            {
+                buff = openFile(TheApplet.FILTER_PFX);
+            }
+            catch(Exception e)
+            {
+                javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "Import of a private key with certificate\n" +
+                    "is not supported when running as an applet.",
+                    "Not supported!",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+                m_bttnImportOwnPub.setEnabled(false);
+                return;
+            }
             if (buff != null)
                 setOwnPrivCert(buff);
         }
         else if (ae.getActionCommand().equals("Import1"))
-            setPrevPubCert(openFile(TheApplet.FILTER_CER));
+        {
+            byte [] cert;
+            try
+            {
+                cert = openFile(TheApplet.FILTER_CER); 
+            }
+            catch(Exception e)
+            {
+            
+                ClipFrame Open =
+                    new ClipFrame(
+                        "Paste a certificate to be imported in the area provided.",
+                        true);
+                Open.show();
+                cert = Open.getText().getBytes();
+            }
+            setPrevPubCert(cert);
+        }
         else if (ae.getActionCommand().equals("Export1"))
             exportCert(getPrevPubCert());
         else if (ae.getActionCommand().equals("Import2"))
-            setNextPubCert(openFile(TheApplet.FILTER_CER));
+        {
+            byte [] cert;
+            try
+            {
+                cert = openFile(TheApplet.FILTER_CER); 
+            }
+            catch(Exception e)
+            {
+            
+                ClipFrame Open =
+                    new ClipFrame(
+                        "Paste a certificate to be imported in the area provided.",
+                        true);
+                Open.show();
+                cert = Open.getText().getBytes();
+            }
+            setNextPubCert(cert);
+        }
         else if (ae.getActionCommand().equals("Export2"))
             exportCert(getNextPubCert());
     }
