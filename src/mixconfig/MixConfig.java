@@ -17,7 +17,7 @@ public class MixConfig extends JApplet
 {
 	private static ConfigFrame m_ConfigFrame;
 	private static Frame m_MainWindow;
-				private static File currentDir;
+	private static File m_fileCurrentDir;
 	public final static int SAVE_DIALOG=1;
 	public final static int OPEN_DIALOG=2;
 	public final static int FILTER_CER=1;
@@ -79,29 +79,28 @@ public class MixConfig extends JApplet
 	return new ImageIcon(MixConfig.class.getResource(name));
 		}
 
-		 public static JFileChooser showFileDialog(int type, int filter_type)
+		public static JFileChooser showFileDialog(int type, int filter_type)
 			{
-	SimpleFileFilter active = null;
-	JFileChooser fd2= new JFileChooser(currentDir);
-	fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
-	if((filter_type&FILTER_CER)!=0)
-		fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_CER));
-	if((filter_type&FILTER_B64_CER)!=0)
-		fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_B64_CER));
-	if((filter_type&FILTER_XML)!=0)
-		fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_XML));
-	if((filter_type&FILTER_PFX)!=0)
-		fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_PFX));
-	if(active!=null)
-			fd2.setFileFilter(active);
-	fd2.setFileHidingEnabled(false);
-
-	if(type==SAVE_DIALOG)
-		fd2.showSaveDialog(m_ConfigFrame);
-	else
-		fd2.showOpenDialog(m_ConfigFrame);
-				currentDir = fd2.getCurrentDirectory();
-	return fd2;
+				SimpleFileFilter active = null;
+				JFileChooser fd2= new JFileChooser(m_fileCurrentDir);
+				fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				if((filter_type&FILTER_CER)!=0)
+					fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_CER));
+				if((filter_type&FILTER_B64_CER)!=0)
+					fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_B64_CER));
+				if((filter_type&FILTER_XML)!=0)
+					fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_XML));
+				if((filter_type&FILTER_PFX)!=0)
+					fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_PFX));
+				if(active!=null)
+					fd2.setFileFilter(active);
+				fd2.setFileHidingEnabled(false);
+				if(type==SAVE_DIALOG)
+					fd2.showSaveDialog(m_ConfigFrame);
+				else
+					fd2.showOpenDialog(m_ConfigFrame);
+				m_fileCurrentDir = fd2.getCurrentDirectory();
+				return fd2;
 			}
 
 }
