@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!-- This build.xml requires the bouncycastle- and xml-JARs in a directory ./jar -->
+<project name="MixConfig" default="jar" basedir=".">
+  <taskdef name="genjar" classname="org.apache.tools.ant.taskdefs.optional.genjar.GenJar"/>
+  <property name="build.dir" value="classes"/>
+  <property name="src.dir" value="src"/>
+  <property name="incjars.dir" value="jars"/>
+  <property name="jar.dir" value="."/>
+  <property name="app.jar" value="MixConfig.jar"/>
+  <property environment="env"/>
+  <path id="class.path">
+    <fileset dir="${incjars.dir}">
+      <include name="*.jar"/>
+    </fileset>
+    <pathelement location="${build.dir}"/>
+  </path>
+  <target name="init">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${jar.dir}"/>
+  </target>
+  <target name="compile" depends="init">
+    <javac srcdir="${src.dir}" destdir="${build.dir}">
+      <classpath refid="class.path"/>
+    </javac>
+  </target>
+  <target name="jar" depends="init,compile">
+    <genjar jarfile="${jar.dir}/${app.jar}">
+      <class name="mixconfig.MixConfig"/>
+      <class name="org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"/>
+      <class name="org.apache.xerces.parsers.XML11Configuration"/>
+      <class name="org.apache.xerces.impl.dv.dtd.DTDDVFactoryImpl"/>
+      <classpath refid="class.path"/>
+      <classfilter>
+        <include name="javax.xml."/>
+      </classfilter>
+      <resource>
+        <fileset dir="${src.dir}">
+          <include name="mixconfig/*.gif"/>
+        </fileset>
+      </resource>
+      <!-- library jar="${incjars.dir}/swing.jar"/-->
+      <manifest generateEntryAttributes="no">
+        <attribute name="Main-Class" value="mixconfig.MixConfig"/>
+      </manifest>
+    </genjar>
+  </target>
+</project>
