@@ -406,7 +406,7 @@ class CertificatesPanel extends JPanel implements ActionListener
       char[] passwd=dialog.getPassword();
       if(passwd==null)
         return;
-      String mixid = MyFrame.m_GeneralPanel.getMixID();
+      String mixid=MyFrame.m_GeneralPanel.getMixID();
       mixid=URLEncoder.encode(mixid);
       X509V3CertificateGenerator gen=new X509V3CertificateGenerator();
       gen.setSignatureAlgorithm("DSAWITHSHA1");

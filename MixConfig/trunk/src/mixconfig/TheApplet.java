@@ -7,7 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
-import javax.swing.*;
+
 import java.net.URLEncoder;
 import java.net.URLDecoder;
 
@@ -15,15 +15,15 @@ import javax.swing.border.EmptyBorder;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.ButtonGroup;
 import javax.swing.JMenuBar;
 import javax.swing.KeyStroke;
 import javax.swing.ImageIcon;
-import javax.swing.JTextArea;
-import javax.swing.JScrollPane;
+import javax.swing.JPanel;
+import javax.swing.JApplet;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
+import javax.swing.JTabbedPane;
 
 import javax.swing.border.TitledBorder;
 import org.w3c.dom.*;
@@ -31,13 +31,8 @@ import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.security.cert.Certificate;
-import java.security.cert.*;
-import java.security.*;
-//import org.bouncycastle.jce.X509V3CertificateGenerator;
-import org.bouncycastle.jce.provider.*;
-//import org.bouncycastle.asn1.x509.X509Name;
-//import org.bouncycastle.crypto.BlockCipher;
+import java.security.Security;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 
 //  Creating a Frame.........
@@ -49,12 +44,12 @@ import org.bouncycastle.jce.provider.*;
   private JFrame m_Parent;
   private JMenuBar m_MenuBar;
   //public static boolean New;
-  public static JMenuItem saveMenuItem,saveclipItem;
+  private JMenuItem saveMenuItem,saveclipItem;
 
-  public static GeneralPanel m_GeneralPanel;
-  public static NetworkPanel m_NetworkPanel;
-  public static CertificatesPanel m_CertificatesPanel;
-  public static DescriptionPanel m_DescriptionPanel;
+  protected static GeneralPanel m_GeneralPanel;
+  private static NetworkPanel m_NetworkPanel;
+  private static CertificatesPanel m_CertificatesPanel;
+  private static DescriptionPanel m_DescriptionPanel;
 
   public MyFrame(JFrame parent)
   {
@@ -64,6 +59,8 @@ import org.bouncycastle.jce.provider.*;
     //setJMenuBar(mb);
     JMenu fileMenu = new JMenu("File");
     m_MenuBar.add(fileMenu);
+    JMenu helpMenu = new JMenu("Help");
+    m_MenuBar.add(helpMenu);
 
     JMenuItem newMenuItem = new JMenuItem("New");
     JMenuItem exitMenuItem = new JMenuItem("Exit");
@@ -101,6 +98,10 @@ import org.bouncycastle.jce.provider.*;
     fileMenu.addSeparator();
     fileMenu.add(exitMenuItem);
 
+    JMenuItem aboutMenuItem = new JMenuItem("About...");
+    helpMenu.add(aboutMenuItem);
+    aboutMenuItem.setActionCommand("About");
+    aboutMenuItem.addActionListener(this);
     m_aktFileName=null;
 
     JTabbedPane jtp = new JTabbedPane();
@@ -164,6 +165,7 @@ import org.bouncycastle.jce.provider.*;
       else if(evt.getActionCommand().equals("OpenClip"))
       {
         ClipFrame Open = new ClipFrame("Paste a file to be opened in the area provided.",true);
+        open_internal(Open.getText().getBytes());
       }
 
       else if(evt.getActionCommand().equals("SaveClip"))
@@ -182,7 +184,7 @@ import org.bouncycastle.jce.provider.*;
         }
       }
 
-      if(evt.getActionCommand().equals("Open"))
+      else if(evt.getActionCommand().equals("Open"))
       {
 	      File file=TheApplet.showFileDialog(TheApplet.OPEN_DIALOG,TheApplet.FILTER_XML).getSelectedFile();
         if(file!=null)
@@ -201,6 +203,13 @@ import org.bouncycastle.jce.provider.*;
               }
           }
       }
+       else if(evt.getActionCommand().equals("About"))
+        {
+          JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+                                        "Mix Configuration Tool\nVersion: "+TheApplet.VERSION,
+                                        "About",JOptionPane.INFORMATION_MESSAGE,TheApplet.loadImage("icon.gif"));
+
+        }
     }
 
     private void setTitle(String s)
@@ -208,7 +217,7 @@ import org.bouncycastle.jce.provider.*;
         if(m_Parent!=null)
           m_Parent.setTitle(s);
       }
-    public void reset()
+    private void reset()
   {
      setTitle(TITLE);
      saveMenuItem.setText("Save [none]");
@@ -265,15 +274,31 @@ import org.bouncycastle.jce.provider.*;
         return n.getNodeValue();
       }
 
-   public void open(String fileName)
+  private void open(String filename)
+    {
+      try
+        {
+          File f=new File(filename);
+          int len=(int)f.length();
+          byte[] buff=new byte[len];
+          FileInputStream fin=new FileInputStream(f);
+          fin.read(buff);
+          fin.close();
+          open_internal(buff);
+        }
+      catch(Exception e)
+        {
+          e.printStackTrace();
+        }
+    }
+
+   private void open_internal(byte[] config)
     {
       try
 	{
 	  DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
 	  DocumentBuilder docBuilder=factory.newDocumentBuilder();
-	  FileInputStream fin=new FileInputStream(fileName);
-	  Document doc=docBuilder.parse(fin);
-	  fin.close();
+	  Document doc=docBuilder.parse(new ByteArrayInputStream(config));
 
 	  Element root=doc.getDocumentElement();
 	  Element elemGeneral=getChild(root,"General");
@@ -288,7 +313,9 @@ import org.bouncycastle.jce.provider.*;
 	  Element elemMixID=getChild(elemGeneral,"MixID");
     m_GeneralPanel.setAuto(false);
     String MixID = getElementValue(elemMixID,null);
-	  m_GeneralPanel.setMixID(URLDecoder.decode(MixID));
+	  if(MixID!=null)
+      MixID=URLDecoder.decode(MixID);
+    m_GeneralPanel.setMixID(MixID);
 
 	  Element elemUserID = getChild(elemGeneral,"UserID");
 	  if(elemUserID != null)
@@ -455,7 +482,10 @@ import org.bouncycastle.jce.provider.*;
 	Element elem = getChild(elemOwnCert,"X509PKCS12");
 	String name = getElementValue(elem,null);
   if(name!=null)
-    m_CertificatesPanel.setOwnPrivCert(Base64.decode(name));
+    {
+      System.out.println("Loading own Priv-Cert");
+      m_CertificatesPanel.setOwnPrivCert(Base64.decode(name));
+    }
   else
     m_CertificatesPanel.setOwnPrivCert(null);
 	Element elemPrevCert = getChild(elemCertificates,"PrevMixCertificate");
@@ -499,7 +529,7 @@ import org.bouncycastle.jce.provider.*;
 	}
     }
 
-    public void save(String fileName)
+    private void save(String fileName)
       {
         try{
           FileOutputStream fout=new FileOutputStream(fileName);
@@ -600,7 +630,7 @@ import org.bouncycastle.jce.provider.*;
 
 	  Element elemNetwork=doc.createElement("Network");
 	  root.appendChild(elemNetwork);
-	  Element elemIn = doc.createElement("Incomming");
+	/*  Element elemIn = doc.createElement("Incomming");
 	  elemNetwork.appendChild(elemIn);
 	  int i = 0, j = 0;
 	  Text text7;
@@ -729,26 +759,26 @@ import org.bouncycastle.jce.provider.*;
 	    j = 0;
 	    Outgoing = m_NetworkPanel.getTable2(i,j);
 	  }
-
+*/
 	  Element elemInfoSer = doc.createElement("InfoService");
 	  elemNetwork.appendChild(elemInfoSer);
 	  String Host = m_NetworkPanel.getHost();
-	  elemHost = doc.createElement("Host");
+	  Element elemHost = doc.createElement("Host");
 	  elemInfoSer.appendChild(elemHost);
 	  Text text9 = doc.createTextNode(Host);
 	  elemHost.appendChild(text9);
 
 	  String IP_Text = m_NetworkPanel.getIP();
-          if(!IP_Text.equals(""))
+    if(!IP_Text.equals(""))
 	  {
-	    elemIP = doc.createElement("IP");
+	    Element elemIP = doc.createElement("IP");
 	    elemInfoSer.appendChild(elemIP);
 	    text9 = doc.createTextNode(IP_Text);
 	    elemIP.appendChild(text9);
 	  }
 
 	  String Port = m_NetworkPanel.getPort();
-	  elemPort = doc.createElement("Port");
+	  Element elemPort = doc.createElement("Port");
 	  elemInfoSer.appendChild(elemPort);
 	  text9 = doc.createTextNode(Port);
 	  elemPort.appendChild(text9);
@@ -843,7 +873,7 @@ import org.bouncycastle.jce.provider.*;
 
     // To check for Errors or Missing Fields while writing a file.....
 
-  public static boolean check()
+  private boolean check()
     {
       if(m_GeneralPanel.getMixName().equals(""))
       {
@@ -930,6 +960,7 @@ public class TheApplet extends JApplet
   public final static int FILTER_CER=1;
   public final static int FILTER_XML=2;
   public final static int FILTER_PFX=4;
+  public final static String VERSION="00.01.012";
 
   public static void main(String[] args)
   {
@@ -977,6 +1008,7 @@ public class TheApplet extends JApplet
     {
         return new ImageIcon(TheApplet.class.getResource(name));
 	   }
+
      public static JFileChooser showFileDialog(int type, int filter_type)
       {
         JFileChooser fd2= new JFileChooser();
