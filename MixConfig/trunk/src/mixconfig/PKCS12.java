@@ -1,77 +1,60 @@
 package mixconfig;
 
-import java.util.Enumeration;
-import java.util.Vector;
-import java.util.Hashtable;
-
-import java.security.Key;
-import java.security.PublicKey;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.KeyStoreException;
 
-//Needed
-import org.bouncycastle.asn1.DERBMPString;
-import org.bouncycastle.asn1.DERSet;
-import org.bouncycastle.asn1.DERInputStream;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+
 import org.bouncycastle.asn1.BERConstructedOctetString;
-import org.bouncycastle.asn1.DEROutputStream;
-import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.BEROutputStream;
+import org.bouncycastle.asn1.DERBMPString;
 import org.bouncycastle.asn1.DERConstructedSequence;
 import org.bouncycastle.asn1.DERConstructedSet;
+import org.bouncycastle.asn1.DERInputStream;
 import org.bouncycastle.asn1.DERObjectIdentifier;
-import org.bouncycastle.asn1.BEROutputStream;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DEROutputStream;
+import org.bouncycastle.asn1.DERSet;
+import org.bouncycastle.asn1.pkcs.AuthenticatedSafe;
+import org.bouncycastle.asn1.pkcs.CertBag;
+import org.bouncycastle.asn1.pkcs.ContentInfo;
+import org.bouncycastle.asn1.pkcs.EncryptedData;
+import org.bouncycastle.asn1.pkcs.EncryptedPrivateKeyInfo;
+import org.bouncycastle.asn1.pkcs.MacData;
+import org.bouncycastle.asn1.pkcs.PKCS12PBEParams;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.pkcs.Pfx;
+import org.bouncycastle.asn1.pkcs.SafeBag;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.DigestInfo;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.asn1.x509.DigestInfo;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
-import org.bouncycastle.asn1.pkcs.EncryptedData;
-import org.bouncycastle.asn1.pkcs.Pfx;
-import org.bouncycastle.asn1.pkcs.MacData;
-import org.bouncycastle.asn1.pkcs.AuthenticatedSafe;
-import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.bouncycastle.asn1.pkcs.ContentInfo;
-import org.bouncycastle.asn1.pkcs.CertBag;
-import org.bouncycastle.asn1.pkcs.SafeBag;
-import org.bouncycastle.asn1.pkcs.PKCS12PBEParams;
-import org.bouncycastle.crypto.macs.HMac;
-import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.generators.PKCS12ParametersGenerator;
-import org.bouncycastle.jce.interfaces.PKCS12BagAttributeCarrier;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.io.BufferedInputStream;
-import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.cert.CertificateEncodingException;
-import javax.crypto.spec.PBEParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.SecretKey;
-import org.bouncycastle.jce.provider.JCEBlockCipher;
-import javax.crypto.CipherSpi;
-import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.jce.provider.JCEPBEKey;
-import org.bouncycastle.jce.provider.PBE;
-import org.bouncycastle.crypto.PBEParametersGenerator;
-import org.bouncycastle.jce.provider.JCESecretKeyFactory;
-import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
+import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.BufferedBlockCipher;
-import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.CipherParameters;
+import org.bouncycastle.crypto.Mac;
+import org.bouncycastle.crypto.PBEParametersGenerator;
+import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.engines.DESedeEngine;
 import org.bouncycastle.crypto.engines.RC2Engine;
-import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.generators.PKCS12ParametersGenerator;
+import org.bouncycastle.crypto.macs.HMac;
+import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.DESParameters;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.crypto.params.ParametersWithRandom;
-import org.bouncycastle.crypto.Mac;
-import org.bouncycastle.crypto.BlockCipher;
-import org.bouncycastle.asn1.x509.X509CertificateStructure;
-import org.bouncycastle.asn1.pkcs.EncryptedPrivateKeyInfo;
+import org.bouncycastle.jce.provider.PBE;
 
 
 public class PKCS12
@@ -131,9 +114,8 @@ public class PKCS12
         }
     }
 
-
-    protected byte[] encryptData(
-        String                  algorithm,
+    static public byte[] codeData(
+        boolean                 encrypt,
         byte[]                  data,
         PKCS12PBEParams         pbeParams,
         char[]                  password,
@@ -156,7 +138,7 @@ public class PKCS12
             ParametersWithIV   my_ivParam = (ParametersWithIV)my_param;
 
             my_param = new ParametersWithRandom(my_param, new SecureRandom());
-            my_cipher.init(true, my_param);
+            my_cipher.init(encrypt, my_param);
 
             byte[]  my_input=data;
             int     my_inputlen=my_input.length;
@@ -201,7 +183,7 @@ public class PKCS12
             byte[]                  kSalt = new byte[SALT_SIZE];
             random.nextBytes(kSalt);
             PKCS12PBEParams         kParams = new PKCS12PBEParams(kSalt, MIN_ITERATIONS);
-            byte[]                  kBytes = encryptData(KEY_ALGORITHM, privKey.getEncoded(), kParams, password, new DESedeEngine(), 192);
+            byte[]                  kBytes = codeData(true, privKey.getEncoded(), kParams, password, new DESedeEngine(), 192);
             AlgorithmIdentifier     kAlgId = new AlgorithmIdentifier(new DERObjectIdentifier(KEY_ALGORITHM), kParams.getDERObject());
             EncryptedPrivateKeyInfo kInfo = new EncryptedPrivateKeyInfo(kAlgId, kBytes);
             DERConstructedSet       kName = new DERConstructedSet();
@@ -268,7 +250,7 @@ public class PKCS12
             dOut.writeObject(certSeq);
             dOut.close();
 
-            byte[] certBytes = encryptData(CERT_ALGORITHM, bOut.toByteArray(), cParams, password, new RC2Engine(), 40);
+            byte[] certBytes = codeData(true, bOut.toByteArray(), cParams, password, new RC2Engine(), 40);
             cInfo = new EncryptedData(data, cAlgId, new BERConstructedOctetString(certBytes));
         }
 
@@ -431,7 +413,7 @@ public class PKCS12
 
 
 
-    class My_PBEKey implements SecretKey
+    static class My_PBEKey implements SecretKey
     {
         String  algorithm;
         char[]  password;
