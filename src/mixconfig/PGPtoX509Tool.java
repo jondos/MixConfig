@@ -182,7 +182,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 					getSelectedFile();
 				if (f != null)
 				{
-					m_textFile.setText(f.getAbsoluteFile().getPath());
+					m_textFile.setText(f.getAbsolutePath());
 					m_File = f;
 				}
 			}
@@ -334,7 +334,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		v3certgen.setStartDate(new Time(d));
 		v3certgen.setSerialNumber(new DERInteger(1));
 		X509CertificateStructure cert = v3certgen.sign(x509jap, tmpSecKey);
-		File fileDir = m_File.getParentFile();
+		File fileDir = new File(m_File.getParent());
 		FileOutputStream fout = new FileOutputStream(new File(fileDir, m_File.getName() + ".cer"));
 		DEROutputStream dout = new DEROutputStream(fout);
 		dout.writeObject(cert);
