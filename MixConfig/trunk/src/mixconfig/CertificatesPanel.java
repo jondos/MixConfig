@@ -77,7 +77,10 @@ import org.bouncycastle.crypto.generators.DSAParametersGenerator;
 import org.bouncycastle.crypto.params.DSAKeyGenerationParameters;
 import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
 import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
-import anon.crypto.*;
+import anon.crypto.MyDSAPrivateKey;
+import anon.crypto.MyDSAPublicKey;
+import anon.crypto.PKCS12;
+import anon.crypto.X509CertGenerator;
 
 class CertificatesPanel extends JPanel implements ActionListener
 {
@@ -105,7 +108,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 	// which is an 'empty' String in C but NOT
 	// in general
 	/* Note: We use as 'empty' passwd a String with len=0. This is different to an empty C like String, which
-		has len=1 and first char=0. This are in general to different passwds!!
+	 has len=1 and first char=0. This are in general to different passwds!!
 	 */
 	public CertificatesPanel()
 	{

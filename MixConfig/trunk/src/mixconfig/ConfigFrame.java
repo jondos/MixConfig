@@ -80,6 +80,9 @@ public class ConfigFrame extends JPanel implements ActionListener
 	protected static CertificatesPanel m_CertificatesPanel;
 	private static DescriptionPanel m_DescriptionPanel;
 
+	// added by Bastian Voigt (Why static??)
+	private static PaymentPanel m_PaymentPanel;
+
 	public ConfigFrame(JFrame parent)
 	{
 
@@ -172,11 +175,18 @@ public class ConfigFrame extends JPanel implements ActionListener
 		m_CertificatesPanel = new CertificatesPanel();
 		m_DescriptionPanel = new DescriptionPanel(parent == null);
 
+		//added by Bastian Voigt
+		m_PaymentPanel = new PaymentPanel();
+
 		jtp.addTab("General", m_GeneralPanel);
 		jtp.addTab("Network", m_NetworkPanel);
 		jtp.addTab("Certificates", m_CertificatesPanel);
 		jtp.addTab("Description", m_DescriptionPanel);
 		jtp.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+		//added by Bastian Voigt
+		jtp.addTab("Payment", m_PaymentPanel);
+
 		setLayout(new BorderLayout());
 		add(jtp, BorderLayout.CENTER);
 	}
@@ -340,9 +350,9 @@ public class ConfigFrame extends JPanel implements ActionListener
 					}
 				});
 				/*
-					JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+				 JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
 				 "Configuration saved into clipboard.", "Save", JOptionPane.INFORMATION_MESSAGE);
-					return;
+				 return;
 				 */
 			}
 			catch (Exception e)
@@ -555,7 +565,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 					}
 				}
 
-				if (version[0] > 0 || version[1] > 2)
+				if (version[0] > 0 || version[1] > 4)
 				{
 					int ret =
 						JOptionPane.showConfirmDialog(
@@ -645,7 +655,51 @@ public class ConfigFrame extends JPanel implements ActionListener
 					bLogFile,
 					file,
 					bLogcompress);
+				Element elemEncLog = getChild(elemEnableLog, "EncryptedLog");
+				if (elemEncLog != null)
+				{
+					Element elemKeyInfo = getChild(elemEncLog, "KeyInfo");
+					Element elemX509Data = getChild(elemKeyInfo, "X509Data");
+					Element elemX509Cert = getChild(elemX509Data, "X509Certificate");
+					String strCert = getElementValue(elemX509Cert, null);
+					if (strCert != null)
+					{
+						m_GeneralPanel.setEncKeyForLog(Base64.decode(strCert));
+					}
+					else
+					{
+						m_GeneralPanel.setEncKeyForLog(null);
+
+					}
+				}
 			}
+			// begin Payment Section, added by Bastian Voigt
+			Element elemPayment = getChild(root, "Accounting");
+			if (elemPayment != null)
+			{
+				m_PaymentPanel.m_chkPaymentEnabled.setSelected(true);
+
+				Element elemJPI = getChild(elemPayment, "PaymentInstance");
+				Element elemMisc = getChild(elemJPI, "Host");
+				m_PaymentPanel.m_textJPIHost.setText(getElementValue(elemMisc, "127.0.0.1"));
+				elemMisc = getChild(elemJPI, "Port");
+				m_PaymentPanel.m_textJPIPort.setText(getElementValue(elemMisc, "4223"));
+
+				Element elemDatabase = getChild(elemPayment, "Database");
+				elemMisc = getChild(elemDatabase, "Host");
+				m_PaymentPanel.m_textDatabaseHost.setText(getElementValue(elemMisc, "127.0.0.1"));
+				elemMisc = getChild(elemDatabase, "Port");
+				m_PaymentPanel.m_textDatabasePort.setText(getElementValue(elemMisc, "5432"));
+				elemMisc = getChild(elemDatabase, "DBName");
+				m_PaymentPanel.m_textDatabaseDBName.setText(getElementValue(elemMisc, "paydb"));
+				elemMisc = getChild(elemDatabase, "Username");
+				m_PaymentPanel.m_textDatabaseUsername.setText(getElementValue(elemMisc, "pay"));
+			}
+			else
+			{
+				m_PaymentPanel.m_chkPaymentEnabled.setSelected(false);
+			}
+			// end Payment Section
 
 			Element elemNetwork = getChild(root, "Network");
 			Node netChild = elemNetwork.getFirstChild();
@@ -777,7 +831,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 			Document doc = docBuilder.newDocument();
 
 			Element root = doc.createElement("MixConfiguration");
-			root.setAttribute("version", "0.3");
+			root.setAttribute("version", "0.4");
 			doc.appendChild(root);
 			Element elemGeneral = doc.createElement("General");
 			root.appendChild(elemGeneral);
@@ -879,6 +933,51 @@ public class ConfigFrame extends JPanel implements ActionListener
 					}
 				}
 			}
+
+			// added by Bastian Voigt: Payment section
+			if (m_PaymentPanel.m_chkPaymentEnabled.isSelected())
+			{
+
+				Element elemPayment = doc.createElement("Accounting");
+				root.appendChild(elemPayment);
+
+				Element elemJPI = doc.createElement("PaymentInstance");
+				elemPayment.appendChild(elemJPI);
+
+				Element elemMisc = doc.createElement("Host");
+				elemJPI.appendChild(elemMisc);
+				Text elemText = doc.createTextNode(m_PaymentPanel.m_textJPIHost.getText());
+				elemMisc.appendChild(elemText);
+
+				elemMisc = doc.createElement("Port");
+				elemJPI.appendChild(elemMisc);
+				elemText = doc.createTextNode(m_PaymentPanel.m_textJPIPort.getText());
+				elemMisc.appendChild(elemText);
+
+				Element elemDatabase = doc.createElement("Database");
+				elemPayment.appendChild(elemDatabase);
+
+				elemMisc = doc.createElement("Host");
+				elemDatabase.appendChild(elemMisc);
+				elemText = doc.createTextNode(m_PaymentPanel.m_textDatabaseHost.getText());
+				elemMisc.appendChild(elemText);
+
+				elemMisc = doc.createElement("Port");
+				elemDatabase.appendChild(elemMisc);
+				elemText = doc.createTextNode(m_PaymentPanel.m_textDatabasePort.getText());
+				elemMisc.appendChild(elemText);
+
+				elemMisc = doc.createElement("DBName");
+				elemDatabase.appendChild(elemMisc);
+				elemText = doc.createTextNode(m_PaymentPanel.m_textDatabaseDBName.getText());
+				elemMisc.appendChild(elemText);
+
+				elemMisc = doc.createElement("Username");
+				elemDatabase.appendChild(elemMisc);
+				elemText = doc.createTextNode(m_PaymentPanel.m_textDatabaseUsername.getText());
+				elemMisc.appendChild(elemText);
+			}
+			// end Payment section
 
 			Element elemNetwork = doc.createElement("Network");
 			root.appendChild(elemNetwork);
