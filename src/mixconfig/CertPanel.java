@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.SecureRandom;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -28,24 +29,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERInputStream;
-import org.bouncycastle.asn1.DERInteger;
-import org.bouncycastle.asn1.DEROutputStream;
-import org.bouncycastle.asn1.DERUTCTime;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.asn1.x509.X509CertificateStructure;
-import org.bouncycastle.asn1.x509.X509Name;
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.generators.DSAKeyPairGenerator;
-import org.bouncycastle.crypto.generators.DSAParametersGenerator;
-import org.bouncycastle.crypto.params.DSAKeyGenerationParameters;
-import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
-import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
-import anon.crypto.MyDSAPrivateKey;
-import anon.crypto.MyDSAPublicKey;
+import anon.crypto.DSAKeyPair;
+import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
-import anon.crypto.X509CertGenerator;
 import anon.util.Base64;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
@@ -430,10 +417,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	{
 		if (m_cert != null && m_cert instanceof PKCS12)
 		{
-			PKCS12 cert = (PKCS12) m_cert;
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			new DEROutputStream(out).writeObject(cert.getX509cert());
-			return out.toByteArray();
+			return ( (PKCS12) m_cert).getX509Certificate().toByteArray();
 		}
 		else if (m_cert != null && m_cert instanceof byte[])
 		{
@@ -520,7 +504,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			passwd = new char[]
 				{
 				0};
-			while (passwd!=null)
+			while (passwd != null)
 			{
 				try
 				{
@@ -561,19 +545,18 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			if (this.m_certIsPKCS12)
 			{
-				X509CertificateStructure cert1 = MixConfig.readCertificate(cert);
+				JAPCertificate cert1 = JAPCertificate.getInstance(cert);
 				if (cert1 != null)
 				{
-					( (PKCS12) m_cert).setX509cert(cert1);
+					( (PKCS12) m_cert).setX509Certificate(cert1);
 				}
 			}
 			else
 			{
-				X509CertificateStructure x509cs = MixConfig.readCertificate(cert);
+				JAPCertificate x509cs = JAPCertificate.getInstance(cert);
 				setCertInfo(x509cs);
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				new DEROutputStream(out).writeObject(x509cs);
-				m_cert = out.toByteArray();
+
+				m_cert = x509cs.toByteArray();
 			}
 		}
 		enableButtons();
@@ -610,7 +593,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			throw new RuntimeException("Not a PKCS 12 stream.");
 		}
-		PKCS12 pkcs12 = PKCS12.load(new ByteArrayInputStream(cert), passwd);
+		PKCS12 pkcs12 = PKCS12.getInstance(new ByteArrayInputStream(cert), passwd);
 		setPrivCert(pkcs12, new String(passwd));
 	}
 
@@ -620,7 +603,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 */
 	private void setPrivCert(PKCS12 pkcs12, String strPrivCertPasswd)
 	{
-		X509CertificateStructure x509cs = pkcs12.getX509cert();
+		JAPCertificate x509cs = pkcs12.getX509Certificate();
 		setCertInfo(x509cs);
 		m_cert = pkcs12;
 		m_privCertPasswd = strPrivCertPasswd;
@@ -696,9 +679,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private void importPrivCert() throws IOException
 	{
 		byte[] buff;
-		PKCS12 pkcs12 = (PKCS12) m_cert;
+		PKCS12 pkcs12;
 		try
 		{
+			pkcs12 = (PKCS12) m_cert;
 			int filter = MixConfig.FILTER_PFX;
 			if (m_cert != null)
 			{
@@ -708,7 +692,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (Exception e)
 		{
-			// TODO: Find out which exception exactly is thrown, and catch only that
+			/** @todo Find out which exception exactly is thrown, and catch only that */
 			JOptionPane.showMessageDialog(
 				this,
 				"Import of a private key with certificate\n" +
@@ -724,20 +708,16 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			throw new IOException("Could not read certificate.");
 		}
 
-		//if own key is already set, than maybe only an other certificate for this key is imported...
+		//if own key is already set, then maybe only an other certificate for this key is imported...
 		boolean bIsPubCert = false;
 		if (pkcs12 != null)
 		{
-			X509CertificateStructure cert1 = MixConfig.readCertificate(buff);
+			JAPCertificate cert1 = JAPCertificate.getInstance(buff);
 			if (cert1 != null)
 			{
-				SubjectPublicKeyInfo currentPubKeyInfo = pkcs12.getX509cert().
-					getSubjectPublicKeyInfo();
-				SubjectPublicKeyInfo newPubKeyInfo = cert1.getSubjectPublicKeyInfo();
-				if (currentPubKeyInfo.getAlgorithmId().equals(newPubKeyInfo.getAlgorithmId()) &&
-					currentPubKeyInfo.getPublicKey().equals(newPubKeyInfo.getPublicKey()))
+				bIsPubCert = true;
+				if (pkcs12.setX509Certificate(cert1))
 				{
-					pkcs12.setX509cert(cert1);
 					setPrivCert(pkcs12, m_privCertPasswd);
 				}
 				else
@@ -749,7 +729,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 						"Wrong certificate!",
 						JOptionPane.ERROR_MESSAGE);
 				}
-				bIsPubCert = true;
 			}
 		}
 		if (!bIsPubCert)
@@ -937,7 +916,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 * @param a_x509cs an X.509 certificate structure containing the required data about subject,
 	 * issuer, validity etc.
 	 */
-	private void setCertInfo(X509CertificateStructure a_x509cs)
+	private void setCertInfo(JAPCertificate a_x509cs)
 	{
 		m_textCertCN.setText(a_x509cs.getSubject().toString());
 		m_textCertIssuer.setText(a_x509cs.getIssuer().toString());
@@ -1060,41 +1039,17 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		 */
 		public Object construct()
 		{
-			X509CertGenerator v3certgen = new X509CertGenerator();
-			v3certgen.setStartDate(new DERUTCTime(m_startDate));
-			v3certgen.setEndDate(new DERUTCTime(m_endDate));
-			v3certgen.setSubject(new X509Name("CN=" + m_name));
-			v3certgen.setSerialNumber(new DERInteger(1));
+			DSAKeyPair keyPair;
+			Calendar startDate = Calendar.getInstance();
+			Calendar endDate = Calendar.getInstance();
 
 			try
 			{
-				SecureRandom random = new SecureRandom();
-				DSAParametersGenerator pGen = new DSAParametersGenerator();
-				DSAKeyPairGenerator kpGen = new DSAKeyPairGenerator();
-				pGen.init(1024, 20, random);
-				kpGen.init(new DSAKeyGenerationParameters(random, pGen.generateParameters()));
-				AsymmetricCipherKeyPair ackp = kpGen.generateKeyPair();
-				MyDSAPublicKey pubKey = new MyDSAPublicKey( (DSAPublicKeyParameters) ackp.getPublic());
-				MyDSAPrivateKey privKey = new MyDSAPrivateKey( (DSAPrivateKeyParameters) ackp.getPrivate());
+				keyPair = DSAKeyPair.getInstance(new SecureRandom(), 1024, 80);
+				startDate.setTime(m_startDate);
+				endDate.setTime(m_endDate);
 
-				v3certgen.setSubjectPublicKeyInfo(
-					new SubjectPublicKeyInfo(
-					(ASN1Sequence)new DERInputStream(new ByteArrayInputStream(pubKey.getEncoded()))
-					.readObject()));
-				X509CertificateStructure x509cert =
-					v3certgen.sign(new X509Name("CN=" + m_name), privKey);
-
-				PKCS12 pkcs12 =
-					new PKCS12(
-					m_name,
-					privKey,
-					x509cert
-					//,pubKey
-					);
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				pkcs12.store(out, m_passwd);
-				out.close();
-				return out.toByteArray();
+				return new PKCS12(m_name, keyPair, startDate, endDate).toByteArray(m_passwd);
 			}
 			catch (Exception e)
 			{

@@ -25,23 +25,47 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
+
 /* Hint: This file may be only a copy of the original file which is always in the JAP source tree!
  * If you change something - do not forget to add the changes also to the JAP source tree!
  */
-package anon;
+package logging;
 
-public final class ErrorCodes
+final public class LogLevel
 {
-	public final static int E_SUCCESS = 0;
-	public final static int E_UNKNOWN = -1;
-	public final static int E_ALREADY_CONNECTED = -4;
-	public final static int E_INVALID_SERVICE = -5;
-	public final static int E_CONNECT = -6;
-	public final static int E_NOT_CONNECTED = -9;
-	public final static int E_PROTOCOL_NOT_SUPPORTED = -10;
-	public final static int E_INVALID_CERTIFICATE = -20;
-	public final static int E_INVALID_KEY = -21;
-	public final static int E_SIGNATURE_CHECK_FIRSTMIX_FAILED = -22;
-	public final static int E_SIGNATURE_CHECK_OTHERMIX_FAILED = -23;
+	/** Indicates level type of message: Emergency message*/
+	public final static int EMERG = 0;
+
+	/** Indicates level type of message: Alert message */
+	public final static int ALERT = 1;
+
+	/** Indicates level type of message: For instance to  use when catching Exeption to output a debug message.*/
+	public final static int EXCEPTION = 2; //2000-07-31(HF): CRIT zu EXCEPTION geaendert, wegen besserem Verstaendnis
+
+	/** Indicates level type of message: Error message */
+	public final static int ERR = 3;
+
+	/** Indicates level type of message: Warning */
+	public final static int WARNING = 4;
+
+	/** Indicates level type of message: Notice */
+	public final static int NOTICE = 5;
+
+	/** Indicates level type of message: Information */
+	public final static int INFO = 6;
+
+	/** Indicates level type of message, e.g. a simple debugging message to output something */
+	public final static int DEBUG = 7;
+	public final static String STR_Levels[] =
+		{
+		"Emergency",
+		"Alert    ",
+		"Exception",
+		"Error    ",
+		"Warning  ",
+		"Notice   ",
+		"Info     ",
+		"Debug    "
+	};
 
 }

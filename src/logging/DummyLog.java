@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000, The JAP-Team
+ Copyright (c) 2000 - 2004, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -25,23 +25,46 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
+
 /* Hint: This file may be only a copy of the original file which is always in the JAP source tree!
  * If you change something - do not forget to add the changes also to the JAP source tree!
  */
-package anon;
+package logging;
 
-public final class ErrorCodes
+public class DummyLog implements Log
 {
-	public final static int E_SUCCESS = 0;
-	public final static int E_UNKNOWN = -1;
-	public final static int E_ALREADY_CONNECTED = -4;
-	public final static int E_INVALID_SERVICE = -5;
-	public final static int E_CONNECT = -6;
-	public final static int E_NOT_CONNECTED = -9;
-	public final static int E_PROTOCOL_NOT_SUPPORTED = -10;
-	public final static int E_INVALID_CERTIFICATE = -20;
-	public final static int E_INVALID_KEY = -21;
-	public final static int E_SIGNATURE_CHECK_FIRSTMIX_FAILED = -22;
-	public final static int E_SIGNATURE_CHECK_OTHERMIX_FAILED = -23;
+	public DummyLog()
+	{
+	}
+
+	public void log(int level, int type, String msg)
+	{
+	}
+
+	public void setLogType(int type)
+	{}
+
+	/** Get the current debug type.
+	 */
+	public int getLogType()
+	{
+		return LogType.NUL;
+	}
+
+	/** Set the debugging level you would like to output.
+	 *  The possible parameters are (EMERG, ALERT, EXCEPTION, ERR, WARNING, NOTICE, INFO, DEBUG).
+	 *  DEBUG means output all messages, EMERG means only emergency messages.
+	 *  @param level The debug level (EMERG, ALERT, EXCEPTION, ERR, WARNING, NOTICE, INFO, DEBUG)
+	 */
+	public void setLogLevel(int level)
+	{
+	}
+
+	/** Get the current debug level.
+	 */
+	public int getLogLevel()
+	{
+		return LogLevel.EMERG;
+	}
 
 }

@@ -31,7 +31,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.Date;
+import java.util.Calendar;
+
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -45,19 +46,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import org.bouncycastle.asn1.DERInteger;
-import org.bouncycastle.asn1.DEROutputStream;
-import org.bouncycastle.asn1.x509.Time;
-import org.bouncycastle.asn1.x509.X509CertificateStructure;
-import org.bouncycastle.asn1.x509.X509Name;
+
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.BCPGInputStream;
 import org.bouncycastle.bcpg.Packet;
 import org.bouncycastle.bcpg.RSAPublicBCPGKey;
 import org.bouncycastle.bcpg.RSASecretBCPGKey;
 import org.bouncycastle.bcpg.S2K;
-import org.bouncycastle.bcpg.SecretSubkeyPacket;
 import org.bouncycastle.bcpg.SecretKeyPacket;
+import org.bouncycastle.bcpg.SecretSubkeyPacket;
 import org.bouncycastle.bcpg.UserIDPacket;
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.digests.GeneralDigest;
@@ -67,8 +64,9 @@ import org.bouncycastle.crypto.engines.CAST5Engine;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
-import anon.crypto.*;
-import java.util.Calendar;
+import anon.crypto.AsymmetricCryptoKeyPair;
+import anon.crypto.MyRSAPrivateKey;
+import anon.crypto.PKCS12;
 
 public class PGPtoX509Tool extends JDialog implements ActionListener
 {
@@ -316,8 +314,6 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		//now make an X.509 cert....
 		//DSAParameters dsap=new DSAParameters(pubKey.getP(),pubKey.getQ(),pubKey.getG());
 		//			DSAPublicKeyParameters dsaparams=new DSAPublicKeyParameters(pubKey.getY(),dsap);
-		MyRSAPublicKey tmpPubKey = new MyRSAPublicKey(pubKey.getModulus(), pubKey.getPublicExponent());
-		//			DSAPrivateKeyParameters dsaprivateparams=new DSAPrivateKeyParameters(secKey.getX(),dsap);
 		MyRSAPrivateKey tmpSecKey = new MyRSAPrivateKey(secKey.getModulus(),
 			pubKey.getPublicExponent(),
 			secKey.getPrivateExponent(),
@@ -327,33 +323,21 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 			secKey.getPrimeExponentQ(),
 			secKey.getCrtCoefficient());
 
-		X509Name x509jap = new X509Name("CN=" + uidp.getID());
-		X509CertGenerator v3certgen = new X509CertGenerator();
-		v3certgen.setSubjectPublicKeyInfo(tmpPubKey.getAsSubjectPublicKeyInfo());
-		v3certgen.setSubject(x509jap);
 
-		v3certgen.setEndDate(new Time(new Date(2000000000000L)));
-		// this is deprecated
-		//Date d = new Date(100, 11, 8, 1, 0, 0);
-		Calendar cal = Calendar.getInstance();
-		cal.set(100, 11, 8, 1, 0, 0);
-		Date d = cal.getTime();
-		v3certgen.setStartDate(new Time(d));
-		v3certgen.setSerialNumber(new DERInteger(1));
-		X509CertificateStructure cert = v3certgen.sign(x509jap, tmpSecKey);
+		PKCS12 privateCertificate = new PKCS12(uidp.getID(), new AsymmetricCryptoKeyPair(tmpSecKey),
+											   Calendar.getInstance(), 10);
+
 		File fileDir = new File(m_File.getParent());
 		FileOutputStream fout = new FileOutputStream(new File(fileDir, m_File.getName() + ".cer"));
-		DEROutputStream dout = new DEROutputStream(fout);
-		dout.writeObject(cert);
+		privateCertificate.getX509Certificate().store(fout);
 		fout.close();
-		PKCS12 pkcs12 = new PKCS12(uidp.getID(), tmpSecKey, cert /*, tmpPubKey*/);
+
 		fout = new FileOutputStream(new File(fileDir, m_File.getName() + ".pfx"));
 		pb = new PasswordBox(m_Parent, "Password for X.509 key", PasswordBox.NEW_PASSWORD,
 							 "Please enter a password for the X.509 key:");
 		pb.show();
 		passPhrase = pb.getPassword();
-
-		pkcs12.store(fout, passPhrase);
+		privateCertificate.store(fout, passPhrase);
 	}
 
 	public static byte[] makeKeyFromPassPhrase(

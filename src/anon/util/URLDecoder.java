@@ -56,19 +56,17 @@ import java.io.*;
  * @author  Michael McCloskey
  * @version not specified
  * @since   1.2
- * @deprecated this class should be removed in a new JAP release
+ * @deprecated this class should be removed in a new JAP release or modified in a way it does
+ *             not violate SUN`s licence
  */
 public class URLDecoder {
 
 	/**
 	 * Decodes a <code>x-www-form-urlencoded</code> string.
-	 * The platform's default encoding is used to determine what characters
+	 * The UTF-8 encoding is used to determine what characters
 	 * are represented by any consecutive sequences of the form
 	 * "<code>%<i>xy</i></code>".
 	 * @param s the <code>String</code> to decode
-	 * @deprecated The resulting string may vary depending on the platform's
-	 *          default encoding. Instead, use the decode(String,String) method
-	 *          to specify the encoding.
 	 * @return the newly decoded <code>String</code>
 	 */
 	public static String decode(String s) {

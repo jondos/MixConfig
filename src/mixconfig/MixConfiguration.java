@@ -30,7 +30,6 @@ package mixconfig;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.Vector;
@@ -52,10 +51,9 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import anon.util.Base64;
+import anon.util.URLDecoder;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.OutgoingConnectionTableModel;
-import java.net.URLDecoder;
-import org.w3c.dom.NamedNodeMap;
 
 /** This class provides unified access to the Mix configuration. The configuration
  * is stored as a DOM document.
