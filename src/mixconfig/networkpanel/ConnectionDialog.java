@@ -236,6 +236,7 @@ abstract class ConnectionDialog extends JDialog
 		protected void addOptions(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
 			{
 				JPanel p=new JPanel(new GridLayout(1,2));
+				p.setToolTipText("This are two additional options, which are useful if you are for instance behind a NAT gateway.");
 				p.setBorder(new TitledBorder("Additional Options "));
 				lc.gridwidth=8;
 				lc.gridx=0;
@@ -247,7 +248,9 @@ abstract class ConnectionDialog extends JDialog
 				lc.gridy++;
 				rc.gridy++;
 				m_checkboxVirtual=new JCheckBox("Virtual");
+				m_checkboxVirtual.setToolTipText("Virutal - the Mix will not bind or listen on this interface, but the information is transferred to the InfoService");
 				m_checkboxHidden=new JCheckBox("Hidden");
+				m_checkboxHidden.setToolTipText("Hidden - information about this interface is not propagate to the InfoService.");
 				if(data!=null)
 					{
 						m_checkboxVirtual.setSelected(data.isVirtual());
