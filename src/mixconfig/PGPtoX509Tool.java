@@ -57,6 +57,7 @@ import org.bouncycastle.bcpg.RSAPublicBCPGKey;
 import org.bouncycastle.bcpg.RSASecretBCPGKey;
 import org.bouncycastle.bcpg.S2K;
 import org.bouncycastle.bcpg.SecretSubkeyPacket;
+import org.bouncycastle.bcpg.SecretKeyPacket;
 import org.bouncycastle.bcpg.UserIDPacket;
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.digests.GeneralDigest;
@@ -134,7 +135,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		layoutBttns.setConstraints(space, f);
 		panel3.add(space);
 
-		JButton bttnSign = new JButton("Convert and save");
+		JButton bttnSign = new JButton("Convert and Save");
 		bttnSign.setActionCommand("Convert");
 		bttnSign.addActionListener(this);
 		f.gridx = 0;
@@ -271,14 +272,14 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 	{
 		FileInputStream fin = new FileInputStream(m_File);
 		BCPGInputStream bin = new BCPGInputStream(new ArmoredInputStream(fin));
-		SecretSubkeyPacket skp = null;
+		SecretKeyPacket skp = null;
 		UserIDPacket uidp = null;
 		Packet p = null;
 		while ( (p = bin.readPacket()) != null)
 		{
-			if (p instanceof SecretSubkeyPacket)
+			if (p instanceof SecretSubkeyPacket||p instanceof SecretKeyPacket)
 			{
-				skp = (SecretSubkeyPacket) p;
+				skp = (SecretKeyPacket) p;
 			}
 			else if (p instanceof UserIDPacket)
 			{
@@ -289,12 +290,12 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		RSAPublicBCPGKey pubKey = (RSAPublicBCPGKey) skp.getPublicKeyPacket().getKey();
 		PasswordBox pb = new PasswordBox(m_Parent, "Passphrase for reading PGP Key",
 										 PasswordBox.ENTER_PASSWORD,
-										 "Pleas enter the passphrase for the PGP key:");
+										 "Please enter the passphrase for the PGP key:");
 		pb.show();
 		char[] passPhrase = pb.getPassword();
 
 		byte[] key = makeKeyFromPassPhrase(skp.getEncAlgorithm(),
-										   skp.getS2K(), passPhrase, "BC");
+										   skp.getS2K(), passPhrase);
 
 		//	DSASecretBCPGKey sk=new DSASecretBCPGKey(bin);
 		String cName = "CAST5"; //PGPUtil.getSymmetricCipherName(skp.getEncAlgorithm());
@@ -353,8 +354,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 	public static byte[] makeKeyFromPassPhrase(
 		int algorithm,
 		S2K s2k,
-		char[] passPhrase,
-		String provider)
+		char[] passPhrase)
 	{
 		String algName = null;
 		int keySize = 0;
