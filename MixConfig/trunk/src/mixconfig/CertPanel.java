@@ -496,12 +496,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		catch (Exception e)
 		{
 			/* TODO: Catch only the exception thrown in case of wrong password */
-			e.printStackTrace();
 		}
 		passwd = new char[]
 			{
 			0};
-		while (true)
+		do
 		{
 			try
 			{
@@ -514,7 +513,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			catch (Exception e)
 			{
 				/* TODO: Catch only the exception thrown in case of wrong password */
-				e.printStackTrace();
 			}
 			PasswordBox pb =
 				new PasswordBox(
@@ -523,7 +521,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				PasswordBox.ENTER_PASSWORD, null);
 			pb.show();
 			passwd = pb.getPassword();
-		}
+		} while(passwd!=null);
 	}
 
         /** Sets the public certificate. If the stored certificate is PKCS12, the new
@@ -579,11 +577,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
          */
 	private void setPrivCert(byte[] cert, char[] passwd) throws InvalidKeyException, IOException
 	{
-		if (cert[0] != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
-		{
-			throw new RuntimeException("Not a PKCS 12 stream.");
-		}
 		PKCS12 pkcs12 = PKCS12.load(new ByteArrayInputStream(cert), passwd);
+		if(pkcs12==null)
+			throw new IOException("could not read PKCS12 cert...");
 		setPrivCert(pkcs12, new String(passwd));
 	}
 
