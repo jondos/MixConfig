@@ -30,8 +30,8 @@ class CertificatesPanel extends JPanel implements ActionListener
   {
     JPanel panel1,panel2,panel3;
     JTextField text1,from_text1,to_text1;
-    JTextField text2,from_text2,to_text2;
-    JTextField text3,from_text3,to_text3;
+    JTextField m_textPrevCertCN,m_textPrevCertValidFrom,m_textPrevCertValidTo;
+    JTextField m_textNextCertCN,m_textNextCertValidFrom,m_textNextCertValidTo;
     JButton import1,import2,create,m_bttnExportOwnPub,m_bttnChangePasswd;
 
     byte[] m_ownPubCert;
@@ -170,12 +170,12 @@ class CertificatesPanel extends JPanel implements ActionListener
     e.gridy = 1;
     Previous.setConstraints(name2,e);
     panel2.add(name2);
-    text2 = new JTextField(26);
+    m_textPrevCertCN = new JTextField(26);
     e.gridx = 1;
     e.gridwidth = 3;
     e.weightx = 1;
-    Previous.setConstraints(text2,e);
-    panel2.add(text2);
+    Previous.setConstraints(m_textPrevCertCN,e);
+    panel2.add(m_textPrevCertCN);
 
     JLabel from2 = new JLabel("Valid From");
     e.gridx = 0;
@@ -184,12 +184,12 @@ class CertificatesPanel extends JPanel implements ActionListener
     e.weightx = 0;
     Previous.setConstraints(from2,e);
     panel2.add(from2);
-    from_text2 = new JTextField(26);
+    m_textPrevCertValidFrom = new JTextField(26);
     e.gridx = 1;
     e.gridwidth = 4;
     e.weightx = 1;
-    Previous.setConstraints(from_text2,e);
-    panel2.add(from_text2);
+    Previous.setConstraints(m_textPrevCertValidFrom,e);
+    panel2.add(m_textPrevCertValidFrom);
 
     JLabel to2 = new JLabel("Valid To");
     e.gridx = 0;
@@ -198,12 +198,12 @@ class CertificatesPanel extends JPanel implements ActionListener
     e.weightx = 0;
     Previous.setConstraints(to2,e);
     panel2.add(to2);
-    to_text2 = new JTextField(26);
+    m_textPrevCertValidTo = new JTextField(26);
     e.gridx = 1;
     e.gridwidth = 4;
     e.weightx = 1;
-    Previous.setConstraints(to_text2,e);
-    panel2.add(to_text2);
+    Previous.setConstraints(m_textPrevCertValidTo,e);
+    panel2.add(m_textPrevCertValidTo);
 
     c.gridy = 2;
     panel3 = new JPanel(Next);
@@ -229,12 +229,12 @@ class CertificatesPanel extends JPanel implements ActionListener
     f.weightx = 0;
     Next.setConstraints(name3,f);
     panel3.add(name3);
-    text3 = new JTextField(26);
+    m_textNextCertCN = new JTextField(26);
     f.gridx = 1;
     f.gridwidth = 5;
     f.weightx = 1;
-    Next.setConstraints(text3,f);
-    panel3.add(text3);
+    Next.setConstraints(m_textNextCertCN,f);
+    panel3.add(m_textNextCertCN);
 
     JLabel from3 = new JLabel("Valid From");
     f.gridx = 0;
@@ -243,12 +243,12 @@ class CertificatesPanel extends JPanel implements ActionListener
     f.weightx = 0;
     Next.setConstraints(from3,f);
     panel3.add(from3);
-    from_text3 = new JTextField(26);
+    m_textNextCertValidFrom = new JTextField(26);
     f.gridx = 1;
     f.gridwidth = 5;
     f.weightx = 1;
-    Next.setConstraints(from_text3,f);
-    panel3.add(from_text3);
+    Next.setConstraints(m_textNextCertValidFrom,f);
+    panel3.add(m_textNextCertValidFrom);
 
     JLabel to3 = new JLabel("Valid To");
     f.gridx = 0;
@@ -257,12 +257,12 @@ class CertificatesPanel extends JPanel implements ActionListener
     f.weightx = 0;
     Next.setConstraints(to3,f);
     panel3.add(to3);
-    to_text3 = new JTextField(26);
+    m_textNextCertValidTo = new JTextField(26);
     f.gridx = 1;
     f.gridwidth = 5;
     f.weightx = 1;
-    Next.setConstraints(to_text3,f);
-    panel3.add(to_text3);
+    Next.setConstraints(m_textNextCertValidTo,f);
+    panel3.add(m_textNextCertValidTo);
   }
 
     public void clear()
@@ -346,16 +346,16 @@ class CertificatesPanel extends JPanel implements ActionListener
               {
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
                 X509Certificate cert1 = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(cert));
-                text2.setText(cert1.getSubjectDN().getName());
-                from_text2.setText(cert1.getNotBefore().toString());
-                to_text2.setText(cert1.getNotAfter().toString());
+                m_textPrevCertCN.setText(cert1.getSubjectDN().getName());
+                m_textPrevCertValidFrom.setText(cert1.getNotBefore().toString());
+                m_textPrevCertValidTo.setText(cert1.getNotAfter().toString());
                 m_prevPubCert=cert1.getEncoded();
               }
             else
               {
-                from_text2.setText(null);
-                text2.setText(null);
-                to_text2.setText(null);
+                m_textPrevCertCN.setText(null);
+                m_textPrevCertValidFrom.setText(null);
+                m_textPrevCertValidTo.setText(null);
                 m_prevPubCert=null;
               }
           }
@@ -379,16 +379,16 @@ class CertificatesPanel extends JPanel implements ActionListener
               {
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
                 X509Certificate cert1 = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(cert));
-                text3.setText(cert1.getSubjectDN().getName());
-                from_text3.setText(cert1.getNotBefore().toString());
-                to_text3.setText(cert1.getNotAfter().toString());
+                m_textNextCertCN.setText(cert1.getSubjectDN().getName());
+                m_textNextCertValidFrom.setText(cert1.getNotBefore().toString());
+                m_textNextCertValidTo.setText(cert1.getNotAfter().toString());
                 m_nextPubCert=cert1.getEncoded();
               }
             else
               {
-                from_text3.setText(null);
-                text3.setText(null);
-                to_text3.setText(null);
+                m_textNextCertCN.setText(null);
+                m_textNextCertValidFrom.setText(null);
+                m_textNextCertValidTo.setText(null);
                 m_nextPubCert=null;
               }
           }
