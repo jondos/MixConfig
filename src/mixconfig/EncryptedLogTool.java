@@ -47,6 +47,7 @@ import org.bouncycastle.asn1.DERInputStream;
 import java.io.*;
 import org.bouncycastle.crypto.engines.*;
 import anon.crypto.*;
+
 public class EncryptedLogTool extends JDialog implements ActionListener
 {
 	private JTextField m_textDecryptWithCertCN, m_textDecryptWithCertValidFrom, m_textDecryptWithCertValidTo;
@@ -254,7 +255,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 					pkcs12.getX509cert().getStartDate().getDate().toString());
 				m_textDecryptWithCertValidTo.setText(pkcs12.getX509cert().getEndDate().getDate().toString());
 				m_textDecryptWithCertCN.setText(pkcs12.getX509cert().getSubject().toString());
-				m_keyDecryptWith = (MyRSAPrivateKey)pkcs12.getPrivKey();
+				m_keyDecryptWith = (MyRSAPrivateKey) pkcs12.getPrivKey();
 				return true;
 
 			}
@@ -312,7 +313,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 			{
 				byte[] buff = MixConfig.openFile(MixConfig.FILTER_ALL);
 				m_textLogFile.setText(new String(buff));
-				m_arLog=buff;
+				m_arLog = buff;
 			}
 			catch (Exception ex)
 			{
@@ -323,76 +324,88 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 
 	private void doDecrypt()
 	{
-	//search for begin of sym key...
-	int i=0;
-	int len=m_arLog.length;
-	while(true)
+		//search for begin of sym key...
+		int i = 0;
+		int len = m_arLog.length;
+		while (true)
 		{
-			if(i>=len)
-				return;
-
-			int b=m_arLog[i++];
-	if(b=='\n')
+			if (i >= len)
 			{
-				if(i>=len+31)
+				return;
+			}
+
+			int b = m_arLog[i++];
+			if (b == '\n')
+			{
+				if (i >= len + 31)
+				{
 					return;
-				if(new String(m_arLog,i,31).equals("----Start of EncryptionKey----\n"))
-					{
-						i += 31;
-						break;
-					}
+				}
+				if (new String(m_arLog, i, 31).equals("----Start of EncryptionKey----\n"))
+				{
+					i += 31;
+					break;
+				}
 			}
 		}
-	//found beginn --> next bytes are base64 encoded encrypted key....
-	int startOfKey=i;
-	i++;
-	while(true)
+		//found beginn --> next bytes are base64 encoded encrypted key....
+		int startOfKey = i;
+		i++;
+		while (true)
 		{
-			if(i>=len)
-				return;
-
-			int b=m_arLog[i++];
-	if(b=='\n')
+			if (i >= len)
 			{
-				if(i>=len+31)
+				return;
+			}
+
+			int b = m_arLog[i++];
+			if (b == '\n')
+			{
+				if (i >= len + 31)
+				{
 					return;
-				if(new String(m_arLog,i,31).equals("-----End of EncryptionKey-----\n"))
-					{
-						break;
-					}
+				}
+				if (new String(m_arLog, i, 31).equals("-----End of EncryptionKey-----\n"))
+				{
+					break;
+				}
 			}
 		}
-	//now the have the key....
-   byte[] encKey=Base64.decode(m_arLog,startOfKey,i-startOfKey);
-   i+=31;
-   int startOfMessage=i;
-   RSAEngine rsa=new RSAEngine();
-   rsa.init(false,m_keyDecryptWith.getParams());
-   byte[] arKey=rsa.processBlock(encKey,0,encKey.length);
-   SymCipher c=new SymCipher();
-   c.setKey(arKey,50);
-   c.setIV(arKey,66);
-   //search for message to decryt...
-   i++;
-   while(true)
-	   {
-		   if(i>=len)
-			   break;
+		//now the have the key....
+		byte[] encKey = Base64.decode(m_arLog, startOfKey, i - startOfKey);
+		i += 31;
+		int startOfMessage = i;
+		RSAEngine rsa = new RSAEngine();
+		rsa.init(false, m_keyDecryptWith.getParams());
+		byte[] arKey = rsa.processBlock(encKey, 0, encKey.length);
+		SymCipher c = new SymCipher();
+		c.setKey(arKey, 50);
+		c.setIV(arKey, 66);
+		//search for message to decryt...
+		i++;
+		while (true)
+		{
+			if (i >= len)
+			{
+				break;
+			}
 
-		   int b=m_arLog[i++];
-   if(b=='\n')
-		   {
-			   if(i>=len+31)
-				   break;
-			   if(new String(m_arLog,i,31).equals("----Start of Encryption Key----\n"))
-				   {
-					   break;
-				   }
-		   }
-	   }
-	  byte[] dec=new byte[i-startOfMessage];
-	 c.crypt(m_arLog,startOfMessage,dec,0,i-startOfMessage);
-	 m_textLogFile.setText(new String(dec));
-}
+			int b = m_arLog[i++];
+			if (b == '\n')
+			{
+				if (i >= len + 31)
+				{
+					break;
+				}
+				if (new String(m_arLog, i, 31).equals("----Start of Encryption Key----\n"))
+				{
+					break;
+				}
+			}
+		}
+		byte[] dec = new byte[i - startOfMessage];
+		c.crypt(m_arLog, startOfMessage, dec, 0, i - startOfMessage);
+		m_textLogFile.setText(new String(dec));
+	}
 
 }

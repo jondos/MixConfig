@@ -5,15 +5,15 @@
  are permitted provided that the following conditions are met:
 
  - Redistributions of source code must retain the above copyright notice,
-	this list of conditions and the following disclaimer.
+ this list of conditions and the following disclaimer.
 
  - Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation and/or
-	other materials provided with the distribution.
+ other materials provided with the distribution.
 
  - Neither the name of the University of Technology Dresden, Germany nor the names of its contributors
-	may be used to endorse or promote products derived from this software without specific
-	prior written permission.
+ may be used to endorse or promote products derived from this software without specific
+ prior written permission.
 
 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
@@ -61,14 +61,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import mixconfig.networkpanel.ConnectionData;
 import mixconfig.networkpanel.NetworkPanel;
-import anon.crypto.*;
 
 /**
  * The Frame of the MixConfig Application.
  */
-public class ConfigFrame
-	extends JPanel
-	implements ActionListener {
+public class ConfigFrame extends JPanel implements ActionListener
+{
 	private static final String TITLE = "Mix Configuration Tool";
 	private String m_aktFileName;
 	private JFrame m_Parent;
@@ -82,7 +80,8 @@ public class ConfigFrame
 	protected static CertificatesPanel m_CertificatesPanel;
 	private static DescriptionPanel m_DescriptionPanel;
 
-	public ConfigFrame(JFrame parent) {
+	public ConfigFrame(JFrame parent)
+	{
 
 		m_Parent = parent;
 
@@ -125,7 +124,8 @@ public class ConfigFrame
 		saveMenuItem.setActionCommand("Save");
 		saveAsMenuItem.setActionCommand("SaveAs");
 		saveMenuItem.setEnabled(false);
-		if (parent == null) { // an applet
+		if (parent == null)
+		{ // an applet
 			exitMenuItem.setEnabled(false);
 			openMenuItem.setEnabled(false);
 			saveAsMenuItem.setEnabled(false);
@@ -149,16 +149,16 @@ public class ConfigFrame
 		toolCertSigMenuItem.setActionCommand("toolCertSigMenuItem");
 		toolCertSigMenuItem.addActionListener(this);
 		JMenuItem toolPGPMenuItem = new JMenuItem(
-				"Converts PGP to X.509...");
-			toolsMenu.add(toolPGPMenuItem);
-			toolPGPMenuItem.setActionCommand("toolPGPMenuItem");
-			toolPGPMenuItem.addActionListener(this);
+			"Converts PGP to X.509...");
+		toolsMenu.add(toolPGPMenuItem);
+		toolPGPMenuItem.setActionCommand("toolPGPMenuItem");
+		toolPGPMenuItem.addActionListener(this);
 
 		JMenuItem toolEncLogMenuItem = new JMenuItem(
-				"Display encrypted Mix log...");
-			toolsMenu.add(toolEncLogMenuItem);
-			toolEncLogMenuItem.setActionCommand("toolEncLogMenuItem");
-			toolEncLogMenuItem.addActionListener(this);
+			"Display encrypted Mix log...");
+		toolsMenu.add(toolEncLogMenuItem);
+		toolEncLogMenuItem.setActionCommand("toolEncLogMenuItem");
+		toolEncLogMenuItem.addActionListener(this);
 
 		JMenuItem aboutMenuItem = new JMenuItem("About...");
 		helpMenu.add(aboutMenuItem);
@@ -181,36 +181,44 @@ public class ConfigFrame
 		add(jtp, BorderLayout.CENTER);
 	}
 
-	public JMenuBar getMenuBar() {
+	public JMenuBar getMenuBar()
+	{
 		return m_MenuBar;
 	}
 
-	public void actionPerformed(ActionEvent evt) {
-		if (evt.getActionCommand().equals("New")) {
+	public void actionPerformed(ActionEvent evt)
+	{
+		if (evt.getActionCommand().equals("New"))
+		{
 			int ret =
 				JOptionPane.showConfirmDialog(
 				MixConfig.getMainWindow(),
 				"You will lose unsaved information. Do you want to continue?",
 				"Caution!",
 				JOptionPane.OK_CANCEL_OPTION);
-			if (ret == JOptionPane.OK_OPTION) {
+			if (ret == JOptionPane.OK_OPTION)
+			{
 				reset();
 			}
 		}
-		else if (evt.getActionCommand().equals("Exit")) {
+		else if (evt.getActionCommand().equals("Exit"))
+		{
 			//dispose();
 			System.exit(0);
 		}
-		else if (evt.getActionCommand().equals("Check")) {
+		else if (evt.getActionCommand().equals("Check"))
+		{
 			String[] msg = check();
-			if (msg != null && msg.length > 0) {
+			if (msg != null && msg.length > 0)
+			{
 				JOptionPane.showMessageDialog(
 					MixConfig.getMainWindow(),
 					msg,
 					"Errors",
 					JOptionPane.INFORMATION_MESSAGE);
 			}
-			else {
+			else
+			{
 				JOptionPane.showMessageDialog(
 					MixConfig.getMainWindow(),
 					"No errors found.",
@@ -218,22 +226,28 @@ public class ConfigFrame
 					JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
-		else if (evt.getActionCommand().equals("Save")) {
-			if (m_aktFileName != null) {
+		else if (evt.getActionCommand().equals("Save"))
+		{
+			if (m_aktFileName != null)
+			{
 				save(m_aktFileName);
 			}
 		}
-		else if (evt.getActionCommand().equals("SaveAs")) {
-			try {
+		else if (evt.getActionCommand().equals("SaveAs"))
+		{
+			try
+			{
 				File file =
 					MixConfig
 					.showFileDialog(
 					MixConfig.SAVE_DIALOG,
 					MixConfig.FILTER_XML)
 					.getSelectedFile();
-				if (file != null) {
+				if (file != null)
+				{
 					String fname = file.getName();
-					if (!fname.toLowerCase().endsWith(".xml")) {
+					if (!fname.toLowerCase().endsWith(".xml"))
+					{
 						file = new File(file.getParent(), fname + ".xml");
 
 					}
@@ -244,36 +258,46 @@ public class ConfigFrame
 					setTitle(TITLE + " - " + m_aktFileName);
 				}
 			}
-			catch (Exception e) {
+			catch (Exception e)
+			{
 			}
 			;
 		}
-		else if (evt.getActionCommand().equals("OpenClip")) {
-			try {
+		else if (evt.getActionCommand().equals("OpenClip"))
+		{
+			try
+			{
 				Clipboard cb = null;
-				try {
+				try
+				{
 					cb =
 						(Clipboard) getToolkit()
 						.getClass()
-						.getMethod("getSystemSelection", new Class[] {
-					}).invoke(getToolkit(), new Object[] {
+						.getMethod("getSystemSelection", new Class[]
+								   {
+					}).invoke(getToolkit(), new Object[]
+							  {
 					});
 				}
-				catch (Exception ex) {
+				catch (Exception ex)
+				{
 				}
-				if (cb == null) {
+				if (cb == null)
+				{
 					cb = getToolkit().getSystemClipboard();
 				}
 				Transferable data = cb.getContents(this);
 				if (data != null
-						&& data.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+					&& data.isDataFlavorSupported(DataFlavor.stringFlavor))
+				{
 					String text =
 						(String) data.getTransferData(DataFlavor.stringFlavor);
 					open_internal(text.getBytes());
 					return;
 				}
 			}
-			catch (Exception e) {
+			catch (Exception e)
+			{
 			}
 			ClipFrame Open =
 				new ClipFrame(
@@ -282,42 +306,53 @@ public class ConfigFrame
 			Open.show();
 			open_internal(Open.getText().getBytes());
 		}
-		else if (evt.getActionCommand().equals("SaveClip")) {
-			try {
+		else if (evt.getActionCommand().equals("SaveClip"))
+		{
+			try
+			{
 				Clipboard cb = null;
-				try {
+				try
+				{
 					cb =
 						(Clipboard) getToolkit()
 						.getClass()
-						.getMethod("getSystemSelection", new Class[] {
-					}).invoke(getToolkit(), new Object[] {
+						.getMethod("getSystemSelection", new Class[]
+								   {
+					}).invoke(getToolkit(), new Object[]
+							  {
 					});
 				}
-				catch (Exception ex) {
+				catch (Exception ex)
+				{
 				}
-				if (cb == null) {
+				if (cb == null)
+				{
 					cb = getToolkit().getSystemClipboard();
 				}
 				cb
 					.setContents(
 					new StringSelection(new String(save_internal())),
-					new ClipboardOwner() {
-					public void lostOwnership(Clipboard cb, Transferable co) {
+					new ClipboardOwner()
+				{
+					public void lostOwnership(Clipboard cb, Transferable co)
+					{
 						// Don't care.
 					}
 				});
 				/*
-								JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+					JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
 				 "Configuration saved into clipboard.", "Save", JOptionPane.INFORMATION_MESSAGE);
-								return;
+					return;
 				 */
 			}
-			catch (Exception e) {
+			catch (Exception e)
+			{
 			}
 			// There are some problems with the access of the
 			// clipboard, so after the try to copy it, we
 			// still offer the ClipFrame.
-			try {
+			try
+			{
 				ClipFrame Save =
 					new ClipFrame(
 					"Copy and Save this file in a new Location.",
@@ -325,38 +360,49 @@ public class ConfigFrame
 				Save.setText(new String(save_internal()));
 				Save.show();
 			}
-			catch (Exception e) {
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
 		}
-		else if (evt.getActionCommand().equals("Open")) {
+		else if (evt.getActionCommand().equals("Open"))
+		{
 			File file =
 				MixConfig
 				.showFileDialog(MixConfig.OPEN_DIALOG, MixConfig.FILTER_XML)
 				.getSelectedFile();
-			if (file != null) {
-				try {
+			if (file != null)
+			{
+				try
+				{
 					open(file.getCanonicalPath());
 					saveMenuItem.setText("Save [" + file.getName() + "] ");
 					saveMenuItem.setEnabled(true);
 					m_aktFileName = file.getCanonicalPath();
 					setTitle(TITLE + " - " + m_aktFileName);
 				}
-				catch (Exception e) {
+				catch (Exception e)
+				{
 					e.printStackTrace();
 				}
 			}
 		}
-		else if (evt.getActionCommand().equals("toolCertSigMenuItem")) {
-			new SigCertTool(MixConfig.getMainWindow());}
-			else if (evt.getActionCommand().equals("toolEncLogMenuItem")) {
-				new EncryptedLogTool(MixConfig.getMainWindow());}
-				else if (evt.getActionCommand().equals("toolPGPMenuItem")) {
-					new PGPtoX509Tool(MixConfig.getMainWindow());
+		else if (evt.getActionCommand().equals("toolCertSigMenuItem"))
+		{
+			new SigCertTool(MixConfig.getMainWindow());
+		}
+		else if (evt.getActionCommand().equals("toolEncLogMenuItem"))
+		{
+			new EncryptedLogTool(MixConfig.getMainWindow());
+		}
+		else if (evt.getActionCommand().equals("toolPGPMenuItem"))
+		{
+			new PGPtoX509Tool(MixConfig.getMainWindow());
 
-	}
+		}
 
-		else if (evt.getActionCommand().equals("About")) {
+		else if (evt.getActionCommand().equals("About"))
+		{
 			JOptionPane.showMessageDialog(
 				MixConfig.getMainWindow(),
 				"Mix Configuration Tool\nVersion: " + MixConfig.VERSION,
@@ -366,13 +412,16 @@ public class ConfigFrame
 		}
 	}
 
-	private void setTitle(String s) {
-		if (m_Parent != null) {
+	private void setTitle(String s)
+	{
+		if (m_Parent != null)
+		{
 			m_Parent.setTitle(s);
 		}
 	}
 
-	private void reset() {
+	private void reset()
+	{
 		setTitle(TITLE);
 		saveMenuItem.setText("Save [none]");
 		saveMenuItem.setEnabled(false);
@@ -390,14 +439,19 @@ public class ConfigFrame
 		m_DescriptionPanel.setOperatorURL("");
 	}
 
-	private Element getChild(Node node, String name) {
-		if (node == null) {
+	private Element getChild(Node node, String name)
+	{
+		if (node == null)
+		{
 			return null;
 		}
 		Node tmp = node.getFirstChild();
-		while (tmp != null) {
-			if (tmp.getNodeName().equals(name)) {
-				if (tmp.getNodeType() == Node.ELEMENT_NODE) {
+		while (tmp != null)
+		{
+			if (tmp.getNodeName().equals(name))
+			{
+				if (tmp.getNodeType() == Node.ELEMENT_NODE)
+				{
 					return (Element) tmp;
 				}
 			}
@@ -406,19 +460,24 @@ public class ConfigFrame
 		return null;
 	}
 
-	private String getElementValue(Element elem, String def) {
-		if (elem == null) {
+	private String getElementValue(Element elem, String def)
+	{
+		if (elem == null)
+		{
 			return def;
 		}
 		Node n = elem.getFirstChild();
-		if (n == null || n.getNodeType() != Node.TEXT_NODE) {
+		if (n == null || n.getNodeType() != Node.TEXT_NODE)
+		{
 			return def;
 		}
 		return n.getNodeValue();
 	}
 
-	private void open(String filename) {
-		try {
+	private void open(String filename)
+	{
+		try
+		{
 			File f = new File(filename);
 			int len = (int) f.length();
 			byte[] buff = new byte[len];
@@ -427,21 +486,25 @@ public class ConfigFrame
 			fin.close();
 			open_internal(buff);
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	private void open_internal(byte[] config) {
+	private void open_internal(byte[] config)
+	{
 		reset();
-		try {
+		try
+		{
 			DocumentBuilderFactory factory =
 				DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = factory.newDocumentBuilder();
 			Document doc = docBuilder.parse(new ByteArrayInputStream(config));
 
 			Element root = doc.getDocumentElement();
-			if (!root.getNodeName().equals("MixConfiguration")) {
+			if (!root.getNodeName().equals("MixConfiguration"))
+			{
 				JOptionPane.showMessageDialog(
 					MixConfig.getMainWindow(),
 					"The root element '" + root.getNodeName() +
@@ -451,46 +514,57 @@ public class ConfigFrame
 				return;
 			}
 			String ver = root.getAttribute("version");
-			if (ver == null || ver.length() == 0) {
+			if (ver == null || ver.length() == 0)
+			{
 				int ret =
 					JOptionPane.showConfirmDialog(
 					MixConfig.getMainWindow(),
 					"This file does not contain any version information,\nso information may be lost.\nDo you want to continue?",
 					"Old XML file!",
 					JOptionPane.OK_CANCEL_OPTION);
-				if (ret != JOptionPane.OK_OPTION) {
+				if (ret != JOptionPane.OK_OPTION)
+				{
 					return;
 				}
 			}
-			else {
-				int[] version = new int[] {
+			else
+			{
+				int[] version = new int[]
+					{
 					0, 0, 0};
 				int p = 0;
-				for (int i = 0; i < 3; i++) {
+				for (int i = 0; i < 3; i++)
+				{
 					int q = ver.indexOf('.', p);
-					try {
+					try
+					{
 						version[i] = Integer.parseInt( (q < 0) ? ver.substring(p) :
-																					ver.substring(p, q));
+							ver.substring(p, q));
 					}
-					catch (NumberFormatException e) {
+					catch (NumberFormatException e)
+					{
 						break;
 					}
-					if (q < 0) {
+					if (q < 0)
+					{
 						break;
 					}
-					else {
+					else
+					{
 						p = q + 1;
 					}
 				}
 
-				if (version[0] > 0 || version[1] > 2) {
+				if (version[0] > 0 || version[1] > 2)
+				{
 					int ret =
 						JOptionPane.showConfirmDialog(
 						MixConfig.getMainWindow(),
 						"The version of this file is newer than this utility,\nso information may not be read properly.\nDo you want to continue?",
 						"XML file too new!",
 						JOptionPane.OK_CANCEL_OPTION);
-					if (ret != JOptionPane.OK_OPTION) {
+					if (ret != JOptionPane.OK_OPTION)
+					{
 						return;
 					}
 				}
@@ -510,18 +584,21 @@ public class ConfigFrame
 
 			Element elemMixID = getChild(elemGeneral, "MixID");
 			String MixID = getElementValue(elemMixID, null);
-			if (MixID != null) {
+			if (MixID != null)
+			{
 				MixID = URLDecoder.decode(MixID);
 			}
 			m_GeneralPanel.setMixID(MixID);
 
 			Element elemUserID = getChild(elemGeneral, "UserID");
-			if (elemUserID != null) {
+			if (elemUserID != null)
+			{
 				m_GeneralPanel.setUserID(getElementValue(elemUserID, null));
 			}
 
 			Element elemFileDes = getChild(elemGeneral, "NrOfFileDescriptors");
-			if (elemFileDes != null) {
+			if (elemFileDes != null)
+			{
 				m_GeneralPanel.setFileDes(getElementValue(elemFileDes, null));
 			}
 
@@ -530,29 +607,34 @@ public class ConfigFrame
 			m_GeneralPanel.setDaemon(daemon);
 
 			Element elemEnableLog = getChild(elemGeneral, "Logging");
-			if (elemEnableLog != null) {
+			if (elemEnableLog != null)
+			{
 				boolean bLogFile = false;
 				boolean bLogConsole = false;
 				boolean bLogSyslog = false;
 				String file = null;
 				boolean bLogcompress = false;
 				Element elemFile = getChild(elemEnableLog, "File");
-				if (elemFile != null) {
+				if (elemFile != null)
+				{
 					file = getElementValue(elemFile, null);
 					bLogFile = true;
 					String sCompr = elemFile.getAttribute("compressed");
-					if (sCompr != null && sCompr.equalsIgnoreCase("true")) {
+					if (sCompr != null && sCompr.equalsIgnoreCase("true"))
+					{
 						bLogcompress = false;
 					}
 				}
 				Element elemSyslog = getChild(elemEnableLog, "SysLog");
-				if (elemSyslog != null) {
+				if (elemSyslog != null)
+				{
 					bLogSyslog =
 						getElementValue(elemSyslog, "False").equalsIgnoreCase(
 						"true");
 				}
 				Element elemConsole = getChild(elemEnableLog, "Console");
-				if (elemConsole != null) {
+				if (elemConsole != null)
+				{
 					bLogConsole =
 						getElementValue(elemSyslog, "False").equalsIgnoreCase(
 						"true");
@@ -567,8 +649,10 @@ public class ConfigFrame
 
 			Element elemNetwork = getChild(root, "Network");
 			Node netChild = elemNetwork.getFirstChild();
-			while (netChild != null) {
-				if (netChild.getNodeType() == Node.ELEMENT_NODE) {
+			while (netChild != null)
+			{
+				if (netChild.getNodeType() == Node.ELEMENT_NODE)
+				{
 					m_NetworkPanel.getIncomingModel().readFromElement(
 						(Element) netChild);
 					m_NetworkPanel.getOutgoingModel().readFromElement(
@@ -581,7 +665,8 @@ public class ConfigFrame
 			String host = getElementValue(elemHost, null);
 			m_NetworkPanel.setInfoHost(host);
 			Element elemIP = getChild(elemInfoServer, "IP");
-			if (elemIP != null) {
+			if (elemIP != null)
+			{
 				String IP = getElementValue(elemIP, null);
 				m_NetworkPanel.setInfoIP(IP);
 			}
@@ -593,21 +678,25 @@ public class ConfigFrame
 			Element elemOwnCert = getChild(elemCertificates, "OwnCertificate");
 			Element elem = getChild(elemOwnCert, "X509PKCS12");
 			String name = getElementValue(elem, null);
-			if (name != null) {
+			if (name != null)
+			{
 				System.out.println("Loading own Priv-Cert");
 				m_CertificatesPanel.setOwnPrivCert(Base64.decode(name));
 			}
-			else {
+			else
+			{
 				m_CertificatesPanel.setOwnPrivCert(null);
 			}
 			Element elemPrevCert =
 				getChild(elemCertificates, "PrevMixCertificate");
 			elem = getChild(elemPrevCert, "X509Certificate");
 			name = getElementValue(elem, null);
-			if (name == null) {
+			if (name == null)
+			{
 				m_CertificatesPanel.setPrevPubCert(null);
 			}
-			else {
+			else
+			{
 				m_CertificatesPanel.setPrevPubCert(Base64.decode(name));
 
 			}
@@ -615,10 +704,12 @@ public class ConfigFrame
 				getChild(elemCertificates, "NextMixCertificate");
 			elem = getChild(elemNextCert, "X509Certificate");
 			name = getElementValue(elem, null);
-			if (name == null) {
+			if (name == null)
+			{
 				m_CertificatesPanel.setNextPubCert(null);
 			}
-			else {
+			else
+			{
 				m_CertificatesPanel.setNextPubCert(Base64.decode(name));
 
 			}
@@ -655,25 +746,31 @@ public class ConfigFrame
 			m_DescriptionPanel.setOperatorURL(opurl);
 
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			System.out.println("Open() - There was an error:");
 			e.printStackTrace();
 		}
 	}
 
-	private void save(String fileName) {
-		try {
+	private void save(String fileName)
+	{
+		try
+		{
 			FileOutputStream fout = new FileOutputStream(fileName);
 			fout.write(save_internal());
 			fout.close();
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	private byte[] save_internal() {
-		try {
+	private byte[] save_internal()
+	{
+		try
+		{
 			DocumentBuilderFactory factory =
 				DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = factory.newDocumentBuilder();
@@ -715,7 +812,8 @@ public class ConfigFrame
 			elemDaemon.appendChild(text5);
 
 			String elemUser_ID = m_GeneralPanel.getUserID();
-			if (elemUser_ID != null && !elemUser_ID.equals("")) {
+			if (elemUser_ID != null && !elemUser_ID.equals(""))
+			{
 				Element elemUserID = doc.createElement("UserID");
 				elemGeneral.appendChild(elemUserID);
 				Text text4 = doc.createTextNode(elemUser_ID);
@@ -723,28 +821,33 @@ public class ConfigFrame
 			}
 
 			String elemFileDes = m_GeneralPanel.getFileDes();
-			if (elemFileDes != null && !elemFileDes.equals("")) {
+			if (elemFileDes != null && !elemFileDes.equals(""))
+			{
 				Element elemfiledes = doc.createElement("NrOfFileDescriptors");
 				elemGeneral.appendChild(elemfiledes);
 				Text text4 = doc.createTextNode(elemFileDes);
 				elemfiledes.appendChild(text4);
 			}
 
-			if (m_GeneralPanel.isLoggingEnabled()) {
+			if (m_GeneralPanel.isLoggingEnabled())
+			{
 				Element elemLogging = doc.createElement("Logging");
 				elemGeneral.appendChild(elemLogging);
 				String LogInfo = m_GeneralPanel.getEnabled();
-				if (LogInfo.equals("LogtoConsole")) {
+				if (LogInfo.equals("LogtoConsole"))
+				{
 					Element elemLog = doc.createElement("Console");
 					elemLogging.appendChild(elemLog);
 					Text text6 = doc.createTextNode("True");
 					elemLog.appendChild(text6);
 				}
-				if (LogInfo.equals("LogtoSyslog")) {
+				if (LogInfo.equals("LogtoSyslog"))
+				{
 					Element elemLog = doc.createElement("SysLog");
 					elemLogging.appendChild(elemLog);
 				}
-				if (LogInfo.equals("Logtodir")) {
+				if (LogInfo.equals("Logtodir"))
+				{
 					String filename = m_GeneralPanel.getFileName();
 					Element elemLog = doc.createElement("File");
 					elemLogging.appendChild(elemLog);
@@ -755,22 +858,22 @@ public class ConfigFrame
 						: "False");
 					Text text6 = doc.createTextNode(filename);
 					elemLog.appendChild(text6);
-					byte[] cert=m_GeneralPanel.getEncKeyForLog();
-					if(cert!=null)
+					byte[] cert = m_GeneralPanel.getEncKeyForLog();
+					if (cert != null)
 					{
-						Element e=doc.createElement("EncryptedLog");
+						Element e = doc.createElement("EncryptedLog");
 						elemLogging.appendChild(e);
-						Element e2=doc.createElement("File");
+						Element e2 = doc.createElement("File");
 						e.appendChild(e2);
 						Text t = doc.createTextNode(filename);
 						e2.appendChild(t);
-	          Element e1=doc.createElement("KeyInfo");
+						Element e1 = doc.createElement("KeyInfo");
 						e.appendChild(e1);
-						e=doc.createElement("X509Data");
+						e = doc.createElement("X509Data");
 						e1.appendChild(e);
-						e1=doc.createElement("X509Certificate");
+						e1 = doc.createElement("X509Certificate");
 						e.appendChild(e1);
-						t=doc.createTextNode(Base64.encodeBytes(cert,true));
+						t = doc.createTextNode(Base64.encodeBytes(cert, true));
 						e1.setAttribute("xml:space", "preserve");
 						e1.appendChild(t);
 					}
@@ -779,18 +882,22 @@ public class ConfigFrame
 
 			Element elemNetwork = doc.createElement("Network");
 			root.appendChild(elemNetwork);
-			if (m_NetworkPanel.getIncomingModel() != null) {
+			if (m_NetworkPanel.getIncomingModel() != null)
+			{
 				elemNetwork.appendChild(
 					m_NetworkPanel.getIncomingModel().createAsElement(doc));
 			}
-			if (m_NetworkPanel.getOutgoingModel() != null) {
+			if (m_NetworkPanel.getOutgoingModel() != null)
+			{
 				org.w3c.dom.Element mix =
 					m_NetworkPanel.getOutgoingModel().createMixAsElement(doc);
-				if (mix != null) {
+				if (mix != null)
+				{
 					elemNetwork.appendChild(mix);
 				}
 				mix = m_NetworkPanel.getOutgoingModel().createProxiesAsElement(doc);
-				if (mix != null) {
+				if (mix != null)
+				{
 					elemNetwork.appendChild(mix);
 				}
 			}
@@ -803,7 +910,8 @@ public class ConfigFrame
 			elemHost.appendChild(text9);
 
 			String IP_Text = m_NetworkPanel.getIP();
-			if (!IP_Text.equals("") && !IP_Text.equals("0.0.0.0")) {
+			if (!IP_Text.equals("") && !IP_Text.equals("0.0.0.0"))
+			{
 				Element elemIP = doc.createElement("IP");
 				elemInfoSer.appendChild(elemIP);
 				text9 = doc.createTextNode(IP_Text);
@@ -825,7 +933,8 @@ public class ConfigFrame
 			elemOwn.appendChild(elem);
 			byte[] buff = m_CertificatesPanel.getOwnPrivCert();
 			Text text;
-			if (buff != null) {
+			if (buff != null)
+			{
 				text = doc.createTextNode(Base64.encodeBytes(buff, true));
 				elem.appendChild(text);
 				elem.setAttribute("xml:space", "preserve");
@@ -833,13 +942,15 @@ public class ConfigFrame
 			elem = doc.createElement("X509Certificate");
 			elemOwn.appendChild(elem);
 			buff = m_CertificatesPanel.getOwnPubCert();
-			if (buff != null) {
+			if (buff != null)
+			{
 				text = doc.createTextNode(Base64.encodeBytes(buff, true));
 				elem.appendChild(text);
 				elem.setAttribute("xml:space", "preserve");
 			}
 			buff = m_CertificatesPanel.getPrevPubCert();
-			if (buff != null) {
+			if (buff != null)
+			{
 				Element elemPrevious = doc.createElement("PrevMixCertificate");
 				elemCertificate.appendChild(elemPrevious);
 				elem = doc.createElement("X509Certificate");
@@ -849,7 +960,8 @@ public class ConfigFrame
 				elem.setAttribute("xml:space", "preserve");
 			}
 			buff = m_CertificatesPanel.getNextPubCert();
-			if (buff != null) {
+			if (buff != null)
+			{
 				Element elemNext = doc.createElement("NextMixCertificate");
 				elemCertificate.appendChild(elemNext);
 				elem = doc.createElement("X509Certificate");
@@ -870,7 +982,8 @@ public class ConfigFrame
 			elemCity.appendChild(text11);
 
 			String State = m_DescriptionPanel.getState();
-			if (State.length() > 0) {
+			if (State.length() > 0)
+			{
 				text11 = doc.createTextNode(State);
 				Element elemState = doc.createElement("State");
 				elemLocation.appendChild(elemState);
@@ -924,7 +1037,8 @@ public class ConfigFrame
 			fout.close();
 			return fout.toByteArray();
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			System.out.println("Save() - There was an error:");
 			e.printStackTrace();
 			return null;
@@ -933,38 +1047,49 @@ public class ConfigFrame
 
 	// To check for Errors or Missing Fields while writing a file.....
 
-	private boolean isNumber(String str) {
-		try {
+	private boolean isNumber(String str)
+	{
+		try
+		{
 			Integer.parseInt(str, 10);
 			return true;
 		}
-		catch (NumberFormatException ev) {
+		catch (NumberFormatException ev)
+		{
 			return false;
 		}
 	}
 
-	private String[] check() {
+	private String[] check()
+	{
 		Vector errors = new java.util.Vector();
 
-		if (m_GeneralPanel.getMixName().equals("")) {
+		if (m_GeneralPanel.getMixName().equals(""))
+		{
 			errors.addElement("Mix Name not entered in General Panel.");
 		}
 		if (m_GeneralPanel.getMixType().equals("FirstMix")
-				&& m_GeneralPanel.getCascadeName().equals("")) {
+			&& m_GeneralPanel.getCascadeName().equals(""))
+		{
 			errors.addElement("Cascade Name not entered in General Panel.");
 		}
 		String mixID = m_GeneralPanel.getMixID();
-		if (mixID.equals("")) {
+		if (mixID.equals(""))
+		{
 			errors.addElement("Mix ID field is blank in General Panel.");
 		}
-		else {
+		else
+		{
 			final String idChars = "abcdefghijklmnopqrstuvwxyz0123456789.-_";
 			mixID = mixID.toLowerCase();
-			if (mixID.charAt(0) != 'm') {
+			if (mixID.charAt(0) != 'm')
+			{
 				errors.addElement("Mix ID should start with a 'm'");
 			}
-			for (int i = 0; i < mixID.length(); i++) {
-				if (idChars.indexOf(mixID.charAt(i)) < 0) {
+			for (int i = 0; i < mixID.length(); i++)
+			{
+				if (idChars.indexOf(mixID.charAt(i)) < 0)
+				{
 					errors.addElement(
 						"Mix ID should contain only letters, digits, dots, underscores and minuses.");
 					break;
@@ -972,151 +1097,191 @@ public class ConfigFrame
 			}
 		}
 		if (m_GeneralPanel.getUserID() != null
-				&& m_GeneralPanel.getUserID().equals("")) {
+			&& m_GeneralPanel.getUserID().equals(""))
+		{
 			errors.addElement("User ID not entered in General Panel.");
 		}
 		if (m_GeneralPanel.getFileDes() != null
-				&& !isNumber(m_GeneralPanel.getFileDes())) {
+			&& !isNumber(m_GeneralPanel.getFileDes()))
+		{
 			errors.addElement(
 				"Number of File Descriptors is not a number in General Panel.");
 		}
 		if (m_GeneralPanel.getEnabled().equals("Logtodir")
-				&& m_GeneralPanel.getFileName().equals("")) {
+			&& m_GeneralPanel.getFileName().equals(""))
+		{
 			errors.addElement(
 				"No directory for logging entered in General Panel.");
 
 		}
-		if (m_NetworkPanel.getIncomingModel().getRowCount() == 0) {
+		if (m_NetworkPanel.getIncomingModel().getRowCount() == 0)
+		{
 			errors.addElement("No Incoming Connection given in Network Panel.");
 		}
-		else {
+		else
+		{
 			int rows = m_NetworkPanel.getIncomingModel().getRowCount();
-			for (int i = 0; i < rows; i++) {
+			for (int i = 0; i < rows; i++)
+			{
 				ConnectionData data = m_NetworkPanel.getIncomingModel().getData(i);
-				if (data.isHidden() && data.isVirtual()) {
+				if (data.isHidden() && data.isVirtual())
+				{
 					errors.addElement("Incoming connection no. " + (i + 1) +
-														" is 'virtual' and 'hidden'. This is not possible.");
+									  " is 'virtual' and 'hidden'. This is not possible.");
 				}
 
 				if ( (data.getTransport() & ConnectionData.TRANSPORT) ==
-						ConnectionData.TCP) {
-					if (data.getPort() == 0) {
+					ConnectionData.TCP)
+				{
+					if (data.getPort() == 0)
+					{
 						errors.addElement("Incoming connection no. " + (i + 1) +
-															" has no port set.");
+										  " has no port set.");
 					}
 				}
-				else {
-					if (data.getName() == null || data.getName().length() == 0) {
+				else
+				{
+					if (data.getName() == null || data.getName().length() == 0)
+					{
 						errors.addElement("Incoming connection no. " + (i + 1) +
-															" has no filename set.");
+										  " has no filename set.");
 					}
 				}
 			}
 		}
-		if (m_NetworkPanel.getOutgoingModel().getRowCount() == 0) {
+		if (m_NetworkPanel.getOutgoingModel().getRowCount() == 0)
+		{
 			errors.addElement("No Outgoing Connection given in Network Panel.");
 		}
-		else {
+		else
+		{
 			int rows = m_NetworkPanel.getOutgoingModel().getRowCount();
-			for (int i = 0; i < rows; i++) {
+			for (int i = 0; i < rows; i++)
+			{
 				ConnectionData data = m_NetworkPanel.getOutgoingModel().getData(i);
 				if ( (data.getTransport() & ConnectionData.TRANSPORT) ==
-						ConnectionData.TCP) {
-					if (data.getName() == null || data.getName().length() == 0) {
+					ConnectionData.TCP)
+				{
+					if (data.getName() == null || data.getName().length() == 0)
+					{
 						errors.addElement("Outgoing connection no. " + (i + 1) +
-															" has no host name set.");
+										  " has no host name set.");
 					}
-					if (data.getPort() == 0) {
+					if (data.getPort() == 0)
+					{
 						errors.addElement("Outgoing connection no. " + (i + 1) +
-															" has no port set.");
+										  " has no port set.");
 					}
 				}
-				else {
-					if (data.getName() == null || data.getName().length() == 0) {
+				else
+				{
+					if (data.getName() == null || data.getName().length() == 0)
+					{
 						errors.addElement("Outgoing connection no. " + (i + 1) +
-															" has no filename set.");
+										  " has no filename set.");
 					}
 				}
 			}
-			if (!m_GeneralPanel.getMixType().equals("LastMix")) {
-				if (m_NetworkPanel.getOutgoingModel().getRowCount() > 1) {
+			if (!m_GeneralPanel.getMixType().equals("LastMix"))
+			{
+				if (m_NetworkPanel.getOutgoingModel().getRowCount() > 1)
+				{
 					errors.addElement(
 						"Too many Outgoing Connections in Network Panel.");
 				}
 			}
 		}
-		if (m_NetworkPanel.getHost().equals("")) {
+		if (m_NetworkPanel.getHost().equals(""))
+		{
 			errors.addElement(
 				"The Host field for the Info Service should not be blank in Network Panel.");
 		}
-		if (m_NetworkPanel.getPort().equals("")) {
+		if (m_NetworkPanel.getPort().equals(""))
+		{
 			errors.addElement(
 				"The Port field for the Info Service should not be blank in Network Panel.");
 		}
 		if (!m_NetworkPanel.IP_Text.isEmpty()
-				&& !m_NetworkPanel.IP_Text.isCorrect()) {
+			&& !m_NetworkPanel.IP_Text.isCorrect())
+		{
 			errors.addElement(
 				"IP of Info Service is not correct in Network Panel.");
 
 		}
 		if (m_CertificatesPanel.getOwnPrivCert() == null
-				|| m_CertificatesPanel.getOwnPubCert() == null) {
+			|| m_CertificatesPanel.getOwnPubCert() == null)
+		{
 			errors.addElement(
 				"Own Mix Certificate is missing in Certificates Panel.");
 		}
-		if (m_GeneralPanel.getMixType().equals("FirstMix")) {
-			if (m_CertificatesPanel.getPrevPubCert() != null) {
+		if (m_GeneralPanel.getMixType().equals("FirstMix"))
+		{
+			if (m_CertificatesPanel.getPrevPubCert() != null)
+			{
 				errors.addElement(
 					"Previous Mix Certificate is present, but there is no previous mix.");
 			}
 		}
-		else {
-			if (m_CertificatesPanel.getPrevPubCert() == null) {
+		else
+		{
+			if (m_CertificatesPanel.getPrevPubCert() == null)
+			{
 				errors.addElement(
 					"Previous Mix Certificate is missing in Certificates Panel.");
 			}
 		}
 
-		if (m_GeneralPanel.getMixType().equals("LastMix")) {
-			if (m_CertificatesPanel.getNextPubCert() != null) {
+		if (m_GeneralPanel.getMixType().equals("LastMix"))
+		{
+			if (m_CertificatesPanel.getNextPubCert() != null)
+			{
 				errors.addElement(
 					"Next Mix Certificate is present, but there is no next mix.");
 			}
 		}
-		else {
-			if (m_CertificatesPanel.getNextPubCert() == null) {
+		else
+		{
+			if (m_CertificatesPanel.getNextPubCert() == null)
+			{
 				errors.addElement(
 					"Next Mix Certificate is missing in Certificates Panel.");
 			}
 		}
 
-		if (m_DescriptionPanel.getCity().equals("")) {
+		if (m_DescriptionPanel.getCity().equals(""))
+		{
 			errors.addElement(
 				"The city field cannot be left blank in Description Panel.");
 		}
-		if (m_DescriptionPanel.getCountry().equals("")) {
+		if (m_DescriptionPanel.getCountry().equals(""))
+		{
 			errors.addElement(
 				"The country field cannot be left blank in Description Panel.");
 		}
 		if (m_DescriptionPanel.getLatitude().equals("")
-				&& !m_DescriptionPanel.getLongitude().equals("")) {
+			&& !m_DescriptionPanel.getLongitude().equals(""))
+		{
 			errors.addElement("Latitude is missing in Description Panel.");
 		}
 		if (!m_DescriptionPanel.getLatitude().equals("")
-				&& m_DescriptionPanel.getLongitude().equals("")) {
+			&& m_DescriptionPanel.getLongitude().equals(""))
+		{
 			errors.addElement("Longitude is missing in Description Panel.");
 		}
-		if (m_DescriptionPanel.getOperatorOrg().equals("")) {
+		if (m_DescriptionPanel.getOperatorOrg().equals(""))
+		{
 			errors.addElement(
 				"The Operator Organisation field cannot be left blank in Description Panel.");
 		}
-		if (m_DescriptionPanel.getOperatorURL().equals("")) {
+		if (m_DescriptionPanel.getOperatorURL().equals(""))
+		{
 			errors.addElement(
 				"The Operator URL field cannot be left blank in Description Panel.");
 
 		}
 		String[] asString = new String[errors.size()];
-		for (int i = 0; i < asString.length; i++) {
+		for (int i = 0; i < asString.length; i++)
+		{
 			asString[i] = (String) errors.elementAt(i);
 			// return (String[]) errors.toArray(new String[] {});
 		}
@@ -1124,7 +1289,8 @@ public class ConfigFrame
 	}
 
 //ugly but cool!! .-))
-	public void useslessdummy() {
+	public void useslessdummy()
+	{
 		//The foolowin class are only imported,
 //so what they are "automatically" included in the generated JAR file
 		new org.apache.xerces.jaxp.DocumentBuilderFactoryImpl();

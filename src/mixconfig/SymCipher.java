@@ -73,7 +73,7 @@ final class SymCipher
 		{
 			for (int i = 0; i < 16; i++)
 			{
-				m_iv[i] = iv[i+offset];
+				m_iv[i] = iv[i + offset];
 			}
 			return 0;
 		}
@@ -82,7 +82,6 @@ final class SymCipher
 			return -1;
 		}
 	}
-
 
 	public int crypt(byte[] from, int ifrom, byte[] to, int ito, int len)
 	{
