@@ -3,11 +3,13 @@
 
 <!-- XML File for Mix Configuration -->
 
-<MixConfiguration version="0.3">  <!-- Root-Element -->
+<MixConfiguration version="0.4">  <!-- Root-Element -->
 <!-- Changes in Version 0.2:
 		- added attr 'hidden' and 'virtual' to ListenerInterface
 	- Changes in Version 0.3:
 		- added Encrypted Log
+	- Changes in Version 0.4:
+		- added Payment
 -->
 <General>
 	<MixID> <!-- Each Mix gets an unique ID, ether chosen by the user or generate
@@ -167,5 +169,17 @@
 
 </Description>
 
+<Accounting> <!-- if payment is enabled-->
+	<PaymentInstance>
+		<Host/>
+		<Port/>
+	</PaymentInstance>
+	<Database>
+		<Host/>
+		<Port/>
+		<DBName/>
+		<Username/>
+	</Database>
+</Accounting>
 
 </MixConfiguration>

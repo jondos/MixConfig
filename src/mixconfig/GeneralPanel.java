@@ -465,6 +465,7 @@ final public class GeneralPanel extends JPanel implements ItemListener, ActionLi
 		}
 	}
 
+
 	public void setMixType(String type)
 	{
 		if (type == null)
@@ -553,6 +554,8 @@ final public class GeneralPanel extends JPanel implements ItemListener, ActionLi
 			m_rbFile.setEnabled(true);
 			m_tfFileName.setEnabled(m_rbFile.isSelected());
 			m_compressLog.setEnabled(m_rbFile.isSelected());
+			m_labelEnrypt.setEnabled(m_rbFile.isSelected());
+			m_bttnImportEncKey.setEnabled(m_rbFile.isSelected());
 			m_rbSyslog.setEnabled(true);
 		}
 		else
