@@ -382,11 +382,28 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
           ConnectionData data = im.getData(i);
           if(!data.getIsMain())
               continue;
+          if((data.getTransport()&data.UNIX)!=0)
+              break;
           int[] ipaddr = data.getIPAddr();
           String ipstr = "";
           if(ipaddr!=null)
+          {
               for(int j=0;j<ipaddr.length;j++)
                   ipstr += ((j==0)?"":".")+ipaddr[j];
+          }
+          else if(data.getName()!=null)
+          {
+              try
+              {
+                  ipstr=java.net.InetAddress.getByName(data.getName()).getHostAddress();
+              }
+              catch(java.net.UnknownHostException e)
+              {
+                  ipstr="0.0.0.0";
+              }
+          }
+          else
+              ipstr="0.0.0.0";
           MixID.setText(java.net.URLEncoder.encode(
                    ipstr+":"+data.getPort()));
           return;
