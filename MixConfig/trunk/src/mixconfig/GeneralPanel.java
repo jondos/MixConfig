@@ -27,9 +27,7 @@
  */
 package mixconfig;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 import java.awt.Container;
@@ -54,16 +52,16 @@ import javax.swing.OverlayLayout;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
 
-import org.bouncycastle.asn1.DEROutputStream;
-import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.w3c.dom.Attr;
 import anon.util.Base64;
 import anon.crypto.JAPCertificate;
 import mixconfig.wizard.ConfigWizardPanel;
-import javax.swing.JTabbedPane;
 
 public class GeneralPanel extends MixConfigPanel implements ActionListener
 {
+	private static final String FIRST_MIX = "Join existing cascade as first mix";
+	private static final String MIDDLE_MIX = "Join existing cascade as middle mix";
+
 	final static String idChars =
 		"abcdefghijklmnopqrstuvwxyz0123456789.-_";
 
@@ -82,11 +80,15 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 	private JPanel m_panelStrut = new JPanel();
 	private JPanel m_panelAdvanced = new JPanel();
 
+	/** A text field for the name of the cascade */
+	private JTextField m_tfCascadeName;
+
 	/**
 	 * Constructs a panel with controls for general Mix settings.
 	 */
 	public GeneralPanel()
 	{
+		JLabel jLabelTemp;
 		GridBagLayout l = new GridBagLayout();
 		setLayout(l);
 
@@ -143,11 +145,11 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.gridy = -1;
 
 		// Mix Name JLabel
-		JLabel j2 = new JLabel("Mix Name");
+		jLabelTemp = new JLabel("Mix Name");
 		c.gridy++;
 		c.weightx = 1;
-		layout.setConstraints(j2, c);
-		p1.add(j2);
+		layout.setConstraints(jLabelTemp, c);
+		p1.add(jLabelTemp);
 
 		// Mix Name JTextField
 		m_tfMixName = new JTextField(20);
@@ -235,17 +237,17 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 
 
 		// Mix Type label
-		JLabel j1 = new JLabel("Cascade setting");
+		jLabelTemp = new JLabel("Cascade setting");
 		c.gridy++;
 		c.weightx = 1;
-		layout.setConstraints(j1, c);
-		p1.add(j1);
+		layout.setConstraints(jLabelTemp, c);
+		p1.add(jLabelTemp);
 
 		// Mix Type JComboBox
 		m_comboboxMixType = new JComboBox();
 		m_comboboxMixType.setName("General/MixType");
-		m_comboboxMixType.addItem("Join existing cascade as first mix");
-		m_comboboxMixType.addItem("Join existing cascade as middle mix");
+		m_comboboxMixType.addItem(FIRST_MIX);
+		m_comboboxMixType.addItem(MIDDLE_MIX);
 		if (getParent() instanceof ConfigWizardPanel)
 		{
 			m_comboboxMixType.addItem("Create new cascade and become last Mix");
@@ -254,6 +256,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		{
 			m_comboboxMixType.addItem("Manage own cascade and become last Mix");
 		}
+		m_comboboxMixType.addActionListener(this);
 
 //		m_comboboxMixType.addItem("Join existing cascade as first or middle mix");
 		m_comboboxMixType.addItemListener(this);
@@ -261,23 +264,19 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		layout.setConstraints(m_comboboxMixType, c);
 		p1.add(m_comboboxMixType);
 
-		/*
-		   // Cascade Name JLabel
-		   JLabel j1a = new JLabel("Cascade Name");
-		   c.gridy++;
-		   c.weightx = 1;
-		   layout.setConstraints(j1a, c);
-		   p1.add(j1a);
 
-		   // Cascade Name JTextField
-		   m_tfCascadeName = new JTextField(20);
-		   m_tfCascadeName.setText("");
-		   m_tfCascadeName.setName("General/CascadeName");
-		   m_tfCascadeName.addFocusListener(this);
-		   c.weightx = 3;
-		   layout.setConstraints(m_tfCascadeName, c);
-		   p1.add(m_tfCascadeName);
-		 */
+		// Cascade Name JLabel
+		jLabelTemp = new JLabel("Cascade Name");
+		c.gridy++;
+		c.weightx = 1;
+		layout.setConstraints(jLabelTemp, c);
+		p1.add(jLabelTemp);
+		// Cascade Name JTextField; this field is disabled by selecting a middle mix type
+		m_tfCascadeName = new JTextField();
+		m_tfCascadeName.setName("General/CascadeName");
+		m_tfCascadeName.addFocusListener(this);
+		layout.setConstraints(m_tfCascadeName, c);
+		p1.add(m_tfCascadeName);
 
 		// Cascade length JCheckBox
 		m_checkboxCascadeLength = new JCheckBox("Require min. Cascade length");
@@ -529,6 +528,17 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		else if (ae.getActionCommand().equals("advanced"))
 		{
 			setAdvancedVisible(true);
+		}
+		else if (ae.getSource() == m_comboboxMixType)
+		{
+			if (m_comboboxMixType.getSelectedItem() == MIDDLE_MIX)
+			{
+				m_tfCascadeName.setEnabled(false);
+			}
+			else
+			{
+				m_tfCascadeName.setEnabled(true);
+			}
 		}
 	}
 
