@@ -377,7 +377,7 @@ class CertificatesPanel extends JPanel implements ActionListener
             {
                 PasswordBox pb =
                     new PasswordBox(
-                        TheApplet.getMainWindow(),
+                        MixConfig.getMainWindow(),
                         "Enter the password",
                         PasswordBox.ENTER_PASSWORD);
                 pb.show();
@@ -1114,13 +1114,13 @@ class CertificatesPanel extends JPanel implements ActionListener
         }
 
         final ValidityDialog vdialog =
-            new ValidityDialog(TheApplet.getMainWindow(), "Validity");
+            new ValidityDialog(MixConfig.getMainWindow(), "Validity");
         vdialog.show();
         if (vdialog.from == null)
             return;
         PasswordBox dialog =
             new PasswordBox(
-                TheApplet.getMainWindow(),
+                MixConfig.getMainWindow(),
                 "New Password",
                 PasswordBox.NEW_PASSWORD);
         dialog.show();
@@ -1130,7 +1130,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         final String mixid = URLEncoder.encode(oMixid);
 
         final BusyWindow waitWindow =
-            new BusyWindow(TheApplet.getMainWindow(), "Generating Key Pair.");
+            new BusyWindow(MixConfig.getMainWindow(), "Generating Key Pair.");
 
         SwingWorker worker = new SwingWorker()
         {
@@ -1362,15 +1362,15 @@ class CertificatesPanel extends JPanel implements ActionListener
         try
         {
             JFileChooser fd =
-                TheApplet.showFileDialog(
-                    TheApplet.SAVE_DIALOG,
-                    TheApplet.FILTER_CER | TheApplet.FILTER_B64_CER);
+                MixConfig.showFileDialog(
+                    MixConfig.SAVE_DIALOG,
+                    MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
             FileFilter ff = fd.getFileFilter();
             int type;
             if (ff instanceof SimpleFileFilter)
                 type = ((SimpleFileFilter) ff).getFilterType();
             else
-                type = TheApplet.FILTER_B64_CER;
+                type = MixConfig.FILTER_B64_CER;
             File file = fd.getSelectedFile();
             if (file != null)
             {
@@ -1378,10 +1378,10 @@ class CertificatesPanel extends JPanel implements ActionListener
                 if (fname.indexOf('.') < 0)
                     switch (type)
                     {
-                        case TheApplet.FILTER_CER :
+                        case MixConfig.FILTER_CER :
                             file = new File(file.getParent(), fname + ".der.cer");
                             break;
-                        case TheApplet.FILTER_B64_CER :
+                        case MixConfig.FILTER_B64_CER :
                             file = new File(file.getParent(), fname + ".b64.cer");
                             break;
                     }
@@ -1390,10 +1390,10 @@ class CertificatesPanel extends JPanel implements ActionListener
                     FileOutputStream fout = new FileOutputStream(file);
                     switch (type)
                     {
-                        case TheApplet.FILTER_CER :
+                        case MixConfig.FILTER_CER :
                             fout.write(cert);
                             break;
-                        case TheApplet.FILTER_B64_CER :
+                        case MixConfig.FILTER_B64_CER :
                             fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
                             fout.write(Base64.encodeBytes(cert).getBytes());
                             fout.write("\n-----END CERTIFICATE-----\n".getBytes());
@@ -1441,7 +1441,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         {
             PasswordBox dialog =
                 new PasswordBox(
-                    TheApplet.getMainWindow(),
+                    MixConfig.getMainWindow(),
                     "Change Password",
                     PasswordBox.CHANGE_PASSWORD);
             while (true)
@@ -1487,32 +1487,32 @@ class CertificatesPanel extends JPanel implements ActionListener
             try
             {
                 JFileChooser fd =
-                    TheApplet.showFileDialog(
-                        TheApplet.SAVE_DIALOG,
-                        TheApplet.FILTER_CER
-                            | TheApplet.FILTER_B64_CER
-                            | TheApplet.FILTER_PFX);
+                    MixConfig.showFileDialog(
+                        MixConfig.SAVE_DIALOG,
+                        MixConfig.FILTER_CER
+                            | MixConfig.FILTER_B64_CER
+                            | MixConfig.FILTER_PFX);
                 File file = fd.getSelectedFile();
                 FileFilter ff = fd.getFileFilter();
                 int type;
                 if (ff instanceof SimpleFileFilter)
                     type = ((SimpleFileFilter) ff).getFilterType();
                 else
-                    type = TheApplet.FILTER_B64_CER;
+                    type = MixConfig.FILTER_B64_CER;
                 if (file != null)
                 {
                     String fname = file.getName();
                     if (fname.indexOf('.') < 0)
                         switch (type)
                         {
-                            case TheApplet.FILTER_PFX :
+                            case MixConfig.FILTER_PFX :
                                 file = new File(file.getParent(), fname + ".pfx");
                                 break;
-                            case TheApplet.FILTER_CER :
+                            case MixConfig.FILTER_CER :
                                 file =
                                     new File(file.getParent(), fname + ".der.cer");
                                 break;
-                            case TheApplet.FILTER_B64_CER :
+                            case MixConfig.FILTER_B64_CER :
                                 file =
                                     new File(file.getParent(), fname + ".b64.cer");
                                 break;
@@ -1522,13 +1522,13 @@ class CertificatesPanel extends JPanel implements ActionListener
                         FileOutputStream fout = new FileOutputStream(file);
                         switch (type)
                         {
-                            case TheApplet.FILTER_PFX :
+                            case MixConfig.FILTER_PFX :
                                 fout.write(getOwnPrivCert());
                                 break;
-                            case TheApplet.FILTER_CER :
+                            case MixConfig.FILTER_CER :
                                 fout.write(getOwnPubCert());
                                 break;
-                            case TheApplet.FILTER_B64_CER :
+                            case MixConfig.FILTER_B64_CER :
                                 fout.write(
                                     "-----BEGIN CERTIFICATE-----\n".getBytes());
                                 fout.write(
@@ -1570,7 +1570,7 @@ class CertificatesPanel extends JPanel implements ActionListener
             byte[] buff;
             try
             {
-                buff = openFile(TheApplet.FILTER_PFX);
+                buff = openFile(MixConfig.FILTER_PFX);
             }
             catch(Exception e)
             {
@@ -1591,7 +1591,7 @@ class CertificatesPanel extends JPanel implements ActionListener
             byte [] cert;
             try
             {
-                cert = openFile(TheApplet.FILTER_CER); 
+                cert = openFile(MixConfig.FILTER_CER); 
             }
             catch(Exception e)
             {
@@ -1612,7 +1612,7 @@ class CertificatesPanel extends JPanel implements ActionListener
             byte [] cert;
             try
             {
-                cert = openFile(TheApplet.FILTER_CER); 
+                cert = openFile(MixConfig.FILTER_CER); 
             }
             catch(Exception e)
             {
@@ -1633,8 +1633,8 @@ class CertificatesPanel extends JPanel implements ActionListener
     private byte[] openFile(int type)
     {
         File file =
-            TheApplet
-                .showFileDialog(TheApplet.OPEN_DIALOG, type)
+            MixConfig
+                .showFileDialog(MixConfig.OPEN_DIALOG, type)
                 .getSelectedFile();
         if (file != null)
         {
@@ -1686,7 +1686,7 @@ class BusyWindow extends javax.swing.JWindow implements ActionListener
         layout.setConstraints(label, gbc);
         p.add(label);
         gbc.gridy++;
-        ImageIcon img = TheApplet.loadImage("busy.gif");
+        ImageIcon img = MixConfig.loadImage("busy.gif");
         MediaTracker mt = new MediaTracker(this);
         mt.addImage(img.getImage(), 1);
         try
