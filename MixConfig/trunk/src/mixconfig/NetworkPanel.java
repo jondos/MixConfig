@@ -42,7 +42,7 @@ class ConnectionData
 		private String type; // Name of the XML element
 		private int flags;
 
-                public static final int TRANSPORT = 1; // Bit mask
+								public static final int TRANSPORT = 1; // Bit mask
 		public static final int TCP = 0;
 		public static final int UNIX = 1;
 		public static final int RAW = 0;
@@ -267,6 +267,7 @@ class ConnectionData
 
 		static ConnectionData createFromElement(String t, org.w3c.dom.Element iface)
 		{
+			try{
 				if(!iface.getTagName().equals(t))
 						return null;
 
@@ -314,7 +315,13 @@ class ConnectionData
 								n = "";
 						return new ConnectionData(t, trans, n, ptype);
 				}
-		}
+			}
+			catch(Exception e)
+			{
+				System.out.println("Network interface not set");
+				return null;
+			}
+				}
 }
 
 class IPTextField extends JPanel
@@ -716,7 +723,7 @@ abstract class ConnectionDialog extends JDialog
 				layout.setConstraints(keys,lc);
 				getContentPane().add(keys);
 				lc.gridy++;
-                                rc.gridy++;
+																rc.gridy++;
 		}
 
 		ConnectionDialog(Frame parent, String title)
@@ -1106,10 +1113,10 @@ class OutgoingModel extends ConnectionModel
 								org.w3c.dom.Element proxy = getData(i).createAsElement(doc);
 								proxies.appendChild(proxy);
 						}
-                                if(proxies.hasChildNodes())
-				    return proxies;
-                                else
-                                    return null;
+																if(proxies.hasChildNodes())
+						return proxies;
+																else
+																		return null;
 		}
 
 		org.w3c.dom.Element createMixAsElement(org.w3c.dom.Document doc)
@@ -1276,7 +1283,7 @@ class NetworkPanel extends JPanel
 						setHorizontalAlignment(CENTER);
 				}
 		};
-                /*
+								/*
 		final TableCellRenderer emptyRenderer = new DefaultTableCellRenderer()
 		{
 				protected void setValue(Object v)
@@ -1284,7 +1291,7 @@ class NetworkPanel extends JPanel
 						super.setValue("");
 				}
 		};
-                */
+								*/
 
 		imodel = new IncomingModel();
 
