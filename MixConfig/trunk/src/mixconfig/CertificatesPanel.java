@@ -123,6 +123,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				d.anchor = GridBagConstraints.NORTHWEST;
 				d.insets = new Insets(5, 5, 5, 5);
 				panel1.setBorder(new TitledBorder("Own Mix Certificate"));
+				panel1.setToolTipText("Hint: You have to sent your public test certificate to the operators of your adjacent mixes");
 				c.gridx = 0;
 				c.gridy = 1;
 				c.weightx = 1;
@@ -237,6 +238,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				e.insets = new Insets(5, 5, 5, 5);
 				e.fill = GridBagConstraints.HORIZONTAL;
 				panel2.setBorder(new TitledBorder("Previous Mix Certificate"));
+				panel2.setToolTipText("Hint: You will get the public test certificate from the operator of the previous mix");
 				layout.setConstraints(panel2, c);
 				add(panel2);
 
@@ -329,6 +331,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				f.insets = new Insets(5, 5, 5, 5);
 				f.fill = GridBagConstraints.HORIZONTAL;
 				panel3.setBorder(new TitledBorder("Next Mix Certificate"));
+				panel3.setToolTipText("Hint: You will get the public test certificate from the operator of the next mix");
 				layout.setConstraints(panel3, c);
 				add(panel3);
 
