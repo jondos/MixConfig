@@ -155,7 +155,7 @@ class DescriptionPanel extends JPanel implements ActionListener
           {
             try
               {
-                box = new MapBox(TheApplet.myFrame,getLatitude(),getLongitude(),5);
+                box = new MapBox(TheApplet.getMainWindow(),getLatitude(),getLongitude(),5);
                 box.show();
                 map.setText("Update Map");
                 map.setActionCommand("Update");

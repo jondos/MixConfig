@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.JFileChooser;
 import java.net.URLEncoder;
 
 
@@ -31,7 +32,7 @@ class CertificatesPanel extends JPanel implements ActionListener
     JTextField text1,from_text1,to_text1;
     JTextField text2,from_text2,to_text2;
     JTextField text3,from_text3,to_text3;
-    JButton import1,import2,create,m_bttnExportOwnPub;
+    JButton import1,import2,create,m_bttnExportOwnPub,m_bttnChangePasswd;
 
     byte[] m_ownPubCert;
     byte[] m_ownPrivCert;
@@ -74,8 +75,17 @@ class CertificatesPanel extends JPanel implements ActionListener
     create.setActionCommand("Create");
     Own.setConstraints(create,d);
     panel1.add(create);
-    m_bttnExportOwnPub = new JButton("Export public Certificate...");
+    JButton bttn = new JButton("Import...");
     d.gridx = 2;
+    d.gridy = 0;
+    d.gridwidth = 1;
+    d.fill = GridBagConstraints.HORIZONTAL;
+    bttn.addActionListener(this);
+    bttn.setActionCommand("ImportOwnCert");
+    Own.setConstraints(bttn,d);
+    panel1.add(bttn);
+    m_bttnExportOwnPub = new JButton("Export...");
+    d.gridx = 3;
     d.gridy = 0;
     d.gridwidth = 1;
     d.fill = GridBagConstraints.HORIZONTAL;
@@ -84,12 +94,13 @@ class CertificatesPanel extends JPanel implements ActionListener
     m_bttnExportOwnPub.setEnabled(false);
     Own.setConstraints(m_bttnExportOwnPub,d);
     panel1.add(m_bttnExportOwnPub);
-    JButton passwd = new JButton("Change Password");
-    d.gridx = 3;
-    passwd.addActionListener(this);
-    passwd.setActionCommand("passwd");
-    Own.setConstraints(passwd,d);
-    panel1.add(passwd);
+    m_bttnChangePasswd = new JButton("Change Password");
+    d.gridx = 4;
+    m_bttnChangePasswd.addActionListener(this);
+    m_bttnChangePasswd.setActionCommand("passwd");
+    m_bttnChangePasswd.setEnabled(false);
+    Own.setConstraints(m_bttnChangePasswd,d);
+    panel1.add(m_bttnChangePasswd);
 
     d.gridx = 0;
     d.gridy = 1;
@@ -97,9 +108,9 @@ class CertificatesPanel extends JPanel implements ActionListener
     JLabel name1 = new JLabel("Name");
     Own.setConstraints(name1,d);
     panel1.add(name1);
-    text1 = new JTextField(20);
+    text1 = new JTextField();
     d.gridx = 1;
-    d.gridwidth = 3;
+    d.gridwidth = 4;
     d.weightx = 1;
     Own.setConstraints(text1,d);
     panel1.add(text1);
@@ -111,9 +122,9 @@ class CertificatesPanel extends JPanel implements ActionListener
     d.weightx = 0;
     Own.setConstraints(from1,d);
     panel1.add(from1);
-    from_text1 = new JTextField(20);
+    from_text1 = new JTextField();
     d.gridx = 1;
-    d.gridwidth = 3;
+    d.gridwidth = 4;
     d.weightx = 1;
     Own.setConstraints(from_text1,d);
     panel1.add(from_text1);
@@ -125,9 +136,9 @@ class CertificatesPanel extends JPanel implements ActionListener
     d.weightx = 0;
     Own.setConstraints(to1,d);
     panel1.add(to1);
-    to_text1 = new JTextField(20);
+    to_text1 = new JTextField();
     d.gridx = 1;
-    d.gridwidth = 3;
+    d.gridwidth = 4;
     d.weightx = 1;
     Own.setConstraints(to_text1,d);
     panel1.add(to_text1);
@@ -271,7 +282,23 @@ class CertificatesPanel extends JPanel implements ActionListener
         return m_ownPrivCert;
       }
 
-    public void setOwnPrivCert(byte[] cert, char[] passwd)
+    public void setOwnPrivCert(byte[] cert)
+      {
+        if(cert==null)
+          setOwnPrivCert(null,null);
+        else
+          {
+            char[] passwd="".toCharArray();
+            while(passwd!=null&&!setOwnPrivCert(cert,passwd))
+              {
+                PasswordBox pb=new PasswordBox(TheApplet.getMainWindow(),"Enter the password",PasswordBox.ENTER_PASSWORD);
+                pb.show();
+                passwd=pb.getPassword();
+              }
+           }
+      }
+
+    private boolean setOwnPrivCert(byte[] cert, char[] passwd)
       {
         try
           {
@@ -285,7 +312,9 @@ class CertificatesPanel extends JPanel implements ActionListener
                 text1.setText(c.getSubjectDN().getName());
                 m_ownPrivCert=cert;
                 m_ownPubCert=c.getEncoded();
-              }
+                m_bttnExportOwnPub.setEnabled(true);
+                m_bttnChangePasswd.setEnabled(true);
+           }
             else
               {
                 from_text1.setText(null);
@@ -293,13 +322,15 @@ class CertificatesPanel extends JPanel implements ActionListener
                 text1.setText(null);
                 m_ownPrivCert=null;
                 m_bttnExportOwnPub.setEnabled(false);
+                m_bttnChangePasswd.setEnabled(false);
               }
           }
         catch(Exception e)
           {
             System.out.println("Own Cert not set: "+e.getMessage());
-            setOwnPrivCert(null,null);
+            return false;
           }
+        return true;
       }
 
     public byte[] getPrevPubCert()
@@ -368,48 +399,9 @@ class CertificatesPanel extends JPanel implements ActionListener
           }
       }
 
-/*     public void setName1(String name)
-     {
-       text1.setText(name);
-     }
-     public void setFrom1(String from)
-     {
-       from_text1.setText(from);
-     }
-     public void setTo1(String to)
-     {
-       to_text1.setText(to);
-     }
-
-     public void setName2(String name)
-     {
-       text2.setText(name);
-     }
-     public void setFrom2(String from)
-     {
-       from_text2.setText(from);
-     }
-     public void setTo2(String to)
-     {
-       to_text2.setText(to);
-     }
-
-     public void setName3(String name)
-     {
-       text3.setText(name);
-     }
-     public void setFrom3(String from)
-     {
-       from_text3.setText(from);
-     }
-     public void setTo3(String to)
-     {
-       to_text3.setText(to);
-     }
-*/
     public void generateNewCert()
     {
-      PasswordBox dialog = new PasswordBox(TheApplet.myFrame,"New Password",PasswordBox.NEW_PASSWORD);
+      PasswordBox dialog = new PasswordBox(TheApplet.getMainWindow(),"New Password",PasswordBox.NEW_PASSWORD);
       dialog.show();
       char[] passwd=dialog.getPassword();
       if(passwd==null)
@@ -440,14 +432,13 @@ class CertificatesPanel extends JPanel implements ActionListener
 
         Certificate[] chain=new  Certificate[1];
         chain[0] = cert;
-        kstore.setKeyEntry("<Mix id=\""+mixid+"\"/>",(Key)kp.getPrivate(),(char[])null, chain);
+        kstore.setKeyEntry("<Mix id=\""+mixid+"\"/>",(Key)kp.getPrivate(),passwd, chain);
         ByteArrayOutputStream out=new ByteArrayOutputStream();
 
         //BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         //passwd = br.readLine();
         kstore.store(out, passwd);
         setOwnPrivCert(out.toByteArray(),passwd);
-        m_bttnExportOwnPub.setEnabled(true);
       }
       catch(Exception e)
       {
@@ -466,18 +457,42 @@ class CertificatesPanel extends JPanel implements ActionListener
 
     else if(ae.getActionCommand().equals("passwd"))
       {
-        PasswordBox dialog = new PasswordBox(TheApplet.myFrame,"Change Password",PasswordBox.CHANGE_PASSWORD);
+        PasswordBox dialog = new PasswordBox(TheApplet.getMainWindow(),"Change Password",PasswordBox.CHANGE_PASSWORD);
         dialog.setVisible(true);
+        char[] passwd=dialog.getPassword();
+        char[] oldpasswd=dialog.getOldPassword();
+    //    if(passwd==null||oldpasswd==null)
+    //      return;
+        try
+          {
+            KeyStore kstore = KeyStore.getInstance("PKCS12","BC");
+            kstore.load(new ByteArrayInputStream(m_ownPrivCert),oldpasswd);
+            String alias=(String)kstore.aliases().nextElement();
+            Key privKey=kstore.getKey(alias,null);
+            Certificate[] chain=kstore.getCertificateChain(alias);
+            kstore.setKeyEntry(alias,privKey,passwd, chain);
+            ByteArrayOutputStream out=new ByteArrayOutputStream();
+            kstore.store(out, passwd);
+            setOwnPrivCert(out.toByteArray(),passwd);
+          }
+        catch(Exception e)
+          {
+            e.printStackTrace();
+          }
       }
     else if (ae.getActionCommand().equalsIgnoreCase("ExportOwnPubCert"))
       {
-        File file=TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_CER);
+        JFileChooser fd=TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_CER|TheApplet.FILTER_PFX);
+        File file=fd.getSelectedFile();
         if(file!=null)
           {
             try
               {
                 FileOutputStream fout=new FileOutputStream(file);
-                fout.write(getOwnPubCert());
+                if(fd.getFileFilter().getDescription().endsWith(".pfx)"))
+                  fout.write(getOwnPrivCert());
+                else
+                  fout.write(getOwnPubCert());
                 fout.close();
               }
             catch(Exception e)
@@ -485,17 +500,23 @@ class CertificatesPanel extends JPanel implements ActionListener
               }
           }
       }
+    else if(ae.getActionCommand().equals("ImportOwnCert"))
+      {
+        byte[] buff=openFile(TheApplet.FILTER_PFX);
+        if(buff!=null)
+          setOwnPrivCert(buff);
+      }
     else if(ae.getActionCommand().equals("Import1"))
-      setPrevPubCert(openFile());
+      setPrevPubCert(openFile(TheApplet.FILTER_CER));
     else if(ae.getActionCommand().equals("Import2"))
-      setNextPubCert(openFile());
+      setNextPubCert(openFile(TheApplet.FILTER_CER));
   }
 
 
 
-    private byte[] openFile()
+    private byte[] openFile(int type)
       {
-        File file=TheApplet.showFileDialog(TheApplet.OPEN_DIALOG,TheApplet.FILTER_CER);
+        File file=TheApplet.showFileDialog(TheApplet.OPEN_DIALOG,type).getSelectedFile();
         if(file != null)
           {
             try
