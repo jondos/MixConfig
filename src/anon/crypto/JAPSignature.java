@@ -319,12 +319,16 @@ public class JAPSignature
 	 */
 	public void signXmlNode(Element toSign) throws Exception
 	{
-		NodeList signatureNodes = toSign.getElementsByTagName("Signature");
-		for (int i = signatureNodes.getLength(); i > 0; i--)
-		{
+          	/* if there are any Signature nodes, remove them --> we create a new one */
+		Node oldSig=XMLUtil.getFirstChildByName(toSign,"Signature");
+  		//NodeList signatureNodes = toSign.getElementsByTagName("Signature");
+		//for (int i = signatureNodes.getLength(); i > 0; i--)
+		//{
 			/* if there are any Signature nodes, remove them --> we create a new one */
-			toSign.removeChild(signatureNodes.item(i - 1));
-		}
+		//	toSign.removeChild(signatureNodes.item(i - 1));
+		//}
+                if(oldSig!=null)
+                  toSign.removeChild(oldSig);
 		ByteArrayOutputStream bytesToSign = nodeToCanonical(toSign);
 		/* now we have a XML bytestream of our toSign node (incl. name + attributes + child tree),
 		 * now use a message digest algorithm with it
