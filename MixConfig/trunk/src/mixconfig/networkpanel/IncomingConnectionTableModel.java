@@ -86,7 +86,7 @@ public final class IncomingConnectionTableModel extends ConnectionTableModel
 		return ifaces;
 	}
 
-	public void readFromElement(org.w3c.dom.Element iface)
+	public void readFromElement(Element iface)
 	{
 		if (iface.getTagName().equals("ListenerInterfaces"))
 		{
@@ -94,13 +94,13 @@ public final class IncomingConnectionTableModel extends ConnectionTableModel
 			{
 				deleteData(i);
 			}
-			org.w3c.dom.Node child = iface.getFirstChild();
+			Node child = iface.getFirstChild();
 			while (child != null)
 			{
 				if (child.getNodeType() == Node.ELEMENT_NODE)
 				{
 					ConnectionData data = ConnectionData.createFromElement(
-						"ListenerInterface", (org.w3c.dom.Element) child);
+						"ListenerInterface", (Element) child);
 					if (data != null)
 					{
 						addData(data);

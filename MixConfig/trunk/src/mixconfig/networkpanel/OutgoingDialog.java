@@ -8,8 +8,10 @@ import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import mixconfig.ConfigFrame;
+import mixconfig.MixConfiguration;
+import mixconfig.MixConfig;
 
-class OutgoingDialog extends ConnectionDialog
+public class OutgoingDialog extends ConnectionDialog
 {
 	private ButtonGroup proxytype;
 
@@ -58,7 +60,6 @@ class OutgoingDialog extends ConnectionDialog
 		if (firstone == null)
 		{
 			firstone = t;
-
 		}
 		rc.gridx += 4;
 		t = new JRadioButton("Socks", ptype == ConnectionData.SOCKS_PROXY);
@@ -93,7 +94,10 @@ class OutgoingDialog extends ConnectionDialog
 		rc.gridy = 0;
 		rc.weightx = 0;
 
-		if (ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix"))
+		MixConfiguration mixConf = MixConfig.getMixConfiguration();
+		String s = mixConf.getAttribute("General/MixType");
+
+		if (Integer.valueOf(s).intValue() == MixConfiguration.MIXTYPE_LAST)
 		{
 			addType(data, layout, lc, rc);
 		}

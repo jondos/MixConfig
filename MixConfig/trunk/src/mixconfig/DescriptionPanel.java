@@ -27,22 +27,25 @@
  */
 package mixconfig;
 
+import java.util.Vector;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-class DescriptionPanel extends JPanel implements ActionListener
+public class DescriptionPanel extends MixConfigPanel implements ActionListener
 {
 	private JPanel panel1, panel2;
-	public static JButton map;
-	private JTextField text1, text2, text3, longi, lati, operatororg, operatorurl;
+	private JButton map;
+	private JTextField text1, text2, text3, longi, lati, operatororg, operatorurl, operatoremail;
 	private MapBox box;
 
 	public DescriptionPanel(boolean isApplet)
@@ -58,68 +61,81 @@ class DescriptionPanel extends JPanel implements ActionListener
 		d.anchor = GridBagConstraints.NORTHWEST;
 		d.insets = new Insets(10, 10, 10, 10);
 
+		panel1 = new JPanel(forpanel);
+		panel1.setBorder(new TitledBorder("Location"));
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 1;
 		c.weighty = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		panel1 = new JPanel(forpanel);
-		panel1.setBorder(new TitledBorder("Location"));
 		layout.setConstraints(panel1, c);
 		add(panel1);
 
+		JLabel city = new JLabel("City");
 		d.gridx = 0;
 		d.gridy = 0;
 		d.fill = GridBagConstraints.HORIZONTAL;
-		JLabel city = new JLabel("City");
 		forpanel.setConstraints(city, d);
 		panel1.add(city);
+
 		text1 = new JTextField(20);
+		text1.setName("Description/Location/City");
+		text1.addFocusListener(this);
 		d.gridx = 1;
 		d.weightx = 1;
 		d.gridwidth = 3;
 		forpanel.setConstraints(text1, d);
 		panel1.add(text1);
 
+		JLabel state = new JLabel("State");
 		d.gridx = 0;
 		d.gridy = 2;
 		d.weightx = 0;
 		d.gridwidth = 1;
-		JLabel state = new JLabel("State");
 		forpanel.setConstraints(state, d);
 		panel1.add(state);
+
 		text3 = new JTextField(20);
+		text3.setName("Description/Location/State");
+		text3.addFocusListener(this);
 		d.gridx = 1;
 		d.gridwidth = 3;
 		d.weightx = 1;
 		forpanel.setConstraints(text3, d);
 		panel1.add(text3);
 
+		JLabel country = new JLabel("Country");
 		d.gridx = 0;
 		d.gridy = 3;
 		d.weightx = 0;
 		d.gridwidth = 1;
-		JLabel country = new JLabel("Country");
 		forpanel.setConstraints(country, d);
 		panel1.add(country);
+
 		text2 = new JTextField(20);
+		text2.setName("Description/Location/Country");
+		text2.addFocusListener(this);
 		d.gridx = 1;
 		d.gridwidth = 3;
 		d.weightx = 1;
 		forpanel.setConstraints(text2, d);
 		panel1.add(text2);
 
+		JLabel pos = new JLabel("Geographical Position");
+		pos.setName("Description/Location/Position");
+		pos.addFocusListener(this);
+		pos.setToolTipText(
+			"Example: University of Technology Dresden, CS Department: Longitude: 13.761, Latitude: 51.053");
 		d.gridx = 0;
 		d.gridy = 4;
 		d.weightx = 1;
 		d.gridwidth = 3;
-		JLabel pos = new JLabel("Geographical Position");
-		pos.setToolTipText(
-			"Example: University of Technology Dresden, CS Department: Longitude: 13.761, Latitude: 51.053");
 		forpanel.setConstraints(pos, d);
 		panel1.add(pos);
+
 		map = new JButton("Show on Map");
-		map.setToolTipText("This will probably only work on Windows Systems. Blame Sun!");
+		map.setToolTipText("Opens a window with a map from www.MapQuest.com " +
+						   "of the area around the specified coordinates.");
 		map.addActionListener(this);
 		map.setActionCommand("Map");
 		map.setEnabled(!isApplet);
@@ -128,13 +144,17 @@ class DescriptionPanel extends JPanel implements ActionListener
 		d.weightx = 1;
 		forpanel.setConstraints(map, d);
 		panel1.add(map);
+
 		JLabel longitude = new JLabel("Longitude");
 		d.gridy = 5;
 		d.gridx = 0;
 		d.weightx = 0;
 		forpanel.setConstraints(longitude, d);
 		panel1.add(longitude);
+
 		longi = new JTextField(20);
+		longi.setName("Description/Location/Position/Geo/Longitude");
+		longi.addFocusListener(this);
 		longi.setDocument(new FloatDocument( -180, 180));
 		longi.setToolTipText("Longitude in degrees east from Greenwich. ( -180.0 to 180.0)");
 		d.gridx = 1;
@@ -142,6 +162,7 @@ class DescriptionPanel extends JPanel implements ActionListener
 		d.weightx = 1;
 		forpanel.setConstraints(longi, d);
 		panel1.add(longi);
+
 		JLabel latitude = new JLabel("Latitude");
 		d.gridy = 6;
 		d.gridx = 0;
@@ -149,7 +170,10 @@ class DescriptionPanel extends JPanel implements ActionListener
 		d.gridwidth = 1;
 		forpanel.setConstraints(latitude, d);
 		panel1.add(latitude);
+
 		lati = new JTextField(20);
+		lati.setName("Description/Location/Position/Geo/Latitude");
+		lati.addFocusListener(this);
 		lati.setDocument(new FloatDocument( -90, 90));
 		lati.setToolTipText("Latitude in degrees. (-90.0: South Pole, 0: Equator, 90.0: North Pole)");
 		d.gridx = 1;
@@ -158,26 +182,28 @@ class DescriptionPanel extends JPanel implements ActionListener
 		forpanel.setConstraints(lati, d);
 		panel1.add(lati);
 
+		panel2 = new JPanel(forpanel);
+		panel2.setBorder(new TitledBorder("Operator"));
 		c.gridx = 0;
 		c.gridy = 1;
 		c.weightx = 1;
 		c.weighty = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		panel2 = new JPanel(forpanel);
-		panel2.setBorder(new TitledBorder("Operator"));
 		layout.setConstraints(panel2, c);
 		add(panel2);
 
+		JLabel op_org = new JLabel("Organisation");
 		d.gridx = 0;
 		d.gridy = 0;
 		d.weightx = 0;
 		d.gridwidth = 1;
 		d.fill = GridBagConstraints.HORIZONTAL;
-		JLabel op_org = new JLabel("Organisation");
 		forpanel.setConstraints(op_org, d);
 		panel2.add(op_org);
 
 		operatororg = new JTextField(60);
+		operatororg.setName("Description/Operator/Organisation");
+		operatororg.addFocusListener(this);
 		operatororg.setToolTipText(
 			"This should contain the operating organisation's or a person's name for private persons.");
 		d.gridx = 1;
@@ -186,16 +212,17 @@ class DescriptionPanel extends JPanel implements ActionListener
 		forpanel.setConstraints(operatororg, d);
 		panel2.add(operatororg);
 
+		JLabel op_url = new JLabel("URL");
 		d.gridx = 0;
 		d.gridy = 2;
 		d.weightx = 0;
 		d.gridwidth = 1;
-
-		JLabel op_url = new JLabel("URL");
 		forpanel.setConstraints(op_url, d);
 		panel2.add(op_url);
 
 		operatorurl = new JTextField(20);
+		operatorurl.setName("Description/Operator/URL");
+		operatorurl.addFocusListener(this);
 		operatorurl.setToolTipText("This should contain a URL that will lead to more information about the operator including contact information.");
 		d.gridx = 1;
 		d.gridwidth = 3;
@@ -203,104 +230,100 @@ class DescriptionPanel extends JPanel implements ActionListener
 		forpanel.setConstraints(operatorurl, d);
 		panel2.add(operatorurl);
 
-	}
+		JLabel op_email = new JLabel("EMail");
+		d.gridx = 0;
+		d.gridy = 3;
+		d.weightx = 0;
+		d.gridwidth = 1;
+		forpanel.setConstraints(op_email, d);
+		panel2.add(op_email);
 
-	public String getCity()
-	{
-		return text1.getText();
-	}
-
-	public String getCountry()
-	{
-		return text2.getText();
-	}
-
-	public String getState()
-	{
-		return text3.getText();
-	}
-
-	public String getLongitude()
-	{
-		return longi.getText();
-	}
-
-	public String getLatitude()
-	{
-		return lati.getText();
-	}
-
-	public String getOperatorOrg()
-	{
-		return operatororg.getText();
-	}
-
-	public String getOperatorURL()
-	{
-		return operatorurl.getText();
-	}
-
-	public void setCity(String city)
-	{
-		text1.setText(city);
-	}
-
-	public void setCountry(String country)
-	{
-		text2.setText(country);
-	}
-
-	public void setState(String state)
-	{
-		text3.setText(state);
-	}
-
-	public void setLati(String latitude)
-	{
-		lati.setText(latitude);
-	}
-
-	public void setLongi(String longitude)
-	{
-		longi.setText(longitude);
-	}
-
-	public void setOperatorOrg(String org)
-	{
-		operatororg.setText(org);
-	}
-
-	public void setOperatorURL(String url)
-	{
-		operatorurl.setText(url);
+		operatoremail = new JTextField(20);
+		operatoremail.setName("Description/Operator/EMail");
+		operatoremail.addFocusListener(this);
+		operatoremail.setToolTipText(
+			"An E-Mail address to which a confirmation message will be sent once the cascade is established.");
+		d.gridx = 1;
+		d.gridwidth = 3;
+		d.weightx = 1;
+		forpanel.setConstraints(operatoremail, d);
+		panel2.add(operatoremail);
 	}
 
 	public void actionPerformed(ActionEvent ae)
 	{
-		if (ae.getActionCommand().equals("Map"))
+		String lat = getConfiguration().getAttribute(
+			"Description/Location/Position/Geo/Latitude");
+		String lon = getConfiguration().getAttribute(
+			"Description/Location/Position/Geo/Longitude");
+
+		try
 		{
-			try
+			if (ae.getActionCommand().equals("Map"))
 			{
-				box = new MapBox(MixConfig.getMainWindow(), getLatitude(), getLongitude(), 5);
+				box = new MapBox(MixConfig.getMainWindow(), lat, lon, 5);
+				box.addActionListener(this);
 				box.show();
 				map.setText("Update Map");
 				map.setActionCommand("Update");
 			}
-			catch (Exception e)
+			else if (ae.getActionCommand().equals("Update"))
 			{
-				//e.printStackTrace();
+				box.setGeo(lat, lon);
+			}
+			else if (ae.getActionCommand().equals("CloseMapBox"))
+			{
+				box.dispose();
+				map.setText("Show on Map");
+				map.setActionCommand("Map");
 			}
 		}
-		else if (ae.getActionCommand().equals("Update"))
+		catch (Exception e)
 		{
-			try
-			{
-				box.setPosition(getLatitude(), getLongitude());
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
+			MixConfig.handleException(e);
 		}
 	}
+
+	public Vector check()
+	{
+		Vector errors = new Vector();
+		MixConfiguration mixConf = getConfiguration();
+
+		String names[] =
+			{
+			"Description/Location/City",
+			"Description/Location/Country",
+			"Description/Location/Position/Geo/Longitude",
+			"Description/Location/Position/Geo/Latitude",
+			"Description/Operator/Organisation",
+			"Description/Operator/URL",
+			"Description/Operator/EMail"
+		};
+
+		String messages[] =
+			{
+			"The city field may not be left blank in Description Panel.",
+			"The country field may not be left blank in Description Panel.",
+			"Latitude is missing in Description Panel.",
+			"Longitude is missing in Description Panel.",
+			"The Operator Organisation field may not be left blank in Description Panel.",
+			"The Operator URL field may not be left blank in Description Panel.",
+			"The Operator E-Mail field may not be left blank in Description Panel.",
+		};
+
+		for (int i = 0; i < names.length; i++)
+		{
+			String value = mixConf.getAttribute(names[i]);
+			if (value == null || value.equals(""))
+			{
+				errors.addElement(messages[i]);
+			}
+		}
+
+		return errors;
+	}
+
+	protected void enableComponents()
+	{
+	/* all text fields are always enabled */}
 }

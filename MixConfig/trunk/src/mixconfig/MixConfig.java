@@ -33,15 +33,25 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1TaggedObject;
 import org.bouncycastle.asn1.BERInputStream;
@@ -51,7 +61,9 @@ import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.SignedData;
 import org.bouncycastle.asn1.x509.X509CertificateStructure;
-import anon.util.*;
+import anon.util.Base64;
+import mixconfig.wizard.ConfigWizard;
+import java.io.FileReader;
 
 /** \mainpage
  This is a tool which one can use for creating a configuration file for a Mix. This configuration file
@@ -60,9 +72,6 @@ import anon.util.*;
  */
 public class MixConfig extends JApplet
 {
-	private static ConfigFrame m_ConfigFrame;
-	private static Frame m_MainWindow;
-	private static File m_fileCurrentDir;
 	public final static int SAVE_DIALOG = 1;
 	public final static int OPEN_DIALOG = 2;
 	public final static int FILTER_ALL = 0;
@@ -70,51 +79,231 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.02.026"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.02.027"; //NEVER change the layout of this line!!
 
-	public static void main(String[] args)
+	private static final String m_configFilePath = ".";
+	private static final String TITLE = "Mix Configuration Tool";
+
+	private static MixConfiguration m_mixConfiguration;
+	private static boolean showWizard = false;
+	private static JPanel m_mainPanel;
+	private static Frame m_MainWindow;
+	private static File m_fileCurrentDir;
+	private static String m_currentFileName;
+
+	public static void main(String[] argv)
 	{
-		JFrame MainWindow = new JFrame("Mix Configuration Tool");
-		m_MainWindow = MainWindow;
-		ImageIcon icon = loadImage("icon.gif");
-		if (icon != null)
+		try
 		{
-			m_MainWindow.setIconImage(icon.getImage());
-		}
-		m_ConfigFrame = new ConfigFrame(MainWindow);
-
-		MainWindow.addWindowListener(new WindowAdapter()
-		{
-			public void windowClosing(WindowEvent e)
+			File f = null;
+			if (argv.length > 0)
 			{
-				System.exit(0);
+				m_currentFileName = argv[0];
 			}
-		});
+			else
+			{
+				m_currentFileName = m_configFilePath + File.separatorChar + "MixConfig.xml";
+			}
 
-		MainWindow.setJMenuBar(m_ConfigFrame.getMenuBar());
-		MainWindow.setContentPane(m_ConfigFrame);
-		MainWindow.pack();
-		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension size = MainWindow.getSize();
-		MainWindow.setLocation( (d.width - size.width) / 2, (d.height - size.height) / 2);
-		MainWindow.show();
+			f = new File(m_currentFileName);
+
+			if (f != null && f.exists())
+			{
+				m_mixConfiguration = new MixConfiguration(new FileReader(f));
+			}
+			else
+			{
+				m_mixConfiguration = new MixConfiguration();
+				//showWizard = true;
+			}
+
+			JFrame MainWindow = new JFrame("Mix Configuration Tool");
+			m_MainWindow = MainWindow;
+			ImageIcon icon = loadImage("icon.gif");
+			if (icon != null)
+			{
+				m_MainWindow.setIconImage(icon.getImage());
+			}
+
+			if (showWizard)
+			{
+				m_mainPanel = new ConfigWizard();
+			}
+			else
+			{
+				m_mainPanel = new ConfigFrame(MainWindow);
+			}
+
+			MainWindow.addWindowListener(new WindowAdapter()
+			{
+				public void windowClosed(WindowEvent e)
+				{
+					windowClosing(e);
+				}
+
+				public void windowClosing(WindowEvent e)
+				{
+					System.exit(0);
+				}
+			});
+
+			if (!showWizard)
+			{
+				MainWindow.setJMenuBar( ( (ConfigFrame) m_mainPanel).getMenuBar());
+
+			}
+			MainWindow.setContentPane(m_mainPanel);
+			MainWindow.pack();
+			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+			Dimension size = MainWindow.getSize();
+			MainWindow.setLocation( (d.width - size.width) / 2, (d.height - size.height) / 2);
+			MainWindow.show();
+		}
+		catch (Exception e)
+		{
+			MixConfig.handleException(e);
+		}
 	}
 
 	public void init() // For the applet.
 	{
-
-		// Let's search for the parent frame:
-		java.awt.Component comp = this;
-		while ( (comp = comp.getParent()) != null &&
-			   ! (comp instanceof java.awt.Frame))
+		try
 		{
-			;
+			// Let's search for the parent frame:
+			java.awt.Component comp = this;
+			while ( (comp = comp.getParent()) != null &&
+				   ! (comp instanceof java.awt.Frame))
+			{
+				;
+			}
+			m_MainWindow = (Frame) comp;
+			if (showWizard)
+			{
+				m_mainPanel = new ConfigWizard();
+			}
+			else
+			{
+				m_mainPanel = new ConfigFrame(null);
+
+				//myFrame.pack();//setBounds(10,10,600,650);
+			}
+			setJMenuBar( ( (ConfigFrame) m_mainPanel).getMenuBar());
+			setContentPane(m_mainPanel);
 		}
-		m_MainWindow = (Frame) comp;
-		m_ConfigFrame = new ConfigFrame(null);
-		//myFrame.pack();//setBounds(10,10,600,650);
-		setJMenuBar(m_ConfigFrame.getMenuBar());
-		setContentPane(m_ConfigFrame);
+		catch (Exception e)
+		{
+			MixConfig.handleException(e);
+		}
+	}
+
+	/** Gets the Mix configuration that is currently being edited
+	 * @return The current Mix configuration
+	 */
+	public static MixConfiguration getMixConfiguration()
+	{
+		return m_mixConfiguration;
+	}
+
+	/** Sets the Mix configuration to be edited
+	 * @param a_mixConfiguration The new Mix configuration
+	 */
+	public static void setMixConfiguration(MixConfiguration a_mixConfiguration)
+	{
+		m_mixConfiguration = a_mixConfiguration;
+	}
+
+	/**
+	 * Sets the path name of the currently edited config file. The title of the application
+	 * window is changed accordingly.
+	 * @param a_currentFileName the new file name of the currently edited configuration.
+	 */
+	public static void setCurrentFileName(String a_currentFileName)
+	{
+		m_currentFileName = a_currentFileName;
+
+		StringBuffer s = new StringBuffer(TITLE);
+		if(m_currentFileName != null)
+		{
+			s.append(" - ");
+			s.append(m_currentFileName);
+		}
+		getMainWindow().setTitle(s.toString());
+	}
+
+	/**
+	 * Returns the path name of the currently edited config file.
+	 * @return the file name of the currently edited configuration
+	 */
+	public static String getCurrentFileName()
+	{
+		return m_currentFileName;
+	}
+
+	/** Displays a confirm dialog.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @return <CODE>true</CODE> if the user confirmed, <CODE>false</CODE> otherwise
+	 */
+	public static boolean ask(String a_title, Object a_message)
+	{
+		int i = JOptionPane.showConfirmDialog(getMainWindow(),
+											  a_message,
+											  a_title,
+											  JOptionPane.YES_NO_OPTION);
+		return (i == JOptionPane.YES_OPTION);
+	}
+
+	/** Displays an info message dialog
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 */
+	public static void info(String a_title, Object a_message)
+	{
+		JOptionPane.showMessageDialog(getMainWindow(), a_message, a_title,
+									  JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	public static void about()
+	{
+		JOptionPane.showMessageDialog(
+			getMainWindow(),
+			"Mix Configuration Tool\nVersion: " + VERSION,
+			"About",
+			JOptionPane.INFORMATION_MESSAGE,
+			loadImage("icon.gif"));
+	}
+
+	/** Displays a dialog showing the specified throwable and its stack trace.
+	 * @param t A <CODE>Throwable</CODE> object to be displayed
+	 */
+	public static void handleException(Throwable t)
+	{
+		try
+		{
+			Box b = Box.createVerticalBox();
+			b.add(new JLabel(t.getMessage(), JLabel.LEFT));
+			b.add(Box.createVerticalStrut(10));
+
+			if (t.getMessage() == null || t.getMessage().indexOf("exists") < 0)
+			{
+				StringWriter s = new StringWriter();
+				t.printStackTrace(new PrintWriter(s));
+				JTextArea tx = new JTextArea(s.toString());
+				s.close();
+				b.add(new JScrollPane(tx));
+			}
+
+			JOptionPane.showMessageDialog(getMainWindow(), b,
+										  t.getClass().getName(),
+										  JOptionPane.ERROR_MESSAGE);
+			t.printStackTrace(System.err);
+		}
+		catch (Exception e)
+		{
+			System.err.println(e.getClass().getName() +
+							   " occurred while displaying error dialog:");
+			e.printStackTrace(System.err);
+		}
 	}
 
 	public static Frame getMainWindow()
@@ -155,11 +344,11 @@ public class MixConfig extends JApplet
 		fd2.setFileHidingEnabled(false);
 		if (type == SAVE_DIALOG)
 		{
-			fd2.showSaveDialog(m_ConfigFrame);
+			fd2.showSaveDialog(m_mainPanel);
 		}
 		else
 		{
-			fd2.showOpenDialog(m_ConfigFrame);
+			fd2.showOpenDialog(m_mainPanel);
 		}
 		m_fileCurrentDir = fd2.getCurrentDirectory();
 		return fd2;
@@ -168,9 +357,9 @@ public class MixConfig extends JApplet
 	public static byte[] openFile(int type)
 	{
 		File file =
-
 			showFileDialog(MixConfig.OPEN_DIALOG, type)
 			.getSelectedFile();
+
 		if (file != null)
 		{
 			try
@@ -181,9 +370,9 @@ public class MixConfig extends JApplet
 				fin.close();
 				return buff;
 			}
-			catch (Exception e)
+			catch (IOException e)
 			{
-				System.out.println("Error reading: " + file);
+				MixConfig.handleException(e);
 				return null;
 			}
 		}
@@ -267,5 +456,4 @@ public class MixConfig extends JApplet
 		}
 		throw (new IOException("Couldn't read certificate."));
 	}
-
 }
