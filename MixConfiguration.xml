@@ -7,7 +7,7 @@
 <!-- Changes in Version 0.2:
 		- added attr 'hidden' and 'virtual' to ListenerInterface
 	- Changes in Version 0.3:
-		- added Encryption Key for Log
+		- added Encrypted Log
 -->
 <General>
 	<MixID> <!-- Each Mix gets an unique ID, ether chosen by the user or generate
@@ -29,20 +29,23 @@
 
 	<Logging>
 		<!-- Information of how to log some events -->
-		<!-- Only one of the following three is possible -->
+		<!-- Only one of File|SysLog|Console is possible -->
 		<File compressed="True|False"><!--The file to which the log data should be writen--></File>
 		<SysLog>  <!-- Values: True | False --> </SysLog>
 		<Console> <!-- Values: True | False, must be False, if Daemon=True --> </Console>
-		<EncryptionKey> <!-- Key used for encrpyted log -->
-			<KeyInfo>
+
+		<!-- Additional some log information could be store encrypted -->
+		<EncryptedLog>
+			<File><!--The file to which the log data should be writen--></File>
+			<KeyInfo> <!--The key to use-->
 				<X509Data>
 					<X509Certificate>
 						...
-						</X509Certificate>
-					</X509Data>
-				</KeyInfo>
-			</EncryptionKey>
-		</Logging>
+					</X509Certificate>
+				</X509Data>
+			</KeyInfo>
+		</EncryptedLog>
+	</Logging>
 </General>
 
 <Network>

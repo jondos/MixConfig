@@ -741,15 +741,19 @@ public class ConfigFrame
 					byte[] cert=m_GeneralPanel.getEncKeyForLog();
 					if(cert!=null)
 					{
-						Element e=doc.createElement("EncryptionKey");
+						Element e=doc.createElement("EncryptedLog");
 						elemLogging.appendChild(e);
-						Element e1=doc.createElement("KeyInfo");
+						Element e2=doc.createElement("File");
+						e.appendChild(e2);
+						Text t = doc.createTextNode(filename);
+						e2.appendChild(t);
+	          Element e1=doc.createElement("KeyInfo");
 						e.appendChild(e1);
 						e=doc.createElement("X509Data");
 						e1.appendChild(e);
 						e1=doc.createElement("X509Certificate");
 						e.appendChild(e1);
-						Text t=doc.createTextNode(Base64.encodeBytes(cert));
+						t=doc.createTextNode(Base64.encodeBytes(cert));
 						e1.appendChild(t);
 					}
 				}
