@@ -175,7 +175,7 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 									   "you can generate a certificate here<br> " +
 									   "and copy it to your JPI configuration.",
 									   (PKCS12)null);
-		m_jpiCertPanel.setName("Accounting/JPICertificate/X509Certificate");
+		m_jpiCertPanel.setName("Accounting/JPICertificate");
 		m_jpiCertPanel.setCertCreationValidator(this);
 		m_jpiCertPanel.addChangeListener(this);
 		c.gridy++;
