@@ -1,17 +1,48 @@
-<!ELEMENT MixConfiguration (General,Network,Description)>
+<!ELEMENT MixConfiguration (General,Network,Certificates,Description)>
 <!ATTLIST MixConfiguration version CDATA #FIXED "0.1">
 
-<!ELEMENT General ANY>
-<!ELEMENT MixID (#PCDATA)>
-<!ELEMENT MixType (#PCDATA)>
-<!ELEMENT MixName (#PCDATA)>
-<!ELEMENT MixCascadeName (#PCDATA)>
-<!ELEMENT Daemon (#PCDATA)>
-<!ELEMENT UserID (#PCDATA)>
-<!ELEMENT NrOfFileDescriptors (#PCDATA)>
+<!ELEMENT General (MixID,MixType,MixName,CascadeName?,Daemon,UserID?,NrOfFileDescriptors?,Logging?)>
+    <!ELEMENT MixID (#PCDATA)>
+    <!ELEMENT MixType (#PCDATA)>
+    <!ELEMENT MixName (#PCDATA)>
+    <!ELEMENT CascadeName (#PCDATA)>
+    <!ELEMENT Daemon (#PCDATA)>
+    <!ELEMENT UserID (#PCDATA)>
+    <!ELEMENT NrOfFileDescriptors (#PCDATA)>
+    <!ELEMENT Logging (File|SysLog|Console)>
+	<!ELEMENT File (#PCDATA)>
+	    <!ATTLIST File compressed (True|False) #IMPLIED>
+	<!ELEMENT SysLog (#PCDATA)>
+	<!ELEMENT Console (#PCDATA)>
 
-<!ELEMENT Logging (File|SysLog|Console)>
-<!ELEMENT File (#PCDATA)>
-<!ATTLIST File compressed (True|False) #IMPLIED>
-<!ELEMENT SysLog (#PCDATA)>
-<!ELEMENT Console (#PCDATA)>
+<!ELEMENT Network (ListenerInterfaces, (NextMix|Proxies), InfoService)>
+    <!ELEMENT ListenerInterfaces (ListenerInterface+)>
+	<!ELEMENT ListenerInterface (NetworkProtocol,((Host,IP?,Port)|File))>
+    <!ELEMENT NextMix (NetworkProtocol,((Host,IP?,Port)|File))>
+    <!ELEMENT Proxies (Proxy+)>
+	<!ELEMENT Proxy (ProxyType, NetworkProtocol,((Host,IP?,Port)|File))>
+	    <!ELEMENT ProxyType (#PCDATA)>
+	    <!ELEMENT NetworkProtocol (#PCDATA)>
+	    <!ELEMENT Host (#PCDATA)>
+	    <!ELEMENT IP (#PCDATA)>
+	    <!ELEMENT Port (#PCDATA)>
+    <!ELEMENT InfoService (Host, IP?, Port)>
+
+<!ELEMENT Certificates (OwnCertificate, PrevMixCertificate?, NextMixCertificate?)>
+    <!ELEMENT OwnCertificate (X509PKCS12, X509Certificate)>
+	<!ELEMENT X509PKCS12 (#PCDATA)>
+	    <!ATTLIST X509PKCS12 xml:space (preserve) #IMPLIED>
+	<!ELEMENT X509Certificate (#PCDATA)>
+	    <!ATTLIST X509Certificate xml:space (preserve) #IMPLIED>
+    <!ELEMENT PrevMixCertificate (X509Certificate)>
+    <!ELEMENT NextMixCertificate (X509Certificate)>
+
+<!ELEMENT Description (Location)>
+    <!ELEMENT Location (City, State?, Country, Position)>
+	<!ELEMENT City (#PCDATA)>
+	<!ELEMENT Country (#PCDATA)>
+	<!ELEMENT State (#PCDATA)>
+	<!ELEMENT Position (Geo)>
+	    <!ELEMENT Geo (Longitude, Latitude)>
+		<!ELEMENT Longitude (#PCDATA)>
+		<!ELEMENT Latitude (#PCDATA)>
