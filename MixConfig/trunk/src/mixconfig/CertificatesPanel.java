@@ -414,7 +414,7 @@ class CertificatesPanel extends JPanel implements ActionListener
                     new PasswordBox(
                         MixConfig.getMainWindow(),
                         "Enter the password",
-                        PasswordBox.ENTER_PASSWORD);
+                        PasswordBox.ENTER_PASSWORD, null);
                 pb.show();
                 passwd = pb.getPassword();
             }
@@ -1163,7 +1163,9 @@ class CertificatesPanel extends JPanel implements ActionListener
             new PasswordBox(
                 MixConfig.getMainWindow(),
                 "New Password",
-                PasswordBox.NEW_PASSWORD);
+                PasswordBox.NEW_PASSWORD,
+                "This password has to be entered every time the Mix server starts. "+
+                "So if you want to start it automatically you shouldn't enter a password.");
         dialog.show();
         final char[] passwd = dialog.getPassword();
         if (passwd == null)
@@ -1484,7 +1486,7 @@ class CertificatesPanel extends JPanel implements ActionListener
                 new PasswordBox(
                     MixConfig.getMainWindow(),
                     "Change Password",
-                    PasswordBox.CHANGE_PASSWORD);
+                    PasswordBox.CHANGE_PASSWORD, null);
             while (true)
             {
                 dialog.show();
