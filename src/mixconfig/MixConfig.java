@@ -28,6 +28,9 @@ public class MixConfig extends JApplet
 
 	public static void main(String[] args)
 	{
+//			byte[]buff=new byte[120];
+//			Base64.encodeBytes(buff,true);
+
 			JFrame MainWindow = new JFrame("Mix Configuration Tool");
 			m_MainWindow = MainWindow;
 			ImageIcon icon=loadImage("icon.gif");
