@@ -37,7 +37,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.security.cert.Certificate;
 import java.security.cert.*;
 import java.security.*;
-import org.bouncycastle.util.encoders.*;
 import org.bouncycastle.jce.X509V3CertificateGenerator;
 import org.bouncycastle.jce.provider.*;
 import org.bouncycastle.asn1.x509.X509Name;
@@ -227,15 +226,7 @@ import org.bouncycastle.crypto.BlockCipher;
   {
      saveMenuItem.setText("save [none]");
      saveMenuItem.setEnabled(false);
-     m_GeneralPanel.Box1.setSelectedIndex(0);
-     m_GeneralPanel.setMixName("");
-     m_GeneralPanel.Auto.setSelected(false);
-     m_GeneralPanel.MixID.setText("");
-     m_GeneralPanel.UserID.setSelected(false);
-     m_GeneralPanel.number.setSelected(false);
-     m_GeneralPanel.Daemon.setSelected(false);
-     m_GeneralPanel.EnableLog.setSelected(false);
-     m_GeneralPanel.FileName.setText("");
+     m_GeneralPanel.clear();
 
      int i,j;
      for(i = 0; i < 10; i++)
@@ -299,72 +290,59 @@ import org.bouncycastle.crypto.BlockCipher;
 	  Element root=doc.getDocumentElement();
 	  Element elemGeneral=getChild(root,"General");
 	  Element elemType=getChild(elemGeneral,"MixType");
-	  String MixType=elemType.getFirstChild().getNodeValue();
-	  m_GeneralPanel.setType(MixType);
+	  String MixType=getElementValue(elemType,null);
+	  m_GeneralPanel.setMixType(MixType);
 
 	  Element elemName=getChild(elemGeneral,"MixName");
-	  String MixName=elemName.getFirstChild().getNodeValue();
+	  String MixName=getElementValue(elemName,null);
 	  m_GeneralPanel.setMixName(MixName);
 
-	  Element elemAuto = getChild(elemGeneral,"AutomaticallyGenerated");
-	  Element elemMixID;
-	  if(elemAuto != null)
-	  {
-	    m_GeneralPanel.setAuto();
-	    elemMixID = getChild(elemAuto,"MixID");
-	  }
-	  else
-	    elemMixID = getChild(elemGeneral,"MixID");
-	  String MixID = elemMixID.getFirstChild().getNodeValue();
+	  Element elemMixID=getChild(elemGeneral,"MixID");
+    m_GeneralPanel.setAuto(false);
+    String MixID = getElementValue(elemMixID,null);
 	  m_GeneralPanel.setMixID(MixID);
 
 	  Element elemUserID = getChild(elemGeneral,"UserID");
 	  if(elemUserID != null)
 	  {
-	    m_GeneralPanel.UserID.setSelected(true);
-	    String UserID = elemUserID.getFirstChild().getNodeValue();
-	    m_GeneralPanel.setUserID(UserID);
+	    m_GeneralPanel.setUserID(getElementValue(elemUserID,null));
 	  }
 
-	  Element elemFileDes = getChild(elemGeneral,"NumberofFileDescriptors");
+	  Element elemFileDes = getChild(elemGeneral,"NrOfFileDescriptors");
 	  if(elemFileDes != null)
 	  {
-	    m_GeneralPanel.number.setSelected(true);
-	    String FileDes = elemFileDes.getFirstChild().getNodeValue();
-	    m_GeneralPanel.setFileDes(FileDes);
+	    m_GeneralPanel.setFileDes(getElementValue(elemFileDes,null));
 	  }
 
           Element elemDaemon = getChild(elemGeneral,"Daemon");
-	  String Daemon = elemDaemon.getFirstChild().getNodeValue();
-	  if(Daemon.equals("True"))
-	     m_GeneralPanel.Daemon.setSelected(true);
+	  String daemon = getElementValue(elemDaemon,"False");
+    m_GeneralPanel.setDaemon(daemon);
 
-	  Element elemEnableLog = getChild(elemGeneral,"EnableLogging");
+	  Element elemEnableLog = getChild(elemGeneral,"Logging");
 	  if(elemEnableLog != null)
 	  {
-	    m_GeneralPanel.EnableLog.setSelected(true);
-	    if(Daemon.equals("False"))
-	      m_GeneralPanel.Console.setEnabled(true);
-	    m_GeneralPanel.File.setEnabled(true);
-	    m_GeneralPanel.Syslog.setEnabled(true);
-	  }
-
-	  Element elemFile = getChild(elemEnableLog,"File");
-	  if(elemFile != null)
-	  {
-	    String File = elemFile.getFirstChild().getNodeValue();
-	    m_GeneralPanel.FileName.setEnabled(true);
-	    m_GeneralPanel.FileName.setText(File);
-	    m_GeneralPanel.File.setSelected(true);
-	  }
-	  else
-	  {
-	    Element elemSyslog = getChild(elemEnableLog,"SysLog");
-	    if(elemSyslog != null)
-	      m_GeneralPanel.Syslog.setSelected(true);
-	    else
-	      m_GeneralPanel.Console.setSelected(true);
-	  }
+      boolean bLogFile=false;
+      boolean bLogConsole=false;
+      boolean bLogSyslog=false;
+      String file=null;
+      Element elemFile = getChild(elemEnableLog,"File");
+      if(elemFile != null)
+        {
+          file = getElementValue(elemFile,null);
+          bLogFile=true;
+        }
+      Element elemSyslog = getChild(elemEnableLog,"SysLog");
+      if(elemSyslog != null)
+        {
+          bLogSyslog=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
+        }
+      Element elemConsole = getChild(elemEnableLog,"Console");
+      if(elemConsole != null)
+        {
+          bLogConsole=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
+        }
+      m_GeneralPanel.setLogging(bLogConsole,bLogSyslog,bLogFile,file);
+    }
 
           Element elemNetwork = getChild(root,"Network");
           Element elemIncomming = getChild(elemNetwork,"Incomming");
@@ -388,13 +366,13 @@ import org.bouncycastle.crypto.BlockCipher;
 	  {
 	    j++;
 	    elemHost = getChild(elemInterface,"Host");
-	    host = elemHost.getFirstChild().getNodeValue();
+	    host = getElementValue(elemHost,null);
 	    m_NetworkPanel.setTable1(host,i,j);
 	    j++;
 	    elemIP = getChild(elemInterface,"IP");
 	    if(elemIP != null)
 	    {
-	      IP = elemIP.getFirstChild().getNodeValue();
+	      IP = getElementValue(elemIP,null);
 	      m_NetworkPanel.setTable1(IP,i,j);
 	    }
 	    j++;
@@ -408,7 +386,7 @@ import org.bouncycastle.crypto.BlockCipher;
 	  else
 	  {
 	    j++;
-	    elemFile = getChild(elemInterface,"File");
+	    Element elemFile = getChild(elemInterface,"File");
 	    file = elemFile.getFirstChild().getNodeValue();
 	    m_NetworkPanel.setTable1(file,i,j);
 	  }
@@ -461,8 +439,8 @@ import org.bouncycastle.crypto.BlockCipher;
 	  else
 	  {
 	    j++;
-	    elemFile = getChild(elemInterface,"File");
-	    file = elemFile.getFirstChild().getNodeValue();
+	    Element elemFile = getChild(elemInterface,"File");
+	    file = getElementValue(elemFile,null);
 	    m_NetworkPanel.setTable2(file,i,j);
 	  }
 	  i++;
@@ -579,73 +557,58 @@ import org.bouncycastle.crypto.BlockCipher;
 	  Text text2=doc.createTextNode(elemmixname);
 	  elemMixName.appendChild(text2);
 
-	  String MixAuto = m_GeneralPanel.getMixAuto();
-	  Element elemMixAuto = doc.createElement("AutomaticallyGenerated");
-	  if(MixAuto.equals("True"))
-	    elemGeneral.appendChild(elemMixAuto);
 
 	  String mixID=m_GeneralPanel.getMixID();
-          Element elemMixID=doc.createElement("MixID");
-	  if(MixAuto.equals("True"))
-	    elemMixAuto.appendChild(elemMixID);
-	  else
-	    elemGeneral.appendChild(elemMixID);
+    Element elemMixID=doc.createElement("MixID");
+    elemGeneral.appendChild(elemMixID);
 	  Text text3=doc.createTextNode(mixID);
 	  elemMixID.appendChild(text3);
 
-	  String elemUser_ID = m_GeneralPanel.User_ID;
-	  if(!elemUser_ID.equals(""))
+	  String elemUser_ID = m_GeneralPanel.getUserID();
+	  if(elemUser_ID!=null&&!elemUser_ID.equals(""))
 	  {
-	    elemUser_ID = m_GeneralPanel.getUserID();
 	    Element elemUserID = doc.createElement("UserID");
 	    elemGeneral.appendChild(elemUserID);
 	    Text text4 = doc.createTextNode(elemUser_ID);
 	    elemUserID.appendChild(text4);
 	  }
 
-	  String elemFileDes = m_GeneralPanel.fileDes;
-	  if(!elemFileDes.equals(""))
+	  String elemFileDes = m_GeneralPanel.getFileDes();
+	  if(elemFileDes!=null&&!elemFileDes.equals(""))
 	  {
-	    elemFileDes = m_GeneralPanel.getFileDes();
-	    Element elemfiledes = doc.createElement("NumberofFileDescriptors");
+	    Element elemfiledes = doc.createElement("NrOfFileDescriptors");
 	    elemGeneral.appendChild(elemfiledes);
 	    Text text4 = doc.createTextNode(elemFileDes);
 	    elemfiledes.appendChild(text4);
 	  }
 
-	  String elemDaemon = m_GeneralPanel.is_daemon;
-	  if(elemDaemon.equals(""))
-	    elemDaemon = "False";
-	  else
-	    elemDaemon = "True";
-	  Element DaemonElem = doc.createElement("Daemon");
-	  elemGeneral.appendChild(DaemonElem);
-	  Text text5 = doc.createTextNode(elemDaemon);
-	  DaemonElem.appendChild(text5);
+	  Element elemDaemon = doc.createElement("Daemon");
+	  elemGeneral.appendChild(elemDaemon);
+	  Text text5 = doc.createTextNode(m_GeneralPanel.getDaemon());
+	  elemDaemon.appendChild(text5);
 
-          String elemLogging = m_GeneralPanel.logging;
-	  if(elemLogging.equals("True"))
+    if(m_GeneralPanel.isLoggingEnabled())
 	  {
-	    Element EnableLog = doc.createElement("EnableLogging");
-	    elemGeneral.appendChild(EnableLog);
+	    Element elemLogging = doc.createElement("Logging");
+	    elemGeneral.appendChild(elemLogging);
 	    String LogInfo = m_GeneralPanel.getEnabled();
 	    if(LogInfo.equals("LogtoConsole"))
 	    {
 	      Element elemLog = doc.createElement("Console");
-	      EnableLog.appendChild(elemLog);
+	      elemLogging.appendChild(elemLog);
 	      Text text6 = doc.createTextNode("True");
 	      elemLog.appendChild(text6);
 	    }
 	    if(LogInfo.equals("LogtoSyslog"))
 	    {
 	      Element elemLog = doc.createElement("SysLog");
-	      EnableLog.appendChild(elemLog);
+	      elemLogging.appendChild(elemLog);
 	    }
 	    if(LogInfo.equals("Logtofile"))
 	    {
 	      String filename = m_GeneralPanel.getFileName();
 	      Element elemLog = doc.createElement("File");
-	      EnableLog.appendChild(elemLog);
+	      elemLogging.appendChild(elemLog);
 	      Text text6 = doc.createTextNode(filename);
 	      elemLog.appendChild(text6);
 	    }
@@ -814,14 +777,12 @@ import org.bouncycastle.crypto.BlockCipher;
 	  Element elem = doc.createElement("X509PKCS12");
 	  elemOwn.appendChild(elem);
     byte[] buff = m_CertificatesPanel.getOwnPrivCert();
-	  buff=Base64.encode(buff);
-    Text text = doc.createTextNode(new String(buff));
+	   Text text = doc.createTextNode(Base64.encodeBytes(buff,true));
 	  elem.appendChild(text);
 	  elem = doc.createElement("X509Certificate");
 	  elemOwn.appendChild(elem);
     buff = m_CertificatesPanel.getOwnPubCert();
-	  buff=Base64.encode(buff);
-    text = doc.createTextNode(new String(buff));
+    text = doc.createTextNode(Base64.encodeBytes(buff,true));
 	  elem.appendChild(text);
 
 	  Element elemPrevious = doc.createElement("PrevMixCertificate");
@@ -829,8 +790,7 @@ import org.bouncycastle.crypto.BlockCipher;
 	  elem = doc.createElement("X509Certificate");
     elemPrevious.appendChild(elem);
     buff = m_CertificatesPanel.getPrevPubCert();
-	  buff=Base64.encode(buff);
-    text = doc.createTextNode(new String(buff));
+    text = doc.createTextNode(Base64.encodeBytes(buff,true));
 	  elem.appendChild(text);
 
     Element elemNext = doc.createElement("NextMixCertificate");
@@ -838,8 +798,7 @@ import org.bouncycastle.crypto.BlockCipher;
 	  elem = doc.createElement("X509Certificate");
     elemNext.appendChild(elem);
     buff = m_CertificatesPanel.getNextPubCert();
-	  buff=Base64.encode(buff);
-    text = doc.createTextNode(new String(buff));
+    text = doc.createTextNode(Base64.encodeBytes(buff));
 	  elem.appendChild(text);
 
 	  Element elemDescription = doc.createElement("Description");
@@ -1022,342 +981,6 @@ public class TheApplet extends JApplet
 }
 
 
-class GeneralPanel extends JPanel implements ItemListener,ActionListener
-{
-  public static JComboBox Box1;
-  public static JTextField MixName,MixID,FileName,ID_Text,num_file;
-  public static JCheckBox Auto,Daemon,EnableLog,UserID,number;
-  public static String text,User_ID = "",fileDes = "",is_daemon="",logging = "",selection = "";
-  public static JRadioButton Console,File,Syslog;
-  public static ButtonGroup bg;
-
-  public String getMixType()
-  {
-    return (String)Box1.getSelectedItem();
-  }
-
-  public String getMixName()
-  {
-    return MixName.getText();
-  }
-
-  public String getMixAuto()
-  {
-    if(Auto.isSelected() == true)
-      return "True";
-    else
-      return "False";
-  }
-
-  public String getMixID()
-  {
-    return MixID.getText();
-  }
-
-  public String getUserID()
-  {
-    return ID_Text.getText();
-  }
-
-  public String getFileDes()
-  {
-    return num_file.getText();
-  }
-
-  public String getFileName()
-  {
-    return FileName.getText();
-  }
-
-  public String getEnabled()
-  {
-    if(Syslog.isSelected() == true)
-      return "LogtoSyslog";
-    if(File.isSelected() == true)
-      return "Logtofile";
-    if(Console.isSelected() == true)
-      return "LogtoConsole";
-    return "null";
-  }
-
-
-  public static void setType(String type)
-  {
-    int j = 0;
-    for(int i = 1; i < Box1.getItemCount() && j == 0; i++)
-    {
-      if(Box1.getItemAt(i).toString().equals(type))
-      {
-        Box1.setSelectedIndex(i);
-        j++;
-      }
-    }
-    return;
-  }
-
-  public static void setMixName(String name)
-  {
-    MixName.setText(name);
-  }
-
-  public static void setAuto()
-  {
-    Auto.setSelected(true);
-  }
-
-  public static void setMixID(String mixid)
-  {
-    MixID.setText(mixid);
-  }
-
-  public static void setUserID(String userid)
-  {
-    ID_Text.setText(userid);
-  }
-
-  public static void setFileDes(String filedes)
-  {
-    num_file.setText(filedes);
-  }
-
-  public GeneralPanel()
-  {
-    GridBagLayout layout=new GridBagLayout();
-    setLayout(layout);
-    GridBagConstraints c=new GridBagConstraints();
-    c.anchor=GridBagConstraints.NORTHWEST;
-    c.insets=new Insets(10,10,10,10);
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.weighty = 1;
-
-    JLabel j1 = new JLabel("Mix Type");
-    c.gridx=0;
-    c.gridy=0;
-    c.gridwidth = 1;
-    layout.setConstraints(j1,c);
-    add(j1);
-    Box1 = new JComboBox();
-    Box1.addItem("First Mix");
-    Box1.addItem("Middle Mix");
-    Box1.addItem("Last Mix");
-    c.weightx=1;
-    c.gridx=1;
-    c.gridy=0;
-    c.gridwidth = 3;
-    layout.setConstraints(Box1,c);
-    add(Box1);
-
-    JLabel j2 = new JLabel("Mix Name");
-    c.gridx=0;
-    c.gridy=1;
-    c.gridwidth = 1;
-    c.weightx = 0;
-    layout.setConstraints(j2,c);
-    add(j2);
-    MixName = new JTextField(20);
-    MixName.setText("");
-    c.gridx=1;
-    c.gridy=1;
-    c.gridwidth = 3;
-    c.weightx = 1;
-    layout.setConstraints(MixName,c);
-    add(MixName);
-
-    JLabel j3 = new JLabel("Mix ID");
-    c.gridx=0;
-    c.gridy=2;
-    c.gridwidth = 1;
-    c.weightx = 0;
-    layout.setConstraints(j3,c);
-    add(j3);
-    Auto = new JCheckBox("Automatically Generated");
-    c.gridx=1;
-    c.gridy=2;
-    c.gridwidth = 3;
-    c.weightx = 1;
-    layout.setConstraints(Auto,c);
-    Auto.addItemListener(this);
-    add(Auto);
-
-    MixID = new JTextField(20);
-    MixID.setText("");
-    c.gridx=1;
-    c.gridy=3;
-    c.gridwidth = 3;
-    layout.setConstraints(MixID,c);
-    add(MixID);
-
-    UserID = new JCheckBox("Set User ID on Execution");
-    c.gridy = 5;
-    c.gridx = 0;
-    c.gridwidth = 1;
-    c.weightx = 0;
-    UserID.addItemListener(this);
-    layout.setConstraints(UserID,c);
-    add(UserID);
-    ID_Text = new JTextField(20);
-    c.gridx = 1;
-    c.weightx = 1;
-    c.gridwidth = 3;
-    layout.setConstraints(ID_Text,c);
-    add(ID_Text);
-    ID_Text.setEnabled(false);
-
-    number = new JCheckBox("Set Number of File Descriptors");
-    c.weightx = 0;
-    c.gridy = 6;
-    c.gridx = 0;
-    c.gridwidth = 1;
-    number.addItemListener(this);
-    layout.setConstraints(number,c);
-    add(number);
-    num_file = new JTextField(20);
-    c.gridx = 1;
-    c.gridwidth = 3;
-    c.weightx = 1;
-    layout.setConstraints(num_file,c);
-    add(num_file);
-    num_file.setEnabled(false);
-
-    Daemon = new JCheckBox("Run as Daemon?");
-    c.gridx = 0;
-    c.gridy = 7;
-    Daemon.addItemListener(this);
-    layout.setConstraints(Daemon,c);
-    add(Daemon);
-
-    EnableLog = new JCheckBox("Enable Logging?");
-    c.gridx = 0;
-    c.gridy = 8;
-    EnableLog.addItemListener(this);
-    layout.setConstraints(EnableLog,c);
-    add(EnableLog);
-
-    Console = new JRadioButton("Log to Console");
-    c.gridx = 1;
-    c.gridy = 9;
-    c.weightx = 1;
-    Console.setActionCommand("LogtoConsole");
-    Console.addActionListener(this);
-    layout.setConstraints(Console,c);
-    add(Console);
-    Console.setEnabled(false);
-
-    File = new JRadioButton("Log to file");
-    c.gridy = 10;
-    c.weightx = 0;
-    File.addActionListener(this);
-    File.setActionCommand("Logtofile");
-    layout.setConstraints(File,c);
-    add(File);
-    File.setEnabled(false);
-
-    FileName = new JTextField(20);
-    FileName.setText("");
-    c.gridx = 1;
-    c.gridy = 11;
-    c.weightx = 1;
-    layout.setConstraints(FileName,c);
-    add(FileName);
-    FileName.setEnabled(false);
-
-    Syslog = new JRadioButton("Log to Syslog");
-    c.gridx = 1;
-    c.gridy = 12;
-    Syslog.addActionListener(this);
-    Syslog.setActionCommand("LogtoSyslog");
-    layout.setConstraints(Syslog,c);
-    add(Syslog);
-    Syslog.setEnabled(false);
-
-    bg = new ButtonGroup();
-    bg.add(Console);
-    bg.add(File);
-    bg.add(Syslog);
-  }
-
-  public void actionPerformed(ActionEvent ae)
-  {
-    selection = ae.getActionCommand();
-    if(Console.isSelected() == true || Syslog.isSelected() == true)
-    {
-      FileName.setEnabled(false);
-      FileName.setText("");
-    }
-    if(File.isSelected() == true)
-      FileName.setEnabled(true);
-  }
-
-  public void itemStateChanged(ItemEvent ie)
-  {
-    if(Auto.isSelected() == true)
-      MixID.setText("Auto is Selected");
-    if(Auto.isSelected() == false)
-      MixID.setText("");
-
-
-    if(EnableLog.isSelected() == true)
-    {
-      if(Daemon.isSelected() == false)
-        Console.setEnabled(true);
-      File.setEnabled(true);
-      Syslog.setEnabled(true);
-      logging = "True";
-    }
-    else
-    {
-      Console.setEnabled(false);
-      File.setEnabled(false);
-      Syslog.setEnabled(false);
-      FileName.setEnabled(false);
-      logging = "";
-    }
-
-    if(Daemon.isSelected() == true)
-    {
-      Console.setEnabled(false);
-      is_daemon = "True";
-    }
-    if(Daemon.isSelected() == false)
-      is_daemon = "";
-
-    if(Daemon.isSelected() == true && Console.isSelected() == true)
-    {
-       File.setSelected(true);
-       FileName.setEnabled(true);
-    }
-
-    if(Console.isSelected() == true || Syslog.isSelected() == true)
-    {
-      FileName.setEnabled(false);
-    }
-
-    if(UserID.isSelected() == true)
-    {
-      ID_Text.setEnabled(true);
-      User_ID = "True";
-    }
-    else
-    {
-      ID_Text.setText("");
-      ID_Text.setEnabled(false);
-      User_ID = "";
-    }
-
-    if(number.isSelected() == true)
-    {
-      num_file.setEnabled(true);
-      fileDes = "True";
-    }
-    else
-    {
-      num_file.setText("");
-      num_file.setEnabled(false);
-      fileDes = "";
-    }
-  }
-}
-
 
 
 class NetworkPanel extends JPanel
@@ -1368,12 +991,18 @@ class NetworkPanel extends JPanel
 
    public String getTable1(int x,int y)
    {
-     return table1.getValueAt(x,y).toString();
+     Object o=table1.getValueAt(x,y);
+     if(o==null)
+      return "";
+     return o.toString();
    }
 
    public String getTable2(int x,int y)
    {
-     return table2.getValueAt(x,y).toString();
+    Object o=table2.getValueAt(x,y);
+     if(o==null)
+      return "";
+     return o.toString();
    }
 
    public String getHost()
