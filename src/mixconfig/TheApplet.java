@@ -195,9 +195,10 @@ class MyFrame extends JPanel implements ActionListener
               try
               {
                   text = (String)data.getTransferData(DataFlavor.stringFlavor);
-                  JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+/*                  JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
                       text, "Open",
                       JOptionPane.INFORMATION_MESSAGE);
+*/
               }
               catch(java.io.IOException ex)
               {
@@ -292,21 +293,7 @@ class MyFrame extends JPanel implements ActionListener
         saveMenuItem.setEnabled(false);
         m_aktFileName=null;
         m_GeneralPanel.clear();
-
-        int i,j;
-        for(i = 0; i < 10; i++)
-        {
-            for(j = 0; j < 6; j++)
-            {
-                m_NetworkPanel.setTable1("",i,j);
-                m_NetworkPanel.setTable2("",i,j);
-            }
-            m_NetworkPanel.setTable2("",i,6);
-        }
-        m_NetworkPanel.Host_Text.setText("");
-        m_NetworkPanel.IP_Text.setText("");
-        m_NetworkPanel.Port_Text.setText("");
-
+        m_NetworkPanel.clear();
         m_CertificatesPanel.clear();
 
         m_DescriptionPanel.setCity("");
@@ -362,6 +349,7 @@ class MyFrame extends JPanel implements ActionListener
 
     private void open_internal(byte[] config)
     {
+      reset();
       try
       {
         DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
