@@ -1,28 +1,53 @@
+/*
+ Copyright (c) 2000 - 2005, The JAP-Team
+ All rights reserved.
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+
+  - Redistributions of source code must retain the above copyright notice,
+ this list of conditions and the following disclaimer.
+
+  - Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation and/or
+ other materials provided with the distribution.
+
+  - Neither the name of the University of Technology Dresden, Germany nor the names of its contributors
+ may be used to endorse or promote products derived from this software without specific
+ prior written permission.
+
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
+ OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS
+ BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+ */
 package mixconfig.wizard;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
-
 import java.awt.BorderLayout;
-import java.awt.Toolkit;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Box;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import org.xml.sax.SAXException;
+import anon.util.ResourceLoader;
 import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
-import java.io.FileInputStream;
-import java.awt.Dimension;
+import gui.ImageIconLoader;
+
 
 /** A class that displays the Mix configuration panels as a wizard. To the left of
  * the panel, a logo is displayed; at the bottom, there are three navigation
@@ -39,7 +64,7 @@ import java.awt.Dimension;
 public class ConfigWizard extends JPanel implements ActionListener, ChangeListener
 {
 	/** The path to the logo to display at the left side of the wizard */
-	private static String confWizLogoPath = new String("anonLogo.jpg");
+	private static final String PATH_LOG = new String("mixconfig/anonLogo.jpg");
 
 	/** A container laid out with a <CODE>CardLayout</CODE> that contains the wizard's
 	 * pages
@@ -68,26 +93,7 @@ public class ConfigWizard extends JPanel implements ActionListener, ChangeListen
 
 		setLayout(new BorderLayout());
 
-		JLabel imageCanvas = null;
-
-		try
-		{
-			File f = new File(confWizLogoPath);
-			FileInputStream fis = new FileInputStream(f);
-			byte imageData[] = new byte[ (int) f.length()];
-			fis.read(imageData);
-
-			ImageIcon confWizLogo = new ImageIcon(Toolkit.getDefaultToolkit().createImage(imageData));
-		imageCanvas = new JLabel(confWizLogo);
-		}
-		catch (IOException ioe)
-		{
-			// Reading the logo may cause a FileNotFoundException, if the
-			// logo file does not reside in the VM's current directory.
-			// TODO: Find a safe way to determine the logo's path.
-			imageCanvas = new JLabel(ioe.getMessage());
-		}
-
+		JLabel imageCanvas = new JLabel(ImageIconLoader.loadImageIcon(PATH_LOG, true));
 		m_wizPanel = new ConfigWizardPanel();
 		m_wizPanel.addChangeListener(this);
 

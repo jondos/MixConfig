@@ -63,21 +63,19 @@ import java.awt.Dimension;
  */
 public class ConfigFrame extends JPanel implements ActionListener
 {
+	public static final String CMD_OPEN_FILE = "Open";
+
 	private JFrame m_Parent;
 	private JMenuBar m_MenuBar;
-private JTabbedPane m_tabbedPane;
-
-	//public static boolean New;
+	private JTabbedPane m_tabbedPane;
 	private JMenuItem saveMenuItem, saveclipItem;
-
-	private static GeneralPanel m_GeneralPanel;
-	private static NetworkPanel m_NetworkPanel;
-	private static CertificatesPanel m_CertificatesPanel;
-	private static DescriptionPanel m_DescriptionPanel;
-	private static CascadePanel m_CascadePanel;
-
-	// added by Bastian Voigt (Why static??)
-	protected static PaymentPanel m_PaymentPanel;
+	private GeneralPanel m_GeneralPanel;
+	private NetworkPanel m_NetworkPanel;
+	private CertificatesPanel m_CertificatesPanel;
+	private DescriptionPanel m_DescriptionPanel;
+	private CascadePanel m_CascadePanel;
+	// added by Bastian Voigt
+	private PaymentPanel m_PaymentPanel;
 
 	public ConfigFrame(JFrame parent) throws IOException
 	{
@@ -122,7 +120,7 @@ private JTabbedPane m_tabbedPane;
 
 		newMenuItem.setActionCommand("New");
 		exitMenuItem.setActionCommand("Exit");
-		openMenuItem.setActionCommand("Open");
+		openMenuItem.setActionCommand(CMD_OPEN_FILE);
 		saveclipItem.setActionCommand("SaveClip");
 		openclipItem.setActionCommand("OpenClip");
 		checkItem.setActionCommand("Check");
@@ -318,7 +316,7 @@ private JTabbedPane m_tabbedPane;
 				cf.setText(xmlString);
 				cf.show();
 			}
-			else if (evt.getActionCommand().equals("Open"))
+			else if (evt.getActionCommand().equals(CMD_OPEN_FILE))
 			{
 				File file =
 					MixConfig
@@ -360,7 +358,7 @@ private JTabbedPane m_tabbedPane;
          * @throws SAXException If an XML error occurs
          * @throws IOException If a communication error occurs
          * @throws ParserConfigurationException If an XML error occurs
-         */        
+         */
 	private void reset() throws SAXException, IOException, ParserConfigurationException
 	{
 		saveMenuItem.setText("Save [none]");

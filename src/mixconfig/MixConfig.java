@@ -70,7 +70,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.02.036"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.02.037"; //NEVER change the layout of this line!!
 
 	private static final String m_configFilePath = ".";
 	private static final String TITLE = "Mix Configuration Tool";
@@ -80,6 +80,7 @@ public class MixConfig extends JApplet
         /** Indicates whether to show the wizard interface or the normal interface */
 	private static boolean showWizard = false;
 	private static JPanel m_mainPanel;
+	private static JPanel m_startPanel;
 	private static Frame m_MainWindow;
 	private static File m_fileCurrentDir;
 	private static String m_currentFileName;
@@ -98,7 +99,8 @@ public class MixConfig extends JApplet
 			boolean force_no_wizard = false;
 			boolean force_wizard = false;
 			File f = null;
-			for (int i = 0; i < argv.length; i++)
+
+	        for (int i = 0; i < argv.length; i++)
 			{
 				if (argv[i].equals("--no-wizard"))
 				{
@@ -165,7 +167,7 @@ public class MixConfig extends JApplet
 					}
 				}
 			}
-			else
+			else //no existig file is given
 			{
 				m_mixConfiguration = new MixConfiguration();
 				if (force_no_wizard)
@@ -178,13 +180,16 @@ public class MixConfig extends JApplet
 				}
 				else
 				{
-					String message[] =
-						{
-						"Would you like to start the wizard interface to create a new " +
-						"configuration?"
-					};
-
-					showWizard = ask("Create new configuration", message);
+					m_startPanel = new ChoicePanel(MainWindow);
+					m_startPanel.setSize(new Dimension(900, 700));
+					m_startPanel.setPreferredSize(new Dimension(900, 700));
+					MainWindow.setContentPane(m_startPanel);
+					MainWindow.pack();
+					Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+					Dimension size = MainWindow.getSize();
+					MainWindow.setLocation( (d.width - size.width) / 2, (d.height - size.height) / 2);
+					LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Show the GUI startScreen...");
+					MainWindow.show();
 				}
 			}
 
@@ -192,15 +197,6 @@ public class MixConfig extends JApplet
 			if (icon != null)
 			{
 				m_MainWindow.setIconImage(icon.getImage());
-			}
-
-			if (showWizard)
-			{
-				m_mainPanel = new ConfigWizard();
-			}
-			else
-			{
-				m_mainPanel = new ConfigFrame(MainWindow);
 			}
 
 			MainWindow.addWindowListener(new WindowAdapter()
@@ -215,19 +211,6 @@ public class MixConfig extends JApplet
 					System.exit(0);
 				}
 			});
-
-			if (!showWizard)
-			{
-				MainWindow.setJMenuBar( ( (ConfigFrame) m_mainPanel).getMenuBar());
-			}
-
-			MainWindow.setContentPane(m_mainPanel);
-			MainWindow.pack();
-			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-			Dimension size = MainWindow.getSize();
-			MainWindow.setLocation( (d.width - size.width) / 2, (d.height - size.height) / 2);
-			LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Show the GUI...");
-			MainWindow.show();
 		}
 		catch (Exception e)
 		{
