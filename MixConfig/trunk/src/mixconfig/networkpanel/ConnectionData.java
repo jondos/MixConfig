@@ -357,6 +357,6 @@ final public class ConnectionData
 	static private String getChildElementValue(Element elemParent,String childName)
 	{
 		Node nodeChild=XMLUtil.getFirstChildByName(elemParent,childName);
-		return XMLUtil.parseNodeString(nodeChild,null);
+		return XMLUtil.parseValue(nodeChild,null);
 	}
 }
