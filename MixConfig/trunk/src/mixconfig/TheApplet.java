@@ -455,7 +455,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
     m_CertificatesPanel.setPrevPubCert(Base64.decode(name));
 
 	Element elemNextCert = getChild(elemCertificates,"NextMixCertificate");
-	elem = getChild(elemPrevCert,"X509Certificate");
+	elem = getChild(elemNextCert,"X509Certificate");
 	name = getElementValue(elem,null);
 	if(name==null)
     m_CertificatesPanel.setNextPubCert(null);
@@ -866,7 +866,7 @@ public class TheApplet extends JApplet
   public final static int FILTER_CER=1;
   public final static int FILTER_XML=2;
   public final static int FILTER_PFX=4;
-  public final static String VERSION="00.01.012";
+  public final static String VERSION="00.01.013";
 
   public static void main(String[] args)
   {
