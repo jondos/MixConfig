@@ -350,6 +350,8 @@ public class ConfigFrame extends JPanel implements ActionListener
 				m_DescriptionPanel.setLongi("");
 				m_DescriptionPanel.setState("");
                                 m_DescriptionPanel.setCountry("");
+				m_DescriptionPanel.setOperatorOrg("");
+				m_DescriptionPanel.setOperatorURL("");
 		}
 
 		private Element getChild(Node node, String name)
@@ -613,6 +615,18 @@ public class ConfigFrame extends JPanel implements ActionListener
 						Element elemLati = getChild(elemGeo, "Latitude");
 						String lati = getElementValue(elemLati, null);
 						m_DescriptionPanel.setLati(lati);
+
+
+						Element elemOperator = getChild(elemDescription, "Operator");
+
+						Element elemOperatorOrg = getChild(elemOperator, "Organisation");
+						String oporg = getElementValue(elemOperatorOrg, null);
+						m_DescriptionPanel.setOperatorOrg(oporg);
+
+						Element elemOperatorURL = getChild(elemOperator, "URL");
+						String opurl = getElementValue(elemOperatorURL, null);
+						m_DescriptionPanel.setOperatorURL(opurl);
+
 				}
 				catch (Exception e)
 				{
@@ -854,6 +868,23 @@ public class ConfigFrame extends JPanel implements ActionListener
 						elemLati.appendChild(text11);
 						elemGeo.appendChild(elemLati);
 
+
+						Element elemOperator = doc.createElement("Operator");
+						elemDescription.appendChild(elemOperator);
+
+						Element elemOperatorOrg = doc.createElement("Organisation");
+						elemOperator.appendChild(elemOperatorOrg);
+						String oporg = m_DescriptionPanel.getOperatorOrg();
+						text11 = doc.createTextNode(oporg);
+						elemOperatorOrg.appendChild(text11);
+
+						Element elemOperatorURL = doc.createElement("URL");
+						elemOperator.appendChild(elemOperatorURL);
+						String opurl = m_DescriptionPanel.getOperatorURL();
+						text11 = doc.createTextNode(opurl);
+						elemOperatorURL.appendChild(text11);
+
+
 						//Writing to File...
 						ByteArrayOutputStream fout = new ByteArrayOutputStream();
 
@@ -1026,6 +1057,12 @@ public class ConfigFrame extends JPanel implements ActionListener
 				if (!m_DescriptionPanel.getLatitude().equals("")
 						&& m_DescriptionPanel.getLongitude().equals(""))
 						errors.addElement("Longitude is missing in Description Panel.");
+				if (m_DescriptionPanel.getOperatorOrg().equals(""))
+						errors.addElement(
+								"The Operator Organisation field cannot be left blank in Description Panel.");
+				if (m_DescriptionPanel.getOperatorURL().equals(""))
+						errors.addElement(
+								"The Operator URL field cannot be left blank in Description Panel.");
 
 				String[] asString = new String[errors.size()];
 				for (int i = 0; i < asString.length; i++)
