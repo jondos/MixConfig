@@ -58,7 +58,7 @@ class DescriptionPanel extends JPanel implements ActionListener
       d.gridy = 2;
       d.weightx = 0;
       d.gridwidth = 1;
-      JLabel state = new JLabel("State");
+      JLabel state = new JLabel("Country");
       forpanel.setConstraints(state,d);
       panel1.add(state);
       text2 = new JTextField(20);
