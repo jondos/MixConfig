@@ -7,6 +7,8 @@ package mixconfig;
  * Change Log:
  * </p>
  * <ul>
+ *  <li>v1.4 - Added helper methods to read/write files.</li>
+ *  <li>v1.3.6 - Fixed OutputStream.flush() so that 'position' is reset.</li>
  *  <li>v1.3.5 - Added flag to turn on and off line breaks. Fixed bug in input stream
  *      where last buffer being read, if not completely full, was not returned.</li>
  *  <li>v1.3.4 - Fixed when "improperly padded stream" error was thrown at the wrong time.</li>
@@ -23,7 +25,7 @@ package mixconfig;
  *
  * @author Robert Harder
  * @author rob@iharder.net
- * @version 1.3.4
+ * @version 1.4
  */
 public class Base64
 {
@@ -34,6 +36,13 @@ public class Base64
 
     /** Specify decoding (value is <tt>false</tt>). */
     public final static boolean DECODE = false;
+
+    /** Specify that data should be compressed (value is <tt>true</tt>). */
+    public final static boolean COMPRESS = true;
+
+
+    /** Specify that data should not be compressed (value is <tt>false</tt>). */
+    public final static boolean DONT_COMPRESS = false;
 
 
     /** Maximum line length (76) of Base64 output. */
@@ -102,6 +111,7 @@ public class Base64
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9         // Decimal 244 - 255 */
     };
 
+    private final static byte BAD_ENCODING    = -9; // Indicates error in encoding
     private final static byte WHITE_SPACE_ENC = -5; // Indicates white space in encoding
     private final static byte EQUALS_SIGN_ENC = -1; // Indicates equals sign in encoding
 
@@ -111,179 +121,23 @@ public class Base64
 
 
 
-    /**
-     * Testing. Feel free--in fact I encourage you--to throw out
-     * this entire "main" method when you actually deploy this code.
-     */
-    public static void main( String[] args )
-    {
-        try
-        {
-            // Test encoding/decoding byte arrays
-            {
-                byte[] bytes1 = { (byte)2,(byte)2,(byte)3,(byte)0,(byte)9 }; // My zip code
-                byte[] bytes2 = { (byte)99,(byte)2,(byte)2,(byte)3,(byte)0,(byte)9 };
-                System.out.println( "Bytes 2,2,3,0,9 as Base64: " + encodeBytes( bytes1 ) );
-                System.out.println( "Bytes 2,2,3,0,9 w/ offset: " + encodeBytes( bytes2, 1, bytes2.length-1 ) );
-                byte[] dbytes = decode( encodeBytes( bytes1 ) );
-                System.out.print( encodeBytes( bytes1 ) + " decoded: " );
-                for( int i = 0; i < dbytes.length; i++ )
-                    System.out.print( dbytes[i] + (i<dbytes.length-1?",":"\n") );
-            }   // end testing byte arrays
-
-
-
-
-            // Test Input Stream
-            {
-                // Read GIF stored in base64 form.
-                java.io.FileInputStream fis = new java.io.FileInputStream( "test.gif.b64" );
-                Base64.InputStream b64is = new Base64.InputStream( fis, DECODE );
-
-                byte[] bytes = new byte[0];
-                int b = -1;
-                while( (b = b64is.read()) >= 0 ){
-                    byte[] temp = new byte[ bytes.length + 1 ];
-                    System.arraycopy( bytes,0, temp,0,bytes.length );
-                    temp[bytes.length] = (byte)b;
-                    bytes = temp;
-                }   // end while: terribly inefficient way to read data
-                b64is.close();
-                javax.swing.ImageIcon iicon = new javax.swing.ImageIcon( bytes );
-                javax.swing.JLabel jlabel = new javax.swing.JLabel( "Read from test.gif.b64", iicon,0 );
-                javax.swing.JFrame jframe = new javax.swing.JFrame();
-                jframe.getContentPane().add( jlabel );
-                jframe.pack();
-                jframe.show();
-
-                // Write raw bytes to file
-                java.io.FileOutputStream fos = new java.io.FileOutputStream( "test.gif_out" );
-                fos.write( bytes );
-                fos.close();
-
-                // Read raw bytes and encode
-                fis = new java.io.FileInputStream( "test.gif_out" );
-                b64is = new Base64.InputStream( fis, ENCODE );
-                byte[] ebytes = new byte[0];
-                b = -1;
-                while( (b = b64is.read()) >= 0 ){
-                    byte[] temp = new byte[ ebytes.length + 1 ];
-                    System.arraycopy( ebytes,0, temp,0,ebytes.length );
-                    temp[ebytes.length] = (byte)b;
-                    ebytes = temp;
-                }   // end while: terribly inefficient way to read data
-                b64is.close();
-                String s = new String( ebytes );
-                javax.swing.JTextArea jta = new javax.swing.JTextArea( s );
-                javax.swing.JScrollPane jsp = new javax.swing.JScrollPane( jta );
-                jframe = new javax.swing.JFrame();
-                jframe.setTitle( "Read from test.gif_out" );
-                jframe.getContentPane().add( jsp );
-                jframe.pack();
-                jframe.show();
-
-                // Write encoded bytes to file
-                fos = new java.io.FileOutputStream( "test.gif.b64_out" );
-                fos.write( ebytes );
-
-                // Read GIF stored in base64 form.
-                fis = new java.io.FileInputStream( "test.gif.b64_out" );
-                b64is = new Base64.InputStream( fis, DECODE );
-                byte[] edbytes = new byte[0];
-                b = -1;
-                while( (b = b64is.read()) >= 0 ){
-                    byte[] temp = new byte[ edbytes.length + 1 ];
-                    System.arraycopy( edbytes,0, temp,0,edbytes.length );
-                    temp[edbytes.length] = (byte)b;
-                    edbytes = temp;
-                }   // end while: terribly inefficient way to read data
-                b64is.close();
-                iicon = new javax.swing.ImageIcon( edbytes );
-                jlabel = new javax.swing.JLabel( "Read from test.gif.b64_out", iicon,0 );
-                jframe = new javax.swing.JFrame();
-                jframe.getContentPane().add( jlabel );
-                jframe.pack();
-                jframe.show();
-            }   // end: Test Input Stream
-
-
-            // Test Output Stream
-            {
-                // Read raw bytes
-                java.io.FileInputStream fis = new java.io.FileInputStream( "test.gif_out" );
-                byte[] rbytes = new byte[0];
-                int b = -1;
-                while( (b = fis.read()) >= 0 ){
-                    byte[] temp = new byte[ rbytes.length + 1 ];
-                    System.arraycopy( rbytes,0, temp,0,rbytes.length );
-                    temp[rbytes.length] = (byte)b;
-                    rbytes = temp;
-                }   // end while: terribly inefficient way to read data
-                fis.close();
-
-                // Write raw bytes to encoded file
-                java.io.FileOutputStream fos = new java.io.FileOutputStream("test.gif.b64_out2");
-                Base64.OutputStream b64os = new Base64.OutputStream( fos, ENCODE );
-                b64os.write( rbytes );
-                b64os.close();
-
-
-                // Read raw bytes that are actually encoded (but we'll ignore that)
-                fis = new java.io.FileInputStream( "test.gif.b64_out2" );
-                byte[] rebytes = new byte[0];
-                b = -1;
-                while( (b = fis.read()) >= 0 ){
-                    byte[] temp = new byte[ rebytes.length + 1 ];
-                    System.arraycopy( rebytes,0, temp,0,rebytes.length );
-                    temp[rebytes.length] = (byte)b;
-                    rebytes = temp;
-                }   // end while: terribly inefficient way to read data
-                fis.close();
-                String s = new String( rebytes );
-                javax.swing.JTextArea jta = new javax.swing.JTextArea( s );
-                javax.swing.JScrollPane jsp = new javax.swing.JScrollPane( jta );
-                javax.swing.JFrame jframe = new javax.swing.JFrame();
-                jframe.setTitle( "Read from test.gif.b64_out2" );
-                jframe.getContentPane().add( jsp );
-                jframe.pack();
-                jframe.show();
-
-                // Write encoded bytes to decoded raw file
-                fos = new java.io.FileOutputStream("test.gif_out2");
-                b64os = new Base64.OutputStream( fos, DECODE );
-                b64os.write( rebytes );
-                b64os.close();
-                javax.swing.ImageIcon iicon = new javax.swing.ImageIcon( "test.gif_out2" );
-                javax.swing.JLabel jlabel = new javax.swing.JLabel( "Read from test.gif_out2", iicon,0 );
-                jframe = new javax.swing.JFrame();
-                jframe.getContentPane().add( jlabel );
-                jframe.pack();
-                jframe.show();
-
-            }   // end: Test Output Stream
-
-
-            // Test wagner's files
-            {
-                java.io.FileInputStream fis = new java.io.FileInputStream("D:\\temp\\testencoding.txt");
-                Base64.InputStream b64is = new Base64.InputStream( fis, DECODE );
-                java.io.FileOutputStream fos = new java.io.FileOutputStream("D:\\temp\\file.zip");
-                int b;
-                while( (b=b64is.read()) >= 0 )
-                    fos.write( b );
-                fos.close();
-                b64is.close();
-
-            }   // end test wagner's file
-
-        }   // end try
-        catch( Exception e)
-        {   e.printStackTrace();
-        }
-    }   // end main
 
 
 /* ********  E N C O D I N G   M E T H O D S  ******** */
+
+
+    /**
+     * Encodes the first three bytes of array <var>threeBytes</var>
+     * and returns a four-byte array in Base64 notation.
+     *
+     * @param threeBytes the array to convert
+     * @return four byte array in Base64 notation.
+     * @since 1.3
+     */
+    private static byte[] encode3to4( byte[] threeBytes )
+    {   return encode3to4( threeBytes, 3 );
+    }   // end encodeToBytes
+
 
 
     /**
@@ -518,6 +372,9 @@ public class Base64
     /**
      * Encodes a string in Base64 notation with line breaks
      * after every 75 Base64 characters.
+     * Of course you probably only need to encode a string
+     * if there are non-ASCII characters in it such as many
+     * non-English languages.
      *
      * @param s the string to encode
      * @return the encoded string
@@ -531,6 +388,9 @@ public class Base64
     /**
      * Encodes a string in Base64 notation with line breaks
      * after every 75 Base64 characters.
+     * Of course you probably only need to encode a string
+     * if there are non-ASCII characters in it such as many
+     * non-English languages.
      *
      * @param s the string to encode
      * @param breakLines Break lines at 80 characters or less.
@@ -541,6 +401,207 @@ public class Base64
     {
         return encodeBytes( s.getBytes(), breakLines );
     }   // end encodeString
+
+
+
+    /**
+     * Reads a file and either encodes or decodes it.
+     *
+     * @param file The file to read
+     * @param encode Whether or not to encode file as it is read.
+     * @return The encoded/decoded file or <tt>null</tt> if there was an error.
+     * @since 1.4
+     */
+    public static byte[] readFile( String file, boolean encode )
+    {
+        return readFile( new java.io.File( file ), encode );
+    }   // end readFile
+
+
+
+    /**
+     * Reads a file and either encodes or decodes it.
+     *
+     * @param file The file to read
+     * @param encode Whether or not to encode file as it is read.
+     * @return The encoded/decoded file or <tt>null</tt> if there was an error.
+     * @since 1.4
+     */
+    public static byte[] readFile( java.io.File file, boolean encode )
+    {
+        byte[] data            = new byte[100];
+        byte[] returnValue     = null;
+        int    nextIndex       = 0;
+        int    b               = -1;
+        Base64.InputStream bis = null;
+
+        try{
+            bis = new Base64.InputStream(
+                  new java.io.BufferedInputStream(
+                  new java.io.FileInputStream( file ) ), encode );
+
+            while( (b = bis.read()) >= 0 ){
+
+                // Resize array?
+                if( nextIndex >= data.length ){
+                    byte[] temp = new byte[ data.length << 1 ];
+                    System.arraycopy( data,0, temp,0,data.length );
+                    data = temp;
+                }   // end if: resize array
+
+                data[ nextIndex++ ] = (byte)b;
+
+            }   // end while: each byte
+
+            returnValue = new byte[ nextIndex ];
+            System.arraycopy( data,0, returnValue,0,nextIndex );
+
+        }   // end try
+        catch( java.io.IOException e ){
+            returnValue = null;
+        }   // end catch
+        finally{
+            try{ bis.close(); }catch( Exception e ){}
+        }   // end finally
+
+        return returnValue;
+    }   // end readFile
+
+
+    /**
+     * Writes a byte array to a file either encoding
+     * it or decoding it as specified.
+     *
+     * @param data The array to write to a file.
+     * @param file The file to write to.
+     * @param encode Whether or not to encode the data.
+     * @return Whether or not the write was a success.
+     * @since 1.4
+     */
+    public static boolean writeFile( byte[] data, String file, boolean encode )
+    {
+        return writeFile( data, 0, data.length, new java.io.File( file ), encode );
+    }   // end writeFile
+
+
+
+    /**
+     * Writes a byte array to a file either encoding
+     * it or decoding it as specified.
+     *
+     * @param data The array to write to a file.
+     * @param file The file to write to.
+     * @param encode Whether or not to encode the data.
+     * @return Whether or not the write was a success.
+     * @since 1.4
+     */
+    public static boolean writeFile( byte[] data, java.io.File file, boolean encode )
+    {
+        return writeFile( data, 0, data.length, file, encode );
+    }   // end writeFile
+
+
+
+    /**
+     * Writes a byte array to a file either encoding
+     * it or decoding it as specified.
+     *
+     * @param data The array to write to a file.
+     * @param offset The offset where the "real" data begins.
+     * @param length The amount of data to write.
+     * @param file The file to write to.
+     * @param encode Whether or not to encode the data.
+     * @return Whether or not the write was a success.
+     * @since 1.4
+     */
+    public static boolean writeFile( byte[] data, int offset, int length, java.io.File file, boolean encode )
+    {
+        Base64.OutputStream bos = null;
+        boolean success = false;
+
+        try{
+            bos = new Base64.OutputStream(
+                  new java.io.BufferedOutputStream(
+                  new java.io.FileOutputStream( file ) ), encode );
+
+            bos.write( data, offset, length );
+            success = true;
+
+        }   // end try
+        catch( java.io.IOException e ){
+            success = false;
+        }   // end catch
+        finally{
+            try{ bos.close(); }catch( Exception e ){}
+        }   // end finally
+
+        return success;
+    }   // end writeFile
+
+
+
+    /**
+     * Simple helper method that Base64-encodes a file
+     * and returns the encoded string or <tt>null</tt>
+     * if there was an error.
+     *
+     * @param rawfile The file to read
+     * @return The encoded file or <tt>null</tt> if there was an error.
+     * @since 1.4
+     */
+    public static String encodeFromFile( String rawfile )
+    {
+        byte[] ebytes = readFile( rawfile, ENCODE );
+
+        return ebytes == null ? null : new String( ebytes );
+    }   // end encodeFromFile
+
+
+
+    /**
+     * Simple helper method that Base64-decodes a file
+     * and returns the decoded data or <tt>null</tt>
+     * if there was an error.
+     *
+     * @param encfile The file to read
+     * @return The decoded file or <tt>null</tt> if there was an error.
+     * @since 1.4
+     */
+    public static byte[] decodeFromFile( String encfile )
+    {
+        return readFile( encfile, DECODE );
+    }   // end encodeFromFile
+
+
+
+
+    /**
+     * Simple helper method that Base64-encodes data to a file.
+     *
+     * @param rawdata The data to write.
+     * @param file The file to read.
+     * @return Whether or not the write was a success.
+     * @since 1.4
+     */
+    public static boolean encodeToFile( byte[] rawdata, String file )
+    {
+        return writeFile( rawdata, file, ENCODE );
+    }   // end encodeFromFile
+
+
+
+    /**
+     * Simple helper method that Base64-decodes data to a file.
+     *
+     * @param encdata The data to write.
+     * @param file The file to read.
+     * @return Whether or not the write was a success.
+     * @since 1.4
+     */
+    public static boolean decodeToFile( byte[] encdata, String file )
+    {
+        return writeFile( encdata, file, DECODE );
+    }   // end encodeFromFile
 
 
 
@@ -747,9 +808,9 @@ public class Base64
         int    i         = 0;
         byte   sbiCrop   = 0;
         byte   sbiDecode = 0;
-        for( i = 0; i < len; i++ )
+        for( i = off; i < off+len; i++ )
         {
-            sbiCrop = (byte)(source[off+i] & 0x7f); // Only the low seven bits
+            sbiCrop = (byte)(source[i] & 0x7f); // Only the low seven bits
             sbiDecode = DECODABET[ sbiCrop ];
 
             if( sbiDecode >= WHITE_SPACE_ENC ) // White space, Equals sign or better
@@ -772,7 +833,7 @@ public class Base64
             }   // end if: white space, equals sign or better
             else
             {
-                System.err.println( "Bad Base64 input character at " + i + ": " + source[off+i] + "(decimal)" );
+                System.err.println( "Bad Base64 input character at " + i + ": " + source[i] + "(decimal)" );
                 return null;
             }   // end else:
         }   // each input character
@@ -1185,6 +1246,7 @@ public class Base64
                 if( encode )
                 {
                     out.write( Base64.encode3to4( buffer, position ) );
+                    position = 0;
                 }   // end if: encoding
                 else
                 {
@@ -1197,7 +1259,7 @@ public class Base64
 
 
         /**
-         * Flushes and closes stream.
+         * Flushes and closes (I think, in the superclass) the stream.
          *
          * @since 1.3
          */
