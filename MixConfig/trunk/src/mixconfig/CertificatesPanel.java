@@ -482,17 +482,27 @@ class CertificatesPanel extends JPanel implements ActionListener
       }
     else if (ae.getActionCommand().equalsIgnoreCase("ExportOwnPubCert"))
       {
-        JFileChooser fd=TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_CER|TheApplet.FILTER_PFX);
+        JFileChooser fd=TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_CER|TheApplet.FILTER_B64_CER|TheApplet.FILTER_PFX);
         File file=fd.getSelectedFile();
         if(file!=null)
           {
             try
               {
                 FileOutputStream fout=new FileOutputStream(file);
-                if(fd.getFileFilter().getDescription().endsWith(".pfx)"))
-                  fout.write(getOwnPrivCert());
-                else
-                  fout.write(getOwnPubCert());
+                switch(((SimpleFileFilter)fd.getFileFilter()).getFilterType())
+                {
+                    case TheApplet.FILTER_PFX:
+                        fout.write(getOwnPrivCert());
+                        break;
+                    case TheApplet.FILTER_CER:
+                        fout.write(getOwnPubCert());
+                        break;
+                    case TheApplet.FILTER_B64_CER:
+                        fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
+                        fout.write(Base64.encodeBytes(getOwnPubCert()).getBytes());
+                        fout.write("\n-----END CERTIFICATE-----\n".getBytes());
+                        break;
+                }
                 fout.close();
               }
             catch(Exception e)
