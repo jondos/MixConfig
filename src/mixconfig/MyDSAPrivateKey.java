@@ -51,20 +51,20 @@ public class MyDSAPrivateKey implements DSAPrivateKey
 		private BigInteger m_X;
 		private DSAParams m_params;
 
-		public MyDSAPrivateKey(byte[] encoded) throws InvalidKeyException
+		public MyDSAPrivateKey(PrivateKeyInfo privKeyInfo) throws InvalidKeyException
 			{
 				try
 					{
-						ByteArrayInputStream bIn =new ByteArrayInputStream(encoded);
-						DERInputStream dIn = new DERInputStream(bIn);
-						PrivateKeyInfo privKeyInfo=new PrivateKeyInfo((ASN1Sequence)dIn.readObject());
+	//					ByteArrayInputStream bIn =new ByteArrayInputStream(encoded);
+	//					DERInputStream dIn = new DERInputStream(bIn);
+		//				PrivateKeyInfo privKeyInfo=new PrivateKeyInfo((ASN1Sequence)dIn.readObject());
 						AlgorithmIdentifier algId=privKeyInfo.getAlgorithmId();
 						DERInteger X=(DERInteger)privKeyInfo.getPrivateKey();
 						m_X=X.getValue();
 						m_params=new MyDSAParams(new DSAParameter((ASN1Sequence)algId.getParameters()));
 					}
 
-				catch (IOException e)
+				catch (Exception e)
 					{
 						throw new InvalidKeyException("IOException while decoding private key");
 					}

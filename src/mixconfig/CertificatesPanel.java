@@ -1071,8 +1071,8 @@ class CertificatesPanel extends JPanel implements ActionListener
 												new PKCS12(
 														"<Mix id=\"" + mixid + "\"/>",
 														privKey,
-														x509cert,
-														pubKey);
+														x509cert
+														/*,pubKey*/);
 										ByteArrayOutputStream out = new ByteArrayOutputStream();
 										pkcs12.store(out, passwd);
 										out.close();
