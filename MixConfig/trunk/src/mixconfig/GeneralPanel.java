@@ -57,7 +57,9 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
         {
             public void itemStateChanged(ItemEvent e)
             {
-                CascadeName.setEnabled(m_comboboxMixType.getSelectedIndex()==0);
+                int sel = m_comboboxMixType.getSelectedIndex();
+                CascadeName.setEnabled(sel==0);
+                ConfigFrame.m_CertificatesPanel.updateButtons(sel>0, sel<2);
             }
         });
 
