@@ -102,7 +102,12 @@ class CertificatesPanel extends JPanel implements ActionListener
 		private String m_strOwnPrivCertPasswd;
 		private byte[] m_nextPubCert;
 		private byte[] m_prevPubCert;
-
+		private final String STRING_ZERO="\u0000"; // a String with len=1 and first char=0
+																							// which is an 'empty' String in C but NOT
+																						 // in general
+		/* Note: We use as 'empty' passwd a String with len=0. This is different to an empty C like String, which
+						has len=1 and first char=0. This are in general to different passwds!!
+		*/
 		public CertificatesPanel()
 		{
 				m_ownPrivCert = null;
@@ -466,10 +471,15 @@ class CertificatesPanel extends JPanel implements ActionListener
 				if (cert == null)
 						setOwnPrivCert((PKCS12)null, null);
 				else
-				{
-						char[] passwd = new char[] {
-						};
-						while (passwd != null && !setOwnPrivCert(cert, passwd))
+					{
+						//Ok the problem is that an empty string (size =0) is different from an empty string (first char=0)
+						// so we try both...
+						char[] passwd = new char[0];
+						if(setOwnPrivCert(cert, passwd))
+							return;
+						passwd=new char[1];
+						passwd[0]=0;
+						while (passwd!=null&&!setOwnPrivCert(cert, passwd))
 						{
 								PasswordBox pb =
 										new PasswordBox(
@@ -519,6 +529,10 @@ class CertificatesPanel extends JPanel implements ActionListener
 								m_textOwnCertIssuer.setText(ownPubCert.getIssuer().toString());
 								m_ownPrivCert = pkcs12;
 								m_strOwnPrivCertPasswd=strOwnPrivCertPasswd;
+								if(m_strOwnPrivCertPasswd.equals(STRING_ZERO))//change a passwd which has len=1 and char[0]=0 to
+																															//to a passwd with len=0 [because both seam to be 'empty'
+																															//passwds but are not equal!]
+									m_strOwnPrivCertPasswd="";
 								m_bttnExportOwnPub.setEnabled(true);
 								m_bttnChangePasswd.setEnabled(true);
 								m_bttnRemoveOwnCert.setEnabled(true);

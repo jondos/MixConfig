@@ -29,7 +29,11 @@ final public class X509CertGenerator extends V3TBSCertificateGenerator
 
 			public X509CertGenerator(X509CertificateStructure cert)
 				{
-					TBSCertificateStructure tbs=cert.getTBSCertificate();
+					this(cert.getTBSCertificate());
+				}
+
+			public X509CertGenerator(TBSCertificateStructure tbs)
+				{
 					setEndDate(tbs.getEndDate());
 					setExtensions(tbs.getExtensions());
 					setIssuer(tbs.getIssuer());
