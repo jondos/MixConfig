@@ -94,6 +94,7 @@ final public class GeneralPanel extends JPanel implements ItemListener, ActionLi
 				int sel = m_comboboxMixType.getSelectedIndex();
 				m_tfCascadeName.setEnabled(sel == 0);
 				ConfigFrame.m_CertificatesPanel.updateButtons(sel > 0, sel < 2);
+				ConfigFrame.m_PaymentPanel.setEnabled(sel==0);
 			}
 		});
 
