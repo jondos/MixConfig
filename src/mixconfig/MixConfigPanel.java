@@ -84,8 +84,6 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 */
 	private boolean m_autoSave = true;
 
-	private boolean m_bEnableComponentsIsRunning;
-
 	/** The Mix configuration currently being edited. */
 	private MixConfiguration m_mixConf = null;
 
@@ -93,7 +91,6 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	protected MixConfigPanel()
 	{
 		super();
-		m_bEnableComponentsIsRunning=false;
 		// this causes a NullPointerException as components of subclasses are not
 		// yet constructed
 		// setConfiguration(MixConfig.getMixConfiguration());
@@ -110,12 +107,9 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		try
 		{
 			Object source = ie.getSource();
-			if(!m_bEnableComponentsIsRunning)
-			{
-				m_bEnableComponentsIsRunning=true;
-				enableComponents();
-				m_bEnableComponentsIsRunning=false;
-			}
+
+			enableComponents();
+
 			if (m_autoSave && ( (Component) source).getName() != null)
 			{
 				if (source instanceof JTextField)
@@ -253,24 +247,24 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	}
 
 	/** Saves the attribute values from the panel's controls (text fields, combo boxes
-	 * etc.) to the configuration object. This method iterates through all components of the panel and reads their
-	 * names using the <CODE>getName()</CODE> method. If the name is not
-	 * <CODE>null</CODE>, it retrieves the configuration attribute with the same name
-	 * and sets the attribute value to the value of the component.
-	 * @throws IOException If saving a value to the configuration fails
-	 */
+         * etc.) to the configuration object. This method iterates through all components of the panel and reads their
+         * names using the <CODE>getName()</CODE> method. If the name is not
+         * <CODE>null</CODE>, it retrieves the configuration attribute with the same name
+         * and sets the attribute value to the value of the component.
+         * @throws IOException If saving a value to the configuration fails
+         */
 	public void save() throws IOException
 	{
 		save(this);
 	}
 
 	/** Saves the value of all components in the specified container. The method
-	 * iterates over all of the container's components and invokes the appropriate save
-	 * method for them. If the container is an instance of <CODE>mixconfig.networkpanel.IPTextField</CODE>, the value of
-	 * the IPTextField is saved instead.
-	 * @param a A container
-	 * @throws IOException If an error occurs while writing the values to the configuration object
-	 */
+         * iterates over all of the container's components and invokes the appropriate save
+         * method for them. If the container is an instance of <CODE>mixconfig.networkpanel.IPTextField</CODE>, the value of
+         * the IPTextField is saved instead.
+         * @param a A container
+         * @throws IOException If an error occurs while writing the values to the configuration object
+         */
 	protected void save(Container a) throws IOException
 	{
 		if (a instanceof IPTextField)
@@ -367,7 +361,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 			if (name.endsWith("OwnCertificate"))
 			{
 				m_mixConf.setAttribute(name + "/X509PKCS12", b);
-			b = a.getPubCert();
+				b = a.getPubCert();
 			}
 
 			m_mixConf.setAttribute(name + "/X509Certificate", b);
@@ -375,10 +369,10 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	}
 
 	/** Saves the values of a text field to the configuration object. The value is only saved
-	 * if the component is currently enabled, otherwise, the element with the same XML path
-	 * as the component's name is removed from the XML structure.
-	 * @param a A text field
-	 */
+         * if the component is currently enabled, otherwise, the element with the same XML path
+         * as the component's name is removed from the XML structure.
+         * @param a A text field
+         */
 	protected void save(JTextField a)
 	{
 		String s = a.getText().trim();
@@ -388,25 +382,25 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		}
 		else
 		{
-		m_mixConf.setAttribute(a.getName(), s);
-	}
+			m_mixConf.setAttribute(a.getName(), s);
+		}
 	}
 
 	/** Saves the values of a checkbox to the configuration object. If the component
-	 * is currently disabled, a value of <code>false</code> is saved no matter what
-	 * the selected state of the checkbox is.
-	 * @param a A checkbox
-	 */
+         * is currently disabled, a value of <code>false</code> is saved no matter what
+         * the selected state of the checkbox is.
+         * @param a A checkbox
+         */
 	protected void save(JCheckBox a)
 	{
 		m_mixConf.setAttribute(a.getName(), a.isSelected() && a.isEnabled());
 	}
 
 	/** Saves the values of a combo box to the configuration object. The value is only saved
-	 * if the component is currently enabled, otherwise, the element with the same XML path
-	 * as the component's name is removed from the XML structure.
-	 * @param a A combo box
-	 */
+         * if the component is currently enabled, otherwise, the element with the same XML path
+         * as the component's name is removed from the XML structure.
+         * @param a A combo box
+         */
 	protected void save(JComboBox a)
 	{
 		int s = a.getSelectedIndex();
@@ -416,8 +410,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		}
 		else
 		{
-		m_mixConf.setAttribute(a.getName(), s);
-	}
+			m_mixConf.setAttribute(a.getName(), s);
+		}
 	}
 
 	/** Saves the values of a radio button to the configuration object. This method does
@@ -443,10 +437,10 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	}
 
 	/** Saves the value of the currently selected button in the specified button group
-	 * to the configuration object, and removes the values of the unselected buttons in
-	 * the group. If the component is currently disabled, a <CODE>null</CODE> value is saved.
-	 * @param a A button group
-	 */
+         * to the configuration object, and removes the values of the unselected buttons in
+         * the group. If the component is currently disabled, a <CODE>null</CODE> value is saved.
+         * @param a A button group
+         */
 	protected void save(ButtonGroup a)
 	{
 		/* this one does nothing; override it if needed */
@@ -538,13 +532,13 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 				{
 					if (n.getNodeName().equals("NextMix") ||
 						n.getNodeName().equals("Proxies"))
-			{
+					{
 						out.readFromElement( (Element) n);
 					}
 					n = n.getNextSibling();
+				}
 			}
 		}
-	}
 		this.setAutoSaveEnabled(prevAutoSave);
 	}
 

@@ -154,21 +154,21 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		p1.add(m_comboboxMixType);
 
 		/*
-		// Cascade Name JLabel
-		JLabel j1a = new JLabel("Cascade Name");
-		c.gridy++;
-		c.weightx = 1;
-		layout.setConstraints(j1a, c);
-		p1.add(j1a);
+		   // Cascade Name JLabel
+		   JLabel j1a = new JLabel("Cascade Name");
+		   c.gridy++;
+		   c.weightx = 1;
+		   layout.setConstraints(j1a, c);
+		   p1.add(j1a);
 
-		// Cascade Name JTextField
-		m_tfCascadeName = new JTextField(20);
-		m_tfCascadeName.setText("");
-		m_tfCascadeName.setName("General/CascadeName");
-		m_tfCascadeName.addFocusListener(this);
-		c.weightx = 3;
-		layout.setConstraints(m_tfCascadeName, c);
-		p1.add(m_tfCascadeName);
+		   // Cascade Name JTextField
+		   m_tfCascadeName = new JTextField(20);
+		   m_tfCascadeName.setText("");
+		   m_tfCascadeName.setName("General/CascadeName");
+		   m_tfCascadeName.addFocusListener(this);
+		   c.weightx = 3;
+		   layout.setConstraints(m_tfCascadeName, c);
+		   p1.add(m_tfCascadeName);
 		 */
 
 		// Cascade length JCheckBox
@@ -297,6 +297,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		m_tfFileName.addFocusListener(this);
 		c.gridx = -1;
 		c.weightx = 1;
+		c.gridwidth = 2;
 		layout2.setConstraints(m_tfFileName, c);
 		advanced.add(m_tfFileName);
 
@@ -307,6 +308,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.gridx = 1;
 		c.gridy++;
 		c.weightx = 1;
+		c.gridwidth = 1;
 		layout2.setConstraints(m_labelEnrypt, c);
 		advanced.add(m_labelEnrypt);
 
@@ -387,39 +389,39 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 	public void addNotify()
 	{
 		super.addNotify();
-			Container parent = getParent();
-			if (parent instanceof ConfigWizardPanel)
+		Container parent = getParent();
+		if (parent instanceof ConfigWizardPanel)
+		{
+			setAdvancedVisible(false);
+			if (getConfiguration().getAttribute("General/MixID") == null)
 			{
-				setAdvancedVisible(false);
-				if (getConfiguration().getAttribute("General/MixID") == null)
-				{
-					getConfiguration().setAttribute("General/MixID", genMixID());
+				getConfiguration().setAttribute("General/MixID", genMixID());
 				load(this.m_tfMixID);
-				}
-			}
-			else
-			{
-				setAdvancedVisible(true);
 			}
 		}
+		else
+		{
+			setAdvancedVisible(true);
+		}
+	}
 
 	public void actionPerformed(ActionEvent ae)
 	{
-			if (ae.getSource() == m_bttnImportEncKey)
-			{
-				importEncKeyForLog();
-			}
-			// event source is "generate" button
-			else if (ae.getSource() == this.m_bttnGenMixID)
-			{
-				this.m_tfMixID.setText(genMixID());
-				save(this.m_tfMixID);
-			}
-			else if (ae.getActionCommand().equals("advanced"))
-			{
-				setAdvancedVisible(true);
-			}
+		if (ae.getSource() == m_bttnImportEncKey)
+		{
+			importEncKeyForLog();
 		}
+		// event source is "generate" button
+		else if (ae.getSource() == this.m_bttnGenMixID)
+		{
+			this.m_tfMixID.setText(genMixID());
+			save(this.m_tfMixID);
+		}
+		else if (ae.getActionCommand().equals("advanced"))
+		{
+			setAdvancedVisible(true);
+		}
+	}
 
 	/** Loads all values from the MixConfiguration object. This method overrides
 	 * mixconfig.MixConfigPanel.load() to take care of the dependencies between
@@ -507,20 +509,20 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 
 		/*
 		 // cascade name configuration moved to CascadePanel
-		try
-		{
-			mixType = Integer.valueOf(mixConf.getAttribute("General/MixType")).intValue();
-			s = mixConf.getAttribute("General/CascadeName");
-			if (mixType == MixConfiguration.MIXTYPE_FIRST &&
-				(s == null || s.equals("")))
-			{
-				errors.addElement("Cascade Name not entered in General Panel.");
-			}
-		}
-		catch (NumberFormatException nfe)
-		{
-			errors.addElement("Invalid Mix type in configuration.");
-		}
+		 try
+		 {
+		  mixType = Integer.valueOf(mixConf.getAttribute("General/MixType")).intValue();
+		  s = mixConf.getAttribute("General/CascadeName");
+		  if (mixType == MixConfiguration.MIXTYPE_FIRST &&
+		   (s == null || s.equals("")))
+		  {
+		   errors.addElement("Cascade Name not entered in General Panel.");
+		  }
+		 }
+		 catch (NumberFormatException nfe)
+		 {
+		  errors.addElement("Invalid Mix type in configuration.");
+		 }
 		 */
 
 		s = mixConf.getAttribute("General/MixID");
@@ -563,8 +565,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		boolean cascadeLength = m_checkboxCascadeLength.isSelected();
 		boolean log = m_checkboxLogging.isSelected();
 		// FIXME: m_rbFile.isSelected() always returns false here, even if m_rbFile is selected.
-		// Find out why
+		// Find out why.
 		boolean file = m_rbFile.isSelected();
+		// Workaround: Assume m_rbFile is selected when no radio button returns selected == true
+		file = file || (!file && !m_rbSyslog.isSelected() && !m_rbConsole.isSelected());
 		boolean daemon = m_checkboxDaemon.isSelected();
 		int selectedMixType = m_comboboxMixType.getSelectedIndex();
 
@@ -608,10 +612,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		{
 			if (a.isEnabled())
 			{
-			getConfiguration().setAttribute(a.getName(), this.m_certLogEncKey);
-		}
-		else
-		{
+				getConfiguration().setAttribute(a.getName(), this.m_certLogEncKey);
+			}
+			else
+			{
 				getConfiguration().removeAttribute(a.getName());
 			}
 		}

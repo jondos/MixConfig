@@ -82,7 +82,7 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 	private JButton m_bttnAddOutgoing;
 	private JCheckBox m_chbAutoConfig;
 
-        /** Constructs a new instance of <CODE>NetworkPanel</CODE> */        
+	/** Constructs a new instance of <CODE>NetworkPanel</CODE> */
 	public NetworkPanel()
 	{
 		GridBagLayout layout = new GridBagLayout();
@@ -494,18 +494,18 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 		panel3.add(m_chbAutoConfig);
 	}
 
-        public void tableChanged(TableModelEvent e)
+	public void tableChanged(TableModelEvent e)
 	{
 		enableComponents();
 		if (this.isAutoSaveEnabled())
 		{
-		if (e.getSource() == table1.getModel())
-		{
-			save(table1);
-		}
-		if (e.getSource() == table2.getModel())
-		{
-			save(table2);
+			if (e.getSource() == table1.getModel())
+			{
+				save(table1);
+			}
+			if (e.getSource() == table2.getModel())
+			{
+				save(table2);
 			}
 		}
 	}
@@ -661,7 +661,7 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 		if (!autoconf)
 		{
 			for (int i = 0; i < imodel.getRowCount(); i++)
-		{
+			{
 				virtual = ( (Boolean) imodel.getValueAt(i, 1)).booleanValue();
 				hidden = ( (Boolean) imodel.getValueAt(i, 2)).booleanValue();
 
@@ -682,8 +682,8 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 							   "non-virtual interface to enable autoconfiguration."
 				}
 					);
+			}
 		}
-	}
 
 		// only enable autoconf if either host or IP of InfoService is given and port is given
 		autoconf = autoconf &&
@@ -693,12 +693,16 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 
 		m_chbAutoConfig.setEnabled(autoconf);
 		if (!autoconf)
-	{
-			// FIXME: This triggers MixConfigPanel.itemStateChanged(...), which in turn
-			// calls enableComponents(). AWT prevents infinite event loops, but
-			// enableComponents() will still be called at least twice in a row.
-			// Consequences are not too bad though.
+		{
+			// Disabling events is necessary, as on JDK < 1.3, the AWT will run into
+			// an infinite event loop here otherwise
+			m_chbAutoConfig.removeItemListener(this);
 			m_chbAutoConfig.setSelected(false);
+			if (getConfiguration() != null)
+			{
+				save(m_chbAutoConfig);
+			}
+			m_chbAutoConfig.addItemListener(this);
 		}
 	}
 
@@ -764,8 +768,8 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 		else if (a.getActionCommand().equals("AddOutgoing"))
 		{
 			/*			String type;
-			if(mixType != MixConfiguration.MIXTYPE_LAST)
-	*/
+			   if(mixType != MixConfiguration.MIXTYPE_LAST)
+			 */
 			new OutgoingDialog(MixConfig.getMainWindow(),
 							   "Add" + titles[mixType],
 							   omodel).show();
