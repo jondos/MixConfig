@@ -814,9 +814,12 @@ public class TheApplet extends JApplet
   {
       try
       {
-          Security.addProvider((java.security.Provider)java.lang.Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider").newInstance());
+          //Security.addProvider((java.security.Provider)java.lang.Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider").newInstance());
+          Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        }
+      catch(Exception e) {
+      e.printStackTrace();
       }
-      catch(Exception e) {}
     //Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
     JFrame MainWindow = new JFrame("Mix Configuration Tool");
     m_MainWindow = MainWindow;

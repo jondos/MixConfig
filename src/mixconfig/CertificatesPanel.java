@@ -916,7 +916,8 @@ class CertificatesPanel extends JPanel implements ActionListener
 
       try
       {
-        KeyPairGenerator kpg=KeyPairGenerator.getInstance("DSA");
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        KeyPairGenerator kpg=KeyPairGenerator.getInstance("DSA","BC");
         kpg.initialize(1024);
         KeyPair kp=kpg.generateKeyPair();
         gen.setPublicKey(kp.getPublic());
