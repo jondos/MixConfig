@@ -61,7 +61,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import mixconfig.networkpanel.ConnectionData;
 import mixconfig.networkpanel.NetworkPanel;
-
+import anon.util.*;
 /**
  * The Frame of the MixConfig Application.
  */
@@ -927,7 +927,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 						e1.appendChild(e);
 						e1 = doc.createElement("X509Certificate");
 						e.appendChild(e1);
-						t = doc.createTextNode(Base64.encodeBytes(cert, true));
+						t = doc.createTextNode(Base64.encode(cert, true));
 						e1.setAttribute("xml:space", "preserve");
 						e1.appendChild(t);
 					}
@@ -1034,7 +1034,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 			Text text;
 			if (buff != null)
 			{
-				text = doc.createTextNode(Base64.encodeBytes(buff, true));
+				text = doc.createTextNode(Base64.encode(buff, true));
 				elem.appendChild(text);
 				elem.setAttribute("xml:space", "preserve");
 			}
@@ -1043,7 +1043,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 			buff = m_CertificatesPanel.getOwnPubCert();
 			if (buff != null)
 			{
-				text = doc.createTextNode(Base64.encodeBytes(buff, true));
+				text = doc.createTextNode(Base64.encode(buff, true));
 				elem.appendChild(text);
 				elem.setAttribute("xml:space", "preserve");
 			}
@@ -1054,7 +1054,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 				elemCertificate.appendChild(elemPrevious);
 				elem = doc.createElement("X509Certificate");
 				elemPrevious.appendChild(elem);
-				text = doc.createTextNode(Base64.encodeBytes(buff, true));
+				text = doc.createTextNode(Base64.encode(buff, true));
 				elem.appendChild(text);
 				elem.setAttribute("xml:space", "preserve");
 			}
