@@ -366,6 +366,10 @@ class MyFrame extends JPanel implements ActionListener
         String MixName=getElementValue(elemName,null);
         m_GeneralPanel.setMixName(MixName);
 
+        Element elemCascade=getChild(elemGeneral,"CascadeName");
+        String CascadeName=getElementValue(elemCascade,null);
+        m_GeneralPanel.setCascadeName(CascadeName);
+
         Element elemMixID=getChild(elemGeneral,"MixID");
         m_GeneralPanel.setAuto(false);
         String MixID = getElementValue(elemMixID,null);
@@ -528,6 +532,12 @@ class MyFrame extends JPanel implements ActionListener
 	  elemGeneral.appendChild(MixType);
 	  Text text1=doc.createTextNode(elemmixtype);
 	  MixType.appendChild(text1);
+
+          String elemcascadename=m_GeneralPanel.getCascadeName();
+          Element elemCascadeName=doc.createElement("CascadeName");
+          elemGeneral.appendChild(elemCascadeName);
+          Text text1a=doc.createTextNode(elemcascadename);
+          elemCascadeName.appendChild(text1a);
 
 	  String elemmixname=m_GeneralPanel.getMixName();
           Element elemMixName=doc.createElement("MixName");
