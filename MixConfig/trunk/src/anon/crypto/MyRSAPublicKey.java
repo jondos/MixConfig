@@ -26,6 +26,7 @@
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
 package anon.crypto;
+
 /* Hint: This file may be only a copy of the original file which is always in the JAP source tree!
  * If you change something - do not forget to add the changes also to the JAP source tree!
  */
@@ -49,6 +50,21 @@ public class MyRSAPublicKey implements PublicKey
 	{
 		m_n = modulus;
 		m_e = exponent;
+	}
+
+	MyRSAPublicKey(SubjectPublicKeyInfo info) throws IllegalArgumentException
+	{
+		try
+		{
+			RSAPublicKeyStructure en=RSAPublicKeyStructure.getInstance(info.getPublicKey());
+			m_n=en.getModulus();
+			m_e=en.getPublicExponent();
+		}
+		catch (IOException e)
+		{
+			throw new IllegalArgumentException("invalid info structure in DSA public key");
+		}
+
 	}
 
 	public String getAlgorithm()
