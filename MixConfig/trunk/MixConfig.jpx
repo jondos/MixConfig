@@ -8,12 +8,12 @@
   <property category="generalFormatting" name="tabSize" value="4"/>
   <property category="generalFormatting" name="useTabChar" value="1"/>
   <property category="javaFormatting" name="EventMatch" value="0"/>
+  <property category="javaFormatting" name="alwaysClasses" value="1"/>
   <property category="javaFormatting" name="classBraceNextLine" value="1"/>
   <property category="javaFormatting" name="extendsOnNewLine" value="0"/>
   <property category="javaFormatting" name="implementsOnNewLine" value="0"/>
   <property category="javaFormatting" name="methodBraceNextLine" value="1"/>
   <property category="javaFormatting" name="otherBraceNextLine" value="1"/>
-  <property category="javaFormatting" name="packageThreshold" value="0"/>
   <property category="javaFormatting" name="wrapAtColumn" value="110"/>
   <property category="runtime.0" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
   <property category="runtime.0" name="ConfigurationName" value="MixConfig"/>
@@ -39,7 +39,7 @@
   <property category="sys" name="DocPath" value="doc"/>
   <property category="sys" name="ExcludeClassEnabled" value="0"/>
   <property category="sys" name="IncludeTestPath" value="1"/>
-  <property category="sys" name="JDK" value="1.1 mit JVM_1.3.1"/>
+  <property category="sys" name="JDK" value="java version 1.4.2_04-b05"/>
   <property category="sys" name="JvmVersion" value="1.3"/>
   <property category="sys" name="LastTag" value="36"/>
   <property category="sys" name="Libraries" value="Swing;BouncyCastleLightForMixConfig;JUnit;junitx;XML-2.4"/>
