@@ -83,9 +83,9 @@ import org.bouncycastle.crypto.signers.DSASigner;
 
 class CertificatesPanel extends JPanel implements ActionListener
 {
-		JTextField m_textOwnCertCN, m_textOwnCertValidFrom, m_textOwnCertValidTo;
-		JTextField m_textPrevCertCN, m_textPrevCertValidFrom, m_textPrevCertValidTo;
-		JTextField m_textNextCertCN, m_textNextCertValidFrom, m_textNextCertValidTo;
+		JTextField m_textOwnCertCN, m_textOwnCertValidFrom, m_textOwnCertValidTo,m_textOwnCertIssuer;
+		JTextField m_textPrevCertCN, m_textPrevCertValidFrom, m_textPrevCertValidTo,m_textPrevCertIssuer;
+		JTextField m_textNextCertCN, m_textNextCertValidFrom, m_textNextCertValidTo,m_textNextCertIssuer;
 		JButton m_bttnPrevCertImport,
 				m_btnnNextCertImport,
 				m_bttnPrevCertExport,
@@ -98,15 +98,15 @@ class CertificatesPanel extends JPanel implements ActionListener
 				m_bttnChangePasswd,
 				m_bttnRemoveOwnCert;
 
-		byte[] m_ownPubCert;
-		byte[] m_ownPrivCert;
-		byte[] m_nextPubCert;
-		byte[] m_prevPubCert;
+		private PKCS12 m_ownPrivCert;
+		private String m_strOwnPrivCertPasswd;
+		private byte[] m_nextPubCert;
+		private byte[] m_prevPubCert;
 
 		public CertificatesPanel()
 		{
-				m_ownPubCert = null;
 				m_ownPrivCert = null;
+				m_strOwnPrivCertPasswd=null;
 				GridBagLayout layout = new GridBagLayout();
 				setLayout(layout);
 				GridBagLayout Own = new GridBagLayout();
@@ -174,7 +174,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				d.gridx = 0;
 				d.gridy = 1;
 				d.fill = GridBagConstraints.HORIZONTAL;
-				JLabel name1 = new JLabel("Name");
+				JLabel name1 = new JLabel("Subject Name");
 				Own.setConstraints(name1, d);
 				panel1.add(name1);
 				m_textOwnCertCN = new JTextField();
@@ -185,9 +185,23 @@ class CertificatesPanel extends JPanel implements ActionListener
 				Own.setConstraints(m_textOwnCertCN, d);
 				panel1.add(m_textOwnCertCN);
 
-				JLabel from1 = new JLabel("Valid From");
 				d.gridx = 0;
 				d.gridy = 2;
+				d.fill = GridBagConstraints.HORIZONTAL;
+				JLabel name9 = new JLabel("Issuer Name");
+				Own.setConstraints(name9, d);
+				panel1.add(name9);
+				m_textOwnCertIssuer = new JTextField();
+				m_textOwnCertIssuer.setEditable(false);
+				d.gridx = 1;
+				d.gridwidth = 5;
+				d.weightx = 1;
+				Own.setConstraints(m_textOwnCertIssuer, d);
+				panel1.add(m_textOwnCertIssuer);
+
+				JLabel from1 = new JLabel("Valid From");
+				d.gridx = 0;
+				d.gridy = 3;
 				d.gridwidth = 1;
 				d.weightx = 0;
 				Own.setConstraints(from1, d);
@@ -202,7 +216,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 
 				JLabel to1 = new JLabel("Valid To");
 				d.gridx = 0;
-				d.gridy = 3;
+				d.gridy = 4;
 				d.gridwidth = 1;
 				d.weightx = 0;
 				Own.setConstraints(to1, d);
@@ -222,9 +236,6 @@ class CertificatesPanel extends JPanel implements ActionListener
 				e.anchor = GridBagConstraints.NORTHWEST;
 				e.insets = new Insets(5, 5, 5, 5);
 				e.fill = GridBagConstraints.HORIZONTAL;
-				/*  panel2.setBorder(BorderFactory.createCompoundBorder(
-						BorderFactory.createTitledBorder("Previous Mix Certificate"),
-						BorderFactory.createEmptyBorder(0,0,0,0))); */
 				panel2.setBorder(new TitledBorder("Previous Mix Certificate"));
 				layout.setConstraints(panel2, c);
 				add(panel2);
@@ -254,7 +265,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				panel2.add(m_bttnPrevCertRemove);
 				e.fill = GridBagConstraints.HORIZONTAL;
 
-				JLabel name2 = new JLabel("Name");
+				JLabel name2 = new JLabel("Subject Name");
 				e.gridx = 0;
 				e.gridy = 1;
 				Previous.setConstraints(name2, e);
@@ -267,9 +278,23 @@ class CertificatesPanel extends JPanel implements ActionListener
 				Previous.setConstraints(m_textPrevCertCN, e);
 				panel2.add(m_textPrevCertCN);
 
-				JLabel from2 = new JLabel("Valid From");
 				e.gridx = 0;
 				e.gridy = 2;
+				e.fill = GridBagConstraints.HORIZONTAL;
+				JLabel name7 = new JLabel("Issuer Name");
+				Previous.setConstraints(name7, e);
+				panel2.add(name7);
+				m_textPrevCertIssuer = new JTextField();
+				m_textPrevCertIssuer.setEditable(false);
+				e.gridx = 1;
+				e.gridwidth = 5;
+				e.weightx = 1;
+				Previous.setConstraints(m_textPrevCertIssuer, e);
+				panel2.add(m_textPrevCertIssuer);
+
+				JLabel from2 = new JLabel("Valid From");
+				e.gridx = 0;
+				e.gridy = 3;
 				e.gridwidth = 1;
 				e.weightx = 0;
 				Previous.setConstraints(from2, e);
@@ -284,7 +309,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 
 				JLabel to2 = new JLabel("Valid To");
 				e.gridx = 0;
-				e.gridy = 3;
+				e.gridy = 4;
 				e.gridwidth = 1;
 				e.weightx = 0;
 				Previous.setConstraints(to2, e);
@@ -331,7 +356,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				panel3.add(m_bttnNextCertRemove);
 				f.fill = GridBagConstraints.HORIZONTAL;
 
-				JLabel name3 = new JLabel("Name");
+				JLabel name3 = new JLabel("Subject Name");
 				f.gridx = 0;
 				f.gridy = 1;
 				f.weightx = 0;
@@ -345,9 +370,23 @@ class CertificatesPanel extends JPanel implements ActionListener
 				Next.setConstraints(m_textNextCertCN, f);
 				panel3.add(m_textNextCertCN);
 
-				JLabel from3 = new JLabel("Valid From");
 				f.gridx = 0;
 				f.gridy = 2;
+				f.fill = GridBagConstraints.HORIZONTAL;
+				JLabel name8 = new JLabel("Issuer Name");
+				Next.setConstraints(name8, f);
+				panel3.add(name8);
+				m_textNextCertIssuer = new JTextField();
+				m_textNextCertIssuer.setEditable(false);
+				f.gridx = 1;
+				f.gridwidth = 5;
+				f.weightx = 1;
+				Next.setConstraints(m_textNextCertIssuer, f);
+				panel3.add(m_textNextCertIssuer);
+
+				JLabel from3 = new JLabel("Valid From");
+				f.gridx = 0;
+				f.gridy = 3;
 				f.gridwidth = 1;
 				f.weightx = 0;
 				Next.setConstraints(from3, f);
@@ -362,7 +401,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 
 				JLabel to3 = new JLabel("Valid To");
 				f.gridx = 0;
-				f.gridy = 3;
+				f.gridy = 4;
 				f.gridwidth = 1;
 				f.weightx = 0;
 				Next.setConstraints(to3, f);
@@ -378,7 +417,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 
 		public void clear()
 		{
-				setOwnPrivCert(null, null);
+				setOwnPrivCert((PKCS12)null, null);
 				setPrevPubCert(null);
 				setNextPubCert(null);
 		}
@@ -391,18 +430,38 @@ class CertificatesPanel extends JPanel implements ActionListener
 
 		public byte[] getOwnPubCert()
 		{
-				return m_ownPubCert;
+			try
+				{
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					new DEROutputStream(out).writeObject(m_ownPrivCert.getX509cert());
+					return out.toByteArray();
+				}
+			catch(Exception e)
+				{
+					return null;
+				}
 		}
 
 		public byte[] getOwnPrivCert()
 		{
-				return m_ownPrivCert;
+			if(m_ownPrivCert==null)
+				return null;
+			try
+				{
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					m_ownPrivCert.store(out,m_strOwnPrivCertPasswd.toCharArray());
+					return out.toByteArray();
+				}
+			catch(Exception e)
+				{
+					return null;
+				}
 		}
 
 		public void setOwnPrivCert(byte[] cert)
 		{
 				if (cert == null)
-						setOwnPrivCert(null, null);
+						setOwnPrivCert((PKCS12)null, null);
 				else
 				{
 						char[] passwd = new char[] {
@@ -419,40 +478,56 @@ class CertificatesPanel extends JPanel implements ActionListener
 						}
 				}
 		}
-
-
-		private boolean setOwnPrivCert(byte[] cert, char[] passwd)
+	private boolean setOwnPrivCert(byte[] cert, char[] passwd)
 		{
-				try
+			try
 				{
-						if (cert != null)
-						{
-								if (cert[0]
-										!= (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
-										throw (new RuntimeException("Not a PKCS 12 stream."));
+					if (cert[0] != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
+						throw (new RuntimeException("Not a PKCS 12 stream."));
+					PKCS12 pkcs12 = PKCS12.load(new ByteArrayInputStream(cert), passwd);
+					return setOwnPrivCert(pkcs12,new String(passwd));
+				}
+			catch (PKCS12.IllegalCertificateException e)
+			{
+				JOptionPane.showMessageDialog(
+						this,
+						e.getMessage(),
+						"Error while reading the certificate.",
+						JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+		catch (Throwable e)
+			{
+				return false;
+			}
+		}
 
-								PKCS12 pkcs12 = PKCS12.load(new ByteArrayInputStream(cert), passwd);
-
+		private boolean setOwnPrivCert(PKCS12 pkcs12,String strOwnPrivCertPasswd)
+			{
+				try
+					{
+						if (pkcs12 != null)
+							{
+								X509CertificateStructure ownPubCert = pkcs12.getX509cert();
 								m_textOwnCertValidFrom.setText(
-										pkcs12.getX509cert().getStartDate().getDate().toString());
-								m_textOwnCertValidTo.setText(pkcs12.getX509cert().getEndDate().getDate().toString());
-								m_textOwnCertCN.setText(pkcs12.getX509cert().getSubject().toString());
-								m_ownPrivCert = cert;
-								ByteArrayOutputStream out = new ByteArrayOutputStream();
-								new DEROutputStream(out).writeObject(pkcs12.getX509cert());
-								m_ownPubCert = out.toByteArray();
+										ownPubCert.getStartDate().getDate().toString());
+								m_textOwnCertValidTo.setText(ownPubCert.getEndDate().getDate().toString());
+								m_textOwnCertCN.setText(ownPubCert.getSubject().toString());
+								m_textOwnCertIssuer.setText(ownPubCert.getIssuer().toString());
+								m_ownPrivCert = pkcs12;
+								m_strOwnPrivCertPasswd=strOwnPrivCertPasswd;
 								m_bttnExportOwnPub.setEnabled(true);
 								m_bttnChangePasswd.setEnabled(true);
 								m_bttnRemoveOwnCert.setEnabled(true);
-								return true;
-
 						}
 						else
 						{
 								m_textOwnCertValidFrom.setText(null);
 								m_textOwnCertValidTo.setText(null);
 								m_textOwnCertCN.setText(null);
+								m_textOwnCertIssuer.setText(null);
 								m_ownPrivCert = null;
+								m_strOwnPrivCertPasswd=null;
 								m_bttnExportOwnPub.setEnabled(false);
 								m_bttnChangePasswd.setEnabled(false);
 								m_bttnRemoveOwnCert.setEnabled(false);
@@ -465,7 +540,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 								e.getMessage(),
 								"Error while reading the certificate.",
 								JOptionPane.ERROR_MESSAGE);
-						return true;
+						return false;
 
 				}
 				catch (Throwable e)
@@ -488,6 +563,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 						{
 								X509CertificateStructure cert1 = MixConfig.readCertificate(cert);
 								m_textPrevCertCN.setText(cert1.getSubject().toString());
+								m_textPrevCertIssuer.setText(cert1.getIssuer().toString());
 								m_textPrevCertValidFrom.setText(
 										cert1.getStartDate().getDate().toString());
 								m_textPrevCertValidTo.setText(
@@ -495,16 +571,6 @@ class CertificatesPanel extends JPanel implements ActionListener
 								ByteArrayOutputStream out = new ByteArrayOutputStream();
 								new DEROutputStream(out).writeObject(cert1);
 								m_prevPubCert = out.toByteArray();
-
-								/*
-								CertificateFactory cf = CertificateFactory.getInstance("X.509");
-								X509Certificate cert1 = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(cert));
-								m_textPrevCertCN.setText(cert1.getSubjectDN().getName());
-								m_textPrevCertValidFrom.setText(cert1.getNotBefore().toString());
-								m_textPrevCertValidTo.setText(cert1.getNotAfter().toString());
-								m_prevPubCert=cert1.getEncoded();
-								*/
-
 								m_bttnPrevCertExport.setEnabled(true);
 								m_bttnPrevCertRemove.setEnabled(true);
 						}
@@ -513,6 +579,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 								m_textPrevCertCN.setText(null);
 								m_textPrevCertValidFrom.setText(null);
 								m_textPrevCertValidTo.setText(null);
+								m_textPrevCertIssuer.setText(null);
 								m_prevPubCert = null;
 								m_bttnPrevCertExport.setEnabled(false);
 								m_bttnPrevCertRemove.setEnabled(false);
@@ -538,6 +605,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 						{
 								X509CertificateStructure cert1 = MixConfig.readCertificate(cert);
 								m_textNextCertCN.setText(cert1.getSubject().toString());
+								m_textNextCertIssuer.setText(cert1.getIssuer().toString());
 								m_textNextCertValidFrom.setText(
 										cert1.getStartDate().getDate().toString());
 								m_textNextCertValidTo.setText(
@@ -545,20 +613,13 @@ class CertificatesPanel extends JPanel implements ActionListener
 								ByteArrayOutputStream out = new ByteArrayOutputStream();
 								new DEROutputStream(out).writeObject(cert1);
 								m_nextPubCert = out.toByteArray();
-								/*
-								CertificateFactory cf = CertificateFactory.getInstance("X.509");
-								X509Certificate cert1 = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(cert));
-								m_textNextCertCN.setText(cert1.getSubjectDN().getName());
-								m_textNextCertValidFrom.setText(cert1.getNotBefore().toString());
-								m_textNextCertValidTo.setText(cert1.getNotAfter().toString());
-								m_nextPubCert=cert1.getEncoded();
-								*/
 								m_bttnNextCertExport.setEnabled(true);
 								m_bttnNextCertRemove.setEnabled(true);
 						}
 						else
 						{
 								m_textNextCertCN.setText(null);
+								m_textNextCertIssuer.setText(null);
 								m_textNextCertValidFrom.setText(null);
 								m_textNextCertValidTo.setText(null);
 								m_nextPubCert = null;
@@ -952,7 +1013,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 								MixConfig.getMainWindow(),
 								"New Password",
 								PasswordBox.NEW_PASSWORD,
-								"This password has to be entered every time the Mix server starts. "+
+								"This password has to be entered every time the Mix server starts.\n"+
 								"So if you want to start it automatically you shouldn't enter a password.");
 				dialog.show();
 				final char[] passwd = dialog.getPassword();
@@ -1123,23 +1184,9 @@ class CertificatesPanel extends JPanel implements ActionListener
 										break;
 								try
 								{
-										ByteArrayOutputStream out = new ByteArrayOutputStream();
-										PKCS12.load(new ByteArrayInputStream(m_ownPrivCert), oldpasswd)
-												.store(out, passwd);
-
-										/*
-										KeyStore kstore = KeyStore.getInstance("PKCS12", "BC");
-										kstore.load(
-												new ByteArrayInputStream(m_ownPrivCert),
-												oldpasswd);
-										String alias = (String) kstore.aliases().nextElement();
-										Key privKey = kstore.getKey(alias, null);
-										Certificate[] chain = kstore.getCertificateChain(alias);
-										kstore.setKeyEntry(alias, privKey, passwd, chain);
-										ByteArrayOutputStream out = new ByteArrayOutputStream();
-										kstore.store(out, passwd);
-										*/
-										setOwnPrivCert(out.toByteArray(), passwd);
+										if(!m_strOwnPrivCertPasswd.equals(new String(oldpasswd)))
+											throw new Exception("Wrong passwd");
+										m_strOwnPrivCertPasswd=new String(passwd);
 										break;
 								}
 								catch (Exception e)
@@ -1240,11 +1287,11 @@ class CertificatesPanel extends JPanel implements ActionListener
 						byte[] buff;
 						try
 						{
-								buff = MixConfig.openFile(MixConfig.FILTER_PFX);
+								buff = MixConfig.openFile(MixConfig.FILTER_PFX|MixConfig.FILTER_B64_CER|MixConfig.FILTER_CER);
 						}
 						catch(Exception e)
 						{
-								javax.swing.JOptionPane.showMessageDialog(
+								JOptionPane.showMessageDialog(
 										this,
 										"Import of a private key with certificate\n" +
 										"is not supported when running as an applet.",
@@ -1254,7 +1301,39 @@ class CertificatesPanel extends JPanel implements ActionListener
 								return;
 						}
 						if (buff != null)
-								setOwnPrivCert(buff);
+							{
+								//if own key is already set, than maybe only an other certificate for this key is imported...
+								boolean bIsPubCert=false;
+								if(m_ownPrivCert!=null)
+									{
+										try
+											{
+												X509CertificateStructure cert1 = MixConfig.readCertificate(buff);
+												if(cert1!=null)
+													bIsPubCert=true;
+												if(cert1.getSubjectPublicKeyInfo().equals(m_ownPrivCert.getX509cert().getSubjectPublicKeyInfo()))
+													{
+														m_ownPrivCert.setX509cert(cert1);
+														setOwnPrivCert(m_ownPrivCert,m_strOwnPrivCertPasswd);
+													}
+												else
+													{
+														JOptionPane.showMessageDialog(
+																this,
+																"This public key certificate does not\n" +
+																"belong to your private key!",
+																"Wrong certificate!",
+																JOptionPane.ERROR_MESSAGE);
+													}
+											}
+										catch(Exception e)
+											{
+												bIsPubCert=false;
+											}
+									}
+								if(!bIsPubCert)
+									setOwnPrivCert(buff);
+							}
 				}
 				else if (ae.getActionCommand().equals("RemoveOwnCert"))
 						setOwnPrivCert(null);
@@ -1263,7 +1342,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 						byte [] cert;
 						try
 						{
-								cert = MixConfig.openFile(MixConfig.FILTER_CER);
+								cert = MixConfig.openFile(MixConfig.FILTER_CER|MixConfig.FILTER_B64_CER);
 						}
 						catch(Exception e)
 						{
@@ -1286,7 +1365,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 						byte [] cert;
 						try
 						{
-								cert = MixConfig.openFile(MixConfig.FILTER_CER);
+								cert = MixConfig.openFile(MixConfig.FILTER_CER|MixConfig.FILTER_B64_CER);
 						}
 						catch(Exception e)
 						{

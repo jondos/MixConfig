@@ -21,7 +21,7 @@ import org.bouncycastle.asn1.x509.TBSCertificateStructure;
 import org.bouncycastle.asn1.DERSequence;
 
 
-public class X509CertGenerator extends V3TBSCertificateGenerator
+final public class X509CertGenerator extends V3TBSCertificateGenerator
 	{
 			public X509CertGenerator()
 				{
@@ -43,15 +43,14 @@ public class X509CertGenerator extends V3TBSCertificateGenerator
 			public X509CertificateStructure sign(X509Name issuer,DSAPrivateKey key)
 				{
 					try
-					{
+						{
 							setIssuer(issuer);
 							AlgorithmIdentifier algID = new AlgorithmIdentifier( X9ObjectIdentifiers.id_dsa_with_sha1);
 							setSignature(algID);
 
 							DSASigner signer = new DSASigner();
 							SHA1Digest digest = new SHA1Digest();
-							DSAPrivateKeyParameters signkey=new
-								DSAPrivateKeyParameters(key.getX(),new MyDSAParams(key));
+							DSAPrivateKeyParameters signkey=new DSAPrivateKeyParameters(key.getX(),new MyDSAParams(key));
 							signer.init(true, signkey);
 
 							TBSCertificateStructure tbsCert = generateTBSCertificate();
@@ -60,16 +59,16 @@ public class X509CertGenerator extends V3TBSCertificateGenerator
 							digest.update(bOut.toByteArray(), 0, bOut.size());
 							byte[] hash = new byte[digest.getDigestSize()];
 							digest.doFinal(hash, 0);
-							BigInteger[] sig = signer.generateSignature(hash);
-							DEREncodableVector sigv = new DEREncodableVector();
-							sigv.add(new DERInteger(sig[0]));
-							sigv.add(new DERInteger(sig[1]));
+							BigInteger[] r_and_s = signer.generateSignature(hash);
+							DEREncodableVector sigvalue = new DEREncodableVector();
+							sigvalue.add(new DERInteger(r_and_s[0]));
+							sigvalue.add(new DERInteger(r_and_s[1]));
 							DEREncodableVector seqv = new DEREncodableVector();
 							seqv.add(tbsCert);
 							seqv.add(algID);
-							seqv.add(new DERBitString(new DERSequence(sigv)));
+							seqv.add(new DERBitString(new DERSequence(sigvalue)));
 							return new X509CertificateStructure(new DERSequence(seqv));
-					}
+						}
 					catch(Throwable t)
 						{
 							return null;

@@ -40,18 +40,22 @@ class PasswordBox extends JDialog implements ActionListener
 			{
 					c.gridwidth = 2;
 					c.fill=GridBagConstraints.HORIZONTAL;
+					c.weighty=1;
+					c.weightx=1;
 					JTextArea msgl = new JTextArea(msg);
 					msgl.setEditable(false);
 					msgl.setEnabled(false);
-					msgl.setBackground(this.getBackground());
+					msgl.setBackground(getBackground());
 					msgl.setDisabledTextColor(new JLabel("").getForeground());
-					msgl.setWrapStyleWord(true);
-					msgl.setLineWrap(true);
+					msgl.setWrapStyleWord(false);
+					msgl.setLineWrap(false);
 					layout.setConstraints(msgl, c);
 					getContentPane().add(msgl);
 					c.gridy++;
 					c.gridwidth = 1;
 					c.fill=GridBagConstraints.NONE;
+					c.weighty=0;
+					c.weightx=0;
 			}
 			if(type==CHANGE_PASSWORD)
 				{
