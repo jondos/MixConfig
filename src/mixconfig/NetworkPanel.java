@@ -1789,6 +1789,7 @@ class NetworkPanel extends JPanel
     Port_Text = new JTextField(5);
     Port_Text.setText("");
     Port_Text.setDocument(new IntegerDocument(65535));
+    Port_Text.setMinimumSize(Port_Text.getPreferredSize());
     f.gridx = 1;
     Info_Layout.setConstraints(Port_Text,f);
     panel3.add(Port_Text);
