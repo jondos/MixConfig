@@ -11,6 +11,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 class PasswordBox extends JDialog implements ActionListener
  {
@@ -118,7 +119,7 @@ class PasswordBox extends JDialog implements ActionListener
           {
             if(m_Type==NEW_PASSWORD||m_Type==CHANGE_PASSWORD)
             {
-              if(!java.util.Arrays.equals(
+              if(!Arrays.equals(
                       m_textConfirmPasswd.getPassword(),
                       m_textNewPasswd.getPassword()))
               {
