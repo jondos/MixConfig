@@ -236,6 +236,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         e.fill = GridBagConstraints.NONE;
         import1.addActionListener(this);
         import1.setActionCommand("Import1");
+        import1.setEnabled(false);
         Previous.setConstraints(import1, e);
         panel2.add(import1);
         export1 = new JButton("Export...");
@@ -381,6 +382,12 @@ class CertificatesPanel extends JPanel implements ActionListener
         setOwnPrivCert(null, null);
         setPrevPubCert(null);
         setNextPubCert(null);
+    }
+    
+    public void updateButtons(boolean hasPrevious, boolean hasNext)
+    {
+        import1.setEnabled(hasPrevious);
+        import2.setEnabled(hasNext);
     }
 
     public byte[] getOwnPubCert()
