@@ -33,7 +33,7 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
     private JSlider s;
     private JPanel p;
 
-    public MapBox(JFrame parent,String lat,String lon,int level) throws Exception
+    public MapBox(Frame parent,String lat,String lon,int level) throws Exception
     {
       super(parent,"",false);
       setBackground(Color.white);
