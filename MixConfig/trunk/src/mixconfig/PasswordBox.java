@@ -4,6 +4,8 @@ import javax.swing.JDialog;
 import javax.swing.JPasswordField;
 import javax.swing.JLabel;
 import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JFrame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -13,13 +15,14 @@ import java.awt.event.ActionListener;
 class PasswordBox extends JDialog implements ActionListener
  {
     private JPasswordField m_textOldPasswd,m_textNewPasswd,m_textConfirmPasswd;
-    private char[] m_passwd;
+    private char[] m_passwd=null;
+    private char[] m_oldPasswd=null;
     private int m_Type;
     public final static int NEW_PASSWORD=1;
     public final static int ENTER_PASSWORD=2;
     public final static int CHANGE_PASSWORD=3;
 
-   PasswordBox(MyFrame parent,String title,int type)
+   PasswordBox(JFrame parent,String title,int type)
    {
       super(parent,title,true);
       m_Type=type;
@@ -76,23 +79,51 @@ class PasswordBox extends JDialog implements ActionListener
       layout.setConstraints(m_textConfirmPasswd,c);
       getContentPane().add(m_textConfirmPasswd);
 
-       JButton b = new JButton("OK");
-       c.gridx = 0;
-       c.gridwidth=2;
-       c.gridy ++;
-       c.anchor=GridBagConstraints.CENTER;
-       layout.setConstraints(b,c);
-       getContentPane().add(b);
-       b.addActionListener(this);
-       pack();
+      JPanel p=new JPanel();
+      JButton b = new JButton("OK");
+      b.setActionCommand("OK");
+/*      c.gridx = 0;
+      c.gridwidth=1;
+      c.anchor=GridBagConstraints.CENTER;
+      layout.setConstraints(b,c);
+      getContentPane().add(b);
+  */
+      p.add(b);
+      b.addActionListener(this);
+      b = new JButton("Cancel");
+      b.setActionCommand("Cancel");
+/*      c.gridx = 1;
+      c.gridwidth=1;
+      c.gridy ++;
+      layout.setConstraints(b,c);
+      getContentPane().add(b);
+  */
+      p.add(b);
+      b.addActionListener(this);
+      c.gridx = 0;
+      c.gridwidth=2;
+      c.gridy++;
+      c.anchor=GridBagConstraints.CENTER;
+      c.weightx=1;
+      c.fill=GridBagConstraints.HORIZONTAL;
+      layout.setConstraints(p,c);
+      getContentPane().add(p);
+      pack();
     }
 
     public void actionPerformed(ActionEvent ae)
       {
-        if(m_Type==NEW_PASSWORD||m_Type==CHANGE_PASSWORD)
-          m_passwd=m_textNewPasswd.getPassword();
-        else if(m_Type==ENTER_PASSWORD)
-          m_passwd=m_textConfirmPasswd.getPassword();
+        if(ae.getActionCommand().equals("OK"))
+          {
+            if(m_Type==NEW_PASSWORD||m_Type==CHANGE_PASSWORD)
+              m_passwd=m_textNewPasswd.getPassword();
+            else if(m_Type==ENTER_PASSWORD)
+              m_passwd=m_textConfirmPasswd.getPassword();
+            if(m_Type==CHANGE_PASSWORD)
+              m_oldPasswd=m_textOldPasswd.getPassword();
+          }
+        else
+          m_passwd=null;
         dispose();
       }
 
@@ -100,4 +131,10 @@ class PasswordBox extends JDialog implements ActionListener
       {
         return m_passwd;
       }
+
+    public char[] getOldPassword()
+      {
+        return m_oldPasswd;
+      }
+
   }

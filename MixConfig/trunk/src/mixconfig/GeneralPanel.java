@@ -265,7 +265,10 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
           m_checkboxLogging.setSelected(true);
           Console.setSelected(bLogConsole);
           File.setSelected(bLogFile);
+          if(bLogFile)
+            FileName.setText(file);
           Syslog.setSelected(bLogSyslog);
+
         }
       else
         {

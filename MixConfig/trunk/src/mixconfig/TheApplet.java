@@ -1,20 +1,17 @@
 package mixconfig;
 
 import java.util.*;
-import java.net.*;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.BorderLayout;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
-import java.applet.*;
-import java.lang.Object;
-import java.math.*;
 import java.net.URLEncoder;
-import javax.swing.BorderFactory;
-import javax.swing.table.*;
-import javax.swing.event.*;
+import java.net.URLDecoder;
+
+import javax.swing.border.EmptyBorder;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -45,10 +42,13 @@ import org.bouncycastle.jce.provider.*;
 
 //  Creating a Frame.........
 
- class MyFrame extends JFrame implements ActionListener
+ class MyFrame extends JPanel implements ActionListener
 {
-  public static String filename;
-  public static boolean New;
+  private static final String TITLE="Mix Configuration Tool";
+  private String m_aktFileName;
+  private JFrame m_Parent;
+  private JMenuBar m_MenuBar;
+  //public static boolean New;
   public static JMenuItem saveMenuItem,saveclipItem;
 
   public static GeneralPanel m_GeneralPanel;
@@ -56,14 +56,14 @@ import org.bouncycastle.jce.provider.*;
   public static CertificatesPanel m_CertificatesPanel;
   public static DescriptionPanel m_DescriptionPanel;
 
-  public MyFrame()
+  public MyFrame(JFrame parent)
   {
-    super("Mix Configuration");
+    m_Parent=parent;
 
-    JMenuBar mb = new JMenuBar();
-    setJMenuBar(mb);
+    m_MenuBar = new JMenuBar();
+    //setJMenuBar(mb);
     JMenu fileMenu = new JMenu("File");
-    mb.add(fileMenu);
+    m_MenuBar.add(fileMenu);
 
     JMenuItem newMenuItem = new JMenuItem("New");
     JMenuItem exitMenuItem = new JMenuItem("Exit");
@@ -101,15 +101,7 @@ import org.bouncycastle.jce.provider.*;
     fileMenu.addSeparator();
     fileMenu.add(exitMenuItem);
 
-    addWindowListener(new WindowAdapter()
-    {
-       public void windowClosing(WindowEvent e)
-       {
-           System.exit(0);
-       }
-    });
-
-    filename = "";
+    m_aktFileName=null;
 
     JTabbedPane jtp = new JTabbedPane();
     m_GeneralPanel=new GeneralPanel();
@@ -121,14 +113,21 @@ import org.bouncycastle.jce.provider.*;
     jtp.addTab("Network",m_NetworkPanel);
     jtp.addTab("Certificates",m_CertificatesPanel);
     jtp.addTab("Description",m_DescriptionPanel);
-    getContentPane().add(jtp);
+    jtp.setBorder(new EmptyBorder(10,10,10,10));
+    setLayout(new BorderLayout());
+    add(jtp,BorderLayout.CENTER);
   }
+
+  public JMenuBar getMenuBar()
+    {
+      return m_MenuBar;
+    }
 
     public void actionPerformed(ActionEvent evt)
     {
       if(evt.getActionCommand().equals("New"))
       {
-        int ret=JOptionPane.showConfirmDialog(TheApplet.myFrame,
+        int ret=JOptionPane.showConfirmDialog(TheApplet.getMainWindow(),
                                               "You will lose unsaved information. Do you want to continue?",
                                               "Caution!",JOptionPane.OK_CANCEL_OPTION);
         if(ret==JOptionPane.OK_OPTION)
@@ -136,25 +135,27 @@ import org.bouncycastle.jce.provider.*;
       }
       else if(evt.getActionCommand().equals("Exit"))
       {
-	      dispose();
+	      //dispose();
 	      System.exit(0);
       }
       else if(evt.getActionCommand().equals("Save"))
       {
-        if(filename != "" && check())
-          save(filename);
+        if(m_aktFileName!= null && check())
+          save(m_aktFileName);
       }
       else if(evt.getActionCommand().equals("SaveAs"))
       {
      //   if(check())
         {
         try{
-           File file = TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_XML);
+           File file = TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_XML).getSelectedFile();
            if(file!=null)
            {
                save(file.getCanonicalPath());
                saveMenuItem.setText("Save ["+file.getName()+"] ");
                saveMenuItem.setEnabled(true);
+               m_aktFileName=file.getCanonicalPath();
+              setTitle(TITLE+" - "+m_aktFileName);
            }}
            catch(Exception e){};
          }
@@ -183,7 +184,7 @@ import org.bouncycastle.jce.provider.*;
 
       if(evt.getActionCommand().equals("Open"))
       {
-	      File file=TheApplet.showFileDialog(TheApplet.OPEN_DIALOG,TheApplet.FILTER_XML);
+	      File file=TheApplet.showFileDialog(TheApplet.OPEN_DIALOG,TheApplet.FILTER_XML).getSelectedFile();
         if(file!=null)
           {
             try
@@ -191,6 +192,8 @@ import org.bouncycastle.jce.provider.*;
                 open(file.getCanonicalPath());
                 saveMenuItem.setText("Save ["+file.getName()+"] ");
                 saveMenuItem.setEnabled(true);
+                m_aktFileName=file.getCanonicalPath();
+                setTitle(TITLE+" - "+m_aktFileName);
               }
             catch(Exception e)
               {
@@ -200,10 +203,17 @@ import org.bouncycastle.jce.provider.*;
       }
     }
 
-    public static void reset()
+    private void setTitle(String s)
+      {
+        if(m_Parent!=null)
+          m_Parent.setTitle(s);
+      }
+    public void reset()
   {
+     setTitle(TITLE);
      saveMenuItem.setText("Save [none]");
      saveMenuItem.setEnabled(false);
+     m_aktFileName=null;
      m_GeneralPanel.clear();
 
      int i,j;
@@ -278,7 +288,7 @@ import org.bouncycastle.jce.provider.*;
 	  Element elemMixID=getChild(elemGeneral,"MixID");
     m_GeneralPanel.setAuto(false);
     String MixID = getElementValue(elemMixID,null);
-	  m_GeneralPanel.setMixID(MixID);
+	  m_GeneralPanel.setMixID(URLDecoder.decode(MixID));
 
 	  Element elemUserID = getChild(elemGeneral,"UserID");
 	  if(elemUserID != null)
@@ -426,14 +436,14 @@ import org.bouncycastle.jce.provider.*;
 	 elemInterface = getChild(elemOutgoing,"ListenerInterface"+Integer.toString(i+1));
         }
 
-	Element elemInfoServer = getChild(elemNetwork,"InformationServer");
+	Element elemInfoServer = getChild(elemNetwork,"InfoService");
 	elemHost = getChild(elemInfoServer,"Host");
 	host = getElementValue(elemHost,null);
 	m_NetworkPanel.setInfoHost(host);
 	elemIP = getChild(elemInfoServer,"IP");
 	if(elemIP != null)
 	{
-	  IP = elemIP.getFirstChild().getNodeValue();
+	  IP = getElementValue(elemIP,null);
 	  m_NetworkPanel.setInfoIP(IP);
 	}
 	elemPort = getChild(elemInfoServer,"Port");
@@ -445,13 +455,9 @@ import org.bouncycastle.jce.provider.*;
 	Element elem = getChild(elemOwnCert,"X509PKCS12");
 	String name = getElementValue(elem,null);
   if(name!=null)
-    {
-      PasswordBox pb=new PasswordBox(TheApplet.myFrame,"Enter the password",PasswordBox.ENTER_PASSWORD);
-      pb.show();
-      m_CertificatesPanel.setOwnPrivCert(Base64.decode(name),pb.getPassword());
-    }
+    m_CertificatesPanel.setOwnPrivCert(Base64.decode(name));
   else
-    m_CertificatesPanel.setOwnPrivCert(null,null);
+    m_CertificatesPanel.setOwnPrivCert(null);
 	Element elemPrevCert = getChild(elemCertificates,"PrevMixCertificate");
 	elem = getChild(elemPrevCert,"X509Certificate");
 	name = getElementValue(elem,null);
@@ -539,7 +545,7 @@ import org.bouncycastle.jce.provider.*;
 	  String mixID=m_GeneralPanel.getMixID();
     Element elemMixID=doc.createElement("MixID");
     elemGeneral.appendChild(elemMixID);
-	  Text text3=doc.createTextNode(mixID);
+	  Text text3=doc.createTextNode(URLEncoder.encode(mixID));
 	  elemMixID.appendChild(text3);
 
 	  String elemUser_ID = m_GeneralPanel.getUserID();
@@ -724,7 +730,7 @@ import org.bouncycastle.jce.provider.*;
 	    Outgoing = m_NetworkPanel.getTable2(i,j);
 	  }
 
-	  Element elemInfoSer = doc.createElement("InformationServer");
+	  Element elemInfoSer = doc.createElement("InfoService");
 	  elemNetwork.appendChild(elemInfoSer);
 	  String Host = m_NetworkPanel.getHost();
 	  elemHost = doc.createElement("Host");
@@ -763,22 +769,27 @@ import org.bouncycastle.jce.provider.*;
     text = doc.createTextNode(Base64.encodeBytes(buff,true));
 	  elem.appendChild(text);
 
-	  Element elemPrevious = doc.createElement("PrevMixCertificate");
-	  elemCertificate.appendChild(elemPrevious);
-	  elem = doc.createElement("X509Certificate");
-    elemPrevious.appendChild(elem);
     buff = m_CertificatesPanel.getPrevPubCert();
-    text = doc.createTextNode(Base64.encodeBytes(buff,true));
-	  elem.appendChild(text);
-
-    Element elemNext = doc.createElement("NextMixCertificate");
-	  elemCertificate.appendChild(elemNext);
-	  elem = doc.createElement("X509Certificate");
-    elemNext.appendChild(elem);
+	  if(buff!=null)
+      {
+        Element elemPrevious = doc.createElement("PrevMixCertificate");
+	      elemCertificate.appendChild(elemPrevious);
+	      elem = doc.createElement("X509Certificate");
+        elemPrevious.appendChild(elem);
+        text = doc.createTextNode(Base64.encodeBytes(buff,true));
+	      elem.appendChild(text);
+      }
     buff = m_CertificatesPanel.getNextPubCert();
-    text = doc.createTextNode(Base64.encodeBytes(buff));
-	  elem.appendChild(text);
-
+	  if(buff!=null)
+      {
+        Element elemNext = doc.createElement("NextMixCertificate");
+        elemCertificate.appendChild(elemNext);
+        elem = doc.createElement("X509Certificate");
+        elemNext.appendChild(elem);
+        buff = m_CertificatesPanel.getNextPubCert();
+        text = doc.createTextNode(Base64.encodeBytes(buff));
+        elem.appendChild(text);
+      }
 	  Element elemDescription = doc.createElement("Description");
 	  root.appendChild(elemDescription);
 	  Element elemLocation=doc.createElement("Location");
@@ -814,6 +825,7 @@ import org.bouncycastle.jce.provider.*;
 	  ByteArrayOutputStream fout=new ByteArrayOutputStream();
 	  Transformer trans=TransformerFactory.newInstance().newTransformer();
     trans.setOutputProperty("indent","yes");
+    try{trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");}catch(Exception e){e.printStackTrace();};
 	  trans.getOutputProperties().list(System.out);
     DOMSource src=new DOMSource(doc);
     StreamResult target=new StreamResult(fout);
@@ -835,70 +847,70 @@ import org.bouncycastle.jce.provider.*;
     {
       if(m_GeneralPanel.getMixName().equals(""))
       {
-        JOptionPane.showMessageDialog(TheApplet.myFrame,"Please enter a Mix Name.",
+        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Please enter a Mix Name.",
                             "Error in General Panel!",JOptionPane.ERROR_MESSAGE);
 	      return false;
       }
       if(m_GeneralPanel.getMixID().equals(""))
       {
-        JOptionPane.showMessageDialog(TheApplet.myFrame,"Mix ID field is blank.",
+        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Mix ID field is blank.",
                             "Error in General Panel!",JOptionPane.ERROR_MESSAGE);
 	      return false;
       }
 
       if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
         {
-          JOptionPane.showMessageDialog(TheApplet.myFrame,"Own Mix Certificate is missing.",
+          JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Own Mix Certificate is missing.",
                             "Error in Certificates Panel!",JOptionPane.ERROR_MESSAGE);
           return false;
         }
       if(m_CertificatesPanel.getPrevPubCert()==null)
       {
-          JOptionPane.showMessageDialog(TheApplet.myFrame,"Previous Mix Certificate is missing.",
+          JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Previous Mix Certificate is missing.",
                             "Error in Certificates Panel!",JOptionPane.ERROR_MESSAGE);
 	        return false;
       }
       if(m_CertificatesPanel.getNextPubCert()==null)
       {
-         JOptionPane.showMessageDialog(TheApplet.myFrame,"Next Mix Certificate is missing.",
+         JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Next Mix Certificate is missing.",
                             "Error in Certificates Panel!",JOptionPane.ERROR_MESSAGE);
 	        return false;
       }
 
       if(m_DescriptionPanel.getCity().equals(""))
       {
-        JOptionPane.showMessageDialog(TheApplet.myFrame,"The city field cannot be left blank!",
+        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"The city field cannot be left blank!",
                             "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
 	      return false;
       }
       if(m_DescriptionPanel.getState().equals(""))
       {
-        JOptionPane.showMessageDialog(TheApplet.myFrame,"The state field cannot be left blank!",
+        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"The state field cannot be left blank!",
                             "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
 	      return false;
       }
       if(m_DescriptionPanel.getLatitude().equals("") && !m_DescriptionPanel.getLongitude().equals(""))
       {
-        JOptionPane.showMessageDialog(TheApplet.myFrame,"Fill in the Latitude.",
+        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Fill in the Latitude.",
                             "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
 	      return false;
       }
       if(!m_DescriptionPanel.getLatitude().equals("") && m_DescriptionPanel.getLongitude().equals(""))
       {
-        JOptionPane.showMessageDialog(TheApplet.myFrame,"Fill in the Longitude.",
+        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"Fill in the Longitude.",
                             "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
 	      return false;
       }
 
       if(m_NetworkPanel.getHost().equals(""))
       {
-        JOptionPane.showMessageDialog(TheApplet.myFrame,"The HOST field should not be blank.",
+        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"The HOST field should not be blank.",
                             "Error in Network Panel!",JOptionPane.ERROR_MESSAGE);
 	      return false;
       }
       if(m_NetworkPanel.getPort().equals(""))
       {
-        JOptionPane.showMessageDialog(TheApplet.myFrame,"The PORT field should not be blank.",
+        JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"The PORT field should not be blank.",
                             "Error in Network Panel!",JOptionPane.ERROR_MESSAGE);
 	      return false;
       }
@@ -911,20 +923,24 @@ import org.bouncycastle.jce.provider.*;
 
 public class TheApplet extends JApplet
 {
-  public static MyFrame myFrame;
+  private static MyFrame myFrame;
+  private static JFrame m_MainWindow;
   public final static int SAVE_DIALOG=1;
   public final static int OPEN_DIALOG=2;
   public final static int FILTER_CER=1;
   public final static int FILTER_XML=2;
+  public final static int FILTER_PFX=4;
 
   public static void main(String[] args)
   {
     Security.addProvider(new BouncyCastleProvider());
-    JFrame window = new JFrame("Mix Configuration Tool");
-    myFrame = new MyFrame();
-    //myFrame.setBounds(10,10,600,650);
+    m_MainWindow = new JFrame("Mix Configuration Tool");
+    ImageIcon icon=loadImage("icon.gif");
+    if(icon!=null)
+      m_MainWindow.setIconImage(icon.getImage());
+    myFrame = new MyFrame(m_MainWindow);
 
-    window.addWindowListener(new WindowAdapter()
+    m_MainWindow.addWindowListener(new WindowAdapter()
     {
        public void windowClosing(WindowEvent e)
        {
@@ -932,38 +948,51 @@ public class TheApplet extends JApplet
        }
     });
 
-    window.setJMenuBar(myFrame.getJMenuBar());
-    window.setContentPane(myFrame.getContentPane());
-    window.pack();
+    m_MainWindow.setJMenuBar(myFrame.getMenuBar());
+    m_MainWindow.setContentPane(myFrame);
+    m_MainWindow.pack();
     Dimension d=Toolkit.getDefaultToolkit().getScreenSize();
-    Dimension size=window.getSize();
-    window.setLocation((d.width-size.width)/2,(d.height-size.height)/2);
-    window.show();
+    Dimension size=m_MainWindow.getSize();
+    m_MainWindow.setLocation((d.width-size.width)/2,(d.height-size.height)/2);
+    m_MainWindow.show();
   }
 
    public void init()
   {
     //Security.addProvider(new BouncyCastleProvider());
-
-    myFrame = new MyFrame();
-    myFrame.pack();//setBounds(10,10,600,650);
-    setJMenuBar(myFrame.getJMenuBar());
-    setContentPane(myFrame.getContentPane());
+    m_MainWindow=null;
+    myFrame = new MyFrame(null);
+    //myFrame.pack();//setBounds(10,10,600,650);
+    setJMenuBar(myFrame.getMenuBar());
+    setContentPane(myFrame);
 
   }
 
+  public static JFrame getMainWindow()
+    {
+      return m_MainWindow;
+    }
 
-     public static File showFileDialog(int type, int filter_type)
+   public static ImageIcon loadImage(String name)
+    {
+        return new ImageIcon(TheApplet.class.getResource(name));
+	   }
+     public static JFileChooser showFileDialog(int type, int filter_type)
       {
         JFileChooser fd2= new JFileChooser();
         fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fd2.addChoosableFileFilter(new SimpleFileFilter(filter_type));
+        if((filter_type&FILTER_CER)!=0)
+          fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_CER));
+        if((filter_type&FILTER_XML)!=0)
+          fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_XML));
+        if((filter_type&FILTER_PFX)!=0)
+          fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_PFX));
         fd2.setFileHidingEnabled(false);
         if(type==SAVE_DIALOG)
           fd2.showSaveDialog(myFrame);
         else
           fd2.showOpenDialog(myFrame);
-        return fd2.getSelectedFile();
+        return fd2;
       }
 
 }

@@ -13,7 +13,7 @@ class ClipFrame extends Dialog implements ActionListener
 
   public ClipFrame(String title,boolean open)
   {
-    super(TheApplet.myFrame,title,false);
+    super(TheApplet.getMainWindow(),title,false);
     m_TextArea = new TextArea(30,80);
     m_TextArea.setText("");
 
@@ -53,7 +53,7 @@ class ClipFrame extends Dialog implements ActionListener
       {
           if(m_TextArea.getText().equals(""))
           {
-            JOptionPane.showMessageDialog(TheApplet.myFrame,"The Text Area is empty!",
+            JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"The Text Area is empty!",
                             "Error!",JOptionPane.ERROR_MESSAGE);
 
           }

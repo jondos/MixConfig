@@ -17,6 +17,10 @@ import java.io.File;
                   m_strDesc="Mix Configuration (*.xml)";
                   m_strExtension=".xml";
                 break;
+                case TheApplet.FILTER_PFX:
+                  m_strDesc="Private Key with Certificate (*.pfx)";
+                  m_strExtension=".pfx";
+                break;
                 default:
                   m_strDesc="";
                   m_strExtension="";
