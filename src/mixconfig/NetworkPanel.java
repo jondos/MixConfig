@@ -1,8 +1,3 @@
-/**
- * TODO:
- * - Automatically suggest a serial number
- * - Do the same for outgoing connections
- **/
 package mixconfig;
 
 import javax.swing.ButtonGroup;
@@ -41,6 +36,7 @@ class ConnectionData
     private int[] ipaddr;
     private int port;
     private String type; // Name of the XML element
+    private int flags;
 
     public static final int TCP = 0;
     public static final int UNIX = 1;
@@ -50,6 +46,22 @@ class ConnectionData
     public static final int RAW_UNIX = RAW|UNIX;
     public static final int SSL_TCP = SSL|TCP;
     public static final int SSL_UNIX = SSL|UNIX;
+
+    public static final int PROXY_MASK = 3;
+
+    public static final int NO_PROXY = 0;
+    public static final int HTTP_PROXY = 1;
+    public static final int SOCKS_PROXY = 2;
+
+    void setFlags(int f)
+    {
+        flags = f;
+    }
+
+    int getFlags()
+    {
+        return flags;
+    }
 
     void setType(String t)
     {
@@ -137,6 +149,7 @@ class ConnectionData
         setName(n);
         setIPAddr(addr);
         setPort(p);
+        setFlags(0);
     }
 
     ConnectionData(String x, boolean m, int t, String n)
@@ -147,6 +160,7 @@ class ConnectionData
         setName(n);
         ipaddr = null;
         setPort(0);
+        setFlags(0);
     }
 
     ConnectionData(String x, boolean m, int t, String n, String addr, int p)
@@ -157,6 +171,7 @@ class ConnectionData
         setName(n);
         setIPAddr(addr);
         setPort(p);
+        setFlags(0);
     }
 
     ConnectionData deepClone()
@@ -193,6 +208,12 @@ class ConnectionData
         {
             data = doc.createElement("File");
             data.appendChild(doc.createTextNode(name));
+            iface.appendChild(data);
+        }
+        if((flags&PROXY_MASK)!=NO_PROXY)
+        {
+            data = doc.createElement("ProxyType");
+            data.appendChild(doc.createTextNode(((flags&PROXY_MASK)==HTTP_PROXY)?"HTTP":"SOCKS"));
             iface.appendChild(data);
         }
         return iface;
@@ -237,25 +258,28 @@ class ConnectionData
             trans = SSL_UNIX;
         else if(data.equalsIgnoreCase("SSL/TCP"))
             trans = SSL_TCP;
+        else if(elementData(iface, "File")!=null)
+            trans = RAW_UNIX;
         else
-            return null;
+            trans = RAW_TCP;
         if((trans&UNIX)==0)
         {
             n = elementData(iface, "Host");
             if(n==null)
-                return null;
+                n = "";
             ip = elementData(iface, "IP");
             data = elementData(iface, "Port");
             if(data==null)
-                return null;
-            p = Integer.parseInt(data);
+                p = 0;
+            else
+                p = Integer.parseInt(data);
             return new ConnectionData(t, m, trans, n, ip, p);
         }
         else
         {
             n = elementData(iface, "File");
             if(n==null)
-                return null;
+                n = "";
             return new ConnectionData(t, m, trans, n);
         }
     }
@@ -546,6 +570,7 @@ abstract class ConnectionDialog extends JDialog
         GridBagLayout keylayout = new GridBagLayout();
         JPanel keys = new JPanel(keylayout);
         GridBagConstraints kc = new GridBagConstraints();
+        final JDialog parent = this;
         kc.weightx=1;
         kc.gridx=0;
         kc.gridy=0;
@@ -560,6 +585,17 @@ abstract class ConnectionDialog extends JDialog
                 {
                     public void actionPerformed(ActionEvent ev)
                     {
+                        if(stype.getSelection().getActionCommand().equals("TCP"))
+                            for(int i=0;i<4;i++)
+                                if(iptext[i].getText().length()==0)
+                                {
+                                    if(i==0)
+                                        break;
+                                    javax.swing.JOptionPane.showMessageDialog(parent,
+                                            "IP Address is not complete.",
+                                            "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
                         where.addData(getData());
                         dispose();
                     }
@@ -572,6 +608,17 @@ abstract class ConnectionDialog extends JDialog
                 {
                     public void actionPerformed(ActionEvent ev)
                     {
+                        if(stype.getSelection().getActionCommand().equals("TCP"))
+                            for(int i=0;i<4;i++)
+                                if(iptext[i].getText().length()==0)
+                                {
+                                    if(i==0)
+                                        break;
+                                    javax.swing.JOptionPane.showMessageDialog(parent,
+                                            "IP Address is not complete.",
+                                            "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
                         where.changeData(getData(),data);
                         dispose();
                     }
@@ -664,42 +711,52 @@ class IncomingDialog extends ConnectionDialog
 
 class OutgoingDialog extends ConnectionDialog
 {
-    private ButtonGroup type;
+    private ButtonGroup proxytype;
 
     protected String getType()
     {
-        return type.getSelection().getActionCommand().equals("Proxy")?"Proxy":"NextMix";
+        return (proxytype==null)?"NextMix":"Proxy";
+    }
+
+    protected ConnectionData getData()
+    {
+        ConnectionData data = super.getData();
+        if(proxytype!=null)
+            data.setFlags(proxytype.getSelection().getActionCommand().equals("HTTP")
+                          ?ConnectionData.HTTP_PROXY:ConnectionData.SOCKS_PROXY);
+        return data;
     }
 
     protected void addType(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
     {
-        JLabel label = new JLabel("Type");
+        JLabel label = new JLabel("Proxy Type");
         layout.setConstraints(label, lc);
         getContentPane().add(label);
         lc.gridy++;
 
-        boolean isMix;
+        int ptype;
         if(data==null)
-            isMix = true;
+            ptype = data.HTTP_PROXY;
         else
-            isMix = !data.getType().equals("Proxy");
+            ptype = data.getFlags() & data.PROXY_MASK;
+
         rc.anchor = GridBagConstraints.CENTER;
         rc.gridwidth = 3;
-        type = new ButtonGroup();
-        JRadioButton t = new JRadioButton("Mix",isMix);
-        t.setActionCommand("Mix");
+        proxytype = new ButtonGroup();
+        JRadioButton t = new JRadioButton("HTTP",ptype!=data.SOCKS_PROXY);
+        t.setActionCommand("HTTP");
         layout.setConstraints(t,rc);
         getContentPane().add(t);
-        type.add(t);
+        proxytype.add(t);
         if(firstone==null)
             firstone = t;
 
         rc.gridx+=4;
-        t = new JRadioButton("Proxy",!isMix);
-        t.setActionCommand("Proxy");
+        t = new JRadioButton("Socks",ptype==data.SOCKS_PROXY);
+        t.setActionCommand("Socks");
         layout.setConstraints(t,rc);
         getContentPane().add(t);
-        type.add(t);
+        proxytype.add(t);
         rc.gridy++;
         rc.gridx-=4;
     }
@@ -727,8 +784,10 @@ class OutgoingDialog extends ConnectionDialog
         rc.gridy = 0;
         rc.weightx = 0;
 
-//        addMain(data, layout, lc, rc);
-        addType(data, layout, lc, rc);
+        if(MyFrame.m_GeneralPanel.getMixType().equals("LastMix"))
+            addType(data, layout, lc, rc);
+        else
+            proxytype = null;
         addTransport(data, layout, lc, rc);
         addName(data, layout, lc, rc);
         addIP(data, layout, lc, rc);
@@ -865,6 +924,13 @@ abstract class ConnectionModel extends AbstractTableModel
             fireTableRowsDeleted(index,index);
         }
     }
+
+    void clear()
+    {
+        int old = rows.length;
+        rows = new ConnectionData[0];
+        fireTableRowsDeleted(1,old);
+    }
 }
 
 class IncomingModel extends ConnectionModel
@@ -954,20 +1020,20 @@ class IncomingModel extends ConnectionModel
 class OutgoingModel extends ConnectionModel
 {
     private static final String[] columnNames =
-            {"No.", "Main", "Type", "Transport", "Host / FileName",
+            {"No.", "Type", "Transport", "Host / FileName",
              "IP Address", "Port" };
 
     public static final int SERIAL_NR = 0;
-    public static final int IS_MAIN = 1;
-    public static final int TYPE = 2;
-    public static final int TRANSPORT = 3;
-    public static final int NAME = 4;
-    public static final int IP_ADDR = 5;
-    public static final int PORT = 6;
+    public static final int TYPE = 1;
+    public static final int TRANSPORT = 2;
+    public static final int NAME = 3;
+    public static final int IP_ADDR = 4;
+    public static final int PORT = 5;
 
     public boolean hasMain(int row)
     {
-      return (getData(row)!=null && getData(row).getType().equals("Proxy"));
+        return false;
+      // return (getData(row)!=null && getData(row).getType().equals("Proxy"));
     }
 
     public Object getValueAt(int row, int column)
@@ -978,8 +1044,21 @@ class OutgoingModel extends ConnectionModel
         switch(column)
         {
             case SERIAL_NR: return new Integer(row+1);
-            case IS_MAIN: return new Boolean(data.getIsMain());
-            case TYPE: return data.getType().equals("Proxy")?"Proxy":"Mix";
+            case TYPE:
+                if(data.getType().equals("Proxy"))
+                {
+                    switch(data.getFlags()&data.PROXY_MASK)
+                    {
+                        case ConnectionData.NO_PROXY:
+                            return "Proxy";
+                        case ConnectionData.HTTP_PROXY:
+                            return "HTTP Proxy";
+                        case ConnectionData.SOCKS_PROXY:
+                            return "Socks Proxy";
+                    }
+                }
+                else
+                    return "Mix";
             case TRANSPORT: return new Integer(data.getTransport());
             case NAME: return data.getName();
             case IP_ADDR: return data.getIPAddr();
@@ -993,7 +1072,6 @@ class OutgoingModel extends ConnectionModel
         switch(column)
         {
             case SERIAL_NR: return Integer.class;
-            case IS_MAIN: return Boolean.class;
             case NAME: return String.class;
             case PORT: return Integer.class;
             // Type, Transport und IP-Addresse muessen wir in der Tabelle
@@ -1004,7 +1082,7 @@ class OutgoingModel extends ConnectionModel
 
     public int getColumnCount()
     {
-        return 7;
+        return columnNames.length;
     }
 
     public String getColumnName(int col)
@@ -1017,7 +1095,11 @@ class OutgoingModel extends ConnectionModel
         org.w3c.dom.Element proxies = doc.createElement("Proxies");
         for(int i=0;i<getRowCount();i++)
             if(getData(i).getType().equals("Proxy"))
-                proxies.appendChild(getData(i).createAsElement(doc));
+            {
+                org.w3c.dom.Element proxy = getData(i).createAsElement(doc);
+                proxy.removeAttribute("main");
+                proxies.appendChild(proxy);
+            }
         return proxies;
     }
 
@@ -1083,6 +1165,7 @@ class NetworkPanel extends JPanel
        return omodel;
    }
 
+/*
    public String getTable1(int x,int y)
    {
      Object o=table1.getValueAt(x,y);
@@ -1098,6 +1181,7 @@ class NetworkPanel extends JPanel
       return "";
      return o.toString();
    }
+*/
 
    public String getHost()
    {
@@ -1112,16 +1196,6 @@ class NetworkPanel extends JPanel
    public String getPort()
    {
      return Port_Text.getText();
-   }
-
-   public void setTable1(String text,int x,int y)
-   {
-     table1.setValueAt(text,x,y);
-   }
-
-   public void setTable2(String text,int x,int y)
-   {
-     table2.setValueAt(text,x,y);
    }
 
    public void setInfoHost(String info)
@@ -1220,18 +1294,29 @@ class NetworkPanel extends JPanel
     };
 
     imodel = new IncomingModel();
+    imodel.addTableModelListener(new TableModelListener()
+        {
+            public void tableChanged(TableModelEvent e)
+            {
+                MyFrame.m_GeneralPanel.updateMixId();
+            }
+        });
+
     table1 = new JTable(imodel)
     {
         public TableCellRenderer getCellRenderer(int row, int column)
         {
-            if(column == 2)
-                return transportRenderer;
-            else if(column == 4)
-                return IPRenderer;
-            else if(column == 5)
-                return PortRenderer;
-            else
-                return super.getCellRenderer(row, column);
+            switch(column)
+            {
+                case IncomingModel.TRANSPORT:
+                    return transportRenderer;
+                case IncomingModel.IP_ADDR:
+                    return IPRenderer;
+                case IncomingModel.PORT:
+                    return PortRenderer;
+                default:
+                    return super.getCellRenderer(row, column);
+            }
         }
     };
 
@@ -1358,9 +1443,8 @@ class NetworkPanel extends JPanel
     panel2.setBorder(new TitledBorder("Outgoing"));
     layout.setConstraints(panel2,c);
     add(panel2);
-//    int[] columnSizes1 = {15, 25, 60, 170, 110, 40};
 
-    int[] columnSizes2 = {15, 25, 40, 60, 130, 110, 40};
+    int[] columnSizes2 = {15, 70, 60, 125, 110, 40};
     omodel = new OutgoingModel();
     table2 = new JTable(omodel)
     {
@@ -1368,17 +1452,13 @@ class NetworkPanel extends JPanel
         {
             switch(column)
             {
-                case 1:
-                    if(!omodel.hasMain(row))
-                        return emptyRenderer;
-                    return super.getCellRenderer(row, column);
-                case 2:
+                case OutgoingModel.TYPE:
                     return centeringRenderer;
-                case 3:
+                case OutgoingModel.TRANSPORT:
                     return transportRenderer;
-                case 5:
+                case OutgoingModel.IP_ADDR:
                     return IPRenderer;
-                case 6:
+                case OutgoingModel.PORT:
                     return PortRenderer;
                 default:
                     return super.getCellRenderer(row, column);
@@ -1429,7 +1509,9 @@ class NetworkPanel extends JPanel
                         {
                             if(a.getActionCommand().equals("Add"))
                             {
-                                OutgoingDialog dialog = new OutgoingDialog(TheApplet.getMainWindow(),"Add",omodel);
+                                OutgoingDialog dialog = new OutgoingDialog(TheApplet.getMainWindow(),
+                                        (MyFrame.m_GeneralPanel.getMixType().equals("LastMix"))?"Add Proxy":"Add Next Mix",
+                                        omodel);
                                 dialog.show();
                             }
                         }
@@ -1454,7 +1536,9 @@ class NetworkPanel extends JPanel
                         {
                             if(a.getActionCommand().equals("Change"))
                             {
-                                OutgoingDialog dialog = new OutgoingDialog(TheApplet.getMainWindow(),"Change",omodel,
+                                OutgoingDialog dialog = new OutgoingDialog(TheApplet.getMainWindow(),
+                                        (MyFrame.m_GeneralPanel.getMixType().equals("LastMix"))?"Change Proxy":"Change Next Mix",
+                                        omodel,
                                         ((OutgoingModel)table2.getModel()).getData(table2.getSelectedRow()));
                                 dialog.show();
                             }
@@ -1526,18 +1610,6 @@ class NetworkPanel extends JPanel
     Info_Layout.setConstraints(Host_Text,f);
     panel3.add(Host_Text);
 
-    DocumentListener MixIDUpdater = new DocumentListener()
-    {
-        public void changedUpdate(DocumentEvent ev) {}
-        public void insertUpdate(DocumentEvent ev)
-        {
-            MyFrame.m_GeneralPanel.updateMixId();
-        }
-        public void removeUpdate(DocumentEvent ev)
-        {
-            MyFrame.m_GeneralPanel.updateMixId();
-        }
-    };
     JLabel IP = new JLabel("IP");
     f.gridy = 1;
     f.gridx = 0;
@@ -1546,7 +1618,6 @@ class NetworkPanel extends JPanel
     panel3.add(IP);
     IP_Text = new JTextField(38);
     IP_Text.setText("");
-    IP_Text.getDocument().addDocumentListener(MixIDUpdater);
     f.gridx = 1;
     f.weightx = 1;
     Info_Layout.setConstraints(IP_Text,f);
@@ -1560,7 +1631,6 @@ class NetworkPanel extends JPanel
     panel3.add(port);
     Port_Text = new JTextField(38);
     Port_Text.setText("");
-    Port_Text.getDocument().addDocumentListener(MixIDUpdater);
     f.gridx = 1;
     Info_Layout.setConstraints(Port_Text,f);
     panel3.add(Port_Text);
@@ -1572,4 +1642,13 @@ class NetworkPanel extends JPanel
     panel2.setEnabled(false);
     scrollPane2.setEnabled(false);
   */}
+
+    public void clear()
+    {
+        imodel.clear();
+        omodel.clear();
+        Host_Text.setText("");
+        IP_Text.setText("");
+        Port_Text.setText("");
+    }
 }
