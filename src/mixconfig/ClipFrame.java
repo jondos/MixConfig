@@ -1,32 +1,23 @@
 package mixconfig;
 
-import java.util.*;
-import java.net.*;
-import java.awt.*;
-import java.awt.datatransfer.*;
+import java.awt.Dialog;
+import java.awt.TextArea;
 import java.awt.event.*;
 import java.awt.Font.*;
 import java.io.*;
-import javax.swing.*;
-import java.applet.*;
-import java.lang.Object;
-import java.math.*;
-import java.net.URLEncoder;
-import javax.swing.BorderFactory;
-import javax.swing.table.*;
-import javax.swing.event.*;
+import javax.swing.JOptionPane;
 
-class ClipFrame extends Frame implements ActionListener
+class ClipFrame extends Dialog implements ActionListener
 {
-  public static TextArea Area;
+  private TextArea m_TextArea;
 
   public ClipFrame(String title,boolean open)
   {
-    Frame ClipBox = new Frame(title);
-    Area = new TextArea(20,100);
-    Area.setText("");
+    super(TheApplet.myFrame,title,false);
+    m_TextArea = new TextArea(30,80);
+    m_TextArea.setText("");
 
-    if(open == true)
+ /*   if(open == true)
     {
       MenuBar mb = new MenuBar();
       ClipBox.setMenuBar(mb);
@@ -37,35 +28,34 @@ class ClipFrame extends Frame implements ActionListener
       OpenItem.setActionCommand("open");
       fileMenu.add(OpenItem);
     }
-
-    ClipBox.add(Area);
-    ClipBox.addWindowListener(new WindowAdapter()
+*/
+    add(m_TextArea);
+    addWindowListener(new WindowAdapter()
     {
            public void windowClosing(WindowEvent e)
           {
-            Frame frame = (Frame)e.getSource();
-            frame.dispose();
+            dispose();
           }
     });
 
-    ClipBox.pack();
-    ClipBox.setVisible(true);
+    pack();
+    show();//setVisible(true);
   }
 
-  public static void SetText(String data)
+  public void setText(String data)
   {
-    Area.setText(data);
+    m_TextArea.setText(data);
   }
 
   public void actionPerformed(ActionEvent ae)
     {
       if(ae.getActionCommand().equals("open"))
       {
-          if(Area.getText().equals(""))
+          if(m_TextArea.getText().equals(""))
           {
-            DialogBox dialog = new DialogBox(TheApplet.myFrame,"ERROR !!");
-            dialog.setlabel("The Text Area is empty!!");
-            dialog.setVisible(true);
+            JOptionPane.showMessageDialog(TheApplet.myFrame,"The Text Area is empty!",
+                            "Error!",JOptionPane.ERROR_MESSAGE);
+
           }
           else
           {

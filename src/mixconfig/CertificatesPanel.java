@@ -1,46 +1,29 @@
 package mixconfig;
-import java.util.*;
-import java.net.*;
-import java.awt.*;
-import java.awt.datatransfer.*;
-import java.awt.event.*;
-import java.awt.Font.*;
-import java.io.*;
-import javax.swing.*;
-import java.applet.*;
-import java.lang.Object;
-import java.math.*;
-import java.net.URLEncoder;
-import javax.swing.BorderFactory;
-import javax.swing.table.*;
-import javax.swing.event.*;
+import java.util.Date;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.ButtonGroup;
-import javax.swing.JMenuBar;
-import javax.swing.KeyStroke;
-import javax.swing.ImageIcon;
-import javax.swing.JTextArea;
-import javax.swing.JScrollPane;
-import javax.swing.JFrame;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+import java.math.BigInteger;
+
+import java.io.*;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import java.net.URLEncoder;
+
 
 import javax.swing.border.TitledBorder;
-import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.security.cert.Certificate;
 import java.security.cert.*;
 import java.security.*;
-import org.bouncycastle.util.encoders.*;
 import org.bouncycastle.jce.X509V3CertificateGenerator;
 import org.bouncycastle.jce.provider.*;
 import org.bouncycastle.asn1.x509.X509Name;
-import org.bouncycastle.crypto.BlockCipher;
 
 class CertificatesPanel extends JPanel implements ActionListener
   {
@@ -48,7 +31,7 @@ class CertificatesPanel extends JPanel implements ActionListener
     JTextField text1,from_text1,to_text1;
     JTextField text2,from_text2,to_text2;
     JTextField text3,from_text3,to_text3;
-    JButton import1,import2,create;
+    JButton import1,import2,create,m_bttnExportOwnPub;
 
     byte[] m_ownPubCert;
     byte[] m_ownPrivCert;
@@ -74,7 +57,7 @@ class CertificatesPanel extends JPanel implements ActionListener
     GridBagConstraints d=new GridBagConstraints();
     d.anchor=GridBagConstraints.NORTHWEST;
     d.insets=new Insets(5,5,5,5);
-    panel1.setBorder(BorderFactory.createTitledBorder("Own Mix Certificate"));
+    panel1.setBorder(new TitledBorder("Own Mix Certificate"));
     c.gridx = 0;
     c.gridy = 0;
     c.weightx = 1;
@@ -91,6 +74,16 @@ class CertificatesPanel extends JPanel implements ActionListener
     create.setActionCommand("Create");
     Own.setConstraints(create,d);
     panel1.add(create);
+    m_bttnExportOwnPub = new JButton("Export public Certificate...");
+    d.gridx = 2;
+    d.gridy = 0;
+    d.gridwidth = 1;
+    d.fill = GridBagConstraints.HORIZONTAL;
+    m_bttnExportOwnPub.addActionListener(this);
+    m_bttnExportOwnPub.setActionCommand("ExportOwnPubCert");
+    m_bttnExportOwnPub.setEnabled(false);
+    Own.setConstraints(m_bttnExportOwnPub,d);
+    panel1.add(m_bttnExportOwnPub);
     JButton passwd = new JButton("Change Password");
     d.gridx = 3;
     passwd.addActionListener(this);
@@ -149,7 +142,7 @@ class CertificatesPanel extends JPanel implements ActionListener
   /*  panel2.setBorder(BorderFactory.createCompoundBorder(
 		BorderFactory.createTitledBorder("Previous Mix Certificate"),
 		BorderFactory.createEmptyBorder(0,0,0,0))); */
-    panel2.setBorder(BorderFactory.createTitledBorder("Previous Mix Certificate"));
+    panel2.setBorder(new TitledBorder("Previous Mix Certificate"));
     layout.setConstraints(panel2,c);
     add(panel2);
 
@@ -207,9 +200,7 @@ class CertificatesPanel extends JPanel implements ActionListener
     f.anchor=GridBagConstraints.NORTHWEST;
     f.insets=new Insets(5,5,5,5);
     f.fill = GridBagConstraints.HORIZONTAL;
-    panel3.setBorder(BorderFactory.createCompoundBorder(
-		BorderFactory.createTitledBorder("Next Mix Certificate"),
-		BorderFactory.createEmptyBorder(0,0,0,0)));
+    panel3.setBorder(new TitledBorder("Next Mix Certificate"));
     layout.setConstraints(panel3,c);
     add(panel3);
 
@@ -301,6 +292,7 @@ class CertificatesPanel extends JPanel implements ActionListener
                 to_text1.setText(null);
                 text1.setText(null);
                 m_ownPrivCert=null;
+                m_bttnExportOwnPub.setEnabled(false);
               }
           }
         catch(Exception e)
@@ -455,6 +447,7 @@ class CertificatesPanel extends JPanel implements ActionListener
         //passwd = br.readLine();
         kstore.store(out, passwd);
         setOwnPrivCert(out.toByteArray(),passwd);
+        m_bttnExportOwnPub.setEnabled(true);
       }
       catch(Exception e)
       {
@@ -476,7 +469,22 @@ class CertificatesPanel extends JPanel implements ActionListener
         PasswordBox dialog = new PasswordBox(TheApplet.myFrame,"Change Password",PasswordBox.CHANGE_PASSWORD);
         dialog.setVisible(true);
       }
-
+    else if (ae.getActionCommand().equalsIgnoreCase("ExportOwnPubCert"))
+      {
+        File file=TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_CER);
+        if(file!=null)
+          {
+            try
+              {
+                FileOutputStream fout=new FileOutputStream(file);
+                fout.write(getOwnPubCert());
+                fout.close();
+              }
+            catch(Exception e)
+              {
+              }
+          }
+      }
     else if(ae.getActionCommand().equals("Import1"))
       setPrevPubCert(openFile());
     else if(ae.getActionCommand().equals("Import2"))
@@ -487,14 +495,11 @@ class CertificatesPanel extends JPanel implements ActionListener
 
     private byte[] openFile()
       {
-        FileDialog fd = new FileDialog(TheApplet.myFrame,"Open File",FileDialog.LOAD);
-        fd.show();
-        String myFile = fd.getDirectory()+fd.getFile();
-        if(fd.getFile() != null)
+        File file=TheApplet.showFileDialog(TheApplet.OPEN_DIALOG,TheApplet.FILTER_CER);
+        if(file != null)
           {
             try
               {
-                File file=new File(myFile);
                 byte[] buff=new byte[(int)file.length()];
                 FileInputStream fin = new FileInputStream(file);
                 fin.read(buff);
@@ -503,7 +508,7 @@ class CertificatesPanel extends JPanel implements ActionListener
               }
             catch(Exception e)
               {
-                System.out.println("Error reading: "+myFile);
+                System.out.println("Error reading: "+file);
                 return null;
               }
           }

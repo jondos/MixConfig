@@ -162,7 +162,7 @@ class DescriptionPanel extends JPanel implements ActionListener
               }
             catch(Exception e)
               {
-                e.printStackTrace();
+                //e.printStackTrace();
               }
           }
         else if(ae.getActionCommand().equals("Update"))

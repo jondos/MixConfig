@@ -123,14 +123,14 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     add(num_file);
     num_file.setEnabled(false);
 
-    m_checkboxDaemon = new JCheckBox("Run as Daemon?");
+    m_checkboxDaemon = new JCheckBox("Run as Daemon");
     c.gridx = 0;
     c.gridy = 7;
     m_checkboxDaemon.addItemListener(this);
     layout.setConstraints(m_checkboxDaemon,c);
     add(m_checkboxDaemon);
 
-    m_checkboxLogging = new JCheckBox("Enable Logging?");
+    m_checkboxLogging = new JCheckBox("Enable Logging");
     c.gridx = 0;
     c.gridy = 8;
     m_checkboxLogging.addItemListener(this);
