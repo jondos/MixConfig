@@ -27,7 +27,7 @@
 	<Logging>
 		<!-- Information of how to log some events -->
 		<!-- Only one of the following three is possible -->
-		<File><!--The file to which the log data should be writen--></File>
+		<File compressed="True|False"><!--The file to which the log data should be writen--></File>
 		<SysLog>  <!-- Values: True | False --> </SysLog>
 		<Console> <!-- Values: True | False, must be False, if Daemon=True --> </Console>
 	</Logging>
