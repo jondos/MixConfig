@@ -28,7 +28,7 @@ import javax.swing.border.TitledBorder;
 class MapBox extends JDialog implements ActionListener,ChangeListener
 {
     public static final int BOLD = 3;
-    private String m_IconString,m_urlString;
+    private String m_urlString;
     private JLabel map;
     private JSlider s;
     private JPanel p;
@@ -93,9 +93,9 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
 
       try
         {
-          String logo = "http://art.mapquest.com/mqsite_english/logo";
-          URL MapLogo = new URL(logo);
-          ImageIcon maplogo = new ImageIcon(MapLogo);
+          //String logo = "http://art.mapquest.com/mqsite_english/logo";
+          //URL MapLogo = new URL(logo);
+          ImageIcon maplogo = TheApplet.loadImage("mapquest-logo.gif");
           JLabel logolabel = new JLabel(maplogo);
           c.gridx = 1;
           c.gridy = 2;
@@ -160,21 +160,12 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
       {
          try
             {
-              URL url = new URL(m_urlString);
-              BufferedInputStream bis = new BufferedInputStream(url.openStream(),500);
-              char array[] = {'z','o','o','m','='};
-              String newsite = "http://mapquest.com/maps/map.adp?zoom=";
-              newsite += i;
-              newsite = getnext(array,5,bis,newsite,1);
-              m_urlString = newsite;
-
-              URL Image = new URL(newsite);
-              BufferedInputStream bisImage = new BufferedInputStream(Image.openStream(),500);
+              URL tmpUrl = new URL("http://www.mapquest.com/maps/map.adp?zoom="+i+"&size=big"+m_urlString);
+              BufferedInputStream bisImage = new BufferedInputStream(tmpUrl.openStream(),500);
               char array2[] = {'q','m','a','p','g','e','n','d'};
               String newImage = "http://mq-mapgend.websys.aol.com:80/mqmapgend";
               newImage = getnext(array2,8,bisImage,newImage,0);
-              m_IconString = newImage;
-              URL icon = new URL(m_IconString);
+              URL icon = new URL(newImage);
               ImageIcon MapIcon = new ImageIcon(icon);
               map.setIcon(MapIcon);
             }
@@ -250,7 +241,7 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
               if(j == 7)
                 break;
             }
-            String add_url = "http://www.mapquest.com/maps/map.adp?size=big";
+            String add_url = "";
             char address;
             address = (char)bissmall.read();
             while(address != '"')
@@ -258,29 +249,6 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
                add_url += address;
                address = (char)bissmall.read();
             }
-
-            URL urlbig = new URL(add_url);
-            bisbig = new BufferedInputStream(urlbig.openStream(),500);
-            char big[] = {'q','m','a','p','g','e','n','d'};
-            while(true)
-            {
-              if((char)bisbig.read() == 'm')
-              {
-                 for(j = 0; j < 8; j++)
-                   if((char)bisbig.read() != big[j])
-                     break;
-              }
-              if(j == 8)
-                break;
-            }
-            String big_url = "http://mq-mapgend.websys.aol.com:80/";
-            address = (char)bisbig.read();
-            while(address != '"')
-            {
-               big_url += address;
-               address = (char)bisbig.read();
-            }
-            m_IconString = big_url;
             m_urlString = add_url;
             setZoomLevel(s.getValue());
           }

@@ -178,6 +178,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     bg.add(Console);
     bg.add(File);
     bg.add(Syslog);
+    Console.setSelected(true);
   }
 
   public void clear()
@@ -330,83 +331,40 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
 
   public void actionPerformed(ActionEvent ae)
   {
-    //String selection = ae.getActionCommand();
-    if(Console.isSelected() == true || Syslog.isSelected() == true)
-    {
-      FileName.setEnabled(false);
-      FileName.setText("");
-    }
-    if(File.isSelected() == true)
-      FileName.setEnabled(true);
+    FileName.setEnabled(File.isSelected());
   }
 
   public void itemStateChanged(ItemEvent ie)
   {
     if(Auto.isSelected() == true)
       MixID.setText("Auto is Selected");
-    //if(Auto.isSelected() == false)
-    //  MixID.setText("");
-
 
     if(m_checkboxLogging.isSelected())
-    {
-      if(m_checkboxDaemon.isSelected())
-        Console.setEnabled(true);
-      File.setEnabled(true);
-      Syslog.setEnabled(true);
-      //logging = "True";
-    }
+      {
+        if(m_checkboxDaemon.isSelected())
+          {
+            if( Console.isSelected() )//switch automaticaly to File if console and dameon is selected
+              File.setSelected(true);
+            Console.setEnabled(false);
+          }
+        else
+          Console.setEnabled(true);
+        File.setEnabled(true);
+        FileName.setEnabled(File.isSelected());
+        Syslog.setEnabled(true);
+
+      }
     else
-    {
-      Console.setEnabled(false);
-      File.setEnabled(false);
-      Syslog.setEnabled(false);
-      FileName.setEnabled(false);
-      //logging = "";
-    }
+      {
+        Console.setEnabled(false);
+        File.setEnabled(false);
+        Syslog.setEnabled(false);
+        FileName.setEnabled(false);
+      }
 
-    if(m_checkboxDaemon.isSelected() )
-    {
-      Console.setEnabled(false);
-      //is_daemon = "True";
-    }
-   // if(m_checkboxDaemon.isSelected() == false)
-    //  is_daemon = "";
 
-    if(m_checkboxDaemon.isSelected()  && Console.isSelected() )
-    {
-       File.setSelected(true);
-       FileName.setEnabled(true);
-    }
-
-    if(Console.isSelected() || Syslog.isSelected() )
-    {
-      FileName.setEnabled(false);
-    }
-
-    if(m_checkboxUserID.isSelected())
-    {
-      ID_Text.setEnabled(true);
-      //User_ID = "True";
-    }
-    else
-    {
-      ID_Text.setText("");
-      ID_Text.setEnabled(false);
-      //User_ID = "";
-    }
-
-    if(m_checkboxNrOfFileDes.isSelected())
-    {
-      num_file.setEnabled(true);
-      //fileDes = "True";
-    }
-    else
-    {
-      num_file.setText("");
-      num_file.setEnabled(false);
-      //fileDes = "";
-    }
+    ID_Text.setEnabled(m_checkboxUserID.isSelected());
+    num_file.setEnabled(m_checkboxNrOfFileDes.isSelected());
   }
 }
 

@@ -344,5 +344,12 @@ class NetworkPanel extends JPanel
     f.gridx = 1;
     Info_Layout.setConstraints(Port_Text,f);
     panel3.add(Port_Text);
+
+    table1.setEnabled(false);
+    panel1.setEnabled(false);
+    scrollPane1.setEnabled(false);
+    table2.setEnabled(false);
+    panel2.setEnabled(false);
+    scrollPane2.setEnabled(false);
   }
 }
