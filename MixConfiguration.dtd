@@ -46,3 +46,6 @@
 	    <!ELEMENT Geo (Longitude, Latitude)>
 		<!ELEMENT Longitude (#PCDATA)>
 		<!ELEMENT Latitude (#PCDATA)>
+    <!ELEMENT Operator (Organisation, URL)>
+	<!ELEMENT Organisation (#PCDATA)>
+	<!ELEMENT URL (#PCDATA)>

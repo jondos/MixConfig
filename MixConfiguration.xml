@@ -138,6 +138,11 @@
 
 	</Location>
 
+	<Operator> <!-- who is operating this mix? -->
+		<Organisation> <!-- The name of the operating organisation or a person's name for private operators --> </Organisation> 
+		<URL> <!-- a url that leads to more information on the operator, including contact information --> </URL> 
+	</Operator>
+
 </Description>
 
 
