@@ -460,16 +460,4 @@ public class ConfigFrame extends JPanel implements ActionListener
 		return asString;
 	}
 
-	/**
-	 * This method is a dummy that does nothing but to instantiate some Xerces
-	 * DOM classes. This forces JBuilder to include them into the JAR file on
-	 * compilation.
-	 * @deprecated This method is an ugly but useful hack.
-	 */
-	private void forceXercesIntoJar()
-	{
-		new org.apache.xerces.jaxp.DocumentBuilderFactoryImpl();
-		new org.apache.xerces.parsers.XML11Configuration();
-		new org.apache.xerces.impl.dv.dtd.DTDDVFactoryImpl();
-	}
 }
