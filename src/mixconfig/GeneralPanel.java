@@ -28,14 +28,18 @@
 package mixconfig;
 
 import java.io.ByteArrayOutputStream;
-import java.awt.Component;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Vector;
+
+import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -45,553 +49,418 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.OverlayLayout;
+
 import org.bouncycastle.asn1.DEROutputStream;
 import org.bouncycastle.asn1.x509.X509CertificateStructure;
+import org.w3c.dom.Attr;
+import anon.util.Base64;
+import mixconfig.wizard.ConfigWizardPanel;
+import javax.swing.border.TitledBorder;
+import javax.swing.ButtonModel;
 
-final public class GeneralPanel extends JPanel implements ItemListener, ActionListener
+public class GeneralPanel extends MixConfigPanel implements ActionListener
 {
+	final static String idChars =
+		"abcdefghijklmnopqrstuvwxyz0123456789.-_";
+
 	private JComboBox m_comboboxMixType;
 	private JTextField m_tfMixName, m_tfCascadeName, m_tfMixID, m_tfFileName, m_tfID, m_tfNumOfFiles,
-		m_tfLogEncryptKeyName;
+		m_tfLogEncryptKeyName, m_tfCascadeLength;
 	private JCheckBox m_checkboxDaemon, m_checkboxLogging, m_checkboxUserID, m_checkboxNrOfFileDes,
-		m_compressLog;
+		m_compressLog, m_checkboxCascadeLength;
 	private JRadioButton m_rbConsole, m_rbFile, m_rbSyslog;
-	private JLabel m_labelEnrypt;
-	private ButtonGroup bg;
-	private JButton m_bttnImportEncKey;
+	private JLabel m_labelEnrypt, m_lbMixID;
+	private ButtonGroup m_loggingButtonGroup;
+	private JButton m_bttnImportEncKey, m_bttnGenMixID;
 	private byte[] m_certLogEncKey = null;
+	private JPanel strut = new JPanel();
+	private JPanel advanced = new JPanel();
 
+	/**
+	 * Constructs a panel with controls for general Mix settings.
+	 */
 	public GeneralPanel()
 	{
+		GridBagLayout l = new GridBagLayout();
+		setLayout(l);
+
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.gridy = 0;
+		gbc.weightx = 1;
+
 		GridBagLayout layout = new GridBagLayout();
-		setLayout(layout);
+		GridBagLayout layout2 = new GridBagLayout();
+
+		JPanel p1 = new JPanel(layout);
+		JPanel p2 = new JPanel();
+		OverlayLayout ol = new OverlayLayout(p2);
+		p2.setLayout(ol);
+		advanced = new JPanel(layout2);
+
+		p1.setBorder(new TitledBorder("General settings"));
+		advanced.setBorder(new TitledBorder("Advanced settings"));
+
 		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new Insets(10, 10, 10, 25);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weighty = 1;
+
+		// Mix Type label
+		JLabel j1 = new JLabel("Mix Type");
+		c.gridy = 0;
+		c.weightx = 1;
+		layout.setConstraints(j1, c);
+		p1.add(j1);
+
+		// Mix Type JComboBox
+		m_comboboxMixType = new JComboBox();
+		m_comboboxMixType.setName("General/MixType");
+		m_comboboxMixType.addItem("First Mix");
+		m_comboboxMixType.addItem("Middle Mix");
+		m_comboboxMixType.addItem("Last Mix");
+		m_comboboxMixType.addItemListener(this);
+		c.weightx = 3;
+		layout.setConstraints(m_comboboxMixType, c);
+		p1.add(m_comboboxMixType);
+
+		// Cascade Name JLabel
+		JLabel j1a = new JLabel("Cascade Name");
+		c.gridy++;
+		c.weightx = 1;
+		layout.setConstraints(j1a, c);
+		p1.add(j1a);
+
+		// Cascade Name JTextField
+		m_tfCascadeName = new JTextField(20);
+		m_tfCascadeName.setText("");
+		m_tfCascadeName.setName("General/CascadeName");
+		m_tfCascadeName.addFocusListener(this);
+		c.weightx = 3;
+		layout.setConstraints(m_tfCascadeName, c);
+		p1.add(m_tfCascadeName);
+
+		// Mix Name JLabel
+		JLabel j2 = new JLabel("Mix Name");
+		c.gridy++;
+		c.weightx = 1;
+		layout.setConstraints(j2, c);
+		p1.add(j2);
+
+		// Mix Name JTextField
+		m_tfMixName = new JTextField(20);
+		m_tfMixName.setText("");
+		m_tfMixName.setName("General/MixName");
+		m_tfMixName.addFocusListener(this);
+		c.weightx = 3;
+		layout.setConstraints(m_tfMixName, c);
+		p1.add(m_tfMixName);
+
+		// Cascade length JCheckBox
+		m_checkboxCascadeLength = new JCheckBox("Require min. Cascade length");
+		m_checkboxCascadeLength.addItemListener(this);
+		c.weightx = 1;
+		c.gridy++;
+		layout.setConstraints(m_checkboxCascadeLength, c);
+		p1.add(m_checkboxCascadeLength);
+
+		// Cascade length JTextField
+		m_tfCascadeLength = new JTextField(20);
+		m_tfCascadeLength.setName("General/MinCascadeLength");
+		m_tfCascadeLength.addFocusListener(this);
+		c.weightx = 2;
+		layout.setConstraints(m_tfCascadeLength, c);
+		p1.add(m_tfCascadeLength);
+
+		l.setConstraints(p1, gbc);
+		add(p1);
+
+		c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.insets = new Insets(10, 10, 10, 10);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weighty = 1;
 
-		JLabel j1 = new JLabel("Mix Type");
-		c.gridx = 0;
+		// Mix ID JLabel
+		m_lbMixID = new JLabel("Mix ID");
 		c.gridy = 0;
-		c.gridwidth = 1;
-		c.weightx = 0;
-		layout.setConstraints(j1, c);
-		add(j1);
-		m_comboboxMixType = new JComboBox();
-		m_comboboxMixType.addItem("First Mix");
-		m_comboboxMixType.addItem("Middle Mix");
-		m_comboboxMixType.addItem("Last Mix");
 		c.weightx = 1;
-		c.gridx = 1;
-		c.gridwidth = 3;
-		layout.setConstraints(m_comboboxMixType, c);
-		add(m_comboboxMixType);
-		m_comboboxMixType.addItemListener(new ItemListener()
-		{
-			public void itemStateChanged(ItemEvent e)
-			{
-				int sel = m_comboboxMixType.getSelectedIndex();
-				m_tfCascadeName.setEnabled(sel == 0);
-				ConfigFrame.m_CertificatesPanel.updateButtons(sel > 0, sel < 2);
-				ConfigFrame.m_PaymentPanel.setEnabled(sel==0);
-			}
-		});
+		layout2.setConstraints(m_lbMixID, c);
+		advanced.add(m_lbMixID);
 
-		JLabel j1a = new JLabel("Cascade Name");
-		c.gridx = 0;
-		c.gridy++;
-		c.gridwidth = 1;
-		c.weightx = 0;
-		layout.setConstraints(j1a, c);
-		add(j1a);
-		m_tfCascadeName = new JTextField(20);
-		m_tfCascadeName.setText("");
-		c.gridx = 1;
-		c.gridwidth = 3;
-		c.weightx = 1;
-		layout.setConstraints(m_tfCascadeName, c);
-		add(m_tfCascadeName);
-
-		JLabel j2 = new JLabel("Mix Name");
-		c.gridx = 0;
-		c.gridy++;
-		c.gridwidth = 1;
-		c.weightx = 0;
-		layout.setConstraints(j2, c);
-		add(j2);
-		m_tfMixName = new JTextField(20);
-		m_tfMixName.setText("");
-		c.gridx = 1;
-		c.gridwidth = 3;
-		c.weightx = 1;
-		layout.setConstraints(m_tfMixName, c);
-		add(m_tfMixName);
-
-		JLabel j3 = new JLabel("Mix ID");
-		c.gridx = 0;
-		c.gridy++;
-		c.gridwidth = 1;
-		c.weightx = 0;
-		layout.setConstraints(j3, c);
-		add(j3);
-
+		// Mix ID JTextField
 		m_tfMixID = new JTextField(20);
+		m_tfMixID.setName("General/MixID");
 		m_tfMixID.setText("");
-		c.gridx = 1;
-		c.gridwidth = 2;
+		m_tfMixID.addFocusListener(this);
 		c.weightx = 1;
-		layout.setConstraints(m_tfMixID, c);
-		add(m_tfMixID);
+		layout2.setConstraints(m_tfMixID, c);
+		advanced.add(m_tfMixID);
 
-		JButton genButton = new JButton("Generate");
-		c.gridx = 3;
-		c.gridwidth = 1;
-		c.weightx = 0;
-		layout.setConstraints(genButton, c);
-		add(genButton);
-		final Component myComponent = this;
-		genButton.addActionListener(
-			new ActionListener()
-		{
-			final static String idChars =
-				"abcdefghijklmnopqrstuvwxyz0123456789.-_";
-			public void actionPerformed(ActionEvent ev)
-			{
-				String oMixid = m_tfMixID.getText();
+		// Generate Mix ID JButton
+		m_bttnGenMixID = new JButton("Generate");
+		m_bttnGenMixID.addActionListener(this);
+		c.weightx = 1;
+		layout2.setConstraints(m_bttnGenMixID, c);
+		advanced.add(m_bttnGenMixID);
 
-				if (oMixid != null && oMixid.length() != 0)
-				{
-					if (JOptionPane.showConfirmDialog(myComponent,
-						"It is generally not a good idea to change a Mix ID.\n" +
-						"You should proceed only if you know what you're doing." +
-						( (ConfigFrame.m_CertificatesPanel.getOwnPrivCert() == null) ? "" :
-						 "\nA new Mix ID may also invalidate your certificate."),
-						"Change of Mix ID.",
-						JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.WARNING_MESSAGE) != JOptionPane.OK_OPTION)
-					{
-						return;
-					}
-				}
-
-				String str = "m";
-				for (int i = 0; i < 10; i++)
-				{
-					int r = (int) (Math.random() * idChars.length());
-					str += idChars.substring(r, r + 1);
-				}
-				m_tfMixID.setText(str);
-			}
-		});
-
+		// User ID JCheckBox
 		m_checkboxUserID = new JCheckBox("Set User ID on Execution");
-		c.gridy++;
-		c.gridx = 0;
-		c.gridwidth = 1;
-		c.weightx = 0;
 		m_checkboxUserID.addItemListener(this);
-		layout.setConstraints(m_checkboxUserID, c);
-		add(m_checkboxUserID);
-		m_tfID = new JTextField(20);
-		c.gridx = 1;
+		c.gridy++;
 		c.weightx = 1;
-		c.gridwidth = 3;
-		layout.setConstraints(m_tfID, c);
-		add(m_tfID);
+		layout2.setConstraints(m_checkboxUserID, c);
+		advanced.add(m_checkboxUserID);
+
+		// User ID JTextField
+		m_tfID = new JTextField(20);
+		m_tfID.setName("General/UserID");
+		m_tfID.addFocusListener(this);
+		c.weightx = 2;
+		layout2.setConstraints(m_tfID, c);
+		advanced.add(m_tfID);
 		m_tfID.setEnabled(false);
 
+		// File Descriptors JCheckBox
 		m_checkboxNrOfFileDes = new JCheckBox("Set Number of File Descriptors");
-		c.weightx = 0;
-		c.gridy++;
-		c.gridx = 0;
-		c.gridwidth = 1;
 		m_checkboxNrOfFileDes.addItemListener(this);
-		layout.setConstraints(m_checkboxNrOfFileDes, c);
-		add(m_checkboxNrOfFileDes);
+		c.weightx = 1;
+		c.gridy++;
+		layout2.setConstraints(m_checkboxNrOfFileDes, c);
+		advanced.add(m_checkboxNrOfFileDes);
+
+		// File Descriptors JTextField
 		m_tfNumOfFiles = new JTextField(20);
-		c.gridx = 1;
-		c.gridwidth = 3;
-		c.weightx = 1;
-		layout.setConstraints(m_tfNumOfFiles, c);
-		add(m_tfNumOfFiles);
-		m_tfNumOfFiles.setEnabled(false);
+		m_tfNumOfFiles.setName("General/NrOfFileDescriptors");
+		m_tfNumOfFiles.addFocusListener(this);
+		c.weightx = 2;
+		layout2.setConstraints(m_tfNumOfFiles, c);
+		advanced.add(m_tfNumOfFiles);
 
+		// Daemon JCheckBox
 		m_checkboxDaemon = new JCheckBox("Run as Daemon");
-		c.gridx = 0;
-		c.gridy++;
-		c.gridwidth = 1;
-		c.weightx = 0;
+		m_checkboxDaemon.setName("General/Daemon");
 		m_checkboxDaemon.addItemListener(this);
-		layout.setConstraints(m_checkboxDaemon, c);
-		add(m_checkboxDaemon);
+		c.gridy++;
+		c.weightx = 1;
+		layout2.setConstraints(m_checkboxDaemon, c);
+		advanced.add(m_checkboxDaemon);
 
+		// Logging JCheckBox
 		m_checkboxLogging = new JCheckBox("Enable Logging");
-		c.gridx = 0;
-		c.gridy++;
-		c.gridwidth = 1;
-		c.weightx = 0;
 		m_checkboxLogging.addItemListener(this);
-		layout.setConstraints(m_checkboxLogging, c);
-		add(m_checkboxLogging);
+		c.gridy++;
+		c.weightx = 1;
+		layout2.setConstraints(m_checkboxLogging, c);
+		advanced.add(m_checkboxLogging);
 
+		// Console Logging JCheckBox
 		m_rbConsole = new JRadioButton("Log to Console");
+		m_rbConsole.setName("General/Logging/Console");
+		m_rbConsole.setModel(new ToggleButtonModel());
+		m_rbConsole.addItemListener(this);
 		c.gridx = 1;
 		c.weightx = 1;
-		c.gridwidth = 3;
-		m_rbConsole.setActionCommand("LogtoConsole");
-		m_rbConsole.addActionListener(this);
-		layout.setConstraints(m_rbConsole, c);
-		add(m_rbConsole);
-		m_rbConsole.setEnabled(false);
+		layout2.setConstraints(m_rbConsole, c);
+		advanced.add(m_rbConsole);
 
-		m_rbFile = new JRadioButton("Log to Directory");
-		c.gridwidth = 3;
+		// Log to Directory JRadioButton
+		m_rbFile = new JRadioButton("Log to Directory:");
+		m_rbFile.setModel(new ToggleButtonModel());
+		m_rbFile.setName("General/Logging/File");
+		m_rbFile.setSelected(true);
+		m_rbFile.addItemListener(this);
 		c.weightx = 1;
 		c.gridy++;
-		m_rbFile.addActionListener(this);
-		m_rbFile.setActionCommand("Logtodir");
-		layout.setConstraints(m_rbFile, c);
-		add(m_rbFile);
-		m_rbFile.setEnabled(false);
+		layout2.setConstraints(m_rbFile, c);
+		advanced.add(m_rbFile);
 
+		// Log to Directory JTextField
 		m_tfFileName = new JTextField(20);
-		m_tfFileName.setText("");
-		c.insets.left += 20;
-		c.gridx = 1;
-		c.gridy++;
-		c.gridwidth = 3;
+		m_tfFileName.setName("General/Logging/File");
+		m_tfFileName.addFocusListener(this);
+		c.gridx = -1;
 		c.weightx = 1;
-		layout.setConstraints(m_tfFileName, c);
-		add(m_tfFileName);
-		m_tfFileName.setEnabled(false);
+		layout2.setConstraints(m_tfFileName, c);
+		advanced.add(m_tfFileName);
 
+		// Encrypt Log JLabel
 		m_labelEnrypt = new JLabel("Encrypt with:");
-		c.gridx = 1;
-		c.gridy++;
-		c.gridwidth = 1;
-		c.weightx = 0;
-		layout.setConstraints(m_labelEnrypt, c);
-		add(m_labelEnrypt);
 		m_labelEnrypt.setEnabled(false);
-
-		m_tfLogEncryptKeyName = new JTextField(15);
-		c.insets.left -= 20;
-		c.gridx = 2;
-		c.gridwidth = 1;
-		c.weightx = 1;
-		layout.setConstraints(m_tfLogEncryptKeyName, c);
-		add(m_tfLogEncryptKeyName);
-		m_tfLogEncryptKeyName.setEnabled(false);
-
-		m_bttnImportEncKey = new JButton("Import...");
-		c.gridx = 3;
-		c.gridwidth = 1;
-		c.weightx = 0;
-		layout.setConstraints(m_bttnImportEncKey, c);
-		add(m_bttnImportEncKey);
-		m_bttnImportEncKey.setEnabled(false);
-		m_bttnImportEncKey.addActionListener(
-			new ActionListener()
-		{
-			public void actionPerformed(ActionEvent ev)
-			{
-				importEncKeyForLog();
-			}
-		});
-
-		m_compressLog = new JCheckBox("Compress Log Files");
 		c.insets.left += 20;
 		c.gridx = 1;
 		c.gridy++;
-		c.gridwidth = 3;
 		c.weightx = 1;
-		layout.setConstraints(m_compressLog, c);
-		add(m_compressLog);
-		m_compressLog.setEnabled(false);
+		layout2.setConstraints(m_labelEnrypt, c);
+		advanced.add(m_labelEnrypt);
 
+		// Encrypt Log Key JTextField
+		m_tfLogEncryptKeyName = new JTextField(15);
+		m_tfLogEncryptKeyName.setName("General/Logging/EncryptedLog/" +
+									  "KeyInfo/X509Data/X509Certificate");
+		m_tfLogEncryptKeyName.addFocusListener(this);
+		c.insets.left -= 20;
+		c.weightx = 1;
+		c.gridx = -1;
+		layout2.setConstraints(m_tfLogEncryptKeyName, c);
+		advanced.add(m_tfLogEncryptKeyName);
+
+		// Encrypt Log Key JButton
+		m_bttnImportEncKey = new JButton("Import...");
+		m_bttnImportEncKey.setEnabled(false);
+		m_bttnImportEncKey.addActionListener(this);
+		c.weightx = 1;
+		layout2.setConstraints(m_bttnImportEncKey, c);
+		advanced.add(m_bttnImportEncKey);
+
+		// Compress Log JCheckBox
+		m_compressLog = new JCheckBox("Compress Log Files");
+		m_compressLog.addItemListener(this);
+		m_compressLog.setName("General/Logging/File/compress");
+		c.insets.left += 20;
+		c.gridx = 1;
+		c.gridy++;
+		c.weightx = 1;
+		layout2.setConstraints(m_compressLog, c);
+		advanced.add(m_compressLog);
+
+		// Syslog JRadioButton
 		m_rbSyslog = new JRadioButton("Log to Syslog");
+		m_rbSyslog.setName("General/Logging/Syslog");
+		m_rbSyslog.setModel(new ToggleButtonModel());
+		m_rbSyslog.addItemListener(this);
 		c.insets.left -= 20;
 		c.gridx = 1;
 		c.gridy++;
-		m_rbSyslog.addActionListener(this);
-		m_rbSyslog.setActionCommand("LogtoSyslog");
-		layout.setConstraints(m_rbSyslog, c);
-		add(m_rbSyslog);
-		m_rbSyslog.setEnabled(false);
+		c.weightx = 1;
+		layout2.setConstraints(m_rbSyslog, c);
+		advanced.add(m_rbSyslog);
 
-		bg = new ButtonGroup();
-		bg.add(m_rbConsole);
-		bg.add(m_rbFile);
-		bg.add(m_rbSyslog);
-		m_rbConsole.setSelected(true);
+		p2.add(advanced);
+
+		strut = new JPanel();
+		strut.setLayout(new FlowLayout(FlowLayout.LEFT));
+		JButton b = new JButton("Advanced ...");
+		b.setActionCommand("advanced");
+		b.addActionListener(this);
+		strut.add(b);
+
+		p2.add(strut);
+
+		strut.setVisible(false);
+
+		gbc.gridy++;
+		l.setConstraints(p2, gbc);
+		add(p2);
+
+		ButtonGroup loggingButtonGroup = new ButtonGroup();
+		loggingButtonGroup.add(m_rbConsole);
+		loggingButtonGroup.add(m_rbFile);
+		loggingButtonGroup.add(m_rbSyslog);
+
+		// fire a dummy event to myself to initially enable/disable controls
+		setAutoSaveEnabled(false);
+		itemStateChanged(new ItemEvent(m_checkboxDaemon, 0, (Object)null, 0));
+		setAutoSaveEnabled(true);
 	}
 
-	public void clear()
+	/** Re-implemented from <CODE>java.awt.Component</CODE>, this method decides whether
+	 * to show or hide advanced settings, depending on whether the Mix configuration
+	 * tool has been started as a wizard or as an application.
+	 */
+	public void addNotify()
 	{
-		setMixType(null);
-		setMixName(null);
-		setCascadeName(null);
-		setUserID(null);
-		setLogging(false, false, false, null, false);
-		setFileDes(null);
-		setDaemon(null);
-		setMixID(null);
-		setEncKeyForLog(null);
-	}
-
-	public String getMixType()
-	{
-		switch (m_comboboxMixType.getSelectedIndex())
+		super.addNotify();
+		try
 		{
-			case 2:
-				return "LastMix";
-			case 1:
-				return "MiddleMix";
-			default:
-				return "FirstMix";
-		}
-	}
-
-	public String getCascadeName()
-	{
-		return m_tfCascadeName.getText();
-	}
-
-	public String getMixName()
-	{
-		return m_tfMixName.getText();
-	}
-
-	public String getMixID()
-	{
-		return m_tfMixID.getText();
-	}
-
-	public boolean isMixIDValid()
-	{
-		String mixID = getMixID();
-		if (mixID.equals(""))
-		{
-			return false;
-		}
-		else
-		{
-			final String idChars = "abcdefghijklmnopqrstuvwxyz0123456789.-_";
-			mixID = mixID.toLowerCase();
-			if (mixID.charAt(0) != 'm')
+			Container parent = getParent();
+			if (parent instanceof ConfigWizardPanel)
 			{
-				return false;
-			}
-			for (int i = 0; i < mixID.length(); i++)
-			{
-				if (idChars.indexOf(mixID.charAt(i)) < 0)
+				setAdvancedVisible(false);
+				if (getConfiguration().getAttribute("General/MixID") == null)
 				{
-					return false;
+					getConfiguration().setAttribute("General/MixID", genMixID());
 				}
 			}
-		}
-		return true;
-	}
-
-	public String getUserID()
-	{
-		if (m_checkboxUserID.isSelected())
-		{
-			return m_tfID.getText().trim();
-		}
-		return null;
-	}
-
-	public String getFileDes()
-	{
-		if (m_checkboxNrOfFileDes.isSelected())
-		{
-			return m_tfNumOfFiles.getText();
-		}
-		return null;
-	}
-
-	public String getFileName()
-	{
-		return m_tfFileName.getText();
-	}
-
-	public String getEnabled()
-	{
-		if (m_rbSyslog.isSelected() == true)
-		{
-			return "LogtoSyslog";
-		}
-		if (m_rbFile.isSelected() == true)
-		{
-			return "Logtodir";
-		}
-		if (m_rbConsole.isSelected() == true)
-		{
-			return "LogtoConsole";
-		}
-		return "null";
-	}
-
-	public boolean isLoggingEnabled()
-	{
-		return m_checkboxLogging.isSelected();
-	}
-
-	public boolean isLoggingCompressed()
-	{
-		return m_compressLog.isSelected();
-	}
-
-	public void setLogging(boolean bLogConsole, boolean bLogSyslog, boolean bLogFile, String file,
-						   boolean bcompLog)
-	{
-		if (bLogConsole || bLogSyslog || bLogFile)
-		{
-			m_checkboxLogging.setSelected(true);
-			m_rbConsole.setSelected(bLogConsole);
-			m_rbFile.setSelected(bLogFile);
-			if (bLogFile)
+			else
 			{
-				m_tfFileName.setText(file);
-				m_compressLog.setSelected(bcompLog);
+				setAdvancedVisible(true);
 			}
-			m_rbSyslog.setSelected(bLogSyslog);
-
 		}
-		else
+		catch (UnsupportedEncodingException ex)
 		{
-			m_checkboxLogging.setSelected(false);
+			MixConfig.handleException(ex);
 		}
-	}
-
-
-	public void setMixType(String type)
-	{
-		if (type == null)
-		{
-			m_comboboxMixType.setSelectedIndex(0);
-		}
-		else if (type.equalsIgnoreCase("LastMix"))
-		{
-			m_comboboxMixType.setSelectedIndex(2);
-		}
-		else if (type.equalsIgnoreCase("MiddleMix"))
-		{
-			m_comboboxMixType.setSelectedIndex(1);
-		}
-		else
-		{
-			m_comboboxMixType.setSelectedIndex(0);
-		}
-	}
-
-	public void setCascadeName(String name)
-	{
-		m_tfCascadeName.setText(name);
-	}
-
-	public void setMixName(String name)
-	{
-		m_tfMixName.setText(name);
-	}
-
-	public void setDaemon(String s)
-	{
-		if (s == null)
-		{
-			s = "";
-		}
-		m_checkboxDaemon.setSelected(s.equalsIgnoreCase("true"));
-	}
-
-	public String getDaemon()
-	{
-		return m_checkboxDaemon.isSelected() ? "True" : "False";
-	}
-
-	public void setMixID(String mixid)
-	{
-		m_tfMixID.setText(mixid);
-	}
-
-	public void setUserID(String userid)
-	{
-		m_tfID.setText(userid);
-		m_checkboxUserID.setSelected(userid != null);
-	}
-
-	public void setFileDes(String filedes)
-	{
-		m_tfNumOfFiles.setText(filedes);
-		m_checkboxNrOfFileDes.setSelected(filedes != null);
 	}
 
 	public void actionPerformed(ActionEvent ae)
 	{
-		m_tfFileName.setEnabled(m_rbFile.isSelected());
-		m_compressLog.setEnabled(m_rbFile.isSelected());
-		m_labelEnrypt.setEnabled(m_rbFile.isSelected());
-		m_bttnImportEncKey.setEnabled(m_rbFile.isSelected());
-	}
-
-	public void itemStateChanged(ItemEvent ie)
-	{
-		if (m_checkboxLogging.isSelected())
-		{
-			if (m_checkboxDaemon.isSelected())
-			{
-				if (m_rbConsole.isSelected()) //switch automaticaly to File if console and dameon is selected
-				{
-					m_rbFile.setSelected(true);
-				}
-				m_rbConsole.setEnabled(false);
-			}
-			else
-			{
-				m_rbConsole.setEnabled(true);
-			}
-			m_rbFile.setEnabled(true);
-			m_tfFileName.setEnabled(m_rbFile.isSelected());
-			m_compressLog.setEnabled(m_rbFile.isSelected());
-			m_labelEnrypt.setEnabled(m_rbFile.isSelected());
-			m_bttnImportEncKey.setEnabled(m_rbFile.isSelected());
-			m_rbSyslog.setEnabled(true);
-		}
-		else
-		{
-			m_rbConsole.setEnabled(false);
-			m_rbFile.setEnabled(false);
-			m_rbSyslog.setEnabled(false);
-			m_tfFileName.setEnabled(false);
-			m_compressLog.setEnabled(false);
-			m_bttnImportEncKey.setEnabled(false);
-			m_labelEnrypt.setEnabled(false);
-		}
-
-		m_tfID.setEnabled(m_checkboxUserID.isSelected());
-		m_tfNumOfFiles.setEnabled(m_checkboxNrOfFileDes.isSelected());
-	}
-
-	private void importEncKeyForLog()
-	{
-		byte[] cert;
 		try
 		{
-			cert = MixConfig.openFile(MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
+			if (ae.getSource() == m_bttnImportEncKey)
+			{
+				importEncKeyForLog();
+			}
+			// event source is "generate" button
+			else if (ae.getSource() == this.m_bttnGenMixID)
+			{
+				this.m_tfMixID.setText(genMixID());
+				save(this.m_tfMixID);
+			}
+			else if (ae.getActionCommand().equals("advanced"))
+			{
+				setAdvancedVisible(true);
+			}
 		}
-		catch (Exception e)
+		catch (UnsupportedEncodingException uee)
 		{
-
-			ClipFrame Open =
-				new ClipFrame(
-				"Paste a certificate to be imported in the area provided.",
-				true);
-			Open.show();
-			cert = Open.getText().getBytes();
+			MixConfig.handleException(uee);
 		}
-		setEncKeyForLog(cert);
+	}
+
+	/** Loads all values from the MixConfiguration object. This method overrides
+	 * mixconfig.MixConfigPanel.load() to take care of the dependencies between
+	 * attributes that are specific for this part of the configuration.
+	 * @throws IOException If loading an attribute fails
+	 */
+	public void load() throws IOException
+	{
+		super.load();
+
+		// disable automatic saving of values to the MixConfiguration
+		// to prevent infinite event loops
+		setAutoSaveEnabled(false);
+
+		boolean b;
+		String s;
+
+		b = m_tfNumOfFiles.getText().equals("");
+		this.m_checkboxNrOfFileDes.setSelected(!b);
+
+		b = this.m_tfID.getText().equals("");
+		this.m_checkboxUserID.setSelected(!b);
+
+		b = this.m_tfFileName.getText().equals("");
+		this.m_rbFile.setSelected(!b);
+
+		b = false;
+
+		s = getConfiguration().getAttribute("General/Logging/File");
+		b = b || (s != null);
+
+		s = getConfiguration().getAttribute("General/Logging/Console");
+		b = b || new Boolean(s).booleanValue();
+
+		s = getConfiguration().getAttribute("General/Logging/Syslog");
+		b = b || new Boolean(s).booleanValue();
+
+		m_checkboxLogging.setSelected(b);
+
+		// turn on auto saving again
+		setAutoSaveEnabled(true);
 	}
 
 	public void setEncKeyForLog(byte[] cert)
@@ -614,13 +483,280 @@ final public class GeneralPanel extends JPanel implements ItemListener, ActionLi
 		}
 		catch (Exception e)
 		{
+			MixConfig.handleException(e);
 			System.out.println("Prev Cert not set: " + e.getMessage());
 			setEncKeyForLog(null);
 		}
 	}
 
-	public byte[] getEncKeyForLog()
+	public Vector check()
 	{
-		return m_certLogEncKey;
+		Vector errors = new Vector();
+		MixConfiguration mixConf = getConfiguration();
+		String s;
+		int mixType;
+
+		s = mixConf.getAttribute("General/MixName");
+		if (s == null || s.equals(""))
+		{
+			errors.addElement("Mix Name not entered in General Panel.");
+
+		}
+		try
+		{
+			mixType = Integer.valueOf(mixConf.getAttribute("General/MixType")).intValue();
+			s = mixConf.getAttribute("General/CascadeName");
+			if (mixType == MixConfiguration.MIXTYPE_FIRST &&
+				(s == null || s.equals("")))
+			{
+				errors.addElement("Cascade Name not entered in General Panel.");
+			}
+		}
+		catch (NumberFormatException nfe)
+		{
+			errors.addElement("Invalid Mix type in configuration.");
+		}
+
+		s = mixConf.getAttribute("General/MixID");
+		if (s == null || s.equals(""))
+		{
+			errors.addElement("Mix ID field is blank in General Panel.");
+		}
+		else if (!mixConf.isMixIDValid())
+		{
+			errors.addElement(
+				"Mix ID should start with an 'm' and contain only " +
+				"the following characters: " +
+				"'A'-'Z', 'a'-'z', '0'-'9', '.', '_', '-'");
+		}
+
+		s = mixConf.getAttribute("General/UserID");
+		if (s != null && s.equals(""))
+		{
+			errors.addElement("User ID not entered in General Panel.");
+
+		}
+		s = mixConf.getAttribute("General/NrOfFileDescriptors");
+		if (s != null && !isNumber(s))
+		{
+			errors.addElement(
+				"Number of File Descriptors is not a number in General Panel.");
+
+		}
+		s = mixConf.getAttribute("General/Logging/File");
+		if (s != null && s.equals(""))
+		{
+			errors.addElement("No directory for logging entered in General Panel.");
+
+		}
+		return errors;
+	}
+
+	protected void enableComponents()
+	{
+		boolean cascadeLength = m_checkboxCascadeLength.isSelected();
+		boolean log = m_checkboxLogging.isSelected();
+		boolean file = m_rbFile.isSelected();
+		boolean daemon = m_checkboxDaemon.isSelected();
+		int selectedMixType = m_comboboxMixType.getSelectedIndex();
+
+		// enable/disable some controls
+		m_rbConsole.setEnabled(log && !daemon);
+		m_rbFile.setEnabled(log);
+		m_rbSyslog.setEnabled(log);
+		m_tfFileName.setEnabled(log && file);
+		m_compressLog.setEnabled(log && file);
+		m_bttnImportEncKey.setEnabled(log && file);
+		m_labelEnrypt.setEnabled(log && file);
+		m_tfLogEncryptKeyName.setEnabled(log && file);
+		m_tfCascadeLength.setEnabled(cascadeLength);
+
+		m_tfID.setEnabled(m_checkboxUserID.isSelected());
+		m_tfNumOfFiles.setEnabled(m_checkboxNrOfFileDes.isSelected());
+		m_tfCascadeName.setEnabled(selectedMixType == 0);
+
+		boolean consoleNotPossible = m_rbConsole.isSelected() && !m_rbConsole.isEnabled();
+
+		// if mix is run as daemon, we can't log to console so set log
+		// output to file.
+		if(!file)
+		{
+			// A bug in JDK 1.1.8 causes an infinite event loop, therefore
+			// event casting must be disabled
+			m_rbFile.removeItemListener(this);
+			m_rbFile.setSelected(consoleNotPossible);
+			m_rbFile.addItemListener(this);
+		}
+	}
+
+	protected void save(JTextField a) throws UnsupportedEncodingException
+	{
+		if (a == this.m_tfLogEncryptKeyName)
+		{
+			getConfiguration().setAttribute(a.getName(), this.m_certLogEncKey);
+		}
+		else
+		{
+			super.save(a);
+		}
+	}
+
+	protected void save(JCheckBox a) throws UnsupportedEncodingException
+	{
+		if (a == this.m_checkboxLogging || a == this.m_compressLog)
+		{
+			save(m_loggingButtonGroup);
+		}
+		else
+		{
+			super.save(a);
+		}
+	}
+
+	protected void save(ButtonGroup a) throws UnsupportedEncodingException
+	{
+		if (a == m_loggingButtonGroup)
+		{
+			MixConfiguration mixConf = getConfiguration();
+			boolean log = this.m_checkboxLogging.isSelected();
+
+			if (!log)
+			{
+				mixConf.setAttribute(m_rbSyslog.getName(), false);
+				mixConf.setAttribute(m_rbConsole.getName(), false);
+				mixConf.setAttribute(m_tfFileName.getName(), (String)null);
+				mixConf.setAttribute("General/Logging/EncryptedLog/EncryptedLog", (String)null);
+				return;
+			}
+
+			mixConf.setAttribute("General/Logging/Console", m_rbConsole.isSelected());
+			mixConf.setAttribute("General/Logging/Syslog", m_rbSyslog.isSelected());
+
+			if (m_rbFile.isSelected())
+			{
+				String fn = m_tfFileName.getText();
+				if (fn.equals(""))
+				{
+					fn = null;
+				}
+
+				if (this.m_certLogEncKey != null)
+				{
+					mixConf.setAttribute("General/Logging/File", (String)null);
+					mixConf.setAttribute("General/Logging/EncryptedLog/File", fn);
+					mixConf.setAttribute("General/Logging/EncryptedLog/" +
+										 "KeyInfo/X509Data/X509Certificate",
+										 m_certLogEncKey);
+				}
+				else
+				{
+					// this kludge is necessary as compatibility with older version
+					// of the XML file requires string representations of boolean
+					// values to be capitalized
+					String s = new Boolean(m_compressLog.isSelected()).toString();
+					s = Character.toUpperCase(s.charAt(0)) + s.substring(1);
+
+					Attr at = mixConf.getDocument().createAttribute("compressed");
+					at.setNodeValue(s);
+
+					mixConf.setAttribute("General/Logging/File", fn, at, false);
+				}
+			}
+		}
+	}
+
+	protected void load(JTextField a)
+	{
+		if (a == m_tfLogEncryptKeyName)
+		{
+			String value = getConfiguration().getAttribute(a.getName());
+			if (value != null)
+			{
+				byte b[] = Base64.decode(value);
+				if(b != null)
+				{
+					this.setEncKeyForLog(b);
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(MixConfig.getMainWindow(),
+												  "Could not decode MixConfiguration/"+
+												  a.getName(),
+												  "Warning", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
+		else
+		{
+			super.load(a);
+		}
+	}
+
+	/**
+	 * Generates a random valid Mix ID. The Mix ID contains only lower case characters, digits
+	 * or '.', '_' and '-'.
+	 * @return a new randomly calculated valid Mix ID
+	 */
+	private String genMixID()
+	{
+		MixConfiguration mixConf = getConfiguration();
+		String r_Str = "m";
+		String oMixid = mixConf.getAttribute("General/MixID");
+		Object o = mixConf.getAttribute("Certificates/OwnCertificate/X509PKCS12");
+
+		if (oMixid != null && oMixid.length() != 0)
+		{
+			int r = JOptionPane.showConfirmDialog(this,
+												  "It is generally not a good idea to change a Mix ID.\n" +
+												  "You should proceed only if you know what you're doing." +
+												  ( (o == null) ?
+				"" :
+				"\nA new Mix ID may also invalidate your certificate."),
+												  "Change of Mix ID.",
+												  JOptionPane.OK_CANCEL_OPTION,
+												  JOptionPane.WARNING_MESSAGE);
+			if (r != JOptionPane.OK_OPTION)
+			{
+				return oMixid;
+			}
+		}
+
+		for (int i = 0; i < 10; i++)
+		{
+			int r = (int) (Math.random() * idChars.length());
+			r_Str += idChars.substring(r, r + 1);
+		}
+		return r_Str;
+	}
+
+	private void importEncKeyForLog()
+	{
+		byte[] cert;
+		try
+		{
+			cert = MixConfig.openFile(MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
+		}
+		catch (Exception e)
+		{
+			ClipFrame Open =
+				new ClipFrame(
+				"Open of file failed. Paste a certificate to be imported " +
+				"in the area provided.",
+				true);
+			Open.show();
+			cert = Open.getText().getBytes();
+		}
+		setEncKeyForLog(cert);
+	}
+
+	/** If the Mix configuration tool is started as a wizard, certain settings are only
+	 * shown if the user clicks on the &quot;Advanced ...&quot; button. This method is
+	 * shows or hides the advanced settings.
+	 * @param visible specifies whether the advanced settings are to be shown (<CODE>true</CODE>) or hidden (<CODE>false</CODE>)
+	 */
+	private void setAdvancedVisible(boolean visible)
+	{
+		strut.setVisible(!visible);
+		advanced.setVisible(visible);
 	}
 }

@@ -341,7 +341,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		DEROutputStream dout = new DEROutputStream(fout);
 		dout.writeObject(cert);
 		fout.close();
-		PKCS12 pkcs12 = new PKCS12("test", tmpSecKey, cert /*, tmpPubKey*/);
+		PKCS12 pkcs12 = new PKCS12(uidp.getID(), tmpSecKey, cert /*, tmpPubKey*/);
 		fout = new FileOutputStream(new File(fileDir, m_File.getName() + ".pfx"));
 		pb = new PasswordBox(m_Parent, "Password for X.509 key", PasswordBox.NEW_PASSWORD,
 							 "Please enter a password for the X.509 key:");

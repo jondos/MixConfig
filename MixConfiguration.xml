@@ -190,7 +190,7 @@
 			<!-- The TCP Port Number of the PostgresQL server -->
 		<DBName><!-- Database name --></DBName>
 			<!-- The name of the database that should be used -->
-		<Username><!-- Database Username -->/Username>
+		<Username><!-- Database Username --></Username>
 			<!-- The PostgresQL user name -->
 	</Database>
 

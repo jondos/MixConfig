@@ -1,6 +1,8 @@
 package mixconfig.networkpanel;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+import org.w3c.dom.Document;
 
 final public class OutgoingConnectionTableModel extends ConnectionTableModel
 {
@@ -82,14 +84,14 @@ final public class OutgoingConnectionTableModel extends ConnectionTableModel
 		return columnNames[col];
 	}
 
-	public org.w3c.dom.Element createProxiesAsElement(org.w3c.dom.Document doc)
+	public Element createProxiesAsElement(Document doc)
 	{
-		org.w3c.dom.Element proxies = doc.createElement("Proxies");
+		Element proxies = doc.createElement("Proxies");
 		for (int i = 0; i < getRowCount(); i++)
 		{
 			if (getData(i).getType().equals("Proxy"))
 			{
-				org.w3c.dom.Element proxy = getData(i).createAsElement(doc);
+				Element proxy = getData(i).createAsElement(doc);
 				proxies.appendChild(proxy);
 			}
 		}
@@ -103,20 +105,20 @@ final public class OutgoingConnectionTableModel extends ConnectionTableModel
 		}
 	}
 
-	public org.w3c.dom.Element createMixAsElement(org.w3c.dom.Document doc)
+	public Element createMixAsElement(Document doc)
 	{
 		for (int i = 0; i < getRowCount(); i++)
 		{
 			if (getData(i).getType().equals("NextMix"))
 			{
-				org.w3c.dom.Element mix = getData(i).createAsElement(doc);
+				Element mix = getData(i).createAsElement(doc);
 				return mix;
 			}
 		}
 		return null;
 	}
 
-	public void readFromElement(org.w3c.dom.Element out)
+	public void readFromElement(Element out)
 	{
 		if (out.getTagName().equals("Proxies"))
 		{
@@ -127,13 +129,13 @@ final public class OutgoingConnectionTableModel extends ConnectionTableModel
 					deleteData(i);
 				}
 			}
-			org.w3c.dom.Node child = out.getFirstChild();
+			Node child = out.getFirstChild();
 			while (child != null)
 			{
 				if (child.getNodeType() == Node.ELEMENT_NODE)
 				{
 					ConnectionData data = ConnectionData.createFromElement(
-						"Proxy", (org.w3c.dom.Element) child);
+						"Proxy", (Element) child);
 					if (data != null)
 					{
 						addData(data);

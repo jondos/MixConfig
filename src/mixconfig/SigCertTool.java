@@ -295,6 +295,7 @@ public class SigCertTool extends JDialog implements ActionListener
 		}
 		catch (Exception e)
 		{
+			MixConfig.handleException(e);
 			System.out.println("Cert to Sign not set: " + e.getMessage());
 			setCertToSign( (X509CertificateStructure)null);
 		}
@@ -327,6 +328,7 @@ public class SigCertTool extends JDialog implements ActionListener
 		}
 		catch (Exception e)
 		{
+			MixConfig.handleException(e);
 			System.out.println("Cert to Sign not set: " + e.getMessage());
 			setCertToSign( (X509CertificateStructure)null);
 		}

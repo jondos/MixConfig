@@ -27,6 +27,8 @@
  */
 package mixconfig.networkpanel;
 
+import java.util.Vector;
+
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -49,59 +51,34 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import mixconfig.ConfigFrame;
+
 import mixconfig.IntegerDocument;
 import mixconfig.MixConfig;
+import mixconfig.MixConfigPanel;
+import mixconfig.MixConfiguration;
+import java.awt.event.FocusEvent;
+import java.awt.Container;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+import mixconfig.ConfigurationEvent;
+import java.io.IOException;
 
-public final class NetworkPanel extends JPanel
+/** A panel that provides settings for configuring the Mix's network access:<br>
+ * Listeners for incoming connections, and network adresses of outgoing
+ * connections (next Nix in the cascade or proxies).
+ */
+public final class NetworkPanel extends MixConfigPanel implements TableModelListener, ActionListener,
+	ChangeListener
 {
-	JPanel panel1, panel2, panel3;
-	JTable table1, table2;
-	JTextField Host_Text, Port_Text;
-	public IPTextField IP_Text;
-	IncomingConnectionTableModel imodel;
-	OutgoingConnectionTableModel omodel;
+	private JPanel panel1, panel2, panel3;
+	private JTable table1, table2;
+	private JTextField Host_Text, Port_Text;
+	private IPTextField IP_Text;
+	private IncomingConnectionTableModel imodel;
+	private OutgoingConnectionTableModel omodel;
+	private JButton m_bttnAddOutgoing;
 
-	public IncomingConnectionTableModel getIncomingModel()
-	{
-		return imodel;
-	}
-
-	public OutgoingConnectionTableModel getOutgoingModel()
-	{
-		return omodel;
-	}
-
-	public String getHost()
-	{
-		return Host_Text.getText();
-	}
-
-	public String getIP()
-	{
-		return IP_Text.getText();
-	}
-
-	public String getPort()
-	{
-		return Port_Text.getText();
-	}
-
-	public void setInfoHost(String info)
-	{
-		Host_Text.setText(info);
-	}
-
-	public void setInfoIP(String info)
-	{
-		IP_Text.setText(info);
-	}
-
-	public void setInfoPort(String info)
-	{
-		Port_Text.setText(info);
-	}
-
+        /** Constructs a new instance of <CODE>NetworkPanel</CODE> */        
 	public NetworkPanel()
 	{
 		GridBagLayout layout = new GridBagLayout();
@@ -184,14 +161,15 @@ public final class NetworkPanel extends JPanel
 		/*
 		   final TableCellRenderer emptyRenderer = new DefaultTableCellRenderer()
 		   {
-			 protected void setValue(Object v)
-			 {
-			   super.setValue("");
-			 }
+		  protected void setValue(Object v)
+		  {
+		 super.setValue("");
+		  }
 		   };
 		 */
 
 		imodel = new IncomingConnectionTableModel();
+		imodel.addTableModelListener(this);
 
 		table1 = new JTable(imodel)
 		{
@@ -214,6 +192,8 @@ public final class NetworkPanel extends JPanel
 		JScrollPane scrollPane1 = new JScrollPane(table1,
 												  ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 												  ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+		table1.setName("Network");
 
 		// Man kann nur eine Zeile selektieren
 		table1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -249,19 +229,8 @@ public final class NetworkPanel extends JPanel
 			{
 				case 0:
 					InButton = new JButton("Add");
-					InButton.setActionCommand("Add");
-					InButton.addActionListener(new ActionListener()
-					{
-						public void actionPerformed(ActionEvent a)
-						{
-							if (a.getActionCommand().equals("Add"))
-							{
-								IncomingDialog dialog = new IncomingDialog(MixConfig.getMainWindow(), "Add",
-									imodel);
-								dialog.show();
-							}
-						}
-					});
+					InButton.setActionCommand("AddIncoming");
+					InButton.addActionListener(this);
 					break;
 				case 1:
 					final JButton cb = new JButton("Change");
@@ -278,21 +247,8 @@ public final class NetworkPanel extends JPanel
 						}
 					});
 					cb.setEnabled(false);
-					cb.setActionCommand("Change");
-					cb.addActionListener(new ActionListener()
-					{
-						public void actionPerformed(ActionEvent a)
-						{
-							if (a.getActionCommand().equals("Change"))
-							{
-								IncomingDialog dialog = new IncomingDialog(MixConfig.getMainWindow(),
-									"Change", imodel,
-									( (IncomingConnectionTableModel) table1.getModel()).getData(table1.
-									getSelectedRow()));
-								dialog.show();
-							}
-						}
-					});
+					cb.setActionCommand("ChangeIncoming");
+					cb.addActionListener(this);
 					break;
 				case 2:
 					final JButton db = new JButton("Delete");
@@ -310,18 +266,8 @@ public final class NetworkPanel extends JPanel
 
 					});
 					db.setEnabled(false);
-					db.setActionCommand("Delete");
-					db.addActionListener(new ActionListener()
-					{
-						public void actionPerformed(ActionEvent a)
-						{
-							if (a.getActionCommand().equals("Delete"))
-							{
-								( (IncomingConnectionTableModel) table1.getModel()).deleteData(table1.
-									getSelectedRow());
-							}
-						}
-					});
+					db.setActionCommand("DeleteIncoming");
+					db.addActionListener(this);
 					break;
 				default:
 					throw (new RuntimeException("Unknown Button should be created."));
@@ -350,7 +296,10 @@ public final class NetworkPanel extends JPanel
 		int[] columnSizes2 =
 			{
 			15, 70, 60, 125, 110, 40};
+
 		omodel = new OutgoingConnectionTableModel();
+		omodel.addTableModelListener(this);
+
 		table2 = new JTable(omodel)
 		{
 			public TableCellRenderer getCellRenderer(int row, int column)
@@ -374,6 +323,8 @@ public final class NetworkPanel extends JPanel
 		JScrollPane scrollPane2 = new JScrollPane(table2,
 												  ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 												  ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+		table2.setName("Network");
 
 		// Man kann nur eine Zeile selektieren
 		table2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -412,31 +363,15 @@ public final class NetworkPanel extends JPanel
 					{
 						public void tableChanged(TableModelEvent e)
 						{
-							if (!ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix"))
-							{
-								ob.setEnabled(omodel.getRowCount() == 0);
-							}
-							else
-							{
-								ob.setEnabled(true);
-							}
+							String s = getConfiguration().getAttribute("General/MixType");
+							int i = Integer.valueOf(s).intValue();
+							ob.setEnabled(i == MixConfiguration.MIXTYPE_LAST ||
+										  omodel.getRowCount() == 0);
 						}
 					});
-					OutButton.setActionCommand("Add");
-					OutButton.addActionListener(new ActionListener()
-					{
-						public void actionPerformed(ActionEvent a)
-						{
-							if (a.getActionCommand().equals("Add"))
-							{
-								OutgoingDialog dialog = new OutgoingDialog(MixConfig.getMainWindow(),
-									(ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix")) ? "Add Proxy" :
-									"Add Next Mix",
-									omodel);
-								dialog.show();
-							}
-						}
-					});
+					OutButton.setActionCommand("AddOutgoing");
+					OutButton.addActionListener(this);
+					m_bttnAddOutgoing = OutButton;
 					break;
 				case 1:
 					final JButton cb = new JButton("Change");
@@ -449,23 +384,8 @@ public final class NetworkPanel extends JPanel
 						}
 					});
 					cb.setEnabled(false);
-					cb.setActionCommand("Change");
-					cb.addActionListener(new ActionListener()
-					{
-						public void actionPerformed(ActionEvent a)
-						{
-							if (a.getActionCommand().equals("Change"))
-							{
-								OutgoingDialog dialog = new OutgoingDialog(MixConfig.getMainWindow(),
-									(ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix")) ?
-									"Change Proxy" : "Change Next Mix",
-									omodel,
-									( (OutgoingConnectionTableModel) table2.getModel()).getData(table2.
-									getSelectedRow()));
-								dialog.show();
-							}
-						}
-					});
+					cb.setActionCommand("ChangeOutgoing");
+					cb.addActionListener(this);
 					break;
 				case 2:
 					final JButton db = new JButton("Delete");
@@ -479,18 +399,8 @@ public final class NetworkPanel extends JPanel
 
 					});
 					db.setEnabled(false);
-					db.setActionCommand("Delete");
-					db.addActionListener(new ActionListener()
-					{
-						public void actionPerformed(ActionEvent a)
-						{
-							if (a.getActionCommand().equals("Delete"))
-							{
-								( (OutgoingConnectionTableModel) table2.getModel()).deleteData(table2.
-									getSelectedRow());
-							}
-						}
-					});
+					db.setActionCommand("DeleteOutgoing");
+					db.addActionListener(this);
 					break;
 				default:
 					throw (new RuntimeException("Unknown Button should be created."));
@@ -525,8 +435,11 @@ public final class NetworkPanel extends JPanel
 		f.gridy = 0;
 		Info_Layout.setConstraints(host, f);
 		panel3.add(host);
+
 		Host_Text = new JTextField(38);
 		Host_Text.setText("");
+		Host_Text.setName("Network/InfoService/Host");
+		Host_Text.addFocusListener(this);
 		f.gridx = 1;
 		f.weightx = 1;
 		Info_Layout.setConstraints(Host_Text, f);
@@ -538,8 +451,11 @@ public final class NetworkPanel extends JPanel
 		f.weightx = 0;
 		Info_Layout.setConstraints(IP, f);
 		panel3.add(IP);
+
 		IP_Text = new IPTextField();
 		IP_Text.setText("");
+		IP_Text.setName("Network/InfoService/IP");
+		IP_Text.addFocusListener(this);
 		f.gridx = 1;
 		f.weightx = 0;
 		f.fill = GridBagConstraints.NONE;
@@ -552,21 +468,247 @@ public final class NetworkPanel extends JPanel
 		f.weightx = 0;
 		Info_Layout.setConstraints(port, f);
 		panel3.add(port);
+
 		Port_Text = new JTextField(5);
+		Port_Text.setName("Network/InfoService/Port");
 		Port_Text.setText("");
 		Port_Text.setDocument(new IntegerDocument(65535));
 		Port_Text.setMinimumSize(Port_Text.getPreferredSize());
+		Port_Text.addFocusListener(this);
 		f.gridx = 1;
 		Info_Layout.setConstraints(Port_Text, f);
 		panel3.add(Port_Text);
 	}
 
-	public void clear()
+        public void tableChanged(TableModelEvent e)
 	{
-		imodel.clear();
-		omodel.clear();
-		Host_Text.setText("");
-		setInfoIP("");
-		Port_Text.setText("");
+		if (e.getSource() == table1.getModel())
+		{
+			save(table1);
+		}
+		if (e.getSource() == table2.getModel())
+		{
+			save(table2);
+		}
+	}
+
+	public void focusLost(FocusEvent e)
+	{
+		try
+		{
+			if (e.getSource() instanceof JTextField)
+			{
+				Container c = ( (JTextField) e.getSource()).getParent();
+				if (c == IP_Text)
+				{
+					if (IP_Text.isCorrect())
+					{
+						getConfiguration().setAttribute(IP_Text.getName(),
+							IP_Text.getText());
+					}
+				}
+				else
+				{
+					super.focusLost(e);
+				}
+			}
+			else
+			{
+				super.focusLost(e);
+			}
+		}
+		catch (Exception ex)
+		{
+			MixConfig.handleException(ex);
+		}
+	}
+
+	public Vector check()
+	{
+		Vector errors = new Vector();
+		String s = MixConfig.getMixConfiguration().getAttribute("General/MixType");
+		int mixType = Integer.valueOf(s).intValue();
+
+		if (imodel.getRowCount() == 0)
+		{
+			errors.addElement("No Incoming Connection given in Network Panel.");
+		}
+		else
+		{
+			int rows = imodel.getRowCount();
+			for (int i = 0; i < rows; i++)
+			{
+				ConnectionData data = imodel.getData(i);
+				if (data.isHidden() && data.isVirtual())
+				{
+					errors.addElement("Incoming connection no. " + (i + 1) +
+									  " is 'virtual' and 'hidden'. This is not possible.");
+
+				}
+				if ( (data.getTransport() & ConnectionData.TRANSPORT) ==
+					ConnectionData.TCP)
+				{
+					if (data.getPort() == 0)
+					{
+						errors.addElement("Incoming connection no. " + (i + 1) +
+										  " has no port set.");
+					}
+					else
+					if (data.getName() == null || data.getName().length() == 0)
+					{
+						errors.addElement("Incoming connection no. " + (i + 1) +
+										  " has no filename set.");
+					}
+				}
+			}
+		}
+
+		if (omodel.getRowCount() == 0)
+		{
+			errors.addElement("No Outgoing Connection given in Network Panel.");
+		}
+		else
+		{
+			int rows = omodel.getRowCount();
+			for (int i = 0; i < rows; i++)
+			{
+				ConnectionData data = omodel.getData(i);
+				if ( (data.getTransport() & ConnectionData.TRANSPORT) ==
+					ConnectionData.TCP)
+				{
+					if (data.getName() == null || data.getName().length() == 0)
+					{
+						errors.addElement("Outgoing connection no. " + (i + 1) +
+										  " has no host name set.");
+
+					}
+					if (data.getPort() == 0)
+					{
+						errors.addElement("Outgoing connection no. " + (i + 1) +
+										  " has no port set.");
+					}
+				}
+				else
+				if (data.getName() == null || data.getName().length() == 0)
+				{
+					errors.addElement("Outgoing connection no. " + (i + 1) +
+									  " has no filename set.");
+				}
+			}
+			if (mixType != MixConfiguration.MIXTYPE_LAST &&
+				omodel.getRowCount() > 1)
+			{
+				errors.addElement("Too many Outgoing Connections in Network Panel.");
+			}
+		}
+
+		s = getConfiguration().getAttribute("Network/InfoService/Host");
+		if (s == null || s.equals(""))
+		{
+			errors.addElement(
+				"The Host field for the Info Service should not be blank in Network Panel.");
+
+		}
+		s = getConfiguration().getAttribute("Network/InfoService/Port");
+		if (s == null || s.equals(""))
+		{
+			errors.addElement(
+				"The Port field for the Info Service should not be blank in Network Panel.");
+
+		}
+		s = getConfiguration().getAttribute("Network/InfoService/IP");
+		if (s == null || s.equals("") || !IP_Text.isCorrect())
+		{
+			errors.addElement("IP of Info Service is not correct in Network Panel.");
+
+		}
+		return errors;
+	}
+
+	protected void enableComponents()
+	{
+		// Everything is always enabled
+	}
+
+	public void setConfiguration(MixConfiguration a_conf) throws IOException
+	{
+		// first enable all components to make MixConfigPanel load their data
+		enableComponents();
+
+		super.setConfiguration(a_conf);
+
+		// make sure this panel is contained only once in the config's listeners list
+		a_conf.removeChangeListener(this);
+		a_conf.addChangeListener(this);
+
+		enableComponents();
+	}
+
+	public void stateChanged(ChangeEvent e)
+	{
+		try
+		{
+			if (e instanceof ConfigurationEvent)
+			{
+				ConfigurationEvent c = (ConfigurationEvent) e;
+				if (c.getChangedAttribute().equals("General/MixType"))
+				{
+					int i = Integer.valueOf( (String) c.getNewValue()).intValue();
+					m_bttnAddOutgoing.setEnabled(i == MixConfiguration.MIXTYPE_LAST ||
+												 omodel.getRowCount() == 0);
+					enableComponents();
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			MixConfig.handleException(ex);
+		}
+	}
+
+	public void actionPerformed(ActionEvent a)
+	{
+		String titles[] =
+			{
+			" Next Mix", " Next Mix", " Proxy"
+		};
+		MixConfiguration mixConf = getConfiguration();
+		int mixType = Integer.valueOf(mixConf.getAttribute("General/MixType")).intValue();
+
+		if (a.getActionCommand().equals("AddIncoming"))
+		{
+			new IncomingDialog(MixConfig.getMainWindow(), "Add", imodel).show();
+		}
+		else if (a.getActionCommand().equals("ChangeIncoming"))
+		{
+			new IncomingDialog(MixConfig.getMainWindow(),
+							   "Change", imodel,
+							   imodel.getData(table1.getSelectedRow())).show();
+		}
+		else if (a.getActionCommand().equals("DeleteIncoming"))
+		{
+			imodel.deleteData(table1.getSelectedRow());
+		}
+		else if (a.getActionCommand().equals("AddOutgoing"))
+		{
+/*			String type;
+			if(mixType != MixConfiguration.MIXTYPE_LAST)
+	*/
+			new OutgoingDialog(MixConfig.getMainWindow(),
+							   "Add" + titles[mixType],
+							   omodel).show();
+		}
+		else if (a.getActionCommand().equals("ChangeOutgoing"))
+		{
+			new OutgoingDialog(MixConfig.getMainWindow(),
+							   "Change" + titles[mixType],
+							   omodel,
+							   omodel.getData(table2.getSelectedRow())).show();
+		}
+		else if (a.getActionCommand().equals("DeleteOutgoing"))
+		{
+			omodel.deleteData(table2.getSelectedRow());
+		}
+
 	}
 }

@@ -25,9 +25,9 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
- 
+
 package mixconfig;
- 
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -57,7 +57,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-class BusyWindow extends javax.swing.JWindow implements ActionListener
+class BusyWindow extends JWindow implements ActionListener
 {
 	private SwingWorker sw;
 

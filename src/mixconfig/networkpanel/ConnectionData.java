@@ -4,6 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import mixconfig.MixConfig;
 
 final public class ConnectionData
 {
@@ -263,14 +264,16 @@ final public class ConnectionData
 			return null;
 		}
 		node = ( (Element) node).getFirstChild();
-		while (node != null)
-		{
+// What is this while loop for? I comment it out because it causes infinite loops
+// if node is not a text node
+//		while (node != null)
+//		{
 			if (node.getNodeType() == Node.TEXT_NODE)
 			{
 				data = ( (org.w3c.dom.Text) node).getData();
-				break;
+//				break;
 			}
-		}
+//		}
 		return data;
 	}
 
@@ -367,7 +370,8 @@ final public class ConnectionData
 		}
 		catch (Exception e)
 		{
-			System.out.println("Network interface not set");
+			MixConfig.handleException(e);
+			//System.out.println("Network interface not set");
 			return null;
 		}
 	}
