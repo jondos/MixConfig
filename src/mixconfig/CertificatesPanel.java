@@ -1311,7 +1311,10 @@ class CertificatesPanel extends JPanel implements ActionListener
 												X509CertificateStructure cert1 = MixConfig.readCertificate(buff);
 												if(cert1!=null)
 													bIsPubCert=true;
-												if(cert1.getSubjectPublicKeyInfo().equals(m_ownPrivCert.getX509cert().getSubjectPublicKeyInfo()))
+												SubjectPublicKeyInfo currentPubKeyInfo=m_ownPrivCert.getX509cert().getSubjectPublicKeyInfo();
+												SubjectPublicKeyInfo newPubKeyInfo =cert1.getSubjectPublicKeyInfo();
+												if(currentPubKeyInfo.getAlgorithmId().equals(newPubKeyInfo.getAlgorithmId())&&
+													currentPubKeyInfo.getPublicKey().equals(newPubKeyInfo.getPublicKey()))
 													{
 														m_ownPrivCert.setX509cert(cert1);
 														setOwnPrivCert(m_ownPrivCert,m_strOwnPrivCertPasswd);
