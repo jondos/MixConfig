@@ -1,17 +1,11 @@
 <?xml version="1.0" ?>
 <!-- XML File for Mix Configuration -->
 
-<MixConfiguration>  <!-- Root-Element -->
+<MixConfiguration version="0.1">  <!-- Root-Element -->
 <General>
-	<MixID> <!-- Each Mix gets an unique ID, ether chosen by the user or generate form the HOST:PORT configuration:
+	<MixID> <!-- Each Mix gets an unique ID, ether chosen by the user or generate
 
-		MixID= URLEncode(HOST_IP:PORT)
-		Example:
-			Host=mix.inf.tu-dresden.de ==> Host_IP= 141.76.46.120
-			Port=6544
-
-			==> MixID=141.76.46.120%3A6544
-
+TODO insert rules
 	-->		
 	</MixID>
 	<MixType> <!--- One of: FirstMix | MiddleMix | LastMix --> </MixType>
@@ -43,7 +37,7 @@
 			<!-- If attr main=true, than this is the default listener, from which the Mix-ID is constructed -->
 
 			<!-- NEW: Type of Listener Interface-->
-			<Type><!-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></Type>
+			<NetworkProtocol><!-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></Type>
 
 
 			<!-- For TCP/IP (if type= */TCP) -->
@@ -61,7 +55,7 @@
 	<NextMix>
 	<!-- Describes how to connect to the next mix,
 			 only usefull for First- or MiddleMix -->
-			 <Type>	!-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></Type>
+			 <NetworkProtocol>	!-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></Type>
 			 <Host> hostname or ip of next Mix </Host>
 			 <Port> port of next mix </Port>
 
@@ -75,13 +69,11 @@
 
 			<Proxy>
 				<!-- Describes one single proxy -->
-			 		<Type>	!-- Network protocol -- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></Type>
 					<ProxyType> <!-- Type of Proxy, one of: HTTP|SOCKS --></ProxyType>
-
+			 		<NetworkProtocol>	!-- Network protocol -- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></Type>
 					<!-- How to reach this proxy ?-->
 					<Host> </Host>
 					<Port> </Port>
-
 					<File> </File>
 
 			</Proxy>
