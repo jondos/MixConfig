@@ -57,7 +57,7 @@ public class AllTests
 	public static Test suite()
 	{
 		TestSuite suite = new TestSuite("All tests.");
-		suite.addTest(test.anon.AllTests.suite());
+		suite.addTest(anon.test.AllTests.suite());
 		return suite;
 	}
 }
