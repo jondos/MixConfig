@@ -340,88 +340,87 @@ class MyFrame extends JPanel implements ActionListener
       reset();
       try
       {
-	DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
-	DocumentBuilder docBuilder=factory.newDocumentBuilder();
-	Document doc=docBuilder.parse(new ByteArrayInputStream(config));
+        DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder=factory.newDocumentBuilder();
+        Document doc=docBuilder.parse(new ByteArrayInputStream(config));
 
-	Element root=doc.getDocumentElement();
-	Element elemGeneral=getChild(root,"General");
-	Element elemType=getChild(elemGeneral,"MixType");
-	String MixType=getElementValue(elemType,null);
-	m_GeneralPanel.setMixType(MixType);
+        Element root=doc.getDocumentElement();
+        Element elemGeneral=getChild(root,"General");
+        Element elemType=getChild(elemGeneral,"MixType");
+        String MixType=getElementValue(elemType,null);
+        m_GeneralPanel.setMixType(MixType);
 
-	Element elemName=getChild(elemGeneral,"MixName");
-	String MixName=getElementValue(elemName,null);
-	m_GeneralPanel.setMixName(MixName);
+        Element elemName=getChild(elemGeneral,"MixName");
+        String MixName=getElementValue(elemName,null);
+        m_GeneralPanel.setMixName(MixName);
 
-	Element elemCascade=getChild(elemGeneral,"CascadeName");
-	String CascadeName=getElementValue(elemCascade,null);
-	m_GeneralPanel.setCascadeName(CascadeName);
+        Element elemCascade=getChild(elemGeneral,"CascadeName");
+        String CascadeName=getElementValue(elemCascade,null);
+        m_GeneralPanel.setCascadeName(CascadeName);
 
-	Element elemMixID=getChild(elemGeneral,"MixID");
-	m_GeneralPanel.setAuto(false);
-	String MixID = getElementValue(elemMixID,null);
-	if(MixID!=null)
-	    MixID=URLDecoder.decode(MixID);
-	m_GeneralPanel.setMixID(MixID);
+        Element elemMixID=getChild(elemGeneral,"MixID");
+        String MixID = getElementValue(elemMixID,null);
+        if(MixID!=null)
+            MixID=URLDecoder.decode(MixID);
+        m_GeneralPanel.setMixID(MixID);
 
-	Element elemUserID = getChild(elemGeneral,"UserID");
-	if(elemUserID != null)
-	{
-	  m_GeneralPanel.setUserID(getElementValue(elemUserID,null));
-	}
+        Element elemUserID = getChild(elemGeneral,"UserID");
+        if(elemUserID != null)
+        {
+          m_GeneralPanel.setUserID(getElementValue(elemUserID,null));
+        }
 
-	Element elemFileDes = getChild(elemGeneral,"NrOfFileDescriptors");
-	if(elemFileDes != null)
-	{
-	  m_GeneralPanel.setFileDes(getElementValue(elemFileDes,null));
-	}
+        Element elemFileDes = getChild(elemGeneral,"NrOfFileDescriptors");
+        if(elemFileDes != null)
+        {
+          m_GeneralPanel.setFileDes(getElementValue(elemFileDes,null));
+        }
 
-	Element elemDaemon = getChild(elemGeneral,"Daemon");
-	String daemon = getElementValue(elemDaemon,"False");
-	m_GeneralPanel.setDaemon(daemon);
+        Element elemDaemon = getChild(elemGeneral,"Daemon");
+        String daemon = getElementValue(elemDaemon,"False");
+        m_GeneralPanel.setDaemon(daemon);
 
-	Element elemEnableLog = getChild(elemGeneral,"Logging");
-	if(elemEnableLog != null)
-	{
-	    boolean bLogFile=false;
-	    boolean bLogConsole=false;
-	    boolean bLogSyslog=false;
-	    String file=null;
-	    boolean bLogcompress=false;
-	    Element elemFile = getChild(elemEnableLog,"File");
-	    if(elemFile != null)
-	    {
-	      file = getElementValue(elemFile,null);
-	      bLogFile=true;
-	      String sCompr = elemFile.getAttribute("compressed");
-	      if(sCompr!=null && sCompr.equalsIgnoreCase("true"))
-		  bLogcompress = false;
-	    }
-	    Element elemSyslog = getChild(elemEnableLog,"SysLog");
-	    if(elemSyslog != null)
-	    {
-	      bLogSyslog=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
-	    }
-	    Element elemConsole = getChild(elemEnableLog,"Console");
-	    if(elemConsole != null)
-	    {
-	      bLogConsole=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
-	    }
-	    m_GeneralPanel.setLogging(bLogConsole,bLogSyslog,bLogFile,file,bLogcompress);
-	}
+        Element elemEnableLog = getChild(elemGeneral,"Logging");
+        if(elemEnableLog != null)
+        {
+            boolean bLogFile=false;
+            boolean bLogConsole=false;
+            boolean bLogSyslog=false;
+            String file=null;
+            boolean bLogcompress=false;
+            Element elemFile = getChild(elemEnableLog,"File");
+            if(elemFile != null)
+            {
+              file = getElementValue(elemFile,null);
+              bLogFile=true;
+              String sCompr = elemFile.getAttribute("compressed");
+              if(sCompr!=null && sCompr.equalsIgnoreCase("true"))
+                  bLogcompress = false;
+            }
+            Element elemSyslog = getChild(elemEnableLog,"SysLog");
+            if(elemSyslog != null)
+            {
+              bLogSyslog=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
+            }
+            Element elemConsole = getChild(elemEnableLog,"Console");
+            if(elemConsole != null)
+            {
+              bLogConsole=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
+            }
+            m_GeneralPanel.setLogging(bLogConsole,bLogSyslog,bLogFile,file,bLogcompress);
+        }
 
-	Element elemNetwork = getChild(root,"Network");
-	Node netChild = elemNetwork.getFirstChild();
-	while(netChild!=null)
-	{
-	    if(netChild.getNodeType()==netChild.ELEMENT_NODE)
-	    {
-		m_NetworkPanel.getIncomingModel().readFromElement((Element)netChild);
-		m_NetworkPanel.getOutgoingModel().readFromElement((Element)netChild);
-	    }
-	    netChild = netChild.getNextSibling();
-	}
+        Element elemNetwork = getChild(root,"Network");
+        Node netChild = elemNetwork.getFirstChild();
+        while(netChild!=null)
+        {
+            if(netChild.getNodeType()==netChild.ELEMENT_NODE)
+            {
+                m_NetworkPanel.getIncomingModel().readFromElement((Element)netChild);
+                m_NetworkPanel.getOutgoingModel().readFromElement((Element)netChild);
+            }
+            netChild = netChild.getNextSibling();
+        }
 	Element elemInfoServer = getChild(elemNetwork,"InfoService");
 	Element elemHost = getChild(elemInfoServer,"Host");
 	String host = getElementValue(elemHost,null);
@@ -515,6 +514,7 @@ class MyFrame extends JPanel implements ActionListener
 	  Document doc2=docBuilder2.newDocument();
 
 	  Element root=doc.createElement("MixConfiguration");
+          root.setAttribute("version","0.1");
 	  doc.appendChild(root);
 	  Element elemGeneral=doc.createElement("General");
 	  root.appendChild(elemGeneral);
@@ -741,64 +741,75 @@ class MyFrame extends JPanel implements ActionListener
     {
 	java.util.Vector errors = new java.util.Vector();
 
-	if(m_GeneralPanel.getMixName().equals(""))
-	    errors.addElement("Mix Name not entered in General Panel.");
-	if(m_GeneralPanel.getMixType().equals("FirstMix") &&
-	   m_GeneralPanel.getCascadeName().equals(""))
-	    errors.addElement("Cascade Name not entered in General Panel.");
-	if(m_GeneralPanel.getMixID().equals(""))
-	    errors.addElement("Mix ID field is blank in General Panel.");
-	if(m_GeneralPanel.getUserID()!=null &&
-	   m_GeneralPanel.getUserID().equals(""))
-	    errors.addElement("User ID not entered in General Panel.");
-	if(m_GeneralPanel.getUserID()!=null &&
-	   m_GeneralPanel.getUserID().equals(""))
-	    errors.addElement("User ID not entered in General Panel.");
-	if(m_GeneralPanel.getFileDes()!=null &&
-	   !isNumber(m_GeneralPanel.getFileDes()))
-	    errors.addElement("Number of File Descriptors is not a number in General Panel.");
-	if(m_GeneralPanel.getEnabled().equals("Logtodir") &&
-	   m_GeneralPanel.getFileName().equals(""))
-	    errors.addElement("No directory for logging entered in General Panel.");
+        if(m_GeneralPanel.getMixName().equals(""))
+            errors.addElement("Mix Name not entered in General Panel.");
+        if(m_GeneralPanel.getMixType().equals("FirstMix") &&
+           m_GeneralPanel.getCascadeName().equals(""))
+            errors.addElement("Cascade Name not entered in General Panel.");
+        String mixID = m_GeneralPanel.getMixID();
+        if(mixID.equals(""))
+            errors.addElement("Mix ID field is blank in General Panel.");
+        else
+        {
+            final String idChars = "abcdefghijklmnopqrstuvwxyz0123456789.-_";
+            mixID = mixID.toLowerCase();
+            if(mixID.charAt(0)!='m')
+                errors.addElement("Mix ID should start with a 'm'");
+            for(int i=0;i<mixID.length();i++)
+                if(idChars.indexOf(mixID.charAt(i))<0)
+                {
+                    errors.addElement("Mix ID should contain only letters, digits, dots, underscores and minuses.");
+                    break;
+                }
+        }
+        if(m_GeneralPanel.getUserID()!=null &&
+           m_GeneralPanel.getUserID().equals(""))
+            errors.addElement("User ID not entered in General Panel.");
+        if(m_GeneralPanel.getFileDes()!=null &&
+           !isNumber(m_GeneralPanel.getFileDes()))
+            errors.addElement("Number of File Descriptors is not a number in General Panel.");
+        if(m_GeneralPanel.getEnabled().equals("Logtodir") &&
+           m_GeneralPanel.getFileName().equals(""))
+            errors.addElement("No directory for logging entered in General Panel.");
 
-	if(m_NetworkPanel.getIncomingModel().getRowCount()==0)
-	    errors.addElement("No Incoming Connection given in Network Panel.");
-	if(m_NetworkPanel.getOutgoingModel().getRowCount()==0)
-	    errors.addElement("No Outgoing Connection given in Network Panel.");
-	else if(!m_GeneralPanel.getMixType().equals("LastMix"))
-	{
-	    if(m_NetworkPanel.getOutgoingModel().getRowCount()>1)
-		errors.addElement("Too many Outgoing Connections in Network Panel.");
-	}
-	if(m_NetworkPanel.getHost().equals(""))
-	    errors.addElement("The Host field should not be blank in Network Panel.");
-	if(m_NetworkPanel.getPort().equals(""))
-	    errors.addElement("The Port field should not be blank in Network Panel.");
-	if(!m_NetworkPanel.IP_Text.isEmpty() &&
-	   !m_NetworkPanel.IP_Text.isCorrect())
-	    errors.addElement("IP of Info Service is not correct in Network Panel.");
+        if(m_NetworkPanel.getIncomingModel().getRowCount()==0)
+            errors.addElement("No Incoming Connection given in Network Panel.");
+        if(m_NetworkPanel.getOutgoingModel().getRowCount()==0)
+            errors.addElement("No Outgoing Connection given in Network Panel.");
+        else if(!m_GeneralPanel.getMixType().equals("LastMix"))
+        {
+            if(m_NetworkPanel.getOutgoingModel().getRowCount()>1)
+                errors.addElement("Too many Outgoing Connections in Network Panel.");
+        }
+        if(m_NetworkPanel.getHost().equals(""))
+            errors.addElement("The Host field should not be blank in Network Panel.");
+        if(m_NetworkPanel.getPort().equals(""))
+            errors.addElement("The Port field should not be blank in Network Panel.");
+        if(!m_NetworkPanel.IP_Text.isEmpty() &&
+           !m_NetworkPanel.IP_Text.isCorrect())
+            errors.addElement("IP of Info Service is not correct in Network Panel.");
 
-	if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
-	    errors.addElement("Own Mix Certificate is missing in Certificates Panel.");
-	if(m_CertificatesPanel.getPrevPubCert()==null)
-	    errors.addElement("Previous Mix Certificate is missing in Certificates Panel.");
-	if(m_CertificatesPanel.getNextPubCert()==null)
-	    errors.addElement("Next Mix Certificate is missing in Certificates Panel.");
+        if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
+            errors.addElement("Own Mix Certificate is missing in Certificates Panel.");
+        if(m_CertificatesPanel.getPrevPubCert()==null)
+            errors.addElement("Previous Mix Certificate is missing in Certificates Panel.");
+        if(m_CertificatesPanel.getNextPubCert()==null)
+            errors.addElement("Next Mix Certificate is missing in Certificates Panel.");
 
-	if(m_DescriptionPanel.getCity().equals(""))
-	    errors.addElement("The city field cannot be left blank in Description Panel.");
-	if(m_DescriptionPanel.getState().equals(""))
-	    errors.addElement("The state field cannot be left blank in Description Panel.");
-	if(m_DescriptionPanel.getLatitude().equals("") && !m_DescriptionPanel.getLongitude().equals(""))
-	    errors.addElement("Latitude is missing in Description Panel.");
-	if(!m_DescriptionPanel.getLatitude().equals("") && m_DescriptionPanel.getLongitude().equals(""))
-	    errors.addElement("Longitude is missing in Description Panel.");
+        if(m_DescriptionPanel.getCity().equals(""))
+            errors.addElement("The city field cannot be left blank in Description Panel.");
+        if(m_DescriptionPanel.getState().equals(""))
+            errors.addElement("The state field cannot be left blank in Description Panel.");
+        if(m_DescriptionPanel.getLatitude().equals("") && !m_DescriptionPanel.getLongitude().equals(""))
+            errors.addElement("Latitude is missing in Description Panel.");
+        if(!m_DescriptionPanel.getLatitude().equals("") && m_DescriptionPanel.getLongitude().equals(""))
+            errors.addElement("Longitude is missing in Description Panel.");
 
-	String[] asString = new String[errors.size()];
-	for(int i=0;i<asString.length;i++)
-	    asString[i] = (String)errors.elementAt(i);
-	// return (String[]) errors.toArray(new String[] {});
-	return asString;
+        String[] asString = new String[errors.size()];
+        for(int i=0;i<asString.length;i++)
+            asString[i] = (String)errors.elementAt(i);
+        // return (String[]) errors.toArray(new String[] {});
+        return asString;
     }
 }
 
@@ -819,35 +830,39 @@ public class TheApplet extends JApplet
   {
       try
       {
-	  //Security.addProvider((java.security.Provider)java.lang.Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider").newInstance());
-	  Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-	}
-      catch(Exception e) {
-      e.printStackTrace();
+          // Ansonsten funktioniert das Applet nicht, da beim Laden
+          // der Klasse auch alle Referenzen auf andere Klassen
+          // ueberprueft werden.
+          Security.addProvider((java.security.Provider)java.lang.Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider").newInstance());
+          //Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
       }
-    //Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-    JFrame MainWindow = new JFrame("Mix Configuration Tool");
-    m_MainWindow = MainWindow;
-    ImageIcon icon=loadImage("icon.gif");
-    if(icon!=null)
-      m_MainWindow.setIconImage(icon.getImage());
-    myFrame = new MyFrame(MainWindow);
+      catch(Exception e)
+      {
+          e.printStackTrace();
+      }
+      //Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+      JFrame MainWindow = new JFrame("Mix Configuration Tool");
+      m_MainWindow = MainWindow;
+      ImageIcon icon=loadImage("icon.gif");
+      if(icon!=null)
+        m_MainWindow.setIconImage(icon.getImage());
+      myFrame = new MyFrame(MainWindow);
 
-    MainWindow.addWindowListener(new WindowAdapter()
-    {
-       public void windowClosing(WindowEvent e)
-       {
-	   System.exit(0);
-       }
-    });
+      MainWindow.addWindowListener(new WindowAdapter()
+      {
+         public void windowClosing(WindowEvent e)
+         {
+             System.exit(0);
+         }
+      });
 
-    MainWindow.setJMenuBar(myFrame.getMenuBar());
-    MainWindow.setContentPane(myFrame);
-    MainWindow.pack();
-    Dimension d=Toolkit.getDefaultToolkit().getScreenSize();
-    Dimension size=MainWindow.getSize();
-    MainWindow.setLocation((d.width-size.width)/2,(d.height-size.height)/2);
-    MainWindow.show();
+      MainWindow.setJMenuBar(myFrame.getMenuBar());
+      MainWindow.setContentPane(myFrame);
+      MainWindow.pack();
+      Dimension d=Toolkit.getDefaultToolkit().getScreenSize();
+      Dimension size=MainWindow.getSize();
+      MainWindow.setLocation((d.width-size.width)/2,(d.height-size.height)/2);
+      MainWindow.show();
   }
 
    public void init() // For the applet.
