@@ -27,11 +27,8 @@
  */
 package mixconfig;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -48,11 +45,8 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
-import org.bouncycastle.asn1.DERInputStream;
-import org.bouncycastle.asn1.DEROutputStream;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
-import anon.util.Base64;
 
 public class SigCertTool extends JDialog implements ActionListener
 {
@@ -354,54 +348,33 @@ public class SigCertTool extends JDialog implements ActionListener
 
 	private boolean setCertSignWithPrivCert(byte[] cert, char[] passwd)
 	{
-		try
+		PKCS12 pkcs12 = PKCS12.getInstance(cert, passwd);
+
+
+		if (pkcs12 != null)
 		{
-			if (cert != null)
-			{
-				if (cert[0]
-					!= (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
-				{
-					throw (new RuntimeException("Not a PKCS 12 stream."));
-				}
-
-				PKCS12 pkcs12 = PKCS12.getInstance(new ByteArrayInputStream(cert), passwd);
-
-				m_textSignWithCertValidFrom.setText(
-					pkcs12.getX509Certificate().getStartDate().getDate().toString());
-				m_textSignWithCertValidTo.setText(
-								pkcs12.getX509Certificate().getEndDate().getDate().toString());
-				m_textSignWithCertCN.setText(pkcs12.getX509Certificate().getSubject().toString());
-				m_signingCertificate = pkcs12;
-				return true;
-
-			}
-			else
-			{
-				m_textSignWithCertValidFrom.setText(null);
-				m_textSignWithCertValidTo.setText(null);
-				m_textSignWithCertCN.setText(null);
-				m_signingCertificate = null;
-			}
+			m_textSignWithCertValidFrom.setText(
+				pkcs12.getX509Certificate().getStartDate().getDate().toString());
+			m_textSignWithCertValidTo.setText(
+				pkcs12.getX509Certificate().getEndDate().getDate().toString());
+			m_textSignWithCertCN.setText(pkcs12.getX509Certificate().getSubject().toString());
+			m_signingCertificate = pkcs12;
+			return true;
 		}
-
-		catch (Throwable e)
+		else
 		{
+			m_textSignWithCertValidFrom.setText(null);
+			m_textSignWithCertValidTo.setText(null);
+			m_textSignWithCertCN.setText(null);
+			m_signingCertificate = null;
 			return false;
 		}
-		return true;
 	}
 
 	private void sign()
 	{
 		m_certToSign = m_certToSign.sign(m_signingCertificate);
 		setCertToSign(m_certToSign);
-	}
-
-	private byte[] getCertToSignAsByteArray() throws IOException
-	{
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		new DEROutputStream(out).writeObject(m_certToSign);
-		return out.toByteArray();
 	}
 
 	public void actionPerformed(ActionEvent e)
@@ -479,12 +452,10 @@ public class SigCertTool extends JDialog implements ActionListener
 						switch (type)
 						{
 							case MixConfig.FILTER_CER:
-								fout.write(getCertToSignAsByteArray());
+								fout.write(m_certToSign.toByteArray());
 								break;
 							case MixConfig.FILTER_B64_CER:
-								fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
-								fout.write(Base64.encode(getCertToSignAsByteArray(),true).getBytes());
-								fout.write("\n-----END CERTIFICATE-----\n".getBytes());
+								fout.write(m_certToSign.toByteArray(true));
 								break;
 						}
 						fout.close();
