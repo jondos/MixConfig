@@ -486,6 +486,20 @@ class CertificatesPanel extends JPanel implements ActionListener
         File file=fd.getSelectedFile();
         if(file!=null)
           {
+            String fname = file.getName();
+            if(fname.indexOf('.')<0)
+                switch(((SimpleFileFilter)fd.getFileFilter()).getFilterType())
+                {
+                    case TheApplet.FILTER_PFX:
+                        file = new File(file.getParentFile(), fname + ".pfx");
+                        break;
+                    case TheApplet.FILTER_CER:
+                        file = new File(file.getParentFile(), fname + ".der.cer");
+                        break;
+                    case TheApplet.FILTER_B64_CER:
+                        file = new File(file.getParentFile(), fname + ".b64.cer");
+                        break;
+                }
             try
               {
                 FileOutputStream fout=new FileOutputStream(file);
