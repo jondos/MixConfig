@@ -36,6 +36,7 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,6 +52,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.OverlayLayout;
 import javax.swing.border.TitledBorder;
+import javax.swing.border.EtchedBorder;
 
 import org.bouncycastle.asn1.DEROutputStream;
 import org.bouncycastle.asn1.x509.X509CertificateStructure;
@@ -71,12 +73,14 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 	private JCheckBox m_checkboxDaemon, m_checkboxLogging, m_checkboxUserID, m_checkboxNrOfFileDes,
 		m_compressLog, m_checkboxCascadeLength;
 	private JRadioButton m_rbConsole, m_rbFile, m_rbSyslog;
+	private JRadioButton m_first_yes, m_first_no, m_middle_yes, m_middle_no, m_last_yes, m_last_no; //byWP
 	private JLabel m_labelEnrypt, m_lbMixID;
 	private ButtonGroup m_loggingButtonGroup;
+	private ButtonGroup m_firstMixButtonGroup, m_middleMixButtonGroup, m_lastMixButtonGroup; //byWP
 	private JButton m_bttnImportEncKey, m_bttnGenMixID;
 	private byte[] m_certLogEncKey = null;
-	private JPanel strut = new JPanel();
-	private JPanel advanced = new JPanel();
+	private JPanel m_panelStrut = new JPanel();
+	private JPanel m_panelAdvanced = new JPanel();
 
 	/**
 	 * Constructs a panel with controls for general Mix settings.
@@ -92,6 +96,33 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		gbc.gridy = 0;
 		gbc.weightx = 1;
 
+
+		//Head  //byWP
+		GridLayout layout0 = new GridLayout(1,3);
+		//GridBagConstraints c_layout0 = new GridBagConstraints();
+		//c_layout0.gridwidth = GridBagConstraints.REMAINDER;
+		//c_layout0.anchor = GridBagConstraints.EAST;
+
+		JPanel head = new JPanel(layout0);
+		head.setBorder(new EtchedBorder());
+		JLabel text1 = new JLabel("Specify Config for your Mix");
+		JLabel text2 = new JLabel("Step 1/");
+
+		//layout0.setConstraints(text1, c_layout0);
+		head.add(text1);
+		head.add( new JLabel("") );
+		head.add(text2);
+
+		//The Label head should stand on the left side (=WEST)
+		GridBagConstraints ccc = new GridBagConstraints();
+		ccc.gridwidth = GridBagConstraints.REMAINDER;
+		ccc.anchor = GridBagConstraints.CENTER;
+		ccc.insets = new Insets(10, 10, 10, 25);
+		l.setConstraints(head, ccc);
+		add(head);
+
+
+
 		GridBagLayout layout = new GridBagLayout();
 		GridBagLayout layout2 = new GridBagLayout();
 
@@ -99,10 +130,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		JPanel p2 = new JPanel();
 		OverlayLayout ol = new OverlayLayout(p2);
 		p2.setLayout(ol);
-		advanced = new JPanel(layout2);
+		m_panelAdvanced = new JPanel(layout2);
 
 		p1.setBorder(new TitledBorder("General settings"));
-		advanced.setBorder(new TitledBorder("Advanced settings"));
+		m_panelAdvanced.setBorder(new TitledBorder("Advanced settings"));
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
@@ -126,6 +157,82 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.weightx = 3;
 		layout.setConstraints(m_tfMixName, c);
 		p1.add(m_tfMixName);
+
+
+		// Mix Type JRadiButton //byWP evtl. work with gridy++ //for later releases
+		/*
+		JLabel m_first = new JLabel ("I am willing to run as a first mix");
+		m_first_yes = new JRadioButton("yes", true);
+		m_first_no = new JRadioButton("no");
+		m_firstMixButtonGroup = new ButtonGroup();
+		m_firstMixButtonGroup.add(m_first_yes);
+		m_firstMixButtonGroup.add(m_first_no);
+
+		JLabel m_middle = new JLabel ("I am willing to run as a middle mix");
+		m_middle_yes = new JRadioButton("yes", true);
+		m_middle_no = new JRadioButton("no");
+		m_middleMixButtonGroup = new ButtonGroup();
+		m_middleMixButtonGroup.add(m_middle_yes);
+		m_middleMixButtonGroup.add(m_middle_no);
+
+		JLabel m_last = new JLabel ("I am willing to run as a last mix");
+		m_last_yes = new JRadioButton("yes");
+		m_last_no = new JRadioButton("no", true);
+		m_lastMixButtonGroup = new ButtonGroup();
+		m_lastMixButtonGroup.add(m_last_yes);
+		m_lastMixButtonGroup.add(m_last_no);
+
+		//Add the Elements to Panel p1
+		//for the first mix
+		c.gridy++;
+		c.weightx = 1;
+		layout.setConstraints(m_first, c);
+		p1.add(m_first);
+		c.weightx = 3;
+		layout.setConstraints(m_first_yes, c);
+		p1.add(m_first_yes);
+		layout.setConstraints(m_first_no, c);
+		p1.add(m_first_no);
+
+		//for the middle mix
+		c.gridy++;
+		c.weightx = 1;
+		layout.setConstraints(m_middle, c);
+		p1.add(m_middle);
+		c.weightx = 3;
+		layout.setConstraints(m_middle_yes, c);
+		p1.add(m_middle_yes);
+		layout.setConstraints(m_middle_no, c);
+		p1.add(m_middle_no);
+
+		//for the last mix
+		c.gridy++;
+		c.weightx = 1;
+		layout.setConstraints(m_last, c);
+		p1.add(m_last);
+		c.weightx = 3;
+		layout.setConstraints(m_last_yes, c);
+		p1.add(m_last_yes);
+		layout.setConstraints(m_last_no, c);
+		p1.add(m_last_no);
+	  */
+
+
+
+		//cascadeSettingButtons.add(m_first_no);
+		//cascadeSettingButtons.add(m_middle_yes);
+		//cascadeSettingButtons.add(m_middle_no);
+		//cascadeSettingButtons.add(m_last_yes);
+		//cascadeSettingButtons.add(m_last_no);
+
+		//Add the RadioButtons to p1
+		//c.weightx = 3;
+		//layout.setConstraints(cascadeSettingButtons, c);
+		//p1.add(cascadeSettingButtons);
+
+
+
+
 
 		// Mix Type label
 		JLabel j1 = new JLabel("Cascade setting");
@@ -189,6 +296,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		layout.setConstraints(m_tfCascadeLength, c);
 		p1.add(m_tfCascadeLength);
 
+		gbc.gridy++;
 		l.setConstraints(p1, gbc);
 		add(p1);
 
@@ -203,7 +311,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.gridy = 0;
 		c.weightx = 1;
 		layout2.setConstraints(m_lbMixID, c);
-		advanced.add(m_lbMixID);
+		m_panelAdvanced.add(m_lbMixID);
 
 		// Mix ID JTextField
 		m_tfMixID = new JTextField(20);
@@ -212,14 +320,14 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		m_tfMixID.addFocusListener(this);
 		c.weightx = 1;
 		layout2.setConstraints(m_tfMixID, c);
-		advanced.add(m_tfMixID);
+		m_panelAdvanced.add(m_tfMixID);
 
 		// Generate Mix ID JButton
 		m_bttnGenMixID = new JButton("Generate");
 		m_bttnGenMixID.addActionListener(this);
 		c.weightx = 1;
 		layout2.setConstraints(m_bttnGenMixID, c);
-		advanced.add(m_bttnGenMixID);
+		m_panelAdvanced.add(m_bttnGenMixID);
 
 		// User ID JCheckBox
 		m_checkboxUserID = new JCheckBox("Set User ID on Execution");
@@ -227,7 +335,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.gridy++;
 		c.weightx = 1;
 		layout2.setConstraints(m_checkboxUserID, c);
-		advanced.add(m_checkboxUserID);
+		m_panelAdvanced.add(m_checkboxUserID);
 
 		// User ID JTextField
 		m_tfID = new JTextField(20);
@@ -235,7 +343,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		m_tfID.addFocusListener(this);
 		c.weightx = 2;
 		layout2.setConstraints(m_tfID, c);
-		advanced.add(m_tfID);
+		m_panelAdvanced.add(m_tfID);
 		m_tfID.setEnabled(false);
 
 		// File Descriptors JCheckBox
@@ -244,7 +352,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.weightx = 1;
 		c.gridy++;
 		layout2.setConstraints(m_checkboxNrOfFileDes, c);
-		advanced.add(m_checkboxNrOfFileDes);
+		m_panelAdvanced.add(m_checkboxNrOfFileDes);
 
 		// File Descriptors JTextField
 		m_tfNumOfFiles = new JTextField(20);
@@ -252,7 +360,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		m_tfNumOfFiles.addFocusListener(this);
 		c.weightx = 2;
 		layout2.setConstraints(m_tfNumOfFiles, c);
-		advanced.add(m_tfNumOfFiles);
+		m_panelAdvanced.add(m_tfNumOfFiles);
 
 		// Daemon JCheckBox
 		m_checkboxDaemon = new JCheckBox("Run as Daemon");
@@ -261,7 +369,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.gridy++;
 		c.weightx = 1;
 		layout2.setConstraints(m_checkboxDaemon, c);
-		advanced.add(m_checkboxDaemon);
+		m_panelAdvanced.add(m_checkboxDaemon);
 
 		// Logging JCheckBox
 		m_checkboxLogging = new JCheckBox("Enable Logging");
@@ -269,7 +377,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.gridy++;
 		c.weightx = 1;
 		layout2.setConstraints(m_checkboxLogging, c);
-		advanced.add(m_checkboxLogging);
+		m_panelAdvanced.add(m_checkboxLogging);
 
 		// Console Logging JCheckBox
 		m_rbConsole = new JRadioButton("Log to Console");
@@ -280,7 +388,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.gridx = 1;
 		c.weightx = 1;
 		layout2.setConstraints(m_rbConsole, c);
-		advanced.add(m_rbConsole);
+		m_panelAdvanced.add(m_rbConsole);
 
 		// Log to Directory JRadioButton
 		m_rbFile = new JRadioButton("Log to Directory:");
@@ -290,7 +398,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.weightx = 1;
 		c.gridy++;
 		layout2.setConstraints(m_rbFile, c);
-		advanced.add(m_rbFile);
+		m_panelAdvanced.add(m_rbFile);
 
 		// Log to Directory JTextField
 		m_tfFileName = new JTextField(20);
@@ -300,7 +408,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.weightx = 1;
 		c.gridwidth = 2;
 		layout2.setConstraints(m_tfFileName, c);
-		advanced.add(m_tfFileName);
+		m_panelAdvanced.add(m_tfFileName);
 
 		// Encrypt Log JLabel
 		m_labelEnrypt = new JLabel("Encrypt with:");
@@ -311,7 +419,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.weightx = 1;
 		c.gridwidth = 1;
 		layout2.setConstraints(m_labelEnrypt, c);
-		advanced.add(m_labelEnrypt);
+		m_panelAdvanced.add(m_labelEnrypt);
 
 		// Encrypt Log Key JTextField
 		m_tfLogEncryptKeyName = new JTextField(15);
@@ -322,7 +430,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.weightx = 1;
 		c.gridx = -1;
 		layout2.setConstraints(m_tfLogEncryptKeyName, c);
-		advanced.add(m_tfLogEncryptKeyName);
+		m_panelAdvanced.add(m_tfLogEncryptKeyName);
 
 		// Encrypt Log Key JButton
 		m_bttnImportEncKey = new JButton("Import...");
@@ -330,7 +438,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		m_bttnImportEncKey.addActionListener(this);
 		c.weightx = 1;
 		layout2.setConstraints(m_bttnImportEncKey, c);
-		advanced.add(m_bttnImportEncKey);
+		m_panelAdvanced.add(m_bttnImportEncKey);
 
 		// Compress Log JCheckBox
 		m_compressLog = new JCheckBox("Compress Log Files");
@@ -341,7 +449,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.gridy++;
 		c.weightx = 1;
 		layout2.setConstraints(m_compressLog, c);
-		advanced.add(m_compressLog);
+		m_panelAdvanced.add(m_compressLog);
 
 		// Syslog JRadioButton
 		m_rbSyslog = new JRadioButton("Log to Syslog");
@@ -353,20 +461,20 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.gridy++;
 		c.weightx = 1;
 		layout2.setConstraints(m_rbSyslog, c);
-		advanced.add(m_rbSyslog);
+		m_panelAdvanced.add(m_rbSyslog);
 
-		p2.add(advanced);
+		p2.add(m_panelAdvanced);
 
-		strut = new JPanel();
-		strut.setLayout(new FlowLayout(FlowLayout.LEFT));
+		m_panelStrut = new JPanel();
+		m_panelStrut.setLayout(new FlowLayout(FlowLayout.LEFT));
 		JButton b = new JButton("Advanced ...");
 		b.setActionCommand("advanced");
 		b.addActionListener(this);
-		strut.add(b);
+		m_panelStrut.add(b);
 
-		p2.add(strut);
+		p2.add(m_panelStrut);
 
-		strut.setVisible(false);
+		m_panelStrut.setVisible(false);
 
 		gbc.gridy++;
 		l.setConstraints(p2, gbc);
@@ -584,23 +692,14 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 
 		m_tfID.setEnabled(m_checkboxUserID.isSelected());
 		m_tfNumOfFiles.setEnabled(m_checkboxNrOfFileDes.isSelected());
-		m_checkboxCascadeLength.setEnabled(selectedMixType != 2);
 
-		if (selectedMixType != 2 && getConfiguration() != null)
-		{
-			getConfiguration().removeAttribute("MixCascade");
-		}
-
-		boolean consoleNotPossible = m_rbConsole.isSelected() && !m_rbConsole.isEnabled();
-
-		// if mix is run as daemon, we can't log to console so set log
-		// output to file.
+		// if mix is run as daemon, we can't log to console so set log output to file.
 		if (log && !file)
 		{
 			// A bug in JDK 1.1.8 causes an infinite event loop here, therefore
 			// event casting must be disabled
 			m_rbFile.removeItemListener(this);
-			m_rbFile.setSelected(consoleNotPossible);
+			m_rbFile.setSelected(m_rbConsole.isSelected() && !m_rbConsole.isEnabled());
 			m_rbFile.addItemListener(this);
 		}
 	}
@@ -779,7 +878,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 	 */
 	private void setAdvancedVisible(boolean visible)
 	{
-		strut.setVisible(!visible);
-		advanced.setVisible(visible);
+		m_panelStrut.setVisible(!visible);
+		m_panelAdvanced.setVisible(visible);
 	}
 }

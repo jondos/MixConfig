@@ -144,46 +144,37 @@ public class CertificatesPanel extends MixConfigPanel implements ChangeListener,
 	{
 		Vector errors = new Vector();
 
-		try
+		if (this.m_ownCert.getCert() == null)
 		{
-			if (this.m_ownCert.getCert() == null)
+			errors.addElement(
+				"Own Mix Certificate is missing in Certificates Panel.");
+		}
+
+		// in automatic configuration, certificates are not entered in the configuration;
+		// they are to be received from the InfoService instead
+		if (!m_wizard)
+		{
+			if (!m_prevCert.isEnabled() && m_prevCert.getCert() != null)
 			{
 				errors.addElement(
-					"Own Mix Certificate is missing in Certificates Panel.");
+					"Previous Mix Certificate is present, but there is no previous mix.");
 			}
-
-			// in automatic configuration, certificates are not entered in the configuration;
-			// they are to be received from the InfoService instead
-			if (!m_wizard)
+			else if (m_prevCert.isEnabled() && m_prevCert.getCert() == null)
 			{
-				if (!m_prevCert.isEnabled() && m_prevCert.getCert() != null)
-				{
-					errors.addElement(
-						"Previous Mix Certificate is present, but there is no previous mix.");
-				}
-				else if (m_prevCert.isEnabled() && m_prevCert.getCert() == null)
-				{
-					errors.addElement(
-						"Previous Mix Certificate is missing in Certificates Panel.");
-				}
-
-				if (!m_nextCert.isEnabled() && m_nextCert.getCert() != null)
-				{
-					errors.addElement(
-						"Next Mix Certificate is present, but there is no next mix.");
-				}
-				else if (m_nextCert.isEnabled() && m_nextCert.getCert() == null)
-				{
-					errors.addElement(
-						"Next Mix Certificate is missing in Certificates Panel.");
-				}
+				errors.addElement(
+					"Previous Mix Certificate is missing in Certificates Panel.");
 			}
-		}
-		catch (Exception ioe)
-		{
-			// Needs JDK 1.4+
-			// throw new RuntimeException(ioe);
-			throw new RuntimeException(ioe.getMessage());
+
+			if (!m_nextCert.isEnabled() && m_nextCert.getCert() != null)
+			{
+				errors.addElement(
+					"Next Mix Certificate is present, but there is no next mix.");
+			}
+			else if (m_nextCert.isEnabled() && m_nextCert.getCert() == null)
+			{
+				errors.addElement(
+					"Next Mix Certificate is missing in Certificates Panel.");
+			}
 		}
 
 		return errors;

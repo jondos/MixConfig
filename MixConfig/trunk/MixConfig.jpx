@@ -62,13 +62,14 @@
   <property category="team" name="ignorePath.2" value="classes"/>
   <property category="team" name="ignorePath.3" value="doc"/>
   <property category="team" name="ignorePath.4" value="doc_doxy"/>
-  <node name="Additional Settings" type="Folder">
+  <node name="Weitere Einstellungen" type="Folder">
     <property category="sys" name="SettingsFolder" value="1"/>
     <file path="jbuilder-build.xml">
       <property category="ant" name="isantfile" value="1"/>
     </file>
   </node>
   <node name="anon" type="Package"/>
+  <node name="gui" type="Package"/>
   <node name="logging" type="Package"/>
   <node name="mixconfig" type="Package"/>
   <node name="test" type="Package"/>
