@@ -66,13 +66,13 @@ class ClipFrame extends Dialog implements ActionListener, ItemListener
 
   public ClipFrame(String title,boolean open, ClipChoice[] choices)
   {
-    super(TheApplet.getMainWindow(),title,true);
+    super(MixConfig.getMainWindow(),title,true);
     init(open, choices);
   }
 
   public ClipFrame(String title,boolean open)
   {
-      super(TheApplet.getMainWindow(),title,true);
+      super(MixConfig.getMainWindow(),title,true);
       init(open, null);
   }
 
@@ -92,7 +92,7 @@ class ClipFrame extends Dialog implements ActionListener, ItemListener
       {
           if(m_TextArea.getText().equals(""))
           {
-            JOptionPane.showMessageDialog(TheApplet.getMainWindow(),"The Text Area is empty!",
+            JOptionPane.showMessageDialog(MixConfig.getMainWindow(),"The Text Area is empty!",
                             "Error!",JOptionPane.ERROR_MESSAGE);
 
           }

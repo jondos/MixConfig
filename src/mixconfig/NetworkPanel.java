@@ -1346,7 +1346,7 @@ class NetworkPanel extends JPanel
 												{
 														if(a.getActionCommand().equals("Add"))
 														{
-																IncomingDialog dialog = new IncomingDialog(TheApplet.getMainWindow(),"Add",imodel);
+																IncomingDialog dialog = new IncomingDialog(MixConfig.getMainWindow(),"Add",imodel);
 																dialog.show();
 														}
 												}
@@ -1371,7 +1371,7 @@ class NetworkPanel extends JPanel
 												{
 														if(a.getActionCommand().equals("Change"))
 														{
-																IncomingDialog dialog = new IncomingDialog(TheApplet.getMainWindow(),"Change",imodel,
+																IncomingDialog dialog = new IncomingDialog(MixConfig.getMainWindow(),"Change",imodel,
 																				((IncomingModel)table1.getModel()).getData(table1.getSelectedRow()));
 																dialog.show();
 														}
@@ -1501,7 +1501,7 @@ class NetworkPanel extends JPanel
 												{
 														if(a.getActionCommand().equals("Add"))
 														{
-																OutgoingDialog dialog = new OutgoingDialog(TheApplet.getMainWindow(),
+																OutgoingDialog dialog = new OutgoingDialog(MixConfig.getMainWindow(),
 																				(ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix"))?"Add Proxy":"Add Next Mix",
 																				omodel);
 																dialog.show();
@@ -1526,7 +1526,7 @@ class NetworkPanel extends JPanel
 												{
 														if(a.getActionCommand().equals("Change"))
 														{
-																OutgoingDialog dialog = new OutgoingDialog(TheApplet.getMainWindow(),
+																OutgoingDialog dialog = new OutgoingDialog(MixConfig.getMainWindow(),
 																				(ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix"))?"Change Proxy":"Change Next Mix",
 																				omodel,
 																				((OutgoingModel)table2.getModel()).getData(table2.getSelectedRow()));

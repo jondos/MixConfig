@@ -99,7 +99,7 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
         {
           //String logo = "http://art.mapquest.com/mqsite_english/logo";
           //URL MapLogo = new URL(logo);
-          ImageIcon maplogo = TheApplet.loadImage("mapquest-logo.gif");
+          ImageIcon maplogo = MixConfig.loadImage("mapquest-logo.gif");
           JLabel logolabel = new JLabel(maplogo);
           c.gridx = 1;
           c.gridy = 2;
