@@ -64,7 +64,8 @@ import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import anon.util.Base64;
 import mixconfig.wizard.ConfigWizard;
 import java.io.FileReader;
-
+import javax.swing.JEditorPane;
+import java.awt.TextArea;
 /** \mainpage
  This is a tool which one can use for creating a configuration file for a Mix. This configuration file
  contains an XML struct with the foolowing elements:
@@ -375,7 +376,11 @@ public class MixConfig extends JApplet
 			{
 				StringWriter s = new StringWriter();
 				t.printStackTrace(new PrintWriter(s));
-				JTextArea tx = new JTextArea(s.toString());
+				TextArea tx = new TextArea();
+				tx.setColumns(80);
+				tx.setRows(20);
+				tx.setSize(600,400);
+				tx.setText(s.toString());
 				s.close();
 				b.add(new JScrollPane(tx));
 			}
