@@ -27,14 +27,15 @@
  */
 package anon.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipEntry;
 
 /**
  * This class performs some basic operations related to Class objects.
@@ -75,8 +76,7 @@ public final class ClassUtil
 
 		pointIndex = classname.lastIndexOf('.');
 
-		if (pointIndex >= 0)
-		{
+		if (pointIndex >= 0) {
 			classname = classname.substring(pointIndex + 1, classname.length());
 		}
 
@@ -228,7 +228,7 @@ public final class ClassUtil
 		// generate a url with this class as resource
 		classResource = a_rootClass.getName();
 		classResource = "/" + classResource;
-		classResource = classResource.replace('.', '/');
+		classResource = classResource.replace('.','/');
 		classResource += ".class";
 		try
 		{
@@ -277,7 +277,7 @@ public final class ClassUtil
 				while (entries.hasMoreElements())
 				{
 					Class classObject;
-					classObject = toClass(new File( ( ( (ZipEntry) entries.nextElement())).toString()),
+					classObject = toClass(new File((((ZipEntry) entries.nextElement())).toString()),
 										  (File)null);
 
 					if (classObject != null)
@@ -410,8 +410,7 @@ public final class ClassUtil
 	 */
 	private static String toSystemSpecificFileName(String a_filename)
 	{
-		if (a_filename.charAt(2) == ':')
-		{
+      if (a_filename.charAt(2) == ':') {
 			a_filename = a_filename.substring(1, a_filename.length());
 		}
 
