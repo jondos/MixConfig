@@ -27,34 +27,32 @@
  */
 package anon.crypto;
 
-import java.util.GregorianCalendar;
-import java.util.Vector;
-import java.util.Hashtable;
-import java.util.Enumeration;
-import java.security.MessageDigest;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Enumeration;
+import java.util.GregorianCalendar;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
-import anon.util.IXMLEncodable;
-import anon.util.XMLUtil;
 import anon.util.Base64;
+import anon.util.IXMLEncodable;
 import anon.util.XMLParseException;
-import java.security.NoSuchAlgorithmException;
+import anon.util.XMLUtil;
 
 /**
  * This class stores and creates signatures of XML nodes. The signing and verification processes
  * and the underlying XML signature structure are completely transparent to the using code.
  * Therefore, the XML_ELEMENT_NAME is not public. Just sign and verify what you want, you do not
- * need to know how it works! The XMLSignature object is connected to the corresponding XML
- * signature node. Changes in the XMLSignature are directly reflected in the corresponding node.
- * Therefore it is not allowed to change the structure of an element`s signature node for other
- * code than methods of this class. Otherwise, some methods of XMLSignature could give false
+ * need to know how it works! It is not allowed to change the structure of an element`s signature
+ * node for other code than methods of this class . Otherwise, some methods could give false
  * results.
  * XMLSignature objects can only be created by signing or verifying XML nodes, or by getting an
  * unverified signature from an XML node.
@@ -732,13 +730,10 @@ public final class XMLSignature implements IXMLEncodable
 	 * first. The signature is only appended to the node if the node`s message digest is equal to
 	 * the signature`s stored message digest. If the new signature could not be appended, the old
 	 * signature is not removed (if present).
-	 * The signature element appended does not need to be not connected with this XMLSignature
-	 * object (this is only the case if they are in the same document tree). Therefore you should
-	 * use the returned XMLSignature to modify the signature afterwards.
 	 * @param a_node an XML node
-	 * @return the (new) XMLSignature if the signature has been appended; null otherwise
+	 * @return true if the signature has been appended; false otherwise
 	 */
-	public synchronized XMLSignature appendSignatureTo(Node a_node)
+	public boolean appendSignatureTo(Node a_node)
 	{
 		Document doc;
 		Element element;
@@ -757,7 +752,7 @@ public final class XMLSignature implements IXMLEncodable
 		}
 		else
 		{
-			return null;
+			return false;
 		}
 
 		// check if this is a valid signature for this element!
@@ -765,12 +760,12 @@ public final class XMLSignature implements IXMLEncodable
 		{
 			if (!checkMessageDigest(element, this))
 			{
-				return null;
+				return false;
 			}
 		}
 		catch(XMLParseException a_e)
 		{
-			return null;
+			return false;
 		}
 
 		// create the signature element
@@ -785,22 +780,7 @@ public final class XMLSignature implements IXMLEncodable
 		// append this signature element
 		element.appendChild(elemNewSignature);
 
-		if (elemNewSignature == m_elemSignature)
-		{
-			return this;
-		}
-		else
-		{
-			try
-			{
-				return getUnverified(element);
-			}
-			catch (XMLParseException a_e)
-			{
-				//should never happen
-				return null;
-			}
-		}
+		return true;
 	}
 
 	/**
@@ -810,7 +790,7 @@ public final class XMLSignature implements IXMLEncodable
 	 * @param a_doc an XML document
 	 * @return the signature as XML element
 	 */
-	public synchronized Element toXmlElement(Document a_doc)
+	public Element toXmlElement(Document a_doc)
 	{
 		Element elemSignature = toXmlElementInternal(a_doc);
 
@@ -1131,7 +1111,7 @@ public final class XMLSignature implements IXMLEncodable
 			{
 				return 0;
 			}
-			if (node.getNodeType() == node.ELEMENT_NODE)
+			if (node.getNodeType() == Node.ELEMENT_NODE)
 			{
 				Element elem = (Element) node;
 				o.write('<');
@@ -1166,7 +1146,7 @@ public final class XMLSignature implements IXMLEncodable
 					return -1;
 				}
 			}
-			else if (node.getNodeType() == node.TEXT_NODE)
+			else if (node.getNodeType() == Node.TEXT_NODE)
 			{
 				o.write(node.getNodeValue().trim().getBytes());
 				if (makeCanonical(node.getNextSibling(), o, true, excludeNode) == -1)
@@ -1175,7 +1155,7 @@ public final class XMLSignature implements IXMLEncodable
 				}
 				return 0;
 			}
-			else if (node.getNodeType() == node.COMMENT_NODE)
+			else if (node.getNodeType() == Node.COMMENT_NODE)
 			{
 				if (makeCanonical(node.getNextSibling(), o, true, excludeNode) == -1)
 				{
@@ -1253,13 +1233,7 @@ public final class XMLSignature implements IXMLEncodable
 		return true;
 	}
 
-	/**
-	 * Checks if the message digest (the XMLSignature`s SIGNED_INFO) is valid.
-	 * @param a_node an XML node
-	 * @param a_signature an XMLSignature
-	 * @throws XMLParseException
-	 * @return true if the message digest (the XMLSignature`s SIGNED_INFO) is valid; false otherwise
-	 */
+
 	private static boolean checkMessageDigest(Node a_node, XMLSignature a_signature)
 		throws XMLParseException
 	{
