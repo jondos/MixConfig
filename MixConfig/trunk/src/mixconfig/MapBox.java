@@ -70,6 +70,7 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
       s.setMinorTickSpacing(1);
       s.setSnapToTicks(true);
       s.setPaintLabels( true );
+      s.setRequestFocusEnabled(false);
       s.addChangeListener(this);
       c.insets=new Insets(5,10,20,10);
       c.gridx = 2;
@@ -114,14 +115,25 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
       getContentPane().add(b);
       setPosition(lat,lon);
       pack();
+      addWindowListener(new WindowAdapter()
+        {
+          public void windowClosing(WindowEvent e)
+            {
+              close();
+            }
+        });
     }
-
-    public void actionPerformed(ActionEvent ae)
+    private void close()
     {
       dispose();
       DescriptionPanel.map.setText("Show on Map");
       DescriptionPanel.map.setActionCommand("Map");
     }
+
+    public void actionPerformed(ActionEvent ae)
+      {
+        close();
+      }
 
 /*    public static void update()
     {
@@ -214,9 +226,9 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
         double lat=Double.valueOf(lati).doubleValue();
         double lon=Double.valueOf(longi).doubleValue();
 
-         BufferedInputStream bissmall,bisbig;
-         String Title = "";
-          try
+        BufferedInputStream bissmall,bisbig;
+        String Title = "";
+        try
           {
             String site = "http://www.mapquest.com/maps/map.adp?latlongtype=decimal&latitude="+lati+"&longitude="+longi;
             Title = "The location shown on the Map is :  Latitude = "+lati+"  Longitude = "+ longi;
@@ -274,6 +286,7 @@ class MapBox extends JDialog implements ActionListener,ChangeListener
           }
           catch(Exception e)
           {
+            map.setText("Error getting the map: "+e.getMessage());
             e.printStackTrace();
           }
       }

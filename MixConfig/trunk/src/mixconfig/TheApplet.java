@@ -2,10 +2,10 @@ package mixconfig;
 
 import java.util.*;
 import java.net.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
-import java.awt.Font.*;
 import java.io.*;
 import javax.swing.*;
 import java.applet.*;
@@ -37,10 +37,10 @@ import javax.xml.transform.stream.StreamResult;
 import java.security.cert.Certificate;
 import java.security.cert.*;
 import java.security.*;
-import org.bouncycastle.jce.X509V3CertificateGenerator;
+//import org.bouncycastle.jce.X509V3CertificateGenerator;
 import org.bouncycastle.jce.provider.*;
-import org.bouncycastle.asn1.x509.X509Name;
-import org.bouncycastle.crypto.BlockCipher;
+//import org.bouncycastle.asn1.x509.X509Name;
+//import org.bouncycastle.crypto.BlockCipher;
 
 
 //  Creating a Frame.........
@@ -128,77 +128,51 @@ import org.bouncycastle.crypto.BlockCipher;
     {
       if(evt.getActionCommand().equals("New"))
       {
-        NewDialogBox dialog = new NewDialogBox(TheApplet.myFrame,"Caution!!");
-	dialog.setlabel("You will lose unsaved information. Do you want to continue?");
-	dialog.setVisible(true);
-        if(New == true)
+        int ret=JOptionPane.showConfirmDialog(TheApplet.myFrame,
+                                              "You will lose unsaved information. Do you want to continue?",
+                                              "Caution!",JOptionPane.OK_CANCEL_OPTION);
+        if(ret==JOptionPane.OK_OPTION)
            reset();
       }
-      if(evt.getActionCommand().equals("Exit"))
+      else if(evt.getActionCommand().equals("Exit"))
       {
-	  dispose();
-	  System.exit(0);
+	      dispose();
+	      System.exit(0);
       }
-      if(evt.getActionCommand().equals("Save"))
+      else if(evt.getActionCommand().equals("Save"))
       {
-        if(filename != "" && check() == true)
+        if(filename != "" && check())
           save(filename);
       }
-      if(evt.getActionCommand().equals("SaveAs"))
+      else if(evt.getActionCommand().equals("SaveAs"))
       {
-        if(check() == true)
+     //   if(check())
         {
-           FileDialog fd2 = new FileDialog(this,"Save File",FileDialog.SAVE);
-           fd2.show();
-           String dir = fd2.getDirectory();
-           String mySaveFile = fd2.getDirectory()+fd2.getFile();
-           if(!(mySaveFile.equals("nullnull")))
+        try{
+           File file = TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_XML);
+           if(file!=null)
            {
-               save(mySaveFile);
-               filename = fd2.getFile();
-               saveMenuItem.setText("Save ["+filename+"] ");
+               save(file.getCanonicalPath());
+               saveMenuItem.setText("Save ["+file.getName()+"] ");
                saveMenuItem.setEnabled(true);
-           }
+           }}
+           catch(Exception e){};
          }
       }
 
-      if(evt.getActionCommand().equals("OpenClip"))
+      else if(evt.getActionCommand().equals("OpenClip"))
       {
         ClipFrame Open = new ClipFrame("Paste a file to be opened in the area provided.",true);
       }
 
-      if(evt.getActionCommand().equals("SaveClip"))
+      else if(evt.getActionCommand().equals("SaveClip"))
       {
         try
         {
-          if(check() == true)
+          if(check())
           {
             ClipFrame Save = new ClipFrame("Copy and Save this file in a new Location.",false);
-           // Save.Area.append(new String(save_internal()));
-            byte[] array = save_internal();
-            int j = array.length;
-            String str = "";
-            int i = 0;
-            char ch,ar;
-            ch = (char)array[i];
-            i++;
-            str = "";
-            while(i < j)
-            {
-              ar = (char)array[i];
-              i++;
-              if(ch == '>' && ar == '<')
-              {
-                Save.Area.append(str+">\n");
-                str = "";
-                ch = ar;
-              }
-              else
-              {
-                str += ch;
-                ch = ar;
-              }
-            }
+            Save.setText(new String(save_internal()));
           }
         }
         catch(Exception e)
@@ -209,22 +183,26 @@ import org.bouncycastle.crypto.BlockCipher;
 
       if(evt.getActionCommand().equals("Open"))
       {
-	   FileDialog fd = new FileDialog(this,"Open File",FileDialog.LOAD);
-	   fd.show();
-	   String myFile = fd.getDirectory()+fd.getFile();
-           if(!(myFile.equals("nullnull")))
-           {
-	     open(myFile);
-             filename = fd.getFile();
-             saveMenuItem.setText("save ["+filename+"] ");
-             saveMenuItem.setEnabled(true);
-           }
+	      File file=TheApplet.showFileDialog(TheApplet.OPEN_DIALOG,TheApplet.FILTER_XML);
+        if(file!=null)
+          {
+            try
+              {
+                open(file.getCanonicalPath());
+                saveMenuItem.setText("Save ["+file.getName()+"] ");
+                saveMenuItem.setEnabled(true);
+              }
+            catch(Exception e)
+              {
+                e.printStackTrace();
+              }
+          }
       }
     }
 
     public static void reset()
   {
-     saveMenuItem.setText("save [none]");
+     saveMenuItem.setText("Save [none]");
      saveMenuItem.setEnabled(false);
      m_GeneralPanel.clear();
 
@@ -355,11 +333,11 @@ import org.bouncycastle.crypto.BlockCipher;
 	{
 	  m_NetworkPanel.setTable1(Integer.toString(i+1),i,0);
 	  elemMain = getChild(elemInterface,"Main");
-	  main = elemMain.getFirstChild().getNodeValue();
+	  main = getElementValue(elemMain,"False");
 	  m_NetworkPanel.setTable1(main,i,j);
 	  j++;
 	  elemTransport = getChild(elemInterface,"Transport");
-	  transport = elemTransport.getFirstChild().getNodeValue();
+	  transport = getElementValue(elemTransport,"");
 	  m_NetworkPanel.setTable1(transport,i,j);
 
 	  if(transport.equals("RAW/TCP") || transport.equals("SSL/TCP"))
@@ -387,7 +365,7 @@ import org.bouncycastle.crypto.BlockCipher;
 	  {
 	    j++;
 	    Element elemFile = getChild(elemInterface,"File");
-	    file = elemFile.getFirstChild().getNodeValue();
+	    file = getElementValue(elemFile,null);
 	    m_NetworkPanel.setTable1(file,i,j);
 	  }
 	  i++;
@@ -405,17 +383,17 @@ import org.bouncycastle.crypto.BlockCipher;
 	{
 	  m_NetworkPanel.setTable2(Integer.toString(i+1),i,0);
 	  elemMain = getChild(elemInterface,"Main");
-	  main = elemMain.getFirstChild().getNodeValue();
+	  main = getElementValue(elemMain,"False");
 	  m_NetworkPanel.setTable2(main,i,j);
 	  j++;
 
 	  elemKind = getChild(elemInterface,"Kind");
-	  kind = elemKind.getFirstChild().getNodeValue();
+	  kind = getElementValue(elemKind,null);
 	  m_NetworkPanel.setTable2(kind,i,j);
 	  j++;
 
 	  elemTransport = getChild(elemInterface,"Transport");
-	  transport = elemTransport.getFirstChild().getNodeValue();
+	  transport = getElementValue(elemTransport,"");
 	  m_NetworkPanel.setTable2(transport,i,j);
 
 	  if(transport.equals("TCP"))
@@ -450,7 +428,7 @@ import org.bouncycastle.crypto.BlockCipher;
 
 	Element elemInfoServer = getChild(elemNetwork,"InformationServer");
 	elemHost = getChild(elemInfoServer,"Host");
-	host = elemHost.getFirstChild().getNodeValue();
+	host = getElementValue(elemHost,null);
 	m_NetworkPanel.setInfoHost(host);
 	elemIP = getChild(elemInfoServer,"IP");
 	if(elemIP != null)
@@ -459,7 +437,7 @@ import org.bouncycastle.crypto.BlockCipher;
 	  m_NetworkPanel.setInfoIP(IP);
 	}
 	elemPort = getChild(elemInfoServer,"Port");
-	port = elemPort.getFirstChild().getNodeValue();
+	port = getElementValue(elemPort,null);
 	m_NetworkPanel.setInfoPort(port);
 
 	Element elemCertificates = getChild(root,"Certificates");
@@ -533,7 +511,7 @@ import org.bouncycastle.crypto.BlockCipher;
       try
 	{
 	  DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
-	  DocumentBuilder docBuilder=factory.newDocumentBuilder();
+    DocumentBuilder docBuilder=factory.newDocumentBuilder();
 	  Document doc=docBuilder.newDocument();
 
           DocumentBuilderFactory factory2=DocumentBuilderFactory.newInstance();
@@ -835,9 +813,11 @@ import org.bouncycastle.crypto.BlockCipher;
 	  //Writing to File...
 	  ByteArrayOutputStream fout=new ByteArrayOutputStream();
 	  Transformer trans=TransformerFactory.newInstance().newTransformer();
-	  DOMSource src=new DOMSource(doc);
-	  StreamResult target=new StreamResult(fout);
-	  trans.transform(src,target);
+    trans.setOutputProperty("indent","yes");
+	  trans.getOutputProperties().list(System.out);
+    DOMSource src=new DOMSource(doc);
+    StreamResult target=new StreamResult(fout);
+    trans.transform(src,target);
 	  fout.close();
           return fout.toByteArray();
 	}
@@ -853,87 +833,74 @@ import org.bouncycastle.crypto.BlockCipher;
 
   public static boolean check()
     {
-      DialogBox dialog;
-
       if(m_GeneralPanel.getMixName().equals(""))
       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in General Panel !!");
-	dialog.setlabel("You have to enter the Mix Name !!");
-	dialog.setVisible(true);
-	return false;
+        JOptionPane.showMessageDialog(TheApplet.myFrame,"Please enter a Mix Name.",
+                            "Error in General Panel!",JOptionPane.ERROR_MESSAGE);
+	      return false;
       }
       if(m_GeneralPanel.getMixID().equals(""))
       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in General Panel !!");
-	dialog.setlabel("Mix ID field is blank!");
-	dialog.setVisible(true);
-	return false;
+        JOptionPane.showMessageDialog(TheApplet.myFrame,"Mix ID field is blank.",
+                            "Error in General Panel!",JOptionPane.ERROR_MESSAGE);
+	      return false;
       }
 
- if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
-       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Own Mix Certificate is missing!");
-	dialog.setVisible(true);
-	return false;
-      }
+      if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
+        {
+          JOptionPane.showMessageDialog(TheApplet.myFrame,"Own Mix Certificate is missing.",
+                            "Error in Certificates Panel!",JOptionPane.ERROR_MESSAGE);
+          return false;
+        }
       if(m_CertificatesPanel.getPrevPubCert()==null)
       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Previous Mix Certificate is missing!");
-	dialog.setVisible(true);
-	return false;
+          JOptionPane.showMessageDialog(TheApplet.myFrame,"Previous Mix Certificate is missing.",
+                            "Error in Certificates Panel!",JOptionPane.ERROR_MESSAGE);
+	        return false;
       }
       if(m_CertificatesPanel.getNextPubCert()==null)
       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Certificates Panel !!");
-	dialog.setlabel("Next Mix Certificate is missing!");
-	dialog.setVisible(true);
-	return false;
+         JOptionPane.showMessageDialog(TheApplet.myFrame,"Next Mix Certificate is missing.",
+                            "Error in Certificates Panel!",JOptionPane.ERROR_MESSAGE);
+	        return false;
       }
 
       if(m_DescriptionPanel.getCity().equals(""))
       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Description Panel !!");
-	dialog.setlabel("The city field cannot be left blank!");
-	dialog.setVisible(true);
-	return false;
+        JOptionPane.showMessageDialog(TheApplet.myFrame,"The city field cannot be left blank!",
+                            "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
+	      return false;
       }
       if(m_DescriptionPanel.getState().equals(""))
       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Description Panel !!");
-	dialog.setlabel("The state field cannot be left blank!");
-	dialog.setVisible(true);
-	return false;
+        JOptionPane.showMessageDialog(TheApplet.myFrame,"The state field cannot be left blank!",
+                            "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
+	      return false;
       }
       if(m_DescriptionPanel.getLatitude().equals("") && !m_DescriptionPanel.getLongitude().equals(""))
       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Description Panel !!");
-	dialog.setlabel("Fill in the Latitude!!");
-	dialog.setVisible(true);
-	return false;
+        JOptionPane.showMessageDialog(TheApplet.myFrame,"Fill in the Latitude.",
+                            "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
+	      return false;
       }
       if(!m_DescriptionPanel.getLatitude().equals("") && m_DescriptionPanel.getLongitude().equals(""))
       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Description Panel !!");
-	dialog.setlabel("Fill in the Longitude!!");
-	dialog.setVisible(true);
-	return false;
+        JOptionPane.showMessageDialog(TheApplet.myFrame,"Fill in the Longitude.",
+                            "Error in Description Panel!",JOptionPane.ERROR_MESSAGE);
+	      return false;
       }
 
       if(m_NetworkPanel.getHost().equals(""))
       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Network Panel !!");
-	dialog.setlabel("The HOST field should not be blank!");
-	dialog.setVisible(true);
-	return false;
+        JOptionPane.showMessageDialog(TheApplet.myFrame,"The HOST field should not be blank.",
+                            "Error in Network Panel!",JOptionPane.ERROR_MESSAGE);
+	      return false;
       }
       if(m_NetworkPanel.getPort().equals(""))
       {
-        dialog = new DialogBox(TheApplet.myFrame,"ERROR in Network Panel !!");
-	dialog.setlabel("The PORT field should not be blank!");
-	dialog.setVisible(true);
-	return false;
+        JOptionPane.showMessageDialog(TheApplet.myFrame,"The PORT field should not be blank.",
+                            "Error in Network Panel!",JOptionPane.ERROR_MESSAGE);
+	      return false;
       }
 
         return true;
@@ -945,11 +912,15 @@ import org.bouncycastle.crypto.BlockCipher;
 public class TheApplet extends JApplet
 {
   public static MyFrame myFrame;
+  public final static int SAVE_DIALOG=1;
+  public final static int OPEN_DIALOG=2;
+  public final static int FILTER_CER=1;
+  public final static int FILTER_XML=2;
 
   public static void main(String[] args)
   {
     Security.addProvider(new BouncyCastleProvider());
-    JFrame window = new JFrame("MixConfiguration Tool");
+    JFrame window = new JFrame("Mix Configuration Tool");
     myFrame = new MyFrame();
     //myFrame.setBounds(10,10,600,650);
 
@@ -964,482 +935,39 @@ public class TheApplet extends JApplet
     window.setJMenuBar(myFrame.getJMenuBar());
     window.setContentPane(myFrame.getContentPane());
     window.pack();
+    Dimension d=Toolkit.getDefaultToolkit().getScreenSize();
+    Dimension size=window.getSize();
+    window.setLocation((d.width-size.width)/2,(d.height-size.height)/2);
     window.show();
   }
 
    public void init()
   {
-    Security.addProvider(new BouncyCastleProvider());
+    //Security.addProvider(new BouncyCastleProvider());
 
     myFrame = new MyFrame();
-    myFrame.setBounds(10,10,600,650);
+    myFrame.pack();//setBounds(10,10,600,650);
     setJMenuBar(myFrame.getJMenuBar());
     setContentPane(myFrame.getContentPane());
 
   }
 
+
+     public static File showFileDialog(int type, int filter_type)
+      {
+        JFileChooser fd2= new JFileChooser();
+        fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fd2.addChoosableFileFilter(new SimpleFileFilter(filter_type));
+        fd2.setFileHidingEnabled(false);
+        if(type==SAVE_DIALOG)
+          fd2.showSaveDialog(myFrame);
+        else
+          fd2.showOpenDialog(myFrame);
+        return fd2.getSelectedFile();
+      }
+
 }
 
 
 
 
-class NetworkPanel extends JPanel
-{
-   JPanel panel1,panel2,panel3;
-   JTable table1,table2;
-   JTextField Host_Text,IP_Text,Port_Text;
-
-   public String getTable1(int x,int y)
-   {
-     Object o=table1.getValueAt(x,y);
-     if(o==null)
-      return "";
-     return o.toString();
-   }
-
-   public String getTable2(int x,int y)
-   {
-    Object o=table2.getValueAt(x,y);
-     if(o==null)
-      return "";
-     return o.toString();
-   }
-
-   public String getHost()
-   {
-     return Host_Text.getText();
-   }
-
-   public String getIP()
-   {
-     return IP_Text.getText();
-   }
-
-   public String getPort()
-   {
-     return Port_Text.getText();
-   }
-
-   public void setTable1(String text,int x,int y)
-   {
-     table1.setValueAt(text,x,y);
-   }
-
-   public void setTable2(String text,int x,int y)
-   {
-     table2.setValueAt(text,x,y);
-   }
-
-   public void setInfoHost(String info)
-   {
-    Host_Text.setText(info);
-   }
-
-   public void setInfoIP(String info)
-   {
-     IP_Text.setText(info);
-   }
-
-   public void setInfoPort(String info)
-   {
-     Port_Text.setText(info);
-   }
-
-  public NetworkPanel()
-  {
-    GridBagLayout layout=new GridBagLayout();
-    setLayout(layout);
-
-    GridBagLayout In_Layout = new GridBagLayout();
-    GridBagLayout Out_Layout = new GridBagLayout();
-    GridBagLayout Info_Layout = new GridBagLayout();
-
-    GridBagConstraints c=new GridBagConstraints();
-    c.anchor=GridBagConstraints.NORTHWEST;
-    c.insets=new Insets(10,10,10,10);
-    c.fill=GridBagConstraints.BOTH;
-    c.gridx = 0;
-    c.gridy = 0;
-    c.weightx = 1;
-    c.weighty = 1;
-    panel1 = new JPanel(In_Layout);
-    panel1.setBorder(BorderFactory.createTitledBorder("Incomming"));
-    layout.setConstraints(panel1,c);
-    add(panel1);
-
-    Object[][] data1 = {
-            {"  1","","","","",""},
-	    {"","","","","",""},
-	    {"","","","","",""},
-	    {"","","","","",""},
-	    {"","","","","",""},
-	    {"","","","","",""},
-	    {"","","","","",""},
-	    {"","","","","",""},
-	    {"","","","","",""},
-	    {"","","","","",""}};
-
-        String[] columnNames1 = {"Serial No.",
-	                        "Main",
-                                "Transport",
-                                "Host / FileName",
-                                "IP Address",
-                                "Port"};
-      table1 = new JTable(data1, columnNames1);
-
-      int v1 = ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
-      int h1 = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
-      JScrollPane scrollPane1 = new JScrollPane(table1,v1,h1);
-
-      TableColumn transport1 = table1.getColumnModel().getColumn(2);
-      JComboBox comboBox1 = new JComboBox();
-      comboBox1.addItem("RAW/TCP");
-      comboBox1.addItem("RAW/UNIX");
-      comboBox1.addItem("SSL/TCP");
-      comboBox1.addItem("SSL/UNIX");
-      transport1.setCellEditor(new DefaultCellEditor(comboBox1));
-
-      TableColumn main1 = table1.getColumnModel().getColumn(1);
-      JCheckBox checkBox1 = new JCheckBox("enter");
-      checkBox1.setHorizontalAlignment(JLabel.CENTER);
-      main1.setCellEditor(new DefaultCellEditor(checkBox1));
-      table1.setPreferredScrollableViewportSize(new Dimension(450,90));
-
-    table1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-    int Index = 0;
-    TableColumn column = table1.getColumnModel().getColumn(Index);
-    int wide = 70;
-    column.setMinWidth(wide);
-    column.setMaxWidth(wide);
-    column.setPreferredWidth(wide);
-    Index++;
-    column = table1.getColumnModel().getColumn(Index);
-    wide = 50;
-    column.setMinWidth(wide);
-    column.setMaxWidth(wide);
-    column.setPreferredWidth(wide);
-    Index++;
-    column = table1.getColumnModel().getColumn(Index);
-    wide = 75;
-    column.setMinWidth(wide);
-    column.setMaxWidth(wide);
-    column.setPreferredWidth(wide);
-    Index++;
-    column = table1.getColumnModel().getColumn(Index);
-    wide = 110;
-    column.setMinWidth(wide);
-    column.setMaxWidth(wide);
-    column.setPreferredWidth(wide);
-    Index++;
-    column = table1.getColumnModel().getColumn(Index);
-    wide = 85;
-    column.setMinWidth(wide);
-    column.setMaxWidth(wide);
-    column.setPreferredWidth(wide);
-    Index++;
-    column = table1.getColumnModel().getColumn(Index);
-    wide = 65;
-    column.setMinWidth(wide);
-    column.setMaxWidth(wide);
-    column.setPreferredWidth(wide);
-
-
-    GridBagConstraints d=new GridBagConstraints();
-    d.anchor=GridBagConstraints.CENTER;
-    d.insets=new Insets(10,10,10,10);
-    d.gridx = 0;
-    d.gridy = 0;
-    d.weightx = 1;
-    d.weighty = 1;
-    d.fill = GridBagConstraints.BOTH;
-    In_Layout.setConstraints(scrollPane1,d);
-    panel1.add(scrollPane1);
-
-    c.gridx = 0;
-    c.gridy = 1;
-    panel2 = new JPanel(Out_Layout);
-    panel2.setBorder(BorderFactory.createTitledBorder("Outgoing"));
-    layout.setConstraints(panel2,c);
-    add(panel2);
-
-    Object[][] data2 = {
-            {"  1","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""},
-	    {"","","","","","",""}};
-
-        String[] columnNames2 = {"Serial No.",
-	                         "Main",
-				 "Kind",
-                                 "Transport",
-                                 "Host / FileName",
-                                 "IP Address",
-                                 "Port"};
-
-      table2 = new JTable(data2, columnNames2);
-
-      int v2 = ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
-      int h2 = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
-      JScrollPane scrollPane2 = new JScrollPane(table2,v2,h2);
-
-      TableColumn transport2 = table2.getColumnModel().getColumn(3);
-      JComboBox comboBox2 = new JComboBox();
-      comboBox2.addItem("TCP");
-      comboBox2.addItem("UNIX");
-      transport2.setCellEditor(new DefaultCellEditor(comboBox2));
-
-      TableColumn kind = table2.getColumnModel().getColumn(2);
-      JComboBox comboBox3 = new JComboBox();
-      comboBox3.addItem("MIX");
-      comboBox3.addItem("HTTP Proxy");
-      comboBox3.addItem("SOCKS Proxy");
-      kind.setCellEditor(new DefaultCellEditor(comboBox3));
-
-      TableColumn main2 = table2.getColumnModel().getColumn(1);
-      JCheckBox checkBox2 = new JCheckBox();
-      main2.setCellEditor(new DefaultCellEditor(checkBox2));
-      table2.setPreferredScrollableViewportSize(new Dimension(450,90));
-
-    table2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-    int vColIndex = 0;
-    TableColumn col = table2.getColumnModel().getColumn(vColIndex);
-    int width = 60;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 50;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 85;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 75;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 110;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 70;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-    vColIndex++;
-    col = table2.getColumnModel().getColumn(vColIndex);
-    width = 60;
-    col.setMinWidth(width);
-    col.setMaxWidth(width);
-    col.setPreferredWidth(width);
-
-
-    GridBagConstraints e=new GridBagConstraints();
-    e.anchor=GridBagConstraints.CENTER;
-    e.insets=new Insets(10,10,10,10);
-    e.gridx = 0;
-    e.gridy = 0;
-    e.weightx = 1;
-    e.weighty = 1;
-    e.fill = GridBagConstraints.BOTH;
-    Out_Layout.setConstraints(scrollPane2,e);
-    panel2.add(scrollPane2);
-
-    c.gridx = 0;
-    c.gridy = 2;
-    c.weighty=0;
-    panel3 = new JPanel(Info_Layout);
-    panel3.setBorder(BorderFactory.createTitledBorder("Information Server"));
-    layout.setConstraints(panel3,c);
-    add(panel3);
-
-    GridBagConstraints f=new GridBagConstraints();
-    f.anchor=GridBagConstraints.NORTHWEST;
-    f.insets=new Insets(10,10,10,10);
-    f.fill = GridBagConstraints.HORIZONTAL;
-
-    JLabel host = new JLabel("Host");
-    f.gridx = 0;
-    f.gridy = 0;
-    Info_Layout.setConstraints(host,f);
-    panel3.add(host);
-    Host_Text = new JTextField(38);
-    Host_Text.setText("");
-    f.gridx = 1;
-    f.weightx = 1;
-    Info_Layout.setConstraints(Host_Text,f);
-    panel3.add(Host_Text);
-
-    JLabel IP = new JLabel("IP");
-    f.gridy = 1;
-    f.gridx = 0;
-    f.weightx = 0;
-    Info_Layout.setConstraints(IP,f);
-    panel3.add(IP);
-    IP_Text = new JTextField(38);
-    IP_Text.setText("");
-    f.gridx = 1;
-    f.weightx = 1;
-    Info_Layout.setConstraints(IP_Text,f);
-    panel3.add(IP_Text);
-
-    JLabel port = new JLabel("Port");
-    f.gridy = 2;
-    f.gridx = 0;
-    f.weightx = 0;
-    Info_Layout.setConstraints(port,f);
-    panel3.add(port);
-    Port_Text = new JTextField(38);
-    Port_Text.setText("");
-    f.gridx = 1;
-    Info_Layout.setConstraints(Port_Text,f);
-    panel3.add(Port_Text);
-  }
-}
-
-
-
-
-
-
-
-class DialogBox extends Dialog implements ActionListener
-{
-   Label subject;
-   DialogBox(MyFrame parent,String title)
-   {
-     super(parent,title,true);
-     GridBagLayout layout=new GridBagLayout();
-     setLayout(layout);
-     GridBagConstraints c=new GridBagConstraints();
-     c.anchor=GridBagConstraints.CENTER;
-     c.insets=new Insets(10,10,10,10);
-     setSize(300,100);
-
-     subject = new Label(" ");
-     c.gridx=0;
-     c.gridy=0;
-     c.weightx = 1;
-     layout.setConstraints(subject,c);
-     add(subject);
-
-     Button b = new Button("OK");
-     c.gridx = 0;
-     c.gridy = 2;
-     c.gridwidth = 2;
-     layout.setConstraints(b,c);
-     add(b);
-     b.addActionListener(this);
-    }
-
-    public void setlabel(String name)
-    {
-      subject.setText(name);
-    }
-
-    public void actionPerformed(ActionEvent ae)
-    {
-      dispose();
-    }
-  }
-
-
- class NewDialogBox extends Dialog implements ActionListener
-{
-   Label subject;
-   NewDialogBox(MyFrame parent,String title)
-   {
-     super(parent,title,true);
-     GridBagLayout layout=new GridBagLayout();
-     setLayout(layout);
-     GridBagConstraints c=new GridBagConstraints();
-     c.anchor=GridBagConstraints.CENTER;
-     c.insets=new Insets(10,10,10,10);
-     setSize(450,100);
-
-     subject = new Label(" ");
-     c.gridx=0;
-     c.gridy=0;
-     layout.setConstraints(subject,c);
-     add(subject);
-
-     Button ok = new Button("Yes");
-     c.gridx = 0;
-     c.gridy = 1;
-     c.anchor = GridBagConstraints.WEST;
-     layout.setConstraints(ok,c);
-     add(ok);
-     ok.addActionListener(this);
-
-     Button cancel = new Button("Cancel");
-     c.gridx = 1;
-     layout.setConstraints(cancel,c);
-     add(cancel);
-     cancel.addActionListener(this);
-    }
-
-    public void setlabel(String name)
-    {
-      subject.setText(name);
-    }
-
-    public void actionPerformed(ActionEvent ae)
-    {
-      if(ae.getActionCommand().equals("Yes"))
-        MyFrame.New = true;
-      else
-        MyFrame.New = false;
-      dispose();
-    }
-  }
-
-
-
-
-/*
-class BrowserControl
-{
-    // The default system browser under windows.
-    private static final String WIN_PATH = "rundll32";
-    // The flag to display a url.
-    private static final String WIN_FLAG = "url.dll,FileProtocolHandler";
-
-  public static void displayURL(String url)
-    {
-        String cmd = null;
-        try
-        {
-                //cmd = 'rundll32 url.dll,FileProtocolHandler http://...'
-                cmd = WIN_PATH + " " + WIN_FLAG + " " + url;
-                Process p = Runtime.getRuntime().exec(cmd);
-                String process = p.getInputStream().toString();
-                BufferedInputStream bis = new BufferedInputStream(p.getInputStream());
-                int number = bis.available();
-                System.out.println(process + "    " + number);
-
-        }
-        catch(IOExcepntion x)
-        {
-            // couldn't exec browser
-            System.err.println("Could not invoke browser, command=" + cmd);
-            System.err.println("Caught: " + x);
-        }
-    }
-}*/
