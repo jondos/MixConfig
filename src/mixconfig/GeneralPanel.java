@@ -6,6 +6,7 @@ import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 import javax.swing.JRadioButton;
 import javax.swing.JPanel;
+import javax.swing.JButton;
 import javax.swing.ButtonGroup;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,7 +21,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
 {
   private JComboBox m_comboboxMixType;
   private JTextField MixName,CascadeName,MixID,FileName,ID_Text,num_file;
-  private JCheckBox Auto,m_checkboxDaemon,m_checkboxLogging,m_checkboxUserID,m_checkboxNrOfFileDes,m_compressLog;
+  private JCheckBox m_checkboxDaemon,m_checkboxLogging,m_checkboxUserID,m_checkboxNrOfFileDes,m_compressLog;
   private JRadioButton Console,File,Syslog;
   private ButtonGroup bg;
 
@@ -95,21 +96,37 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     c.weightx = 0;
     layout.setConstraints(j3,c);
     add(j3);
-    Auto = new JCheckBox("Automatically Generated");
-    c.gridx=1;
-    c.gridwidth = 3;
-    c.weightx = 1;
-    layout.setConstraints(Auto,c);
-    Auto.addItemListener(this);
-    add(Auto);
 
     MixID = new JTextField(20);
     MixID.setText("");
     c.gridx=1;
-    c.gridy++;
-    c.gridwidth = 3;
+    c.gridwidth = 2;
+    c.weightx = 1;
     layout.setConstraints(MixID,c);
     add(MixID);
+
+    JButton genButton = new JButton("Generate");
+    c.gridx = 3;
+    c.gridwidth = 1;
+    c.weightx = 0;
+    layout.setConstraints(genButton, c);
+    add(genButton);
+    genButton.addActionListener(
+        new ActionListener()
+        {
+            final static String idChars =
+                    "abcdefghijklmnopqrstuvwxyz0123456789.-_";
+            public void actionPerformed(ActionEvent ev)
+            {
+                String str = "m";
+                for(int i=0;i<10;i++)
+                {
+                    int r = (int)(Math.random()*idChars.length());
+                    str+= idChars.substring(r,r+1);
+                }
+                MixID.setText(str);
+            }
+        });
 
     m_checkboxUserID = new JCheckBox("Set User ID on Execution");
     c.gridy++;
@@ -226,7 +243,6 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
        setFileDes(null);
        setDaemon(null);
        setMixID(null);
-       Auto.setSelected(false);
     }
 
   public String getMixType()
@@ -252,17 +268,27 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
       return MixName.getText();
     }
 
-  public String getMixAuto()
-  {
-    if(Auto.isSelected() == true)
-      return "True";
-    else
-      return "False";
-  }
-
   public String getMixID()
   {
     return MixID.getText();
+  }
+
+  public boolean isMixIDValid()
+  {
+      String mixID = getMixID();
+      if(mixID.equals(""))
+          return false;
+      else
+      {
+          final String idChars = "abcdefghijklmnopqrstuvwxyz0123456789.-_";
+          mixID = mixID.toLowerCase();
+          if(mixID.charAt(0)!='m')
+              return false;
+          for(int i=0;i<mixID.length();i++)
+              if(idChars.indexOf(mixID.charAt(i))<0)
+                  return false;
+      }
+      return true;
   }
 
   public String getUserID()
@@ -348,11 +374,6 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     MixName.setText(name);
   }
 
-  public void setAuto(boolean b)
-  {
-    Auto.setSelected(b);
-  }
-
   public void setDaemon(String s)
     {
       if(s==null)
@@ -388,55 +409,8 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     FileName.setEnabled(File.isSelected());
   }
 
-  public void updateMixId()
-  {
-      if(!Auto.isSelected())
-          return;
-
-      IncomingModel im = MyFrame.m_NetworkPanel.getIncomingModel();
-      for(int i=0;i<im.getRowCount();i++)
-      {
-          ConnectionData data = im.getData(i);
-          if(!data.getIsMain())
-              continue;
-          if((data.getTransport()&data.UNIX)!=0)
-              break;
-          int[] ipaddr = data.getIPAddr();
-          String ipstr = "";
-          if(ipaddr!=null)
-          {
-              for(int j=0;j<ipaddr.length;j++)
-                  ipstr += ((j==0)?"":".")+ipaddr[j];
-          }
-          else if(data.getName()!=null)
-          {
-              try
-              {
-                  ipstr=java.net.InetAddress.getByName(data.getName()).getHostAddress();
-              }
-              catch(java.net.UnknownHostException e)
-              {
-                  ipstr="0.0.0.0";
-              }
-          }
-          else
-              ipstr="0.0.0.0";
-          MixID.setText(java.net.URLEncoder.encode(
-                   ipstr+":"+data.getPort()));
-          return;
-      }
-      MixID.setText("");
-  }
   public void itemStateChanged(ItemEvent ie)
   {
-    if(Auto.isSelected() == true)
-    {
-        MixID.setEnabled(false);
-        updateMixId();
-    }
-    else
-        MixID.setEnabled(true);
-
     if(m_checkboxLogging.isSelected())
       {
         if(m_checkboxDaemon.isSelected())
