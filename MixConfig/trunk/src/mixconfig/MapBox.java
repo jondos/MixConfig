@@ -1,19 +1,25 @@
 package mixconfig;
-import java.util.*;
-import java.net.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.Font.*;
-import java.io.*;
-import javax.swing.*;
-import java.applet.*;
-import java.lang.Object;
-import java.math.*;
-import java.net.URLEncoder;
-import javax.swing.BorderFactory;
-import javax.swing.table.*;
-import javax.swing.event.*;
-import javax.swing.border.TitledBorder;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedInputStream;
+import java.net.URL;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 /**
