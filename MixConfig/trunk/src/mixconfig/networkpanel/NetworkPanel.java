@@ -65,164 +65,7 @@ import mixconfig.IntegerDocument;
 import mixconfig.MixConfig;
 import mixconfig.ConfigFrame;
 
-class IncomingDialog extends ConnectionDialog
-{
-		protected String getType()
-		{
-				return "ListenerInterface";
-		}
 
-		private void createDialog(final ConnectionData data, final IncomingModel where)
-		{
-				setSize(500,350);
-
-				GridBagLayout layout=new GridBagLayout();
-				getContentPane().setLayout(layout);
-
-				// Constraints for the labels
-				GridBagConstraints lc=new GridBagConstraints();
-				lc.anchor =GridBagConstraints.WEST;
-				lc.insets = new Insets(5,5,5,5);
-				lc.gridx = 0;
-				lc.gridy = 0;
-				lc.weightx = 1;
-
-				// Constraints for all the other things...
-				GridBagConstraints rc=new GridBagConstraints();
-				rc.anchor = GridBagConstraints.WEST;
-				rc.insets = new Insets(5,5,5,5);
-				rc.gridx = 1;
-				rc.gridy = 0;
-				rc.weightx = 0;
-
-				addTransport(data, layout, lc, rc);
-				addName(data, layout, lc, rc);
-				addIP(data, layout, lc, rc);
-				addPort(data, layout, lc, rc);
-				addKeys(data, where, layout, lc, rc);
-
-				pack();
-				firstone.requestFocus();
-		}
-
-		IncomingDialog(Frame parent, String title, final IncomingModel where)
-		{
-			 super(parent,title);
-			 createDialog(null,where);
-			 this.setLocationRelativeTo(parent);
-		}
-
-		IncomingDialog(Frame parent, String title, final IncomingModel where, ConnectionData data)
-		{
-			 super(parent,title);
-			 createDialog(data,where);
-			 this.setLocationRelativeTo(parent);
-		}
-}
-
-class OutgoingDialog extends ConnectionDialog
-{
-		private ButtonGroup proxytype;
-
-		protected String getType()
-		{
-				return (proxytype==null)?"NextMix":"Proxy";
-		}
-
-		protected ConnectionData getData()
-		{
-				ConnectionData data = super.getData();
-				if(proxytype!=null)
-						data.setFlags(proxytype.getSelection().getActionCommand().equals("HTTP")
-													?ConnectionData.HTTP_PROXY:ConnectionData.SOCKS_PROXY);
-				return data;
-		}
-
-		protected void addType(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
-		{
-				JLabel label = new JLabel("Proxy Type");
-				layout.setConstraints(label, lc);
-				getContentPane().add(label);
-				lc.gridy++;
-
-				int ptype;
-				if(data==null)
-						ptype = ConnectionData.HTTP_PROXY;
-				else
-						ptype = data.getFlags() & ConnectionData.PROXY_MASK;
-
-				rc.anchor = GridBagConstraints.CENTER;
-				rc.gridwidth = 3;
-				proxytype = new ButtonGroup();
-				JRadioButton t = new JRadioButton("HTTP",ptype!=ConnectionData.SOCKS_PROXY);
-				t.setActionCommand("HTTP");
-				layout.setConstraints(t,rc);
-				getContentPane().add(t);
-				proxytype.add(t);
-				if(firstone==null)
-						firstone = t;
-
-				rc.gridx+=4;
-				t = new JRadioButton("Socks",ptype==ConnectionData.SOCKS_PROXY);
-				t.setActionCommand("Socks");
-				layout.setConstraints(t,rc);
-				getContentPane().add(t);
-				proxytype.add(t);
-				rc.gridy++;
-				rc.gridx-=4;
-		}
-
-		private void createDialog(final ConnectionData data, final OutgoingModel where)
-		{
-				setSize(500,350);
-
-				GridBagLayout layout=new GridBagLayout();
-				getContentPane().setLayout(layout);
-
-				// Constraints for the labels
-				GridBagConstraints lc=new GridBagConstraints();
-				lc.anchor =GridBagConstraints.WEST;
-				lc.insets = new Insets(5,5,5,5);
-				lc.gridx = 0;
-				lc.gridy = 0;
-				lc.weightx = 1;
-
-				// Constraints for all the other things...
-				GridBagConstraints rc=new GridBagConstraints();
-				rc.anchor = GridBagConstraints.WEST;
-				rc.insets = new Insets(5,5,5,5);
-				rc.gridx = 1;
-				rc.gridy = 0;
-				rc.weightx = 0;
-
-				if(ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix"))
-						addType(data, layout, lc, rc);
-				else
-						proxytype = null;
-				addTransport(data, layout, lc, rc);
-				addName(data, layout, lc, rc);
-				addIP(data, layout, lc, rc);
-				addPort(data, layout, lc, rc);
-				addKeys(data, where, layout, lc, rc);
-
-				pack();
-				firstone.requestFocus();
-		}
-
-		OutgoingDialog(Frame parent, String title, final OutgoingModel where)
-		{
-			 super(parent,title);
-			 createDialog(null,where);
-			 this.setLocationRelativeTo(parent);
-		}
-
-		OutgoingDialog(Frame parent, String title, final OutgoingModel where, ConnectionData data)
-		{
-			 super(parent,title);
-			 createDialog(data,where);
-			 this.setLocationRelativeTo(parent);
-		}
-}
 
 
 
@@ -232,16 +75,16 @@ public final class NetworkPanel extends JPanel
 	 JPanel panel1,panel2,panel3;
 	 JTable table1,table2;
 	 JTextField Host_Text,Port_Text;
-    public IPTextField IP_Text;
-	 IncomingModel imodel;
-	 OutgoingModel omodel;
+		public IPTextField IP_Text;
+	 IncomingConnectionTableModel imodel;
+	 OutgoingConnectionTableModel omodel;
 
-	 public IncomingModel getIncomingModel()
+	 public IncomingConnectionTableModel getIncomingModel()
 	 {
 			 return imodel;
 	 }
 
-	 public OutgoingModel getOutgoingModel()
+	 public OutgoingConnectionTableModel getOutgoingModel()
 	 {
 			 return omodel;
 	 }
@@ -298,7 +141,7 @@ public final class NetworkPanel extends JPanel
 		layout.setConstraints(panel1,c);
 		add(panel1);
 
-		int[] columnSizes1 = {15, 60, 195, 110, 40};
+		int[] columnSizes1 = {15,15,20, 60, 195, 110, 40};
 		// table1 = new JTable(data1, columnNames1);
 
 		final TableCellRenderer IPRenderer = new DefaultTableCellRenderer()
@@ -358,7 +201,7 @@ public final class NetworkPanel extends JPanel
 		};
 								*/
 
-		imodel = new IncomingModel();
+		imodel = new IncomingConnectionTableModel();
 
 		table1 = new JTable(imodel)
 		{
@@ -366,11 +209,11 @@ public final class NetworkPanel extends JPanel
 				{
 						switch(column)
 						{
-								case IncomingModel.TRANSPORT:
+								case IncomingConnectionTableModel.TRANSPORT:
 										return transportRenderer;
-								case IncomingModel.IP_ADDR:
+								case IncomingConnectionTableModel.IP_ADDR:
 										return IPRenderer;
-								case IncomingModel.PORT:
+								case IncomingConnectionTableModel.PORT:
 										return PortRenderer;
 								default:
 										return super.getCellRenderer(row, column);
@@ -448,7 +291,7 @@ public final class NetworkPanel extends JPanel
 														if(a.getActionCommand().equals("Change"))
 														{
 																IncomingDialog dialog = new IncomingDialog(MixConfig.getMainWindow(),"Change",imodel,
-																				((IncomingModel)table1.getModel()).getData(table1.getSelectedRow()));
+																				((IncomingConnectionTableModel)table1.getModel()).getData(table1.getSelectedRow()));
 																dialog.show();
 														}
 												}
@@ -474,7 +317,7 @@ public final class NetworkPanel extends JPanel
 												{
 														if(a.getActionCommand().equals("Delete"))
 														{
-																((IncomingModel)table1.getModel()).deleteData(table1.getSelectedRow());
+																((IncomingConnectionTableModel)table1.getModel()).deleteData(table1.getSelectedRow());
 														}
 												}
 										});
@@ -503,20 +346,20 @@ public final class NetworkPanel extends JPanel
 		add(panel2);
 
 		int[] columnSizes2 = {15, 70, 60, 125, 110, 40};
-		omodel = new OutgoingModel();
+		omodel = new OutgoingConnectionTableModel();
 		table2 = new JTable(omodel)
 		{
 				public TableCellRenderer getCellRenderer(int row, int column)
 				{
 						switch(column)
 						{
-								case OutgoingModel.TYPE:
+								case OutgoingConnectionTableModel.TYPE:
 										return centeringRenderer;
-								case OutgoingModel.TRANSPORT:
+								case OutgoingConnectionTableModel.TRANSPORT:
 										return transportRenderer;
-								case OutgoingModel.IP_ADDR:
+								case OutgoingConnectionTableModel.IP_ADDR:
 										return IPRenderer;
-								case OutgoingModel.PORT:
+								case OutgoingConnectionTableModel.PORT:
 										return PortRenderer;
 								default:
 										return super.getCellRenderer(row, column);
@@ -605,7 +448,7 @@ public final class NetworkPanel extends JPanel
 																OutgoingDialog dialog = new OutgoingDialog(MixConfig.getMainWindow(),
 																				(ConfigFrame.m_GeneralPanel.getMixType().equals("LastMix"))?"Change Proxy":"Change Next Mix",
 																				omodel,
-																				((OutgoingModel)table2.getModel()).getData(table2.getSelectedRow()));
+																				((OutgoingConnectionTableModel)table2.getModel()).getData(table2.getSelectedRow()));
 																dialog.show();
 														}
 												}
@@ -629,7 +472,7 @@ public final class NetworkPanel extends JPanel
 												{
 														if(a.getActionCommand().equals("Delete"))
 														{
-																((OutgoingModel)table2.getModel()).deleteData(table2.getSelectedRow());
+																((OutgoingConnectionTableModel)table2.getModel()).deleteData(table2.getSelectedRow());
 														}
 												}
 										});
