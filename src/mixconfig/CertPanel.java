@@ -545,11 +545,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			if (this.m_certIsPKCS12)
 			{
-				JAPCertificate cert1 = JAPCertificate.getInstance(cert);
-				if (cert1 != null)
-				{
-					( (PKCS12) m_cert).setX509Certificate(cert1);
-				}
+				( (PKCS12) m_cert).setX509Certificate(JAPCertificate.getInstance(cert));
+
 			}
 			else
 			{

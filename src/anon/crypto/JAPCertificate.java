@@ -80,8 +80,8 @@ import anon.util.XMLUtil;
 /**
  * A certificate class.
  */
-final public class JAPCertificate extends X509CertificateStructure
-	implements IXMLEncodable, Cloneable
+final public class JAPCertificate extends X509CertificateStructure implements IXMLEncodable, Cloneable,
+	ICertificate
 {
 	public static final String XML_ELEMENT_NAME = "X509Certificate";
 	public static final String XML_ELEMENT_CONTAINER_NAME = "X509Data";
@@ -105,8 +105,7 @@ final public class JAPCertificate extends X509CertificateStructure
 	 * @param x509cert a valid X509 certificate structure
 	 * @exception IllegalArgumentException if the certificate structure is invalid
 	 */
-	private JAPCertificate(X509CertificateStructure x509cert)
-		throws IllegalArgumentException
+	private JAPCertificate(X509CertificateStructure x509cert) throws IllegalArgumentException
 	{
 		super(ASN1Sequence.getInstance(new DERTaggedObject(true, DERTags.BIT_STRING, x509cert), true));
 
@@ -222,8 +221,6 @@ final public class JAPCertificate extends X509CertificateStructure
 			return null;
 		}
 	}
-
-
 
 	/** Creates a certificate by using an input stream.
 	 *
@@ -396,19 +393,17 @@ final public class JAPCertificate extends X509CertificateStructure
 						   a_validFrom, createValidTo(a_validFrom, 0));
 	}
 
-
 	public boolean equals(Object a_certificate)
 	{
 		JAPCertificate certificate;
 
-		if (a_certificate == null || !(a_certificate instanceof JAPCertificate))
+		if (a_certificate == null || ! (a_certificate instanceof JAPCertificate))
 		{
 			return false;
 		}
 
 		// ok, this is a certificate
-		certificate = (JAPCertificate)a_certificate;
-
+		certificate = (JAPCertificate) a_certificate;
 
 		if (!getId().equals(certificate.getId()))
 		{
@@ -492,6 +487,11 @@ final public class JAPCertificate extends X509CertificateStructure
 		return m_PubKey;
 	}
 
+	public JAPCertificate getX509Certificate()
+	{
+		return this;
+	}
+
 	/**
 	 * Converts the certificate to a byte array.
 	 * @throws IOException
@@ -544,7 +544,6 @@ final public class JAPCertificate extends X509CertificateStructure
 		}
 	}
 
-
 	/**
 	 * Writes this certificate to an output stream.
 	 * @param a_ostream a OutputStream
@@ -556,7 +555,6 @@ final public class JAPCertificate extends X509CertificateStructure
 		derOutputStream.writeObject(this);
 	}
 
-
 	/**
 	 * Writes this certificate to an output stream.
 	 * @param a_ostream a OutputStream
@@ -567,7 +565,6 @@ final public class JAPCertificate extends X509CertificateStructure
 	{
 		a_ostream.write(toByteArray(a_bBase64Encoded));
 	}
-
 
 	/** Checks if the certificate starting date is not before a given date and
 	 *  date of is not beyond the given date
@@ -616,7 +613,7 @@ final public class JAPCertificate extends X509CertificateStructure
 
 		for (int i = 0; i < verifyingCertificates.size(); i++)
 		{
-			 currentCertificate = ((JAPCertificate)verifyingCertificates.elementAt(i));
+			currentCertificate = ( (JAPCertificate) verifyingCertificates.elementAt(i));
 
 			if (verify(currentCertificate))
 			{
@@ -633,7 +630,8 @@ final public class JAPCertificate extends X509CertificateStructure
 	 * @return true if it could be verified; false otherwise
 	 * @todo do not accept expired certificates?
 	 */
-	public synchronized boolean verify(JAPCertificate a_certificate) {
+	public synchronized boolean verify(JAPCertificate a_certificate)
+	{
 		if (a_certificate == null)
 		{
 			return false;
@@ -653,7 +651,8 @@ final public class JAPCertificate extends X509CertificateStructure
 		}
 
 		// the cert is verified, too, if the public key is the same as the test key
-		if (getPublicKey().equals(a_publicKey)) {
+		if (getPublicKey().equals(a_publicKey))
+		{
 			return true;
 		}
 
@@ -679,7 +678,8 @@ final public class JAPCertificate extends X509CertificateStructure
 	 * @param a_pkcs12Certificate a PKCS12 certificate
 	 * @return a duplicate of this certificate that is signed with a the PKCS12 certificate
 	 */
-	public JAPCertificate sign(PKCS12 a_pkcs12Certificate) {
+	public JAPCertificate sign(PKCS12 a_pkcs12Certificate)
+	{
 		JAPCertificate certificate;
 		X509CertificateStructure x509cert;
 		X509CertificateGenerator certgen = new X509CertificateGenerator(getTBSCertificate());
@@ -764,8 +764,7 @@ final public class JAPCertificate extends X509CertificateStructure
 	private static final class X509CertificateGenerator extends V3TBSCertificateGenerator
 	{
 		public X509CertificateGenerator(String a_ownerAlias, Date a_validFrom, Date a_validTo,
-										IMyPublicKey a_publicKey)
-			throws IOException
+										IMyPublicKey a_publicKey) throws IOException
 		{
 			setStartDate(new DERUTCTime(a_validFrom));
 			setEndDate(new DERUTCTime(a_validTo));
@@ -798,7 +797,6 @@ final public class JAPCertificate extends X509CertificateStructure
 						a_pkcs12Certificate.getPrivateKey());
 		}
 
-
 		public X509CertificateStructure sign(X509Name a_issuer, IMyPrivateKey a_privateKey)
 		{
 			try
@@ -827,11 +825,11 @@ final public class JAPCertificate extends X509CertificateStructure
 			}
 
 			catch (Throwable t)
-			{t.printStackTrace();
+			{
+				t.printStackTrace();
 				return null;
 			}
 		}
 	}
-
 
 }

@@ -40,8 +40,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -52,6 +50,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import anon.util.Base64;
 import anon.util.URLDecoder;
+import anon.util.XMLUtil;
+import anon.util.XMLParseException;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.OutgoingConnectionTableModel;
 
@@ -128,11 +131,10 @@ public class MixConfiguration
 	/** Constructs a new instance of <CODE>MixConfiguration</CODE>. The configuration is
 	 * read from the specified <CODE>java.io.Reader</CODE>
 	 * @param r A <CODE>Reader</CODE> providing the configuration
-	 * @throws ParserConfigurationException If an error occurs while parsing the input from the reader
+	 * @throws XMLParseException If an error occurs while parsing the input from the reader
 	 * @throws IOException If an error occurs while reading the configuration
-	 * @throws SAXException If parsing the configuration causes an error
 	 */
-	public MixConfiguration(Reader r) throws ParserConfigurationException, IOException, SAXException
+	public MixConfiguration(Reader r) throws XMLParseException, IOException
 	{
 		m_configuration = open(new InputSource(r));
 	}
@@ -169,12 +171,8 @@ public class MixConfiguration
 	 */
 	public void save(Writer a_writer) throws IOException
 	{
-		//Writing to File...
-		OutputFormat format = new OutputFormat(m_configuration, "UTF-8", true);
-		// format.setPreserveSpace(true);
-		format.setLineWidth(0); //avoid line wrapping
-		XMLSerializer serial = new XMLSerializer(a_writer, format);
-		serial.serialize(m_configuration);
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Writing configuration...");
+		XMLUtil.write(m_configuration, a_writer);
 	}
 
 	/** Returns the value of the attribute with the specified name. The name must be of
@@ -638,25 +636,22 @@ public class MixConfiguration
 	/** Opens the specified input source (normally a <CODE>Reader</CODE> corresponding
 	 * to an XML file) and reads the DOM tree from it.
 	 * @param r the input source
-	 * @throws ParserConfigurationException If an error occurs while parsing the input
-	 * @throws SAXException If parsing the configuration causes an error
+	 * @throws XMLParseException If an error occurs while parsing the input
 	 * @throws IOException If an error occurs while reading the configuration
 	 * @return A DOM document containing the configuration
 	 */
-	private Document open(InputSource r) throws ParserConfigurationException, SAXException, IOException
+	private Document open(InputSource r) throws XMLParseException, IOException
 	{
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder docBuilder = factory.newDocumentBuilder();
-		Document doc = docBuilder.parse(r);
+		Document doc;
+		Node root;
+		int version[];
 
-		Element root = doc.getDocumentElement();
-		if (!root.getNodeName().equals("MixConfiguration"))
-		{
-			throw new IllegalArgumentException("Cannot parse config file: Root element '" +
-											   root.getNodeName() + "' unknown.");
-		}
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Reading configuration...");
+		doc = XMLUtil.readXMLDocument(r);
+		root = XMLUtil.assertNodeName(doc, "MixConfiguration");
 
-		String ver = root.getAttribute("version");
+
+		String ver = XMLUtil.parseAttribute(root, "version", null);
 		if (ver == null || ver.length() == 0)
 		{
 			if (!MixConfig.ask(
@@ -668,15 +663,12 @@ public class MixConfiguration
 			}
 		}
 
-		int version[] = new int[]
-			{
-			0, 0, 0};
+		version = new int[]{0, 0, 0};
 		try
 		{
-			int begin, end = -1;
+			int end = -1;
 			for (int i = 0; i < 3; i++)
 			{
-				begin = end + 1;
 				end = ver.indexOf('.');
 				String versionPart = ver.substring(0, end);
 				version[i] = Integer.valueOf(versionPart).intValue();

@@ -94,7 +94,7 @@ import org.bouncycastle.crypto.params.ParametersWithRandom;
  * This class creates and handles PKCS12 certificates, that include a private key,
  * a public key and an X509 certificate.
  */
-public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifiers
+public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifiers, ICertificate
 {
 	private static final int SALT_SIZE = 20;
 	private static final int MIN_ITERATIONS = 100;
@@ -378,6 +378,16 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 		{
 		}
 		return null;
+	}
+
+
+	/**
+	 * Converts the certificate to a byte array.
+	 * @return the certificate as a byte array
+	 */
+	public byte[] toByteArray()
+	{
+		return toByteArray("".toCharArray());
 	}
 
 	/**
