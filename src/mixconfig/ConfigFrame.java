@@ -120,7 +120,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 				m_GeneralPanel = new GeneralPanel();
 				m_NetworkPanel = new NetworkPanel();
 				m_CertificatesPanel = new CertificatesPanel();
-				m_DescriptionPanel = new DescriptionPanel();
+				m_DescriptionPanel = new DescriptionPanel(parent==null);
 
 				jtp.addTab("General", m_GeneralPanel);
 				jtp.addTab("Network", m_NetworkPanel);
