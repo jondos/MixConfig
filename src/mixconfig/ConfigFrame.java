@@ -27,6 +27,16 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMA
 */
 package mixconfig;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Vector;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.BorderLayout;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -35,14 +45,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -51,18 +53,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
-
-import mixconfig.networkpanel.NetworkPanel;
 import mixconfig.networkpanel.ConnectionData;
+import mixconfig.networkpanel.NetworkPanel;
 /**
  * The Frame of the MixConfig Application.
  */
@@ -958,7 +956,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 		}
 		private String[] check()
 		{
-				java.util.Vector errors = new java.util.Vector();
+				Vector errors = new java.util.Vector();
 
 				if (m_GeneralPanel.getMixName().equals(""))
 						errors.addElement("Mix Name not entered in General Panel.");
@@ -996,25 +994,30 @@ public class ConfigFrame extends JPanel implements ActionListener
 
 				if (m_NetworkPanel.getIncomingModel().getRowCount() == 0)
 						errors.addElement("No Incoming Connection given in Network Panel.");
-																else
-																{
-																		int rows = m_NetworkPanel.getIncomingModel().getRowCount();
-																		for(int i=0;i<rows;i++)
-																		{
-																				ConnectionData data = m_NetworkPanel.getIncomingModel().getData(i);
-																				if((data.getTransport()&ConnectionData.TRANSPORT)==ConnectionData.TCP)
-																				{
-																						if(data.getPort()==0)
-																								errors.addElement("Incoming connection no. "+(i+1)+" has no port set.");
-																				}
-																				else
-																				{
-																						if(data.getName()==null || data.getName().length()==0)
-																								errors.addElement("Incoming connection no. "+(i+1)+" has no filename set.");
-																				}
-																		}
-																}
-				if (m_NetworkPanel.getOutgoingModel().getRowCount() == 0)
+			else
+			{
+					int rows = m_NetworkPanel.getIncomingModel().getRowCount();
+					for(int i=0;i<rows;i++)
+					{
+							ConnectionData data = m_NetworkPanel.getIncomingModel().getData(i);
+						if(data.isHidden()&&data.isVirtual())
+							{
+								errors.addElement("Incoming connection no. "+(i+1)+" is 'virtual' and 'hidden'. This is not possible.");
+							}
+
+			if((data.getTransport()&ConnectionData.TRANSPORT)==ConnectionData.TCP)
+							{
+									if(data.getPort()==0)
+											errors.addElement("Incoming connection no. "+(i+1)+" has no port set.");
+					}
+								else
+								{
+										if(data.getName()==null || data.getName().length()==0)
+												errors.addElement("Incoming connection no. "+(i+1)+" has no filename set.");
+								}
+						}
+				}
+			if (m_NetworkPanel.getOutgoingModel().getRowCount() == 0)
 						errors.addElement("No Outgoing Connection given in Network Panel.");
 				else
 																{
