@@ -241,7 +241,7 @@ final public class JAPSignature
 	}
 
 	synchronized public boolean verify(byte[] message, byte[] sig)
-	{
+		{
 		return signatureAlgorithm.verify(message, sig);
 	}
 
