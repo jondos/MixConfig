@@ -5,6 +5,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -22,7 +24,7 @@ class PasswordBox extends JDialog implements ActionListener
     public final static int ENTER_PASSWORD=2;
     public final static int CHANGE_PASSWORD=3;
 
-   PasswordBox(Frame parent,String title,int type)
+   PasswordBox(Frame parent,String title,int type, String msg)
    {
       super(parent,title,true);
       m_Type=type;
@@ -34,6 +36,23 @@ class PasswordBox extends JDialog implements ActionListener
       c.gridx = 0;
       c.gridy = 0;
 
+      if(msg!=null)
+      {
+          c.gridwidth = 2;
+          c.fill=GridBagConstraints.HORIZONTAL;
+          JTextArea msgl = new JTextArea(msg);
+          msgl.setEditable(false);
+          msgl.setEnabled(false);
+          msgl.setBackground(this.getBackground());
+          msgl.setDisabledTextColor(new JLabel("").getForeground());
+          msgl.setWrapStyleWord(true);
+          msgl.setLineWrap(true);
+          layout.setConstraints(msgl, c);
+          getContentPane().add(msgl);
+          c.gridy++;
+          c.gridwidth = 1;
+          c.fill=GridBagConstraints.NONE;
+      }
       if(type==CHANGE_PASSWORD)
         {
           JLabel old = new JLabel("Enter Old Password");
@@ -108,6 +127,7 @@ class PasswordBox extends JDialog implements ActionListener
       c.fill=GridBagConstraints.HORIZONTAL;
       layout.setConstraints(p,c);
       getContentPane().add(p);
+      pack();
       pack();
       setLocationRelativeTo(parent);
     }
