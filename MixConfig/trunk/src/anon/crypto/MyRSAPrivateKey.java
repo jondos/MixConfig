@@ -51,7 +51,7 @@ final public class MyRSAPrivateKey implements PrivateKey
 
 	public MyRSAPrivateKey(CipherParameters cipherparams) throws Exception
 	{
-		m_Params=(RSAPrivateCrtKeyParameters)cipherparams;
+		m_Params = (RSAPrivateCrtKeyParameters) cipherparams;
 	}
 
 	public MyRSAPrivateKey(PrivateKeyInfo privKeyInfo) throws Exception
@@ -94,6 +94,36 @@ final public class MyRSAPrivateKey implements PrivateKey
 	public BigInteger getPrivateExponent()
 	{
 		return m_Params.getExponent();
+	}
+
+	public BigInteger getP()
+	{
+		return m_Params.getP();
+	}
+
+	public BigInteger getQ()
+	{
+		return m_Params.getQ();
+	}
+
+	public BigInteger getDP()
+	{
+		return m_Params.getDP();
+	}
+
+	public BigInteger getDQ()
+	{
+		return m_Params.getDQ();
+	}
+
+	public BigInteger getQInv()
+	{
+		return m_Params.getQInv();
+	}
+
+	public BigInteger getPublicExponent()
+	{
+		return m_Params.getPublicExponent();
 	}
 
 	public String getAlgorithm()

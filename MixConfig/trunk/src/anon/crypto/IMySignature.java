@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000, The JAP-Team
+ Copyright (c) 2000 - 2004, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -25,55 +25,24 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-package anon.crypto;
 
 /* Hint: This file may be only a copy of the original file which is always in the JAP source tree!
  * If you change something - do not forget to add the changes also to the JAP source tree!
  */
 
-import java.security.interfaces.DSAParams;
-import java.security.interfaces.DSAPrivateKey;
-import org.bouncycastle.asn1.x509.DSAParameter;
-import org.bouncycastle.crypto.params.DSAParameters;
+package anon.crypto;
 
-final public class MyDSAParams extends DSAParameters implements DSAParams
+import java.security.InvalidKeyException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
+interface IMySignature
 {
-	public MyDSAParams()
-	{
-		super(null, null, null);
-	}
+	void initVerify(PublicKey k) throws InvalidKeyException;
 
-	public MyDSAParams(DSAParams params)
-	{
-		super(params.getP(), params.getQ(), params.getG());
-	}
+	void initSign(PrivateKey ownPrivateKey) throws InvalidKeyException;
 
-	public MyDSAParams(DSAParameter params)
-	{
-		super(params.getP(), params.getQ(), params.getG());
-	}
+	boolean verify(byte[] message, byte[] sig);
 
-	public MyDSAParams(DSAParameters params)
-	{
-		super(params.getP(), params.getQ(), params.getG(), params.getValidationParameters());
-	}
-
-	public MyDSAParams(DSAPrivateKey key)
-	{
-		this(key.getParams());
-	}
-
-	public boolean equals(Object o)
-	{
-		if (o == null)
-		{
-			return false;
-		}
-		if (! (o instanceof DSAParams))
-		{
-			return false;
-		}
-		DSAParams p = (DSAParams) o;
-		return p.getG().equals(this.getG()) && p.getP().equals(this.getP()) && p.getQ().equals(this.getQ());
-	}
+	byte[] sign(byte[] bytesToSign);
 }
