@@ -35,7 +35,6 @@ class ClipFrame extends Dialog implements ActionListener
     });
 
     pack();
-    show();//setVisible(true);
   }
 
   public void setText(String data)
