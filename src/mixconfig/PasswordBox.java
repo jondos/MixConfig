@@ -109,6 +109,7 @@ class PasswordBox extends JDialog implements ActionListener
       layout.setConstraints(p,c);
       getContentPane().add(p);
       pack();
+      setLocationRelativeTo(parent);
     }
 
     public void actionPerformed(ActionEvent ae)
@@ -116,7 +117,18 @@ class PasswordBox extends JDialog implements ActionListener
         if(ae.getActionCommand().equals("OK"))
           {
             if(m_Type==NEW_PASSWORD||m_Type==CHANGE_PASSWORD)
+            {
+              if(!java.util.Arrays.equals(
+                      m_textConfirmPasswd.getPassword(),
+                      m_textNewPasswd.getPassword()))
+              {
+                  javax.swing.JOptionPane.showMessageDialog(this,
+                          "Passwords do not match.", "Password Error",
+                          javax.swing.JOptionPane.ERROR_MESSAGE);
+                  return;
+              }
               m_passwd=m_textNewPasswd.getPassword();
+            }
             else if(m_Type==ENTER_PASSWORD)
               m_passwd=m_textConfirmPasswd.getPassword();
             if(m_Type==CHANGE_PASSWORD)
