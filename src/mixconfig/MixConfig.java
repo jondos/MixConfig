@@ -17,14 +17,14 @@ public class MixConfig extends JApplet
 {
 	private static ConfigFrame m_ConfigFrame;
 	private static Frame m_MainWindow;
-        private static File currentDir;
+				private static File currentDir;
 	public final static int SAVE_DIALOG=1;
 	public final static int OPEN_DIALOG=2;
 	public final static int FILTER_CER=1;
 	public final static int FILTER_XML=2;
 	public final static int FILTER_PFX=4;
 	public final static int FILTER_B64_CER=8;
-	public final static String VERSION="00.02.004";
+	public final static String VERSION="00.02.005";
 
 	public static void main(String[] args)
 	{
@@ -100,7 +100,7 @@ public class MixConfig extends JApplet
 		fd2.showSaveDialog(m_ConfigFrame);
 	else
 		fd2.showOpenDialog(m_ConfigFrame);
-        currentDir = fd2.getCurrentDirectory();
+				currentDir = fd2.getCurrentDirectory();
 	return fd2;
 			}
 
