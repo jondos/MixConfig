@@ -51,6 +51,7 @@ import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.SignedData;
 import org.bouncycastle.asn1.x509.X509CertificateStructure;
+import anon.util.*;
 
 /** \mainpage
  This is a tool which one can use for creating a configuration file for a Mix. This configuration file
@@ -69,7 +70,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.02.022"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.02.023"; //NEVER change the layout of this line!!
 
 	public static void main(String[] args)
 	{

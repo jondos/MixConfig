@@ -81,7 +81,7 @@ import anon.crypto.MyDSAPrivateKey;
 import anon.crypto.MyDSAPublicKey;
 import anon.crypto.PKCS12;
 import anon.crypto.X509CertGenerator;
-
+import anon.util.*;
 class CertificatesPanel extends JPanel implements ActionListener
 {
 	JTextField m_textOwnCertCN, m_textOwnCertValidFrom, m_textOwnCertValidTo, m_textOwnCertIssuer;
@@ -1198,7 +1198,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 							break;
 						case MixConfig.FILTER_B64_CER:
 							fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
-							fout.write(Base64.encodeBytes(cert).getBytes());
+							fout.write(Base64.encode(cert,true).getBytes());
 							fout.write("\n-----END CERTIFICATE-----\n".getBytes());
 							break;
 					}
@@ -1222,7 +1222,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 				"Copy and Save this file in a new Location.",
 				false);
 			Save.setText("-----BEGIN CERTIFICATE-----\n" +
-						 Base64.encodeBytes(cert) +
+						 Base64.encode(cert,true) +
 						 "\n-----END CERTIFICATE-----\n");
 			Save.show();
 		}
@@ -1331,7 +1331,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 								fout.write(
 									"-----BEGIN CERTIFICATE-----\n".getBytes());
 								fout.write(
-									Base64.encodeBytes(getOwnPubCert()).getBytes());
+									Base64.encode(getOwnPubCert(),true).getBytes());
 								fout.write(
 									"\n-----END CERTIFICATE-----\n".getBytes());
 								break;

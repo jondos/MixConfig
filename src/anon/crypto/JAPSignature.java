@@ -159,7 +159,7 @@ public class JAPSignature
 
 			//get r and s...
 			//BASE64Decoder dec=new BASE64Decoder();
-			byte[] rsbuff = Base64.decode(strSigValue.toCharArray());
+			byte[] rsbuff = Base64.decode(strSigValue);
 			//dec.decodeBuffer(strSigValue);
 			//System.out.println("Size of rsbuff: "+Integer.toString(rsbuff.length));
 			if (rsbuff.length != 40)
@@ -255,7 +255,7 @@ public class JAPSignature
 				throw new SignatureException("No <DigestValue> Tag");
 			}
 			String strDigest = nl.item(0).getFirstChild().getNodeValue();
-			tmpBuff = Base64.decode(strDigest.toCharArray());
+			tmpBuff = Base64.decode(strDigest);
 			return MessageDigest.isEqual(tmpBuff, digest);
 		}
 		catch (Exception e)
@@ -323,7 +323,7 @@ public class JAPSignature
 		Element referenceNode = doc.createElement("Reference");
 		referenceNode.setAttribute("URI", "");
 		Element digestValueNode = doc.createElement("DigestValue");
-		digestValueNode.appendChild(doc.createTextNode(new String(Base64.encode(digest))));
+		digestValueNode.appendChild(doc.createTextNode(new String(Base64.encode(digest,false))));
 		referenceNode.appendChild(digestValueNode);
 		signedInfoNode.appendChild(referenceNode);
 		/* now we sign the SignedInfo node tree, first we need the XML bytestream */
@@ -379,7 +379,7 @@ public class JAPSignature
 		System.arraycopy(signatureAsn1, 4 + rLength + 2 + sOverLength, signature, 40 - sLength, sLength);
 		/* create the SignatureValue node and build the Signature tree */
 		Element signatureValueNode = doc.createElement("SignatureValue");
-		signatureValueNode.appendChild(doc.createTextNode(new String(Base64.encode(signature))));
+		signatureValueNode.appendChild(doc.createTextNode(new String(Base64.encode(signature,false))));
 		Element signatureNode = doc.createElement("Signature");
 		signatureNode.appendChild(signedInfoNode);
 		signatureNode.appendChild(signatureValueNode);

@@ -47,7 +47,7 @@ import org.bouncycastle.asn1.DERInputStream;
 import java.io.*;
 import org.bouncycastle.crypto.engines.*;
 import anon.crypto.*;
-
+import anon.util.*;
 public class EncryptedLogTool extends JDialog implements ActionListener
 {
 	private JTextField m_textDecryptWithCertCN, m_textDecryptWithCertValidFrom, m_textDecryptWithCertValidTo;

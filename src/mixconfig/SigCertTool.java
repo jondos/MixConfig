@@ -57,6 +57,7 @@ import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.asn1.DEROutputStream;
 import org.bouncycastle.asn1.DERInputStream;
 import anon.crypto.*;
+import anon.util.*;
 
 public class SigCertTool extends JDialog implements ActionListener
 {
@@ -496,7 +497,7 @@ public class SigCertTool extends JDialog implements ActionListener
 								break;
 							case MixConfig.FILTER_B64_CER:
 								fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
-								fout.write(Base64.encodeBytes(getCertToSignAsByteArray()).getBytes());
+								fout.write(Base64.encode(getCertToSignAsByteArray(),true).getBytes());
 								fout.write("\n-----END CERTIFICATE-----\n".getBytes());
 								break;
 						}
