@@ -113,6 +113,11 @@ class ConnectionData
 
     void setIPAddr(String addr)
     {
+        if(addr==null)
+        {
+            ipaddr = null;
+            return;
+        }
         int idx = 0;
         int[] myaddr = new int[4];
 
@@ -174,9 +179,42 @@ class ConnectionData
         setFlags(0);
     }
 
+    ConnectionData(String x, boolean m, int t, String n, int[] addr, int p, int f)
+    {
+        setType(x);
+        setIsMain(m);
+        setTransport(t);
+        setName(n);
+        setIPAddr(addr);
+        setPort(p);
+        setFlags(f);
+    }
+
+    ConnectionData(String x, boolean m, int t, String n, int f)
+    {
+        setType(x);
+        setIsMain(m);
+        setTransport(t);
+        setName(n);
+        ipaddr = null;
+        setPort(0);
+        setFlags(f);
+    }
+
+    ConnectionData(String x, boolean m, int t, String n, String addr, int p, int f)
+    {
+        setType(x);
+        setIsMain(m);
+        setTransport(t);
+        setName(n);
+        setIPAddr(addr);
+        setPort(p);
+        setFlags(f);
+    }
+
     ConnectionData deepClone()
     {
-        return new ConnectionData(type, main, transport, name, ipaddr, port);
+        return new ConnectionData(type, main, transport, name, ipaddr, port, flags);
     }
 
     org.w3c.dom.Element createAsElement(org.w3c.dom.Document doc)
@@ -244,10 +282,17 @@ class ConnectionData
             return null;
 
         boolean m;
-        int trans;
+        int trans, ptype;
         String n, ip=null, data;
         int p=0;
 
+	data = elementData(iface, "ProxyType");
+	if(data == null)
+	    ptype = NO_PROXY;
+	else if(data.equalsIgnoreCase("HTTP"))
+	    ptype = HTTP_PROXY;
+	else
+	    ptype = SOCKS_PROXY;
         m = iface.getAttribute("main").equalsIgnoreCase("True");
         data = elementData(iface, "Type");
         if(data.equalsIgnoreCase("RAW/UNIX"))
@@ -273,14 +318,14 @@ class ConnectionData
                 p = 0;
             else
                 p = Integer.parseInt(data);
-            return new ConnectionData(t, m, trans, n, ip, p);
+            return new ConnectionData(t, m, trans, n, ip, p, ptype);
         }
         else
         {
             n = elementData(iface, "File");
             if(n==null)
                 n = "";
-            return new ConnectionData(t, m, trans, n);
+            return new ConnectionData(t, m, trans, n, ptype);
         }
     }
 }
