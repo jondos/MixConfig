@@ -31,7 +31,6 @@ import javax.swing.JSeparator;
 
 class ConnectionData
 {
-    private boolean main;
     private int transport;
     private String name;
     private int[] ipaddr;
@@ -72,16 +71,6 @@ class ConnectionData
     String getType()
     {
         return type;
-    }
-
-    void setIsMain(boolean m)
-    {
-        main = m;
-    }
-
-    boolean getIsMain()
-    {
-        return main;
     }
 
     void setTransport(int t)
@@ -147,10 +136,9 @@ class ConnectionData
         return port;
     }
 
-    ConnectionData(String x, boolean m, int t, String n, int[] addr, int p)
+    ConnectionData(String x, int t, String n, int[] addr, int p)
     {
         setType(x);
-        setIsMain(m);
         setTransport(t);
         setName(n);
         setIPAddr(addr);
@@ -158,10 +146,9 @@ class ConnectionData
         setFlags(0);
     }
 
-    ConnectionData(String x, boolean m, int t, String n)
+    ConnectionData(String x, int t, String n)
     {
         setType(x);
-        setIsMain(m);
         setTransport(t);
         setName(n);
         ipaddr = null;
@@ -169,10 +156,9 @@ class ConnectionData
         setFlags(0);
     }
 
-    ConnectionData(String x, boolean m, int t, String n, String addr, int p)
+    ConnectionData(String x, int t, String n, String addr, int p)
     {
         setType(x);
-        setIsMain(m);
         setTransport(t);
         setName(n);
         setIPAddr(addr);
@@ -180,10 +166,9 @@ class ConnectionData
         setFlags(0);
     }
 
-    ConnectionData(String x, boolean m, int t, String n, int[] addr, int p, int f)
+    ConnectionData(String x, int t, String n, int[] addr, int p, int f)
     {
         setType(x);
-        setIsMain(m);
         setTransport(t);
         setName(n);
         setIPAddr(addr);
@@ -191,10 +176,9 @@ class ConnectionData
         setFlags(f);
     }
 
-    ConnectionData(String x, boolean m, int t, String n, int f)
+    ConnectionData(String x, int t, String n, int f)
     {
         setType(x);
-        setIsMain(m);
         setTransport(t);
         setName(n);
         ipaddr = null;
@@ -202,10 +186,9 @@ class ConnectionData
         setFlags(f);
     }
 
-    ConnectionData(String x, boolean m, int t, String n, String addr, int p, int f)
+    ConnectionData(String x, int t, String n, String addr, int p, int f)
     {
         setType(x);
-        setIsMain(m);
         setTransport(t);
         setName(n);
         setIPAddr(addr);
@@ -215,14 +198,20 @@ class ConnectionData
 
     ConnectionData deepClone()
     {
-        return new ConnectionData(type, main, transport, name, ipaddr, port, flags);
+        return new ConnectionData(type, transport, name, ipaddr, port, flags);
     }
 
     org.w3c.dom.Element createAsElement(org.w3c.dom.Document doc)
     {
         org.w3c.dom.Element iface = doc.createElement(type);
-        iface.setAttribute("main",main?"True":"False");
-        org.w3c.dom.Element data = doc.createElement("Type");
+        org.w3c.dom.Element data;
+        if((flags&PROXY_MASK)!=NO_PROXY)
+        {
+            data = doc.createElement("ProxyType");
+            data.appendChild(doc.createTextNode(((flags&PROXY_MASK)==HTTP_PROXY)?"HTTP":"SOCKS"));
+            iface.appendChild(data);
+        }
+        data = doc.createElement("NetworkProtocoll");
         data.appendChild(doc.createTextNode(
                 (((transport&SSL)==0)?"RAW/":"SSL/")+
                 (((transport&UNIX)==0)?"TCP":"UNIX")));
@@ -247,12 +236,6 @@ class ConnectionData
         {
             data = doc.createElement("File");
             data.appendChild(doc.createTextNode(name));
-            iface.appendChild(data);
-        }
-        if((flags&PROXY_MASK)!=NO_PROXY)
-        {
-            data = doc.createElement("ProxyType");
-            data.appendChild(doc.createTextNode(((flags&PROXY_MASK)==HTTP_PROXY)?"HTTP":"SOCKS"));
             iface.appendChild(data);
         }
         return iface;
@@ -282,7 +265,6 @@ class ConnectionData
         if(!iface.getTagName().equals(t))
             return null;
 
-        boolean m;
         int trans, ptype;
         String n, ip=null, data;
         int p=0;
@@ -294,7 +276,6 @@ class ConnectionData
 	    ptype = HTTP_PROXY;
 	else
 	    ptype = SOCKS_PROXY;
-        m = iface.getAttribute("main").equalsIgnoreCase("True");
         data = elementData(iface, "Type");
         if(data.equalsIgnoreCase("RAW/UNIX"))
             trans = RAW_UNIX;
@@ -319,14 +300,14 @@ class ConnectionData
                 p = 0;
             else
                 p = Integer.parseInt(data);
-            return new ConnectionData(t, m, trans, n, ip, p, ptype);
+            return new ConnectionData(t, trans, n, ip, p, ptype);
         }
         else
         {
             n = elementData(iface, "File");
             if(n==null)
                 n = "";
-            return new ConnectionData(t, m, trans, n, ptype);
+            return new ConnectionData(t, trans, n, ptype);
         }
     }
 }
@@ -509,7 +490,6 @@ class IPTextField extends JPanel
 abstract class ConnectionDialog extends JDialog
 {
     private JTextField nametext, iptext[];
-    private JCheckBox main;
     private ButtonGroup ssl, stype;
     private JLabel namelabel, iplabel[];
     protected javax.swing.JComponent firstone;
@@ -531,33 +511,16 @@ abstract class ConnectionDialog extends JDialog
                     ips[i] = Integer.parseInt(iptext[i].getText(),10);
             }
 
-            return new ConnectionData(getType(), (main==null)?false:main.isSelected(),
+            return new ConnectionData(getType(),
                                     ssl.getSelection().getActionCommand().equals("SSL")?ConnectionData.SSL_TCP:ConnectionData.RAW_TCP,
                                     nametext.getText(),
                                     ips,
                                     (iptext[4].getText().length()==0)?0:Integer.parseInt(iptext[4].getText(),10));
         }
         else
-            return new ConnectionData(getType(), (main==null)?false:main.isSelected(),
+            return new ConnectionData(getType(),
                                     ssl.getSelection().getActionCommand().equals("SSL")?ConnectionData.SSL_UNIX:ConnectionData.RAW_UNIX,
                                     nametext.getText());
-    }
-
-    protected void addMain(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
-    {
-        rc.gridx--;
-        rc.gridwidth = 8;
-        if(data==null)
-            main = new JCheckBox("Main Connection");
-        else
-            main = new JCheckBox("Main Connection",data.getIsMain());
-        layout.setConstraints(main,rc);
-        getContentPane().add(main);
-        lc.gridy++;
-        rc.gridy++;
-        rc.gridx++;
-        if(firstone==null)
-            firstone = main;
     }
 
     protected void addTransport(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc, GridBagConstraints rc)
@@ -850,7 +813,6 @@ class IncomingDialog extends ConnectionDialog
         rc.gridy = 0;
         rc.weightx = 0;
 
-//        addMain(data, layout, lc, rc);
         addTransport(data, layout, lc, rc);
         addName(data, layout, lc, rc);
         addIP(data, layout, lc, rc);
@@ -989,71 +951,18 @@ abstract class ConnectionModel extends AbstractTableModel
         return rows.length;
     }
 
-    public boolean hasMain(int row)
-    {
-        return true;
-    }
-
     public boolean isCellEditable(int row, int col)
     {
-        return (col==1) && hasMain(row);
-    }
-
-    public void setMain(boolean m, int row)
-    {
-        int i;
-
-        ConnectionData data = getData(row);
-        if(data==null || data.getIsMain()==m)
-            return;
-        data.setIsMain(m);
-        fireTableRowsUpdated(row, row);
-        if(m)
-        {
-            for(i=0;i<rows.length;i++)
-                if(i!=row && hasMain(i) && rows[i].getIsMain())
-                {
-                    rows[i].setIsMain(false);
-                    fireTableRowsUpdated(i, i);
-                }
-        }
-        else
-            for(i=0;i<rows.length;i++)
-                if(i!=row && hasMain(i))
-                {
-                    if(!rows[i].getIsMain())
-                    {
-                        rows[i].setIsMain(true);
-                        fireTableRowsUpdated(i,i);
-                    }
-                    return;
-                }
-    }
-
-    public void setValueAt(Object ob, int row, int col)
-    {
-        if(col!=1 || !(ob instanceof Boolean))
-            return;
-        setMain(((Boolean)ob).booleanValue(), row);
+        return false;
     }
 
     void addData(ConnectionData data)
     {
-        boolean newMain = data.getIsMain();
         ConnectionData[] nrows = new ConnectionData[rows.length+1];
         for(int i=0;i<rows.length;i++)
-        {
             nrows[i] = rows[i];
-            if(newMain && nrows[i].getIsMain())
-            {
-                nrows[i].setIsMain(false);
-                fireTableRowsUpdated(i,i);
-            }
-        }
         nrows[rows.length] = data;
         rows = nrows;
-        if(nrows.length==1)
-            data.setIsMain(true);
         fireTableRowsInserted(rows.length-1,rows.length-1);
     }
 
@@ -1070,7 +979,6 @@ abstract class ConnectionModel extends AbstractTableModel
             if(rows[i]==olddata)
             {
                 rows[i]=data;
-                data.setIsMain(olddata.getIsMain());
                 fireTableRowsUpdated(i,i);
                 return;
             }
@@ -1082,7 +990,6 @@ abstract class ConnectionModel extends AbstractTableModel
         if(index>=0 && index<rows.length)
         {
             ConnectionData[] nrows = new ConnectionData[rows.length-1];
-            setMain(false, index);
             for(int i=0;i<index;i++)
                 nrows[i] = rows[i];
             for(int i=index+1;i<rows.length;i++)
@@ -1103,15 +1010,14 @@ abstract class ConnectionModel extends AbstractTableModel
 class IncomingModel extends ConnectionModel
 {
     private static final String[] columnNames =
-            {"No.", "Main", "Transport", "Host / FileName",
+            {"No.", "Transport", "Host / FileName",
              "IP Address", "Port" };
 
     public static final int SERIAL_NR = 0;
-    public static final int IS_MAIN = 1;
-    public static final int TRANSPORT = 2;
-    public static final int NAME = 3;
-    public static final int IP_ADDR = 4;
-    public static final int PORT = 5;
+    public static final int TRANSPORT = 1;
+    public static final int NAME = 2;
+    public static final int IP_ADDR = 3;
+    public static final int PORT = 4;
 
     public Object getValueAt(int row, int column)
     {
@@ -1121,7 +1027,6 @@ class IncomingModel extends ConnectionModel
         switch(column)
         {
             case SERIAL_NR: return new Integer(row+1);
-            case IS_MAIN: return new Boolean(data.getIsMain());
             case TRANSPORT: return new Integer(data.getTransport());
             case NAME: return data.getName();
             case IP_ADDR: return data.getIPAddr();
@@ -1135,7 +1040,6 @@ class IncomingModel extends ConnectionModel
         switch(column)
         {
             case SERIAL_NR: return Integer.class;
-            case IS_MAIN: return Boolean.class;
             case NAME: return String.class;
             case PORT: return Integer.class;
             // Transport und IP-Addresse muessen wir in der Tabelle
@@ -1146,7 +1050,7 @@ class IncomingModel extends ConnectionModel
 
     public int getColumnCount()
     {
-        return 6;
+        return columnNames.length;
     }
 
     public String getColumnName(int col)
@@ -1196,12 +1100,6 @@ class OutgoingModel extends ConnectionModel
     public static final int NAME = 3;
     public static final int IP_ADDR = 4;
     public static final int PORT = 5;
-
-    public boolean hasMain(int row)
-    {
-        return false;
-      // return (getData(row)!=null && getData(row).getType().equals("Proxy"));
-    }
 
     public Object getValueAt(int row, int column)
     {
@@ -1264,7 +1162,6 @@ class OutgoingModel extends ConnectionModel
             if(getData(i).getType().equals("Proxy"))
             {
                 org.w3c.dom.Element proxy = getData(i).createAsElement(doc);
-                proxy.removeAttribute("main");
                 proxies.appendChild(proxy);
             }
         return proxies;
@@ -1276,7 +1173,6 @@ class OutgoingModel extends ConnectionModel
             if(getData(i).getType().equals("NextMix"))
             {
                 org.w3c.dom.Element mix = getData(i).createAsElement(doc);
-                mix.removeAttribute("main");
                 return mix;
             }
         return null;
@@ -1385,7 +1281,7 @@ class NetworkPanel extends JPanel
     layout.setConstraints(panel1,c);
     add(panel1);
 
-    int[] columnSizes1 = {15, 25, 60, 170, 110, 40};
+    int[] columnSizes1 = {15, 60, 195, 110, 40};
     // table1 = new JTable(data1, columnNames1);
 
     final TableCellRenderer IPRenderer = new DefaultTableCellRenderer()
@@ -1444,13 +1340,6 @@ class NetworkPanel extends JPanel
     };
 
     imodel = new IncomingModel();
-    imodel.addTableModelListener(new TableModelListener()
-        {
-            public void tableChanged(TableModelEvent e)
-            {
-                MyFrame.m_GeneralPanel.updateMixId();
-            }
-        });
 
     table1 = new JTable(imodel)
     {
