@@ -28,9 +28,40 @@
 package anon.crypto;
 
 import java.security.PublicKey;
+
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+
 import anon.util.IXMLEncodable;
 
+/**
+ * Represents the public part of an asymmetric cryptographic key pair.
+ */
 public interface IMyPublicKey extends PublicKey, IXMLEncodable
 {
+	/**
+	 * Gets the signature algorithm object that is held and initialised with this key.
+	 * It is ready to verify messages and does not need to be reinitialised by the caller.
+	 * Therefore, this method must make sure that the algorithm is initialised with this key.
+	 * @return the signature algorithm object that is held and initialised by this key
+	 */
+	public ISignatureVerificationAlgorithm getSignatureAlgorithm();
 
+	/**
+	 * Gets the key as a SubjectPublicKeyInfo object.
+	 * @return the key as a SubjectPublicKeyInfo object
+	 */
+	public SubjectPublicKeyInfo getAsSubjectPublicKeyInfo();
+
+	/**
+	 * This method returns if two public keys have the same public key parameters.
+	 * @param a_object an other public key
+	 * @return true if the keys have the same public key parameters; false otherwise
+	 */
+	public boolean equals(Object a_object);
+
+	/**
+	 * @return the public key`s hash code
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode();
 }

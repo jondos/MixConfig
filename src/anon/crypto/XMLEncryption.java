@@ -87,7 +87,7 @@ final public class XMLEncryption
 		int len = 0;
 		try
 		{
-			barInput = XMLUtil.XMLNodeToString(elemPlain).getBytes();
+			barInput = XMLUtil.toString(elemPlain).getBytes();
 			len = barInput.length;
 			barOutput = codeDataCTS(true, barInput, generatePBEKey(password, kSalt));
 		}
@@ -108,7 +108,7 @@ final public class XMLEncryption
 		Element elemKeyInfo = doc.createElement("ds:KeyInfo");
 		elemKeyInfo.setAttribute("xmlns:ds", "http://www.w3.org/2000/09/xmldsig#");
 		Element elemSalt = doc.createElement("ds:Salt");
-		XMLUtil.setNodeValue(elemSalt, Base64.encodeBytes(kSalt));
+		XMLUtil.setValue(elemSalt, Base64.encodeBytes(kSalt));
 		elemKeyInfo.appendChild(elemSalt);
 		//Element elemLen = doc.createElement("ds:Length");
 		//elemKeyInfo.appendChild(elemLen);
@@ -121,7 +121,7 @@ final public class XMLEncryption
 		elemCipher.appendChild(elemValue);
 
 		// add ciphertext to dom document and remove plaintext
-		XMLUtil.setNodeValue(elemValue, Base64.encodeBytes(barOutput));
+		XMLUtil.setValue(elemValue, Base64.encodeBytes(barOutput));
 		nodeParent.removeChild(elemPlain);
 		nodeParent.appendChild(elemCrypt);
 
@@ -309,7 +309,7 @@ final public class XMLEncryption
 		byte[] barOutput = null;
 		try
 		{
-			barInput = XMLUtil.XMLNodeToString(elemPlain).getBytes();
+			barInput = XMLUtil.toString(elemPlain).getBytes();
 			barOutput = codeDataCBCwithHMAC(true, barInput, params,null);
 		}
 		catch (Exception ex1)
@@ -350,13 +350,13 @@ final public class XMLEncryption
 		elemEncKey.appendChild(elemCipher);
 		Element elemValue = doc.createElement("CipherValue");
 		elemCipher.appendChild(elemValue);
-		XMLUtil.setNodeValue(elemValue, Base64.encodeBytes(encryptedKey));
+		XMLUtil.setValue(elemValue, Base64.encodeBytes(encryptedKey));
 
 		elemCipher = doc.createElement("CipherData");
 		elemCrypt.appendChild(elemCipher);
 		elemValue = doc.createElement("CipherValue");
 		elemCipher.appendChild(elemValue);
-		XMLUtil.setNodeValue(elemValue, Base64.encodeBytes(barOutput));
+		XMLUtil.setValue(elemValue, Base64.encodeBytes(barOutput));
 
 		nodeParent.removeChild(elemPlain);
 		nodeParent.appendChild(elemCrypt);
