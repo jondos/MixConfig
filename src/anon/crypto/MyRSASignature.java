@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000, The JAP-Team
+ Copyright (c) 2000 - 2004, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -25,55 +25,64 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-package anon.crypto;
 
 /* Hint: This file may be only a copy of the original file which is always in the JAP source tree!
  * If you change something - do not forget to add the changes also to the JAP source tree!
  */
 
-import java.security.interfaces.DSAParams;
-import java.security.interfaces.DSAPrivateKey;
-import org.bouncycastle.asn1.x509.DSAParameter;
-import org.bouncycastle.crypto.params.DSAParameters;
+package anon.crypto;
 
-final public class MyDSAParams extends DSAParameters implements DSAParams
+import java.security.InvalidKeyException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.engines.RSAEngine;
+import org.bouncycastle.crypto.signers.PSSSigner;
+
+final class MyRSASignature implements IMySignature
 {
-	public MyDSAParams()
+	PSSSigner m_SignatureAlgorithm;
+	MyRSASignature()
 	{
-		super(null, null, null);
+		m_SignatureAlgorithm = new PSSSigner(new RSAEngine(), new SHA1Digest(), 10);
 	}
 
-	public MyDSAParams(DSAParams params)
+	synchronized public void initVerify(PublicKey k) throws InvalidKeyException
 	{
-		super(params.getP(), params.getQ(), params.getG());
+		m_SignatureAlgorithm.init(false, ( (MyRSAPublicKey) k).getParams());
 	}
 
-	public MyDSAParams(DSAParameter params)
+	synchronized public void initSign(PrivateKey k) throws InvalidKeyException
 	{
-		super(params.getP(), params.getQ(), params.getG());
+		m_SignatureAlgorithm.init(true, ( (MyRSAPrivateKey) k).getParams());
 	}
 
-	public MyDSAParams(DSAParameters params)
+	synchronized public boolean verify(byte[] message, byte[] sig)
 	{
-		super(params.getP(), params.getQ(), params.getG(), params.getValidationParameters());
-	}
-
-	public MyDSAParams(DSAPrivateKey key)
-	{
-		this(key.getParams());
-	}
-
-	public boolean equals(Object o)
-	{
-		if (o == null)
+		try
+		{
+			m_SignatureAlgorithm.reset();
+			m_SignatureAlgorithm.update(message, 0, message.length);
+			return m_SignatureAlgorithm.verifySignature(sig);
+		}
+		catch (Exception e)
 		{
 			return false;
 		}
-		if (! (o instanceof DSAParams))
-		{
-			return false;
-		}
-		DSAParams p = (DSAParams) o;
-		return p.getG().equals(this.getG()) && p.getP().equals(this.getP()) && p.getQ().equals(this.getQ());
 	}
+
+	synchronized public byte[] sign(byte[] bytesToSign)
+	{
+		try
+		{
+			m_SignatureAlgorithm.reset();
+			m_SignatureAlgorithm.update(bytesToSign, 0, bytesToSign.length);
+			return m_SignatureAlgorithm.generateSignature();
+		}
+		catch (Throwable t)
+		{
+			return null;
+		}
+	}
+
 }
