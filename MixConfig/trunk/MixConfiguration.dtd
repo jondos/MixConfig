@@ -1,0 +1,17 @@
+<!ELEMENT MixConfiguration (General,Network,Description)>
+<!ATTLIST MixConfiguration version CDATA #FIXED "0.1">
+
+<!ELEMENT General ANY>
+<!ELEMENT MixID (#PCDATA)>
+<!ELEMENT MixType (#PCDATA)>
+<!ELEMENT MixName (#PCDATA)>
+<!ELEMENT MixCascadeName (#PCDATA)>
+<!ELEMENT Daemon (#PCDATA)>
+<!ELEMENT UserID (#PCDATA)>
+<!ELEMENT NrOfFileDescriptors (#PCDATA)>
+
+<!ELEMENT Logging (File|SysLog|Console)>
+<!ELEMENT File (#PCDATA)>
+<!ATTLIST File compressed (True|False) #IMPLIED>
+<!ELEMENT SysLog (#PCDATA)>
+<!ELEMENT Console (#PCDATA)>
