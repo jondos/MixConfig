@@ -349,6 +349,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 				m_DescriptionPanel.setLati("");
 				m_DescriptionPanel.setLongi("");
 				m_DescriptionPanel.setState("");
+                                m_DescriptionPanel.setCountry("");
 		}
 
 		private Element getChild(Node node, String name)
@@ -599,6 +600,9 @@ public class ConfigFrame extends JPanel implements ActionListener
 						Element elemState = getChild(elemLocation, "State");
 						String state = getElementValue(elemState, null);
 						m_DescriptionPanel.setState(state);
+                                                Element elemCountry = getChild(elemLocation, "Country");
+                                                String country = getElementValue(elemCountry, null);
+                                                m_DescriptionPanel.setCountry(country);
 
 						Element elemGeo =
 								getChild(getChild(elemLocation, "Position"), "Geo");
@@ -646,17 +650,17 @@ public class ConfigFrame extends JPanel implements ActionListener
 						Element elemGeneral = doc.createElement("General");
 						root.appendChild(elemGeneral);
 
+                                                String mixID = m_GeneralPanel.getMixID();
+                                                Element elemMixID = doc.createElement("MixID");
+                                                elemGeneral.appendChild(elemMixID);
+                                                Text text3 = doc.createTextNode(URLEncoder.encode(mixID));
+                                                elemMixID.appendChild(text3);
+
 						String elemmixtype = m_GeneralPanel.getMixType();
 						Element MixType = doc.createElement("MixType");
 						elemGeneral.appendChild(MixType);
 						Text text1 = doc.createTextNode(elemmixtype);
 						MixType.appendChild(text1);
-
-						String elemcascadename = m_GeneralPanel.getCascadeName();
-						Element elemCascadeName = doc.createElement("CascadeName");
-						elemGeneral.appendChild(elemCascadeName);
-						Text text1a = doc.createTextNode(elemcascadename);
-						elemCascadeName.appendChild(text1a);
 
 						String elemmixname = m_GeneralPanel.getMixName();
 						Element elemMixName = doc.createElement("MixName");
@@ -664,11 +668,16 @@ public class ConfigFrame extends JPanel implements ActionListener
 						Text text2 = doc.createTextNode(elemmixname);
 						elemMixName.appendChild(text2);
 
-						String mixID = m_GeneralPanel.getMixID();
-						Element elemMixID = doc.createElement("MixID");
-						elemGeneral.appendChild(elemMixID);
-						Text text3 = doc.createTextNode(URLEncoder.encode(mixID));
-						elemMixID.appendChild(text3);
+                                                String elemcascadename = m_GeneralPanel.getCascadeName();
+                                                Element elemCascadeName = doc.createElement("CascadeName");
+                                                elemGeneral.appendChild(elemCascadeName);
+                                                Text text1a = doc.createTextNode(elemcascadename);
+                                                elemCascadeName.appendChild(text1a);
+
+                                                Element elemDaemon = doc.createElement("Daemon");
+                                                elemGeneral.appendChild(elemDaemon);
+                                                Text text5 = doc.createTextNode(m_GeneralPanel.getDaemon());
+                                                elemDaemon.appendChild(text5);
 
 						String elemUser_ID = m_GeneralPanel.getUserID();
 						if (elemUser_ID != null && !elemUser_ID.equals(""))
@@ -687,11 +696,6 @@ public class ConfigFrame extends JPanel implements ActionListener
 								Text text4 = doc.createTextNode(elemFileDes);
 								elemfiledes.appendChild(text4);
 						}
-
-						Element elemDaemon = doc.createElement("Daemon");
-						elemGeneral.appendChild(elemDaemon);
-						Text text5 = doc.createTextNode(m_GeneralPanel.getDaemon());
-						elemDaemon.appendChild(text5);
 
 						if (m_GeneralPanel.isLoggingEnabled())
 						{
@@ -718,8 +722,8 @@ public class ConfigFrame extends JPanel implements ActionListener
 										elemLog.setAttribute(
 												"compressed",
 												m_GeneralPanel.isLoggingCompressed()
-														? "true"
-														: "false");
+														? "True"
+														: "False");
 										Text text6 = doc.createTextNode(filename);
 										elemLog.appendChild(text6);
 								}
@@ -736,9 +740,9 @@ public class ConfigFrame extends JPanel implements ActionListener
 										m_NetworkPanel.getOutgoingModel().createMixAsElement(doc);
 								if (mix != null)
 										elemNetwork.appendChild(mix);
-								elemNetwork.appendChild(
-										m_NetworkPanel.getOutgoingModel().createProxiesAsElement(
-												doc));
+                                                                mix = m_NetworkPanel.getOutgoingModel().createProxiesAsElement(doc);
+                                                                if (mix != null) 
+								                elemNetwork.appendChild(mix);
 						}
 						Element elemInfoSer = doc.createElement("InfoService");
 						elemNetwork.appendChild(elemInfoSer);
@@ -776,6 +780,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 						{
 								text = doc.createTextNode(Base64.encodeBytes(buff, true));
 								elem.appendChild(text);
+                                                                elem.setAttribute("xml:space","preserve");
 						}
 						elem = doc.createElement("X509Certificate");
 						elemOwn.appendChild(elem);
@@ -784,6 +789,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 						{
 								text = doc.createTextNode(Base64.encodeBytes(buff, true));
 								elem.appendChild(text);
+                                                                elem.setAttribute("xml:space","preserve");
 						}
 						buff = m_CertificatesPanel.getPrevPubCert();
 						if (buff != null)
@@ -794,6 +800,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 								elemPrevious.appendChild(elem);
 								text = doc.createTextNode(Base64.encodeBytes(buff, true));
 								elem.appendChild(text);
+                                                                elem.setAttribute("xml:space","preserve");
 						}
 						buff = m_CertificatesPanel.getNextPubCert();
 						if (buff != null)
@@ -805,6 +812,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 								buff = m_CertificatesPanel.getNextPubCert();
 								text = doc.createTextNode(Base64.encodeBytes(buff));
 								elem.appendChild(text);
+                                                                elem.setAttribute("xml:space","preserve");
 						}
 						Element elemDescription = doc.createElement("Description");
 						root.appendChild(elemDescription);
@@ -817,10 +825,19 @@ public class ConfigFrame extends JPanel implements ActionListener
 						elemCity.appendChild(text11);
 
 						String State = m_DescriptionPanel.getState();
-						text11 = doc.createTextNode(State);
-						Element elemState = doc.createElement("State");
-						elemLocation.appendChild(elemState);
-						elemState.appendChild(text11);
+                                                if(State.length()>0)
+                                                {
+                                                      text11 = doc.createTextNode(State);
+						      Element elemState = doc.createElement("State");
+						      elemLocation.appendChild(elemState);
+						      elemState.appendChild(text11);
+                                                }
+
+                                                String Country = m_DescriptionPanel.getCountry();
+                                                text11 = doc.createTextNode(Country);
+                                                Element elemCountry = doc.createElement("Country");
+                                                elemLocation.appendChild(elemCountry);
+                                                elemCountry.appendChild(text11);
 
 						Element elemPosition = doc.createElement("Position");
 						elemLocation.appendChild(elemPosition);
@@ -841,6 +858,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 						ByteArrayOutputStream fout = new ByteArrayOutputStream();
 
 						OutputFormat format = new OutputFormat(doc,"UTF-8", true);
+                                                // format.setPreserveSpace(true);
 						format.setLineWidth(0);//avoid line wrapping
 						XMLSerializer serial = new XMLSerializer(fout, format);
 						serial.serialize(doc);
@@ -999,9 +1017,9 @@ public class ConfigFrame extends JPanel implements ActionListener
 				if (m_DescriptionPanel.getCity().equals(""))
 						errors.addElement(
 								"The city field cannot be left blank in Description Panel.");
-				if (m_DescriptionPanel.getState().equals(""))
+				if (m_DescriptionPanel.getCountry().equals(""))
 						errors.addElement(
-								"The state field cannot be left blank in Description Panel.");
+								"The country field cannot be left blank in Description Panel.");
 				if (m_DescriptionPanel.getLatitude().equals("")
 						&& !m_DescriptionPanel.getLongitude().equals(""))
 						errors.addElement("Latitude is missing in Description Panel.");
