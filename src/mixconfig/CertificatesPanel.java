@@ -77,6 +77,7 @@ import org.bouncycastle.crypto.generators.DSAParametersGenerator;
 import org.bouncycastle.crypto.params.DSAKeyGenerationParameters;
 import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
 import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
+import anon.crypto.*;
 
 class CertificatesPanel extends JPanel implements ActionListener
 {

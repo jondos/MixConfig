@@ -61,6 +61,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import mixconfig.networkpanel.ConnectionData;
 import mixconfig.networkpanel.NetworkPanel;
+import anon.crypto.*;
 
 /**
  * The Frame of the MixConfig Application.
