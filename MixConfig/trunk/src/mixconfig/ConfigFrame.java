@@ -576,11 +576,6 @@ public class ConfigFrame extends JPanel implements ActionListener
             DocumentBuilder docBuilder = factory.newDocumentBuilder();
             Document doc = docBuilder.newDocument();
 
-            DocumentBuilderFactory factory2 =
-                DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder2 = factory2.newDocumentBuilder();
-            Document doc2 = docBuilder2.newDocument();
-
             Element root = doc.createElement("MixConfiguration");
             root.setAttribute("version", "0.1");
             doc.appendChild(root);

@@ -715,6 +715,7 @@ abstract class ConnectionDialog extends JDialog
 				layout.setConstraints(keys,lc);
 				getContentPane().add(keys);
 				lc.gridy++;
+                                rc.gridy++;
 		}
 
 		ConnectionDialog(Frame parent, String title)
@@ -1271,6 +1272,7 @@ class NetworkPanel extends JPanel
 						setHorizontalAlignment(CENTER);
 				}
 		};
+                /*
 		final TableCellRenderer emptyRenderer = new DefaultTableCellRenderer()
 		{
 				protected void setValue(Object v)
@@ -1278,6 +1280,7 @@ class NetworkPanel extends JPanel
 						super.setValue("");
 				}
 		};
+                */
 
 		imodel = new IncomingModel();
 
