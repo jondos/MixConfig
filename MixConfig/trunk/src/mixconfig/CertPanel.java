@@ -1,7 +1,5 @@
 package mixconfig;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,7 +31,7 @@ import org.bouncycastle.asn1.DERInputStream;
 import anon.crypto.DSAKeyPair;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
-import anon.util.Base64;
+import anon.crypto.ICertificate;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -80,7 +78,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private boolean m_certIsPKCS12;
 
 	/** The certificate */
-	private Object m_cert;
+	private ICertificate m_cert;
 
 	/** The password for the private certificate (<CODE>null</CODE> if the certificate
 	 * is an X.509 public certificate)
@@ -391,56 +389,21 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 	}
 
-	/** Returns the certificate as a byte array.
-	 * @throws IOException If an error occurs during conversion of the certificate into a byte array
-	 * @return The certificate as a byte array
-	 */
-	public byte[] getCert() throws IOException
+	public char[] getPrivateCertPassword()
 	{
-		if (m_cert != null && this.m_cert instanceof PKCS12)
+		if (m_privCertPasswd == null)
 		{
-			return this.getPrivCert();
+			return new char[0];
 		}
-		if (m_cert != null && this.m_cert instanceof byte[])
-		{
-			return this.getPubCert();
-		}
-		return null;
+		return m_privCertPasswd.toCharArray();
 	}
 
-	/** Returns a public certificate. If the stored certificate ist PKCS12, this method
-	 * returns its public part. If it is X.509, the certificate itself is returned.
-	 * @throws IOException If an error occurs while converting the certificate
-	 * @return The public certificate as a byte array
+	/** Returns the certificate.
+	 * @return The certificate
 	 */
-	public byte[] getPubCert() throws IOException
+	public ICertificate getCert()
 	{
-		if (m_cert != null && m_cert instanceof PKCS12)
-		{
-			return ( (PKCS12) m_cert).getX509Certificate().toByteArray();
-		}
-		else if (m_cert != null && m_cert instanceof byte[])
-		{
-			return (byte[]) m_cert;
-		}
-		return null;
-	}
-
-	/** Returns the PKCS12 private certificate.
-	 * @throws IOException If an error occurs while converting the certificate
-	 * @return The PKCS12 certificate as a byte array, or <CODE>null</CODE> if the stored certificate is
-	 * X.509
-	 */
-	public byte[] getPrivCert() throws IOException
-	{
-		if (m_cert != null && (m_cert instanceof PKCS12))
-		{
-			PKCS12 cert = (PKCS12) m_cert;
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			cert.store(out, m_privCertPasswd.toCharArray());
-			return out.toByteArray();
-		}
-		return null;
+		return m_cert;
 	}
 
 	/** Set the certificate. The method decides according to {@link #isPKCS12()} whether to set the
@@ -553,7 +516,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				JAPCertificate x509cs = JAPCertificate.getInstance(cert);
 				setCertInfo(x509cs);
 
-				m_cert = x509cs.toByteArray();
+				m_cert = x509cs;
 			}
 		}
 		enableButtons();
@@ -590,7 +553,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			throw new RuntimeException("Not a PKCS 12 stream.");
 		}
-		PKCS12 pkcs12 = PKCS12.getInstance(new ByteArrayInputStream(cert), passwd);
+		PKCS12 pkcs12 = PKCS12.getInstance(cert, passwd);
 		setPrivCert(pkcs12, new String(passwd));
 	}
 
@@ -879,14 +842,14 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				switch (type)
 				{
 					case MixConfig.FILTER_PFX:
-						fout.write(getPrivCert());
+						fout.write(((PKCS12)m_cert).toByteArray(getPrivateCertPassword()));
 						break;
 					case MixConfig.FILTER_CER:
-						fout.write(getPubCert());
+						fout.write(m_cert.getX509Certificate().toByteArray());
 						break;
 					case MixConfig.FILTER_B64_CER:
 						fout.write("-----BEGIN CERTIFICATE-----\n".getBytes());
-						fout.write(Base64.encode(getPubCert(), true).getBytes());
+						fout.write(m_cert.getX509Certificate().toByteArray(true));
 						fout.write("\n-----END CERTIFICATE-----\n".getBytes());
 						break;
 				}
@@ -903,7 +866,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				"Copy and Save this file in a new Location.",
 				false);
 			Save.setText("-----BEGIN CERTIFICATE-----\n" +
-						 Base64.encodeBytes(getPubCert()) +
+						 m_cert.getX509Certificate().toByteArray(true) +
 						 "\n-----END CERTIFICATE-----\n");
 			Save.show();
 		}

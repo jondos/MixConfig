@@ -55,6 +55,8 @@ import mixconfig.networkpanel.IPTextField;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.OutgoingConnectionTableModel;
 import javax.swing.JTabbedPane;
+import anon.crypto.ICertificate;
+import anon.crypto.PKCS12;
 
 /** This is the abstract superclass of all configuration panels. It saves
  * the data entered by the user to the underlying configuration object, and updates
@@ -351,8 +353,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	protected void save(CertPanel a) throws IOException
 	{
 		String name = a.getName();
-		byte[] b = a.getCert();
-		if (!a.isEnabled() || b == null)
+		ICertificate certificate = a.getCert();
+		if (!a.isEnabled() || certificate == null)
 		{
 			m_mixConf.removeAttribute(name);
 		}
@@ -360,11 +362,14 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		{
 			if (name.endsWith("OwnCertificate"))
 			{
-				m_mixConf.setAttribute(name + "/X509PKCS12", b);
-				b = a.getPubCert();
+				m_mixConf.setAttribute(name + "/X509PKCS12",
+									   ((PKCS12)certificate).toByteArray(
+											   a.getPrivateCertPassword()));
+
 			}
 
-			m_mixConf.setAttribute(name + "/X509Certificate", b);
+			m_mixConf.setAttribute(name + "/X509Certificate",
+								   certificate.getX509Certificate().toByteArray());
 		}
 	}
 
