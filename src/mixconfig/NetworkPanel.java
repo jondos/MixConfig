@@ -24,6 +24,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Frame;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JSeparator;
@@ -330,62 +331,183 @@ class ConnectionData
     }
 }
 
-abstract class ConnectionDialog extends JDialog
+/**
+ *  A document that accepts only non-negatives.
+ */
+class IntegerDocument extends PlainDocument
 {
-    /**
-     *  A document that accepts only non-negatives.
-     */
-    protected class IntegerDocument extends PlainDocument
+    int max;
+    Component which;
+
+    IntegerDocument(int maxval, Component comp)
     {
-        int max;
-        Component which;
+        super();
+        max = maxval;
+        which = comp;
+    }
 
-        IntegerDocument(int maxval, Component comp)
-        {
-            super();
-            max = maxval;
-            which = comp;
-        }
+    IntegerDocument(int maxval)
+    {
+        super();
+        max = maxval;
+        which = null;
+    }
 
-        IntegerDocument(int maxval)
-        {
-            super();
-            max = maxval;
-            which = null;
-        }
+    IntegerDocument()
+    {
+        super();
+        max = 0;
+        which = null;
+    }
 
-        IntegerDocument()
-        {
-            super();
-            max = 0;
-            which = null;
-        }
+    IntegerDocument(Component comp)
+    {
+        super();
+        max = 0;
+        which = comp;
+    }
 
-        public void insertString(int offset, String str, AttributeSet attr)
-                throws BadLocationException
-        {
-            String p1 = getText(0,offset);
-            String p2 = getText(offset, getLength()-offset);
-            String res = "";
+    public void insertString(int offset, String str, AttributeSet attr)
+            throws BadLocationException
+    {
+        if(str==null)
+            return;
 
-            for(int i=0;i<str.length();i++)
-                if(!Character.isDigit(str.charAt(i)))
+        String p1 = getText(0,offset);
+        String p2 = getText(offset, getLength()-offset);
+        String res = "";
+
+        for(int i=0;i<str.length();i++)
+            if(!Character.isDigit(str.charAt(i)))
+                java.awt.Toolkit.getDefaultToolkit().beep();
+            else
+            {
+                String sstr = str.substring(i,i+1);
+                int val = Integer.parseInt(p1+res+sstr+p2,10);
+                if(max>0 && val>max)
                     java.awt.Toolkit.getDefaultToolkit().beep();
                 else
+                    res+=sstr;
+            }
+        super.insertString(offset,res,attr);
+        if(which!=null && max>0 && getLength()>0 && 10*Integer.parseInt(getText(0,getLength()),10)>max)
+            which.transferFocus();
+    }
+}
+
+class IPTextField extends JPanel
+{
+    private JTextField[] iptext;
+
+    private void initIPTextField(String IPStr)
+    {
+        final ActionListener nextfocusaction = new ActionListener()
+            {
+                public void actionPerformed(ActionEvent evt)
                 {
-                    String sstr = str.substring(i,i+1);
-                    int val = Integer.parseInt(p1+res+sstr+p2,10);
-                    if(max>0 && val>max)
-                        java.awt.Toolkit.getDefaultToolkit().beep();
-                    else
-                        res+=sstr;
+                    ((Component)evt.getSource()).transferFocus();
                 }
-            super.insertString(offset,res,attr);
-            if(which!=null && max>0 && getLength()>0 && 10*Integer.parseInt(getText(0,getLength()),10)>max)
-                which.transferFocus();
+            };
+
+        GridBagLayout layout = new GridBagLayout();
+        setLayout(layout);
+        iptext = new JTextField[4];
+
+        GridBagConstraints ic=new GridBagConstraints();
+        ic.anchor = GridBagConstraints.WEST;
+        ic.fill = GridBagConstraints.HORIZONTAL;
+        ic.insets = new Insets(1,1,1,1);
+        ic.gridx = 0;
+        ic.gridy = 0;
+
+        int pos = 0;
+        for(int i=0;i<4;i++)
+        {
+            int npos = IPStr.indexOf('.',pos);
+            String str;
+            if(npos<0)
+                str = "";
+            else
+            {
+                str = IPStr.substring(pos,npos-1);
+                pos = npos+1;
+            }
+            if(i>0)
+            {
+                JLabel punkt = new JLabel(".");
+                ic.weightx = 0;
+                layout.setConstraints(punkt, ic);
+                add(punkt);
+                ic.gridx++;
+            }
+            iptext[i] = new JTextField(3);
+            iptext[i].setMinimumSize(iptext[i].getPreferredSize());
+            iptext[i].setDocument(new IntegerDocument(255,iptext[i]));
+            iptext[i].setText(str);
+            ic.weightx = 1;
+            layout.setConstraints(iptext[i],ic);
+            add(iptext[i]);
+            iptext[i].addActionListener(nextfocusaction);
+            ic.gridx++;
         }
     }
 
+    public IPTextField()
+    {
+        super();
+        initIPTextField("");
+    }
+
+    public String getText()
+    {
+        String str = "";
+        for(int i=0;i<4;i++)
+        {
+            if(iptext[i].getText().length()==0)
+                str+="0";
+            else
+                str+=iptext[i].getText();
+            if(i<3)
+                str+=".";
+        }
+        return str;
+    }
+
+    public void setText(String str)
+    {
+        int pos = 0;
+        for(int i=0;i<4;i++)
+        {
+            int npos = str.indexOf('.',pos);
+            if(npos<0)
+                iptext[i].setText("");
+            else
+            {
+                iptext[i].setText(str.substring(pos,npos-1));
+                pos = npos+1;
+            }
+        }
+    }
+
+    public boolean isEmpty()
+    {
+        for(int i=0;i<4;i++)
+            if(iptext[i].getText().length()!=0)
+                return false;
+        return true;
+    }
+
+    public boolean isCorrect()
+    {
+        for(int i=0;i<4;i++)
+            if(iptext[i].getText().length()==0)
+                return false;
+        return true;
+    }
+}
+
+abstract class ConnectionDialog extends JDialog
+{
     private JTextField nametext, iptext[];
     private JCheckBox main;
     private ButtonGroup ssl, stype;
@@ -692,7 +814,7 @@ abstract class ConnectionDialog extends JDialog
         lc.gridy++;
     }
 
-    ConnectionDialog(JFrame parent, String title)
+    ConnectionDialog(Frame parent, String title)
     {
         super(parent, title, false);
     }
@@ -739,14 +861,14 @@ class IncomingDialog extends ConnectionDialog
         firstone.requestFocus();
     }
 
-    IncomingDialog(JFrame parent, String title, final IncomingModel where)
+    IncomingDialog(Frame parent, String title, final IncomingModel where)
     {
        super(parent,title);
        createDialog(null,where);
        this.setLocationRelativeTo(parent);
     }
 
-    IncomingDialog(JFrame parent, String title, final IncomingModel where, ConnectionData data)
+    IncomingDialog(Frame parent, String title, final IncomingModel where, ConnectionData data)
     {
        super(parent,title);
        createDialog(data,where);
@@ -843,14 +965,14 @@ class OutgoingDialog extends ConnectionDialog
         firstone.requestFocus();
     }
 
-    OutgoingDialog(JFrame parent, String title, final OutgoingModel where)
+    OutgoingDialog(Frame parent, String title, final OutgoingModel where)
     {
        super(parent,title);
        createDialog(null,where);
        this.setLocationRelativeTo(parent);
     }
 
-    OutgoingDialog(JFrame parent, String title, final OutgoingModel where, ConnectionData data)
+    OutgoingDialog(Frame parent, String title, final OutgoingModel where, ConnectionData data)
     {
        super(parent,title);
        createDialog(data,where);
@@ -1196,7 +1318,8 @@ class NetworkPanel extends JPanel
 {
    JPanel panel1,panel2,panel3;
    JTable table1,table2;
-   JTextField Host_Text,IP_Text,Port_Text;
+   JTextField Host_Text,Port_Text;
+   IPTextField IP_Text;
    IncomingModel imodel;
    OutgoingModel omodel;
 
@@ -1210,24 +1333,6 @@ class NetworkPanel extends JPanel
        return omodel;
    }
 
-/*
-   public String getTable1(int x,int y)
-   {
-     Object o=table1.getValueAt(x,y);
-     if(o==null)
-      return "";
-     return o.toString();
-   }
-
-   public String getTable2(int x,int y)
-   {
-    Object o=table2.getValueAt(x,y);
-     if(o==null)
-      return "";
-     return o.toString();
-   }
-*/
-
    public String getHost()
    {
      return Host_Text.getText();
@@ -1235,7 +1340,7 @@ class NetworkPanel extends JPanel
 
    public String getIP()
    {
-     return IP_Text.getText();
+       return IP_Text.getText();
    }
 
    public String getPort()
@@ -1245,12 +1350,12 @@ class NetworkPanel extends JPanel
 
    public void setInfoHost(String info)
    {
-    Host_Text.setText(info);
+       Host_Text.setText(info);
    }
 
    public void setInfoIP(String info)
    {
-     IP_Text.setText(info);
+       IP_Text.setText(info);
    }
 
    public void setInfoPort(String info)
@@ -1545,8 +1650,18 @@ class NetworkPanel extends JPanel
         JButton OutButton;
         switch (Nr)
         {
-            case 0:
-                OutButton = new JButton("Add");
+            case 0: final JButton ob = new JButton("Add");
+                OutButton = ob;
+                omodel.addTableModelListener(new TableModelListener()
+                    {
+                        public void tableChanged(TableModelEvent e)
+                        {
+                            if(!MyFrame.m_GeneralPanel.getMixType().equals("LastMix"))
+                                ob.setEnabled(omodel.getRowCount()==0);
+                            else
+                                ob.setEnabled(true);
+                        }
+                    });
                 OutButton.setActionCommand("Add");
                 OutButton.addActionListener(new ActionListener()
                     {
@@ -1568,8 +1683,6 @@ class NetworkPanel extends JPanel
                     {
                         public void valueChanged(ListSelectionEvent e)
                         {
-                            if(e.getValueIsAdjusting())
-                                return;
                             cb.setEnabled(!((ListSelectionModel) e.getSource()).isSelectionEmpty());
                         }
                     });
@@ -1596,8 +1709,6 @@ class NetworkPanel extends JPanel
                     {
                         public void valueChanged(ListSelectionEvent e)
                         {
-                            if(e.getValueIsAdjusting())
-                                return;
                             db.setEnabled(!((ListSelectionModel) e.getSource()).isSelectionEmpty());
                         }
 
@@ -1634,7 +1745,7 @@ class NetworkPanel extends JPanel
     c.gridy = 2;
     c.weighty=0;
     panel3 = new JPanel(Info_Layout);
-    panel3.setBorder(new TitledBorder("Information Server"));
+    panel3.setBorder(new TitledBorder("Info Service"));
     layout.setConstraints(panel3,c);
     add(panel3);
 
@@ -1661,10 +1772,11 @@ class NetworkPanel extends JPanel
     f.weightx = 0;
     Info_Layout.setConstraints(IP,f);
     panel3.add(IP);
-    IP_Text = new JTextField(38);
+    IP_Text = new IPTextField();
     IP_Text.setText("");
     f.gridx = 1;
-    f.weightx = 1;
+    f.weightx = 0;
+    f.fill = f.NONE;
     Info_Layout.setConstraints(IP_Text,f);
     panel3.add(IP_Text);
 
@@ -1674,26 +1786,20 @@ class NetworkPanel extends JPanel
     f.weightx = 0;
     Info_Layout.setConstraints(port,f);
     panel3.add(port);
-    Port_Text = new JTextField(38);
+    Port_Text = new JTextField(5);
     Port_Text.setText("");
+    Port_Text.setDocument(new IntegerDocument(65535));
     f.gridx = 1;
     Info_Layout.setConstraints(Port_Text,f);
     panel3.add(Port_Text);
-
-  /*  table1.setEnabled(false);
-    panel1.setEnabled(false);
-    scrollPane1.setEnabled(false);
-    table2.setEnabled(false);
-    panel2.setEnabled(false);
-    scrollPane2.setEnabled(false);
-  */}
+    }
 
     public void clear()
     {
         imodel.clear();
         omodel.clear();
         Host_Text.setText("");
-        IP_Text.setText("");
+        setInfoIP("");
         Port_Text.setText("");
     }
 }
