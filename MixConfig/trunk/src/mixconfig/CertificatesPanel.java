@@ -1,58 +1,100 @@
 package mixconfig;
-import java.util.Date;
-import java.util.Calendar;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.MediaTracker;
-import java.awt.Graphics;
 import java.awt.Component;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.event.ActionListener;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.MediaTracker;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
-
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.interfaces.DSAParams;
+import java.security.interfaces.DSAPrivateKey;
+import java.security.interfaces.DSAPublicKey;
+import java.security.spec.DSAParameterSpec;
+import java.util.Calendar;
+import java.util.Date;
 
-import java.io.*;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JTextField;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.text.PlainDocument;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.AttributeSet;
-import javax.swing.BorderFactory;
-import java.net.URLEncoder;
-
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import java.security.cert.Certificate;
-import java.security.cert.*;
-import java.security.*;
-import java.security.interfaces.*;
-import java.security.spec.DSAParameterSpec;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 
-import org.bouncycastle.asn1.*;
-import org.bouncycastle.asn1.pkcs.*;
-import org.bouncycastle.asn1.x509.*;
-import org.bouncycastle.asn1.x9.*;
-import org.bouncycastle.crypto.generators.DSAParametersGenerator;
-import org.bouncycastle.crypto.generators.DSAKeyPairGenerator;
-import org.bouncycastle.crypto.params.DSAKeyGenerationParameters;
-import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
-import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
-import org.bouncycastle.crypto.params.DSAParameters;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.ASN1TaggedObject;
+import org.bouncycastle.asn1.BERInputStream;
+import org.bouncycastle.asn1.DERBitString;
+import org.bouncycastle.asn1.DERConstructedSequence;
+import org.bouncycastle.asn1.DEREncodableVector;
+import org.bouncycastle.asn1.DERInputStream;
+import org.bouncycastle.asn1.DERInteger;
+import org.bouncycastle.asn1.DERObject;
+import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DEROutputStream;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.DERTaggedObject;
+import org.bouncycastle.asn1.DERUTCTime;
+import org.bouncycastle.asn1.pkcs.AuthenticatedSafe;
+import org.bouncycastle.asn1.pkcs.CertBag;
+import org.bouncycastle.asn1.pkcs.ContentInfo;
+import org.bouncycastle.asn1.pkcs.EncryptedData;
+import org.bouncycastle.asn1.pkcs.PKCS12PBEParams;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.pkcs.Pfx;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.asn1.pkcs.SafeBag;
+import org.bouncycastle.asn1.pkcs.SignedData;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.DSAParameter;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.asn1.x509.TBSCertificateStructure;
+import org.bouncycastle.asn1.x509.V3TBSCertificateGenerator;
+import org.bouncycastle.asn1.x509.X509CertificateStructure;
+import org.bouncycastle.asn1.x509.X509Name;
+import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.signers.DSASigner;
+import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.engines.DESedeEngine;
+import org.bouncycastle.crypto.engines.RC2Engine;
+import org.bouncycastle.crypto.generators.DSAKeyPairGenerator;
+import org.bouncycastle.crypto.generators.DSAParametersGenerator;
+import org.bouncycastle.crypto.params.DSAKeyGenerationParameters;
+import org.bouncycastle.crypto.params.DSAParameters;
+import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
+import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
+import org.bouncycastle.crypto.signers.DSASigner;
 
 class CertificatesPanel extends JPanel implements ActionListener
   {
@@ -406,91 +448,133 @@ class CertificatesPanel extends JPanel implements ActionListener
 
     private boolean setOwnPrivCert(byte[] cert, char[] passwd)
     {
-	try
-	{
-	    if(cert!=null)
-	    {
-		/* -- This stuff with the light weight API --
-		if(cert[0]!=(DERInputStream.SEQUENCE|DERInputStream.CONSTRUCTED))
-		    throw(new RuntimeException("Not a PKCS 12 stream."));
-		BERInputStream is = new BERInputStream(new ByteArrayInputStream(cert));
-		DERConstructedSequence dcs = (DERConstructedSequence) is.readObject();
-		Pfx pfx = new Pfx(dcs);
-		ContentInfo cinfo = pfx.getAuthSafe();
-		// Todo: Check MAC
+        try
+        {
+            if (cert != null)
+            {
+                /* -- This stuff with the light weight API -- */
+                if (cert[0] != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
+                    throw (new RuntimeException("Not a PKCS 12 stream."));
+                BERInputStream is = new BERInputStream(new ByteArrayInputStream(cert));
+                DERConstructedSequence dcs = (DERConstructedSequence) is.readObject();
+                Pfx pfx = new Pfx(dcs);
+                ContentInfo cinfo = pfx.getAuthSafe();
+                // TODO: Check MAC
+                // Look at JDKPKCS12KeyStore.engineLoad (starting with bag.getMacData())
 
-		if(!cinfo.getContentType().equals(PKCSObjectIdentifiers.data))
-		    throw(new RuntimeException("Does not contain any certificates."));
+                if (!cinfo.getContentType().equals(PKCSObjectIdentifiers.data))
+                    throw (new RuntimeException("Does not contain any certificates."));
 
-		is = new BERInputStream(new ByteArrayInputStream(
-			((DEROctetString)cinfo.getContent()).getOctets()));
-		ContentInfo[] cinfos = (new AuthenticatedSafe((DERConstructedSequence)is.readObject())).getContentInfo();
-		for(int i=0;i<cinfos.length;i++)
-		{
-		    System.out.println(i+": "+cinfos[i].getContentType().getId());
-		    DERConstructedSequence cseq;
-		    if(cinfos[i].getContentType().equals(PKCSObjectIdentifiers.data))
-		    {
-			DERInputStream dis = new DERInputStream(new ByteArrayInputStream(
-				((DEROctetString)cinfos[i].getContent()).getOctets()));
-			cseq = (DERConstructedSequence)dis.readObject();
-		    }
-		    else if(cinfos[i].getContentType().equals(PKCSObjectIdentifiers.encryptedData))
-		    {
-			// EncryptedData ed = new EncryptedData((DERConstructedSequence)cinfos[i].getContent());
-			// TODO: Decrypt this...
-			continue;
-		    }
-		    else
-			continue;
+                is = new BERInputStream(new ByteArrayInputStream(
+                            ((DEROctetString) cinfo.getContent()).getOctets()));
+                ContentInfo[] cinfos = (new AuthenticatedSafe((DERConstructedSequence) is.readObject())).getContentInfo();
+                for (int i = 0; i < cinfos.length; i++)
+                {
+                    DERConstructedSequence cseq;
+                    if (cinfos[i].getContentType().equals(PKCSObjectIdentifiers.data))
+                    {
+                        DERInputStream dis = new DERInputStream(new ByteArrayInputStream(
+                                ((DEROctetString) cinfos[i].getContent()).getOctets()));
+                        cseq = (DERConstructedSequence) dis.readObject();
+                    }
+                    else if (cinfos[i].getContentType().equals(PKCSObjectIdentifiers.encryptedData))
+                    {
+                        EncryptedData ed = new EncryptedData((DERConstructedSequence) cinfos[i].getContent());
+                        String algId = ed.getEncryptionAlgorithm().getObjectId().getId();
+                        BlockCipher cipher;
+                        int keysize;
+                        if (algId.equals("1.2.840.113549.1.12.1.3"))
+                            // PBE with SHA and 3-Key TripleDES-CBC
+                        {
+                            cipher = new DESedeEngine();
+                            keysize = 192;
+                        }
+                        else if (algId.equals("1.2.840.113549.1.12.1.4"))
+                            // PBE with SHA and 2-Key TripleDES-CBC
+                        {
+                            cipher = new DESedeEngine();
+                            keysize = 128;
+                        }
+                        else if (algId.equals("1.2.840.113549.1.12.1.5"))
+                            // PBE with SHA and 128 Bit-RC2-CBC
+                        {
+                            cipher = new RC2Engine();
+                            keysize = 128;
+                        }
+                        else if (algId.equals("1.2.840.113549.1.12.1.6"))
+                            // PBE with SHA and 40 Bit-RC2-CBC
+                        {
+                            cipher = new RC2Engine();
+                            keysize = 40;
+                        }
+                        else
+                        {
+                            JOptionPane.showMessageDialog(this,
+                                "Algorithm '" + algId + "' is currently not supported.",
+                                "Unknown algorithm",
+                                JOptionPane.ERROR_MESSAGE);
+                            return true;
+                        }
+                        PKCS12PBEParams pbeParams = new PKCS12PBEParams(
+                            (DERConstructedSequence) ed.getEncryptionAlgorithm().getParameters());
+                        BERInputStream bis = new BERInputStream(new ByteArrayInputStream(
+                            PKCS12.codeData(false, ed.getContent().getOctets(),
+                                pbeParams, passwd, cipher, keysize)));
+                        cseq = (DERConstructedSequence) bis.readObject();
+                    }
+                    else
+                        continue;
 
-		    for(int j=0;j<cseq.getSize();j++)
-		    {
-			SafeBag sb = new SafeBag((DERConstructedSequence)cseq.getObjectAt(j));
-			if(!sb.getBagId().equals(PKCSObjectIdentifiers.certBag))
-			    continue;
+                    for (int j = 0; j < cseq.getSize(); j++)
+                    {
+                        SafeBag sb = new SafeBag((DERConstructedSequence) cseq.getObjectAt(j));
+                        if (!sb.getBagId().equals(PKCSObjectIdentifiers.certBag))
+                            continue;
 
-			X509CertificateStructure c = readCertificate(((DEROctetString)new CertBag((ASN1Sequence)sb.getBagValue()).getCertValue()).getOctets());
-			from_text1.setText(c.getStartDate().getDate().toString());
-			to_text1.setText(c.getEndDate().getDate().toString());
-			text1.setText(c.getSubject().toString());
-			m_ownPrivCert=cert;
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			new DEROutputStream(out).writeObject(c);
-			m_ownPubCert=out.toByteArray();
-			m_bttnExportOwnPub.setEnabled(true);
-			m_bttnChangePasswd.setEnabled(true);
-			return true;
-		    }
-		}
-		throw(new RuntimeException("Didn't found anything."));
-		*/
-		KeyStore kstore = KeyStore.getInstance("PKCS12","BC");
-		kstore.load(new ByteArrayInputStream(cert),passwd);
-		X509Certificate c=(X509Certificate)kstore.getCertificate((String)kstore.aliases().nextElement());
-		from_text1.setText(c.getNotBefore().toString());
-		to_text1.setText(c.getNotAfter().toString());
-		text1.setText(c.getSubjectDN().getName());
-		m_ownPrivCert=cert;
-		m_ownPubCert=c.getEncoded();
-		m_bttnExportOwnPub.setEnabled(true);
-		m_bttnChangePasswd.setEnabled(true);
-	    }
-	    else
-	    {
-		from_text1.setText(null);
-		to_text1.setText(null);
-		text1.setText(null);
-		m_ownPrivCert=null;
-		m_bttnExportOwnPub.setEnabled(false);
-		m_bttnChangePasswd.setEnabled(false);
-	    }
-	}
-	catch(Exception e)
-	{
-	    return false;
-	}
-	return true;
+                        X509CertificateStructure c = readCertificate(
+                            ((DEROctetString) new CertBag(
+                                (DERConstructedSequence) sb.getBagValue()).getCertValue()).getOctets());
+                        from_text1.setText(c.getStartDate().getDate().toString());
+                        to_text1.setText(c.getEndDate().getDate().toString());
+                        text1.setText(c.getSubject().toString());
+                        m_ownPrivCert = cert;
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        new DEROutputStream(out).writeObject(c);
+                        m_ownPubCert = out.toByteArray();
+                        m_bttnExportOwnPub.setEnabled(true);
+                        m_bttnChangePasswd.setEnabled(true);
+                        return true;
+                    }
+                }
+                throw (new RuntimeException("Didn't found anything."));
+                /*
+                KeyStore kstore = KeyStore.getInstance("PKCS12","BC");
+                kstore.load(new ByteArrayInputStream(cert),passwd);
+                X509Certificate c=(X509Certificate)kstore.getCertificate((String)kstore.aliases().nextElement());
+                from_text1.setText(c.getNotBefore().toString());
+                to_text1.setText(c.getNotAfter().toString());
+                text1.setText(c.getSubjectDN().getName());
+                m_ownPrivCert=cert;
+                m_ownPubCert=c.getEncoded();
+                m_bttnExportOwnPub.setEnabled(true);
+                m_bttnChangePasswd.setEnabled(true);
+                */
+            }
+            else
+            {
+                from_text1.setText(null);
+                to_text1.setText(null);
+                text1.setText(null);
+                m_ownPrivCert = null;
+                m_bttnExportOwnPub.setEnabled(false);
+                m_bttnChangePasswd.setEnabled(false);
+            }
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+        return true;
     }
 
     public byte[] getPrevPubCert()
@@ -914,7 +998,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 
     public void generateNewCert()
     {
-      String oMixid=MyFrame.m_GeneralPanel.getMixID();
+      String oMixid=ConfigFrame.m_GeneralPanel.getMixID();
 
       if(oMixid==null || oMixid.length()==0)
       {
@@ -923,7 +1007,7 @@ class CertificatesPanel extends JPanel implements ActionListener
                  "No Mix ID!", javax.swing.JOptionPane.ERROR_MESSAGE);
          return;
       }
-      else if(!MyFrame.m_GeneralPanel.isMixIDValid())
+      else if(!ConfigFrame.m_GeneralPanel.isMixIDValid())
       {
           javax.swing.JOptionPane.showMessageDialog(this,
                   "Please enter a valid Mix ID in general panel,\n"+
