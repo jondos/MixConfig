@@ -70,7 +70,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.02.038"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.02.039"; //NEVER change the layout of this line!!
 
 	private static final String m_configFilePath = ".";
 	private static final String TITLE = "Mix Configuration Tool";
@@ -181,8 +181,6 @@ public class MixConfig extends JApplet
 				else
 				{
 					m_startPanel = new ChoicePanel(MainWindow);
-					m_startPanel.setSize(new Dimension(900, 700));
-					m_startPanel.setPreferredSize(new Dimension(900, 700));
 					MainWindow.setContentPane(m_startPanel);
 					MainWindow.pack();
 					Dimension d = Toolkit.getDefaultToolkit().getScreenSize();

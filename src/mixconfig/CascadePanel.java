@@ -80,8 +80,6 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
          */
 	JButton
 		m_recvMixListButton;
-        /** A text field for the name of the cascade */
-	JTextField m_cascadeName;
 
         /** Constructs a new instance of <CODE>CascadePanel</CODE> */
 	public CascadePanel()
@@ -90,16 +88,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		BoxLayout vb = new BoxLayout(this, BoxLayout.Y_AXIS);
 		setLayout(vb);
 
-		JPanel c = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		JLabel jl = new JLabel("Name of new cascade: ");
-		jl.setPreferredSize(new Dimension(200, 30));
-		m_cascadeName = new JTextField();
-		m_cascadeName.setName("General/CascadeName");
-		m_cascadeName.setPreferredSize(new Dimension(200, 30));
-		m_cascadeName.addFocusListener(this);
-		c.add(jl);
-		c.add(m_cascadeName);
-		add(c);
+
 
 		add(Box.createVerticalStrut(10));
 
