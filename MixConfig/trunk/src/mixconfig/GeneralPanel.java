@@ -57,6 +57,7 @@ import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.w3c.dom.Attr;
 import anon.util.Base64;
 import mixconfig.wizard.ConfigWizardPanel;
+import javax.swing.JTabbedPane;
 
 public class GeneralPanel extends MixConfigPanel implements ActionListener
 {
@@ -64,7 +65,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		"abcdefghijklmnopqrstuvwxyz0123456789.-_";
 
 	private JComboBox m_comboboxMixType;
-	private JTextField m_tfMixName, m_tfCascadeName, m_tfMixID, m_tfFileName, m_tfID, m_tfNumOfFiles,
+	private JTextField m_tfMixName, /*m_tfCascadeName,*/ m_tfMixID, m_tfFileName, m_tfID, m_tfNumOfFiles,
 		m_tfLogEncryptKeyName, m_tfCascadeLength;
 	private JCheckBox m_checkboxDaemon, m_checkboxLogging, m_checkboxUserID, m_checkboxNrOfFileDes,
 		m_compressLog, m_checkboxCascadeLength;
@@ -107,40 +108,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		c.insets = new Insets(10, 10, 10, 25);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weighty = 1;
-
-		// Mix Type label
-		JLabel j1 = new JLabel("Mix Type");
-		c.gridy = 0;
-		c.weightx = 1;
-		layout.setConstraints(j1, c);
-		p1.add(j1);
-
-		// Mix Type JComboBox
-		m_comboboxMixType = new JComboBox();
-		m_comboboxMixType.setName("General/MixType");
-		m_comboboxMixType.addItem("First Mix");
-		m_comboboxMixType.addItem("Middle Mix");
-		m_comboboxMixType.addItem("Last Mix");
-		m_comboboxMixType.addItemListener(this);
-		c.weightx = 3;
-		layout.setConstraints(m_comboboxMixType, c);
-		p1.add(m_comboboxMixType);
-
-		// Cascade Name JLabel
-		JLabel j1a = new JLabel("Cascade Name");
-		c.gridy++;
-		c.weightx = 1;
-		layout.setConstraints(j1a, c);
-		p1.add(j1a);
-
-		// Cascade Name JTextField
-		m_tfCascadeName = new JTextField(20);
-		m_tfCascadeName.setText("");
-		m_tfCascadeName.setName("General/CascadeName");
-		m_tfCascadeName.addFocusListener(this);
-		c.weightx = 3;
-		layout.setConstraints(m_tfCascadeName, c);
-		p1.add(m_tfCascadeName);
+		c.gridy = -1;
 
 		// Mix Name JLabel
 		JLabel j2 = new JLabel("Mix Name");
@@ -158,6 +126,51 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		layout.setConstraints(m_tfMixName, c);
 		p1.add(m_tfMixName);
 
+		// Mix Type label
+		JLabel j1 = new JLabel("Cascade setting");
+		c.gridy++;
+		c.weightx = 1;
+		layout.setConstraints(j1, c);
+		p1.add(j1);
+
+		// Mix Type JComboBox
+		m_comboboxMixType = new JComboBox();
+		m_comboboxMixType.setName("General/MixType");
+		m_comboboxMixType.addItem("Join existing cascade as first mix");
+		m_comboboxMixType.addItem("Join existing cascade as middle mix");
+		if (getParent() instanceof ConfigWizardPanel)
+		{
+			m_comboboxMixType.addItem("Create new cascade and become last Mix");
+		}
+		else
+		{
+			m_comboboxMixType.addItem("Manage own cascade and become last Mix");
+		}
+
+//		m_comboboxMixType.addItem("Join existing cascade as first or middle mix");
+		m_comboboxMixType.addItemListener(this);
+		c.weightx = 3;
+		layout.setConstraints(m_comboboxMixType, c);
+		p1.add(m_comboboxMixType);
+
+		/*
+		// Cascade Name JLabel
+		JLabel j1a = new JLabel("Cascade Name");
+		c.gridy++;
+		c.weightx = 1;
+		layout.setConstraints(j1a, c);
+		p1.add(j1a);
+
+		// Cascade Name JTextField
+		m_tfCascadeName = new JTextField(20);
+		m_tfCascadeName.setText("");
+		m_tfCascadeName.setName("General/CascadeName");
+		m_tfCascadeName.addFocusListener(this);
+		c.weightx = 3;
+		layout.setConstraints(m_tfCascadeName, c);
+		p1.add(m_tfCascadeName);
+		 */
+
 		// Cascade length JCheckBox
 		m_checkboxCascadeLength = new JCheckBox("Require min. Cascade length");
 		m_checkboxCascadeLength.addItemListener(this);
@@ -169,6 +182,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		// Cascade length JTextField
 		m_tfCascadeLength = new JTextField(20);
 		m_tfCascadeLength.setName("General/MinCascadeLength");
+		m_tfCascadeLength.setDocument(new IntegerDocument());
 		m_tfCascadeLength.addFocusListener(this);
 		c.weightx = 2;
 		layout.setConstraints(m_tfCascadeLength, c);
@@ -260,6 +274,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		m_rbConsole = new JRadioButton("Log to Console");
 		m_rbConsole.setName("General/Logging/Console");
 		m_rbConsole.setModel(new ToggleButtonModel());
+		m_rbConsole.setSelected(true);
 		m_rbConsole.addItemListener(this);
 		c.gridx = 1;
 		c.weightx = 1;
@@ -270,7 +285,6 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		m_rbFile = new JRadioButton("Log to Directory:");
 		m_rbFile.setModel(new ToggleButtonModel());
 		m_rbFile.setName("General/Logging/File");
-		m_rbFile.setSelected(true);
 		m_rbFile.addItemListener(this);
 		c.weightx = 1;
 		c.gridy++;
@@ -373,8 +387,6 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 	public void addNotify()
 	{
 		super.addNotify();
-		try
-		{
 			Container parent = getParent();
 			if (parent instanceof ConfigWizardPanel)
 			{
@@ -382,6 +394,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 				if (getConfiguration().getAttribute("General/MixID") == null)
 				{
 					getConfiguration().setAttribute("General/MixID", genMixID());
+				load(this.m_tfMixID);
 				}
 			}
 			else
@@ -389,16 +402,9 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 				setAdvancedVisible(true);
 			}
 		}
-		catch (UnsupportedEncodingException ex)
-		{
-			MixConfig.handleException(ex);
-		}
-	}
 
 	public void actionPerformed(ActionEvent ae)
 	{
-		try
-		{
 			if (ae.getSource() == m_bttnImportEncKey)
 			{
 				importEncKeyForLog();
@@ -414,11 +420,6 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 				setAdvancedVisible(true);
 			}
 		}
-		catch (UnsupportedEncodingException uee)
-		{
-			MixConfig.handleException(uee);
-		}
-	}
 
 	/** Loads all values from the MixConfiguration object. This method overrides
 	 * mixconfig.MixConfigPanel.load() to take care of the dependencies between
@@ -460,6 +461,8 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 
 		// turn on auto saving again
 		setAutoSaveEnabled(true);
+
+		enableComponents();
 	}
 
 	public void setEncKeyForLog(byte[] cert)
@@ -501,6 +504,9 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 			errors.addElement("Mix Name not entered in General Panel.");
 
 		}
+
+		/*
+		 // cascade name configuration moved to CascadePanel
 		try
 		{
 			mixType = Integer.valueOf(mixConf.getAttribute("General/MixType")).intValue();
@@ -515,6 +521,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		{
 			errors.addElement("Invalid Mix type in configuration.");
 		}
+		 */
 
 		s = mixConf.getAttribute("General/MixID");
 		if (s == null || s.equals(""))
@@ -555,6 +562,8 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 	{
 		boolean cascadeLength = m_checkboxCascadeLength.isSelected();
 		boolean log = m_checkboxLogging.isSelected();
+		// FIXME: m_rbFile.isSelected() always returns false here, even if m_rbFile is selected.
+		// Find out why
 		boolean file = m_rbFile.isSelected();
 		boolean daemon = m_checkboxDaemon.isSelected();
 		int selectedMixType = m_comboboxMixType.getSelectedIndex();
@@ -572,15 +581,20 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 
 		m_tfID.setEnabled(m_checkboxUserID.isSelected());
 		m_tfNumOfFiles.setEnabled(m_checkboxNrOfFileDes.isSelected());
-		m_tfCascadeName.setEnabled(selectedMixType == 0);
+		m_checkboxCascadeLength.setEnabled(selectedMixType != 2);
+
+		if (selectedMixType != 2 && getConfiguration() != null)
+		{
+			getConfiguration().removeAttribute("MixCascade");
+		}
 
 		boolean consoleNotPossible = m_rbConsole.isSelected() && !m_rbConsole.isEnabled();
 
 		// if mix is run as daemon, we can't log to console so set log
 		// output to file.
-		if (!file)
+		if (log && !file)
 		{
-			// A bug in JDK 1.1.8 causes an infinite event loop, therefore
+			// A bug in JDK 1.1.8 causes an infinite event loop here, therefore
 			// event casting must be disabled
 			m_rbFile.removeItemListener(this);
 			m_rbFile.setSelected(consoleNotPossible);
@@ -588,7 +602,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		}
 	}
 
-	protected void save(JTextField a) throws UnsupportedEncodingException
+	protected void save(JTextField a)
 	{
 		if (a == this.m_tfLogEncryptKeyName)
 		{
@@ -607,7 +621,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		}
 	}
 
-	protected void save(JCheckBox a) throws UnsupportedEncodingException
+	protected void save(JCheckBox a)
 	{
 		if (a == this.m_checkboxLogging || a == this.m_compressLog)
 		{
@@ -619,7 +633,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener
 		}
 	}
 
-	protected void save(ButtonGroup a) throws UnsupportedEncodingException
+	protected void save(ButtonGroup a)
 	{
 		if (a == m_loggingButtonGroup)
 		{

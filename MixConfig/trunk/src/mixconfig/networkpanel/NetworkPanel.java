@@ -62,6 +62,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import mixconfig.ConfigurationEvent;
 import java.io.IOException;
+import javax.swing.JCheckBox;
+import java.awt.AWTEvent;
+import mixconfig.wizard.ConfigWizardPanel;
 
 /** A panel that provides settings for configuring the Mix's network access:<br>
  * Listeners for incoming connections, and network adresses of outgoing
@@ -77,6 +80,7 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 	private IncomingConnectionTableModel imodel;
 	private OutgoingConnectionTableModel omodel;
 	private JButton m_bttnAddOutgoing;
+	private JCheckBox m_chbAutoConfig;
 
         /** Constructs a new instance of <CODE>NetworkPanel</CODE> */        
 	public NetworkPanel()
@@ -478,11 +482,22 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 		f.gridx = 1;
 		Info_Layout.setConstraints(Port_Text, f);
 		panel3.add(Port_Text);
+
+		m_chbAutoConfig = new JCheckBox(
+			"Allow InfoService to update configuration automatically (may change previous/next mix)");
+		m_chbAutoConfig.setName("Network/InfoService/AllowAutoConfiguration");
+		m_chbAutoConfig.addItemListener(this);
+		f.gridx = 0;
+		f.gridwidth = 2;
+		f.gridy++;
+		Info_Layout.setConstraints(m_chbAutoConfig, f);
+		panel3.add(m_chbAutoConfig);
 	}
 
         public void tableChanged(TableModelEvent e)
 	{
-		if(this.isAutoSaveEnabled())
+		enableComponents();
+		if (this.isAutoSaveEnabled())
 		{
 		if (e.getSource() == table1.getModel())
 		{
@@ -524,6 +539,7 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 		{
 			MixConfig.handleException(ex);
 		}
+		enableComponents();
 	}
 
 	public Vector check()
@@ -568,7 +584,11 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 
 		if (omodel.getRowCount() == 0)
 		{
-			errors.addElement("No Outgoing Connection given in Network Panel.");
+			if (!this.m_chbAutoConfig.isSelected())
+			{
+				errors.addElement("If auto-configuration is disabled, you must " +
+								  "specify outgoing connections in Network Panel.");
+			}
 		}
 		else
 		{
@@ -608,9 +628,12 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 		s = getConfiguration().getAttribute("Network/InfoService/Host");
 		if (s == null || s.equals(""))
 		{
-			errors.addElement(
-				"The Host field for the Info Service should not be blank in Network Panel.");
-
+			s = getConfiguration().getAttribute("Network/InfoService/IP");
+			if (s == null || s.equals("") || !IP_Text.isCorrect())
+			{
+				errors.addElement("Neither InfoService host name nor IP address " +
+								  "are correct in Network Panel.");
+			}
 		}
 		s = getConfiguration().getAttribute("Network/InfoService/Port");
 		if (s == null || s.equals(""))
@@ -619,18 +642,64 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 				"The Port field for the Info Service should not be blank in Network Panel.");
 
 		}
-		s = getConfiguration().getAttribute("Network/InfoService/IP");
-		if (s == null || s.equals("") || !IP_Text.isCorrect())
-		{
-			errors.addElement("IP of Info Service is not correct in Network Panel.");
-
-		}
 		return errors;
 	}
 
 	protected void enableComponents()
 	{
-		// Everything is always enabled
+		if (getConfiguration() != null)
+		{
+			Integer t = new Integer(getConfiguration().getAttribute("General/MixType"));
+			setEnabled(! (getParent() instanceof ConfigWizardPanel &&
+						  t.intValue() != MixConfiguration.MIXTYPE_LAST));
+		}
+
+		boolean autoconf = (imodel.getRowCount() == 0);
+
+		// disable autoconf if all listener interfaces are hidden and/or virtual
+		boolean hidden = false, virtual = false;
+		if (!autoconf)
+		{
+			for (int i = 0; i < imodel.getRowCount(); i++)
+		{
+				virtual = ( (Boolean) imodel.getValueAt(i, 1)).booleanValue();
+				hidden = ( (Boolean) imodel.getValueAt(i, 2)).booleanValue();
+
+				if (!hidden && !virtual)
+				{
+					autoconf = true;
+					break;
+				}
+			}
+			if (m_chbAutoConfig.isEnabled() && !autoconf)
+			{
+				MixConfig.info("Autoconfiguration disabled",
+							   new String[]
+							   {
+							   "Autoconfiguration is not possible if all",
+							   "listener interfaces are set to",
+							   "hidden or virtual. Add at least one non-hidden,",
+							   "non-virtual interface to enable autoconfiguration."
+				}
+					);
+		}
+	}
+
+		// only enable autoconf if either host or IP of InfoService is given and port is given
+		autoconf = autoconf &&
+			( ( (Host_Text.getText() != null && !Host_Text.getText().equals(""))
+			   || IP_Text.isCorrect()) &&
+			 (Port_Text.getText() != null && !Port_Text.getText().equals("")));
+
+		m_chbAutoConfig.setEnabled(autoconf);
+		if (!autoconf)
+	{
+			// FIXME: This triggers MixConfigPanel.itemStateChanged(...), which in turn
+			// calls enableComponents(). AWT prevents infinite event loops, but
+			// enableComponents() will still be called at least twice in a row.
+			// Consequences are not too bad though.
+			m_chbAutoConfig.setSelected(false);
+		}
 	}
 
 	public void setConfiguration(MixConfiguration a_conf) throws IOException
@@ -694,7 +763,7 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 		}
 		else if (a.getActionCommand().equals("AddOutgoing"))
 		{
-/*			String type;
+			/*			String type;
 			if(mixType != MixConfiguration.MIXTYPE_LAST)
 	*/
 			new OutgoingDialog(MixConfig.getMainWindow(),
@@ -712,6 +781,5 @@ public final class NetworkPanel extends MixConfigPanel implements TableModelList
 		{
 			omodel.deleteData(table2.getSelectedRow());
 		}
-
 	}
 }

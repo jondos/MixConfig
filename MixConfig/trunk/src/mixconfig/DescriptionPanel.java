@@ -293,8 +293,6 @@ public class DescriptionPanel extends MixConfigPanel implements ActionListener
 			{
 			"Description/Location/City",
 			"Description/Location/Country",
-			"Description/Location/Position/Geo/Longitude",
-			"Description/Location/Position/Geo/Latitude",
 			"Description/Operator/Organisation",
 			"Description/Operator/URL",
 			"Description/Operator/EMail"
@@ -304,8 +302,6 @@ public class DescriptionPanel extends MixConfigPanel implements ActionListener
 			{
 			"The city field may not be left blank in Description Panel.",
 			"The country field may not be left blank in Description Panel.",
-			"Latitude is missing in Description Panel.",
-			"Longitude is missing in Description Panel.",
 			"The Operator Organisation field may not be left blank in Description Panel.",
 			"The Operator URL field may not be left blank in Description Panel.",
 			"The Operator E-Mail field may not be left blank in Description Panel.",

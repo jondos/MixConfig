@@ -54,6 +54,7 @@ import anon.util.Base64;
 import mixconfig.networkpanel.IPTextField;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.OutgoingConnectionTableModel;
+import javax.swing.JTabbedPane;
 
 /** This is the abstract superclass of all configuration panels. It saves
  * the data entered by the user to the underlying configuration object, and updates
@@ -83,6 +84,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 */
 	private boolean m_autoSave = true;
 
+	private boolean m_bEnableComponentsIsRunning;
+
 	/** The Mix configuration currently being edited. */
 	private MixConfiguration m_mixConf = null;
 
@@ -90,6 +93,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	protected MixConfigPanel()
 	{
 		super();
+		m_bEnableComponentsIsRunning=false;
 		// this causes a NullPointerException as components of subclasses are not
 		// yet constructed
 		// setConfiguration(MixConfig.getMixConfiguration());
@@ -106,9 +110,12 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		try
 		{
 			Object source = ie.getSource();
-
-			enableComponents();
-
+			if(!m_bEnableComponentsIsRunning)
+			{
+				m_bEnableComponentsIsRunning=true;
+				enableComponents();
+				m_bEnableComponentsIsRunning=false;
+			}
 			if (m_autoSave && ( (Component) source).getName() != null)
 			{
 				if (source instanceof JTextField)
@@ -155,6 +162,28 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		{
 			MixConfig.handleException(ex);
 		}
+	}
+
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+		Container p = this;
+		do
+		{
+			p = p.getParent();
+			if (p instanceof JTabbedPane)
+			{
+				JTabbedPane jtb = (JTabbedPane) p;
+				for (int k = 0; k < jtb.getTabCount(); k++)
+				{
+					if (jtb.getComponentAt(k) == this)
+					{
+						jtb.setEnabledAt(k, enabled);
+					}
+				}
+			}
+		}
+		while (p != null);
 	}
 
 	/** Informs the panel about a new Mix configuration and makes it load the attribute
@@ -228,12 +257,9 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 * names using the <CODE>getName()</CODE> method. If the name is not
 	 * <CODE>null</CODE>, it retrieves the configuration attribute with the same name
 	 * and sets the attribute value to the value of the component.
-	 * @throws UnsupportedEncodingException String values are encoded with <CODE>javax.net.URLEncoder.encode(String, String)</CODE>;
-	 * the encoding is UTF-8. If this encoding is not supported, an exception is
-	 * thrown.
 	 * @throws IOException If saving a value to the configuration fails
 	 */
-	public void save() throws UnsupportedEncodingException, IOException
+	public void save() throws IOException
 	{
 		save(this);
 	}
@@ -243,12 +269,9 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 * method for them. If the container is an instance of <CODE>mixconfig.networkpanel.IPTextField</CODE>, the value of
 	 * the IPTextField is saved instead.
 	 * @param a A container
-	 * @throws UnsupportedEncodingException String values are encoded with <CODE>javax.net.URLEncoder.encode(String, String)</CODE>;
-	 * the encoding is UTF-8. If this encoding is not supported, an exception is
-	 * thrown.
 	 * @throws IOException If an error occurs while writing the values to the configuration object
 	 */
-	protected void save(Container a) throws UnsupportedEncodingException, IOException
+	protected void save(Container a) throws IOException
 	{
 		if (a instanceof IPTextField)
 		{
@@ -319,6 +342,10 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		{
 			m_mixConf.setAttribute(a.getName(), (OutgoingConnectionTableModel) o);
 		}
+		else if (o instanceof CascadePanel.MixListTableModel)
+		{
+			m_mixConf.setAttribute(a.getName(), (CascadePanel.MixListTableModel) o);
+		}
 	}
 
 	/** Saves the values of a certificate panel to the configuration object. The value is only saved
@@ -351,11 +378,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 * if the component is currently enabled, otherwise, the element with the same XML path
 	 * as the component's name is removed from the XML structure.
 	 * @param a A text field
-	 * @throws UnsupportedEncodingException String values are encoded with <CODE>javax.net.URLEncoder.encode(String, String)</CODE>;
-	 * the encoding is UTF-8. If this encoding is not supported, an exception is
-	 * thrown.
 	 */
-	protected void save(JTextField a) throws UnsupportedEncodingException
+	protected void save(JTextField a)
 	{
 		String s = a.getText().trim();
 		if (!a.isEnabled())
@@ -372,11 +396,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 * is currently disabled, a value of <code>false</code> is saved no matter what
 	 * the selected state of the checkbox is.
 	 * @param a A checkbox
-	 * @throws UnsupportedEncodingException String values are encoded with <CODE>javax.net.URLEncoder.encode(String, String)</CODE>;
-	 * the encoding is UTF-8. If this encoding is not supported, an exception is
-	 * thrown.
 	 */
-	protected void save(JCheckBox a) throws UnsupportedEncodingException
+	protected void save(JCheckBox a)
 	{
 		m_mixConf.setAttribute(a.getName(), a.isSelected() && a.isEnabled());
 	}
@@ -385,11 +406,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 * if the component is currently enabled, otherwise, the element with the same XML path
 	 * as the component's name is removed from the XML structure.
 	 * @param a A combo box
-	 * @throws UnsupportedEncodingException String values are encoded with <CODE>javax.net.URLEncoder.encode(String, String)</CODE>;
-	 * the encoding is UTF-8. If this encoding is not supported, an exception is
-	 * thrown.
 	 */
-	protected void save(JComboBox a) throws UnsupportedEncodingException
+	protected void save(JComboBox a)
 	{
 		int s = a.getSelectedIndex();
 		if (!a.isEnabled())
@@ -428,11 +446,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 * to the configuration object, and removes the values of the unselected buttons in
 	 * the group. If the component is currently disabled, a <CODE>null</CODE> value is saved.
 	 * @param a A button group
-	 * @throws UnsupportedEncodingException String values are encoded with <CODE>javax.net.URLEncoder.encode(String, String)</CODE>;
-	 * the encoding is UTF-8. If this encoding is not supported, an exception is
-	 * thrown.
 	 */
-	protected void save(ButtonGroup a) throws UnsupportedEncodingException
+	protected void save(ButtonGroup a)
 	{
 		/* this one does nothing; override it if needed */
 	}

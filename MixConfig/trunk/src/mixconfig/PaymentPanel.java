@@ -272,6 +272,7 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 				{
 					int i = Integer.valueOf( (String) c.getNewValue()).intValue();
 					m_chkPaymentEnabled.setEnabled(i == MixConfiguration.MIXTYPE_FIRST);
+					setEnabled(i == MixConfiguration.MIXTYPE_FIRST);
 					enableComponents();
 				}
 			}
@@ -305,6 +306,8 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 		this.m_chkPaymentEnabled.setEnabled(mixType != null &&
 											Integer.valueOf(mixType).intValue() ==
 											MixConfiguration.MIXTYPE_FIRST);
+		setEnabled(mixType != null &&
+				   Integer.valueOf(mixType).intValue() == MixConfiguration.MIXTYPE_FIRST);
 		this.m_chkPaymentEnabled.setSelected(host != null && !host.equals(""));
 		enableComponents();
 		setAutoSaveEnabled(true);

@@ -63,6 +63,9 @@ import org.w3c.dom.NamedNodeMap;
  */
 public class MixConfiguration
 {
+	/** Indicates that the Mix is ready to be either first or middle mix */
+	//public static final int MIXTYPE_FIRST_OR_MIDDLE = 3;
+
 	/** Indicates that the Mix is the last in a cascade */
 	public static final int MIXTYPE_LAST = 2;
 
@@ -87,9 +90,9 @@ public class MixConfiguration
 	/** An array containing the Mix types as String values. The indices correspond to
 	 * the MIXTYPE_xxx constants.
 	 */
-	private static final String MIXTYPE_NAME[] =
+	public static final String MIXTYPE_NAME[] =
 		{
-		"FirstMix", "MiddleMix", "LastMix"};
+		"FirstMix", "MiddleMix", "LastMix", "FirstOrMiddle"};
 
 	/** The configuration as a DOM document */
 	private Document m_configuration = null;
@@ -245,10 +248,8 @@ public class MixConfiguration
 	 * the XPath syntax, but XPath functions and relative paths are not allowed.
 	 * @param a_xmlPath The path to the DOM element
 	 * @param value The new value for the attribute as a <CODE>String</CODE>
-	 * @throws UnsupportedEncodingException The value will be stored in URL-encoded form, encoded as UTF-8. If this encoding
-	 * is not supported, an exception is throws.
 	 */
-	public void setAttribute(String a_xmlPath, String value) throws UnsupportedEncodingException
+	public void setAttribute(String a_xmlPath, String value)
 	{
 		setAttribute(a_xmlPath, value, null, a_xmlPath.endsWith("MixID"));
 	}
@@ -260,10 +261,8 @@ public class MixConfiguration
 	 * @param a_value The new value for the attribute as a <CODE>String</CODE>
 	 * @param a_attribute A DOM attribute to be added to the DOM element where the attribute is stored
 	 * @param urlEncode Determines if the stored value is to be URL encoded (<CODE>true</CODE>) or not (<CODE>false</CODE>)
-	 * @throws UnsupportedEncodingException If the encoding used for URL encoding (UTF-8) is not supported.
 	 */
-	public void setAttribute(String a_xmlPath, String a_value, Attr a_attribute, boolean urlEncode) throws
-		UnsupportedEncodingException
+	public void setAttribute(String a_xmlPath, String a_value, Attr a_attribute, boolean urlEncode)
 	{
 		Node n = getAttributeNode(a_xmlPath, true);
 
@@ -276,16 +275,18 @@ public class MixConfiguration
 
 		if (urlEncode)
 		{
-			a_value = URLEncoder.encode(a_value);
-			/* Does not work on JDK < 1.4
+			/*
 			 try
 			 {
-			 a_value = URLEncoder.encode(a_value, "UTF-8");
+		    */
+				// will not work on JDK < 1.4, workaround below (needs no try-catch)
+				// a_value = URLEncoder.encode(a_value, "UTF-8");
+				a_value = URLEncoder.encode(a_value);
+			/*
 			 }
 			 catch(UnsupportedEncodingException uee)
 			 {
-			 // if encoding UTF is not supported, leave the string the way it is
-			 // (this should not happen actually)
+				MixConfig.handleException(uee);
 			 }
 			 */
 		}
@@ -308,10 +309,8 @@ public class MixConfiguration
 	 * @param a_xmlPath The path to the DOM element
 	 * @param a_value The new value for the attribute. The <CODE>boolean</CODE> will be converted to a
 	 * <CODE>String</CODE> before being saved.
-	 * @throws UnsupportedEncodingException The value will be stored in URL-encoded form, encoded as UTF-8. If this encoding
-	 * is not supported, an exception is throws.
 	 */
-	public void setAttribute(String a_xmlPath, boolean a_value) throws UnsupportedEncodingException
+	public void setAttribute(String a_xmlPath, boolean a_value)
 	{
 		if (a_value)
 		{
@@ -329,10 +328,8 @@ public class MixConfiguration
 	 * @param a_xmlPath The path to the DOM element
 	 * @param a_value The new value for the attribute. The <CODE>int</CODE> will be converted to a
 	 * <CODE>String</CODE> before being saved.
-	 * @throws UnsupportedEncodingException The value will be stored in URL-encoded form, encoded as UTF-8. If this encoding
-	 * is not supported, an exception is throws.
 	 */
-	public void setAttribute(String a_xmlPath, int a_value) throws UnsupportedEncodingException
+	public void setAttribute(String a_xmlPath, int a_value)
 	{
 		if (a_xmlPath.indexOf("MixType") >= 0)
 		{
@@ -349,9 +346,8 @@ public class MixConfiguration
 	 * the XPath syntax, but XPath functions and relative paths are not allowed.
 	 * @param a_xmlPath The path to the DOM element
 	 * @param a_value The new value for the attribute. The <CODE>byte[]</CODE> will be Base64-encoded before being saved.
-	 * @throws UnsupportedEncodingException If an error occurs while encoding the value with Base64
 	 */
-	public void setAttribute(String a_xmlPath, byte[] a_value) throws UnsupportedEncodingException
+	public void setAttribute(String a_xmlPath, byte[] a_value)
 	{
 		Attr attr = this.m_configuration.createAttribute("xml:space");
 		attr.setNodeValue("preserve");
@@ -361,6 +357,27 @@ public class MixConfiguration
 			s = Base64.encode(a_value, true);
 		}
 		setAttribute(a_xmlPath, s, attr, false);
+	}
+
+	/** Converts the specified table model to a DOM tree and integrates it below the
+	 * existing element with the specified name.
+         * @param a_mixListModel An instance of <CODE>mixconfig.CascadePanel.MixListTableModel</CODE>
+         * @param a_xmlPath The path to the DOM parent element of the connection element to be set
+         */
+	public void setAttribute(String a_xmlPath, CascadePanel.MixListTableModel a_mixListModel)
+	{
+		Node f = a_mixListModel.createAsElement(m_configuration);
+
+		Node n = getAttributeNode(a_xmlPath, true);
+
+		while (n.hasChildNodes())
+		{
+			n.removeChild(n.getFirstChild());
+		}
+
+		n.insertBefore(f, null);
+
+		fireStateChanged(a_xmlPath + "/" + f.getNodeName(), a_mixListModel);
 	}
 
 	/** Converts the specified table model to a DOM tree and integrates it below the
@@ -593,12 +610,12 @@ public class MixConfiguration
 			}
 
 			// DEBUG
-			/*
-			 if (n == null)
-			 {
-			 System.out.println("No element named " + headPart + " found.");
-			 }
-			 */
+
+			//if (n == null)
+			//{
+			//System.out.println("No element named " + headPart + " found.");
+			//}
+
 
 			// if no such node exists, create one
 			if (n == null)
