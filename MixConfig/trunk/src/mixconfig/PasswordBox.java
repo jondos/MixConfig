@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ class PasswordBox extends JDialog implements ActionListener
     public final static int ENTER_PASSWORD=2;
     public final static int CHANGE_PASSWORD=3;
 
-   PasswordBox(JFrame parent,String title,int type)
+   PasswordBox(Frame parent,String title,int type)
    {
       super(parent,title,true);
       m_Type=type;
@@ -119,9 +120,18 @@ class PasswordBox extends JDialog implements ActionListener
           {
             if(m_Type==NEW_PASSWORD||m_Type==CHANGE_PASSWORD)
             {
-              if(!Arrays.equals(
-                      m_textConfirmPasswd.getPassword(),
-                      m_textNewPasswd.getPassword()))
+              boolean eqv;
+              char[] oldpw = m_textConfirmPasswd.getPassword();
+              char[] newpw = m_textNewPasswd.getPassword();
+              eqv = (oldpw.length==newpw.length);
+              if(eqv)
+                  for(int i=0;i<oldpw.length;i++)
+                      if(oldpw[i]!=newpw[i])
+                      {
+                          eqv=false;
+                          break;
+                      }
+              if(!eqv)
               {
                   javax.swing.JOptionPane.showMessageDialog(this,
                           "Passwords do not match.", "Password Error",
