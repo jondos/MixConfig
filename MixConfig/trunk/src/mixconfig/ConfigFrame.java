@@ -26,11 +26,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -775,23 +773,10 @@ public class ConfigFrame extends JPanel implements ActionListener
 
             //Writing to File...
             ByteArrayOutputStream fout = new ByteArrayOutputStream();
-            Transformer trans =
-                TransformerFactory.newInstance().newTransformer();
-            trans.setOutputProperty("indent", "yes");
-            try
-            {
-                trans.setOutputProperty(
-                    "{http://xml.apache.org/xslt}indent-amount",
-                    "2");
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            };
-            trans.getOutputProperties().list(System.out);
-            DOMSource src = new DOMSource(doc);
-            StreamResult target = new StreamResult(fout);
-            trans.transform(src, target);
+            
+            OutputFormat format = new OutputFormat(doc,"UTF-8", true);
+            XMLSerializer serial = new XMLSerializer(fout, format);
+            serial.serialize(doc);
             fout.close();
             return fout.toByteArray();
         }
