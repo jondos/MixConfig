@@ -13,9 +13,9 @@ import java.awt.GridBagLayout;
 
 class DescriptionPanel extends JPanel implements ActionListener
   {
-    private JPanel panel1;
+    private JPanel panel1,panel2;
     public static JButton map;
-    private JTextField text1,text2,text3,longi,lati;
+    private JTextField text1,text2,text3,longi,lati,operatororg,operatorurl;
     private MapBox box;
 
     public DescriptionPanel(boolean isApplet)
@@ -91,6 +91,7 @@ class DescriptionPanel extends JPanel implements ActionListener
       forpanel.setConstraints(pos,d);
       panel1.add(pos);
       map = new JButton("Show on Map");
+      map.setToolTipText("This will probably only work on Windows Systems. Blame Sun!");
       map.addActionListener(this);
       map.setActionCommand("Map");
       map.setEnabled(!isApplet);
@@ -107,7 +108,7 @@ class DescriptionPanel extends JPanel implements ActionListener
       panel1.add(longitude);
       longi = new JTextField(20);
       longi.setDocument(new FloatDocument(-360,360));
-      longi.setToolTipText("Longitude in degrees. (0.0-360.0)");
+      longi.setToolTipText("Longitude in degrees east from Greenwich. ( 0.0 - 360.0)");
       d.gridx = 1;
       d.gridwidth = 3;
       d.weightx = 1;
@@ -128,6 +129,53 @@ class DescriptionPanel extends JPanel implements ActionListener
       d.gridwidth = 3;
       forpanel.setConstraints(lati,d);
       panel1.add(lati);
+
+
+      c.gridx = 0;
+      c.gridy = 2;
+      c.weightx = 1;
+      c.weighty = 1;
+      c.fill = GridBagConstraints.HORIZONTAL;
+      panel2 = new JPanel(forpanel);
+      panel2.setBorder(new TitledBorder("Operator"));
+      layout.setConstraints(panel2,c);
+      add(panel2);
+
+      d.gridx = 0;
+      d.gridy = 0;
+      d.weightx = 0;
+      d.gridwidth = 1;
+      d.fill = GridBagConstraints.HORIZONTAL;
+      JLabel op_org = new JLabel("Organisation");
+      op_org.setToolTipText("This should contain the operating organisation's or a person's name for private persons.");
+      forpanel.setConstraints(op_org,d);
+      panel2.add(op_org);
+
+      operatororg = new JTextField(60);
+      d.gridx = 1;
+      d.weightx = 1;
+      d.gridwidth = 3;
+      forpanel.setConstraints(operatororg,d);
+      panel2.add(operatororg);
+
+      d.gridx = 0;
+      d.gridy = 2;
+      d.weightx = 0;
+      d.gridwidth = 1;
+
+      JLabel op_url = new JLabel("URL");
+      op_url.setToolTipText("This should contain a URL that will lead to more information about the operator including contact information.");
+      forpanel.setConstraints(op_url,d);
+      panel2.add(op_url);
+
+      operatorurl = new JTextField(20);
+      d.gridx = 1;
+      d.gridwidth = 3;
+      d.weightx = 1;
+      forpanel.setConstraints(operatorurl,d);
+      panel2.add(operatorurl);
+
+
     }
 
 
@@ -156,6 +204,17 @@ class DescriptionPanel extends JPanel implements ActionListener
       return lati.getText();
     }
 
+    public String getOperatorOrg()
+    {
+      return operatororg.getText();
+    }
+
+    public String getOperatorURL()
+    {
+      return operatorurl.getText();
+    }
+
+
     public void setCity(String city)
     {
       text1.setText(city);
@@ -176,6 +235,15 @@ class DescriptionPanel extends JPanel implements ActionListener
     {
       longi.setText(longitude);
     }
+    public void setOperatorOrg(String org)
+    {
+      operatororg.setText(org);
+    }
+    public void setOperatorURL(String url)
+    {
+      operatorurl.setText(url);
+    }
+
 
 
    public void actionPerformed(ActionEvent ae)
