@@ -5,7 +5,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import mixconfig.MixConfig;
-
+import anon.util.XMLUtil;
 final public class ConnectionData
 {
 	public static final int TRANSPORT = 1; // Bit mask
@@ -254,29 +254,6 @@ final public class ConnectionData
 		return elemRoot;
 	}
 
-	static private String elementData(Element iface, String name)
-	{
-		Node node;
-		String data = null;
-		NodeList nlist = iface.getElementsByTagName(name);
-		if (nlist.getLength() == 0 || (node = nlist.item(0)).getNodeType() != org.w3c.dom.Node.ELEMENT_NODE)
-		{
-			return null;
-		}
-		node = ( (Element) node).getFirstChild();
-// What is this while loop for? I comment it out because it causes infinite loops
-// if node is not a text node
-//		while (node != null)
-//		{
-			if (node.getNodeType() == Node.TEXT_NODE)
-			{
-				data = ( (org.w3c.dom.Text) node).getData();
-//				break;
-			}
-//		}
-		return data;
-	}
-
 	static ConnectionData createFromElement(String t, Element elemRoot)
 	{
 		try
@@ -301,7 +278,8 @@ final public class ConnectionData
 				virtual = true;
 
 			}
-			data = elementData(elemRoot, "ProxyType");
+
+			data = getChildElementValue(elemRoot, "ProxyType");
 			if (data == null)
 			{
 				ptype = NO_PROXY;
@@ -314,7 +292,7 @@ final public class ConnectionData
 			{
 				ptype = SOCKS_PROXY;
 			}
-			data = elementData(elemRoot, "NetworkProtocol");
+			data = getChildElementValue(elemRoot, "NetworkProtocol");
 			if (data.equalsIgnoreCase("RAW/UNIX"))
 			{
 				trans = RAW_UNIX;
@@ -331,7 +309,7 @@ final public class ConnectionData
 			{
 				trans = SSL_TCP;
 			}
-			else if (elementData(elemRoot, "File") != null)
+			else if (getChildElementValue(elemRoot, "File") != null)
 			{
 				trans = RAW_UNIX;
 			}
@@ -341,13 +319,13 @@ final public class ConnectionData
 			}
 			if ( (trans & UNIX) == 0)
 			{
-				n = elementData(elemRoot, "Host");
+				n = getChildElementValue(elemRoot, "Host");
 				if (n == null)
 				{
 					n = "";
 				}
-				ip = elementData(elemRoot, "IP");
-				data = elementData(elemRoot, "Port");
+				ip = getChildElementValue(elemRoot, "IP");
+				data = getChildElementValue(elemRoot, "Port");
 				if (data == null)
 				{
 					p = 0;
@@ -360,7 +338,7 @@ final public class ConnectionData
 			}
 			else
 			{
-				n = elementData(elemRoot, "File");
+				n = getChildElementValue(elemRoot, "File");
 				if (n == null)
 				{
 					n = "";
@@ -374,5 +352,11 @@ final public class ConnectionData
 			//System.out.println("Network interface not set");
 			return null;
 		}
+	}
+
+	static private String getChildElementValue(Element elemParent,String childName)
+	{
+		Node nodeChild=XMLUtil.getFirstChildByName(elemParent,childName);
+		return XMLUtil.parseNodeString(nodeChild,null);
 	}
 }
