@@ -208,7 +208,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
           JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
                                         "Mix Configuration Tool\nVersion: "+TheApplet.VERSION,
                                         "About",JOptionPane.INFORMATION_MESSAGE,TheApplet.loadImage("icon.gif"));
-
         }
     }
 
@@ -360,61 +359,20 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
     }
 
           Element elemNetwork = getChild(root,"Network");
-          Element elemIncomming = getChild(elemNetwork,"Incomming");
-	  int i = 0,j = 1;
-	  Element elemMain , elemTransport,elemHost,elemIP,elemPort;
-	  String main,transport,host,IP,port,kind,file;
-	  Element elemInterface = getChild(elemIncomming,"ListenerInterface"+Integer.toString(i+1));
-
-	while(elemInterface != null)
-	{
-	  m_NetworkPanel.setTable1(Integer.toString(i+1),i,0);
-	  elemMain = getChild(elemInterface,"Main");
-	  main = getElementValue(elemMain,"False");
-	  m_NetworkPanel.setTable1(main,i,j);
-	  j++;
-	  elemTransport = getChild(elemInterface,"Transport");
-	  transport = getElementValue(elemTransport,"");
-	  m_NetworkPanel.setTable1(transport,i,j);
-
-	  if(transport.equals("RAW/TCP") || transport.equals("SSL/TCP"))
-	  {
-	    j++;
-	    elemHost = getChild(elemInterface,"Host");
-	    host = getElementValue(elemHost,null);
-	    m_NetworkPanel.setTable1(host,i,j);
-	    j++;
-	    elemIP = getChild(elemInterface,"IP");
-	    if(elemIP != null)
-	    {
-	      IP = getElementValue(elemIP,null);
-	      m_NetworkPanel.setTable1(IP,i,j);
-	    }
-	    j++;
-	    elemPort = getChild(elemInterface,"Port");
-	    if(elemPort!=null)
-        {
-          port = getElementValue(elemPort,"");
-	        m_NetworkPanel.setTable1(port,i,j);
-        }
-	  }
-	  else
-	  {
-	    j++;
-	    Element elemFile = getChild(elemInterface,"File");
-	    file = getElementValue(elemFile,null);
-	    m_NetworkPanel.setTable1(file,i,j);
-	  }
-	  i++;
-	  j = 1;
-	 elemInterface = getChild(elemIncomming,"ListenerInterface"+Integer.toString(i+1));
-        }
-
+          Node netChild = elemNetwork.getFirstChild();
+          while(netChild!=null)
+          {
+              if(netChild.getNodeType()==netChild.ELEMENT_NODE)
+                  m_NetworkPanel.getIncomingModel().readFromElement((Element)netChild);
+              netChild = netChild.getNextSibling();
+          }
 	Element elemOutgoing = getChild(elemNetwork,"Outgoing");
-	i = 0;
-	j = 1;
+	int i = 0;
+	int j = 1;
 	Element elemKind;
-	elemInterface = getChild(elemOutgoing,"ListenerInterface"+Integer.toString(i+1));
+        String main,transport,host,IP,port,kind,file;
+        Element elemMain , elemTransport,elemHost,elemIP,elemPort;
+	Element elemInterface = getChild(elemOutgoing,"ListenerInterface"+Integer.toString(i+1));
 
 	while(elemInterface != null)
 	{
@@ -630,67 +588,9 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 	  Element elemNetwork=doc.createElement("Network");
 	  root.appendChild(elemNetwork);
-	/*  Element elemIn = doc.createElement("Incomming");
-	  elemNetwork.appendChild(elemIn);
-	  int i = 0, j = 0;
-	  Text text7;
-	  Element elemInterface,elemtransport,elemHost,elemIP,elemPort,elemFile,elemMain;
-	  String Incomming = m_NetworkPanel.getTable1(i,j);
-	  while(!Incomming.equals(""))
-	  {
-	    j++;
-	    elemInterface = doc.createElement("ListenerInterface"+Integer.toString(i+1));
-	    elemIn.appendChild(elemInterface);
-	    Incomming = m_NetworkPanel.getTable1(i,j);
-	    elemMain = doc.createElement("Main");
-	    elemInterface.appendChild(elemMain);
-	    text7 = doc.createTextNode(Incomming);
-	    elemMain.appendChild(text7);
-
-	    j++;
-	    Incomming = m_NetworkPanel.getTable1(i,j);
-	    elemtransport = doc.createElement("Transport");
-	    elemInterface.appendChild(elemtransport);
-	    text7 = doc.createTextNode(Incomming);
-	    elemtransport.appendChild(text7);
-	    if(Incomming.equals("RAW/TCP") || Incomming.equals("SSL/TCP"))
-	    {
-	      j++;
-	      Incomming = m_NetworkPanel.getTable1(i,j);
-	      elemHost = doc.createElement("Host");
-	      elemInterface.appendChild(elemHost);
-	      text7 = doc.createTextNode(Incomming);
-	      elemHost.appendChild(text7);
-	      j++;
-	      Incomming = m_NetworkPanel.getTable1(i,j);
-	      if(!Incomming.equals(""))
-	      {
-	        elemIP = doc.createElement("IP");
-	        elemInterface.appendChild(elemIP);
-	        text7 = doc.createTextNode(Incomming);
-	        elemIP.appendChild(text7);
-	      }
-	      j++;
-	      Incomming = m_NetworkPanel.getTable1(i,j);
-	      elemPort = doc.createElement("Port");
-	      elemInterface.appendChild(elemPort);
-	      text7 = doc.createTextNode(Incomming);
-	      elemPort.appendChild(text7);
-	    }
-	    else
-	    {
-	      j = 3;
-	      Incomming = m_NetworkPanel.getTable1(i,j);
-	      elemFile = doc.createElement("File");
-	      elemInterface.appendChild(elemFile);
-	      text7 = doc.createTextNode(Incomming);
-	      elemFile.appendChild(text7);
-	    }
-	    i++;
-	    j = 0;
-	    Incomming = m_NetworkPanel.getTable1(i,j);
-	  }
-
+          if(m_NetworkPanel.getIncomingModel()!=null)
+              elemNetwork.appendChild(m_NetworkPanel.getIncomingModel().createAsElement(doc));
+/*
 	  Element elemOut = doc.createElement("Outgoing");
 	  elemNetwork.appendChild(elemOut);
 	  i = 0;
@@ -791,14 +691,20 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 	  Element elem = doc.createElement("X509PKCS12");
 	  elemOwn.appendChild(elem);
     byte[] buff = m_CertificatesPanel.getOwnPrivCert();
-	   Text text = doc.createTextNode(Base64.encodeBytes(buff,true));
+    Text text;
+    if(buff!=null)
+    {
+	   text = doc.createTextNode(Base64.encodeBytes(buff,true));
 	  elem.appendChild(text);
+    }
 	  elem = doc.createElement("X509Certificate");
 	  elemOwn.appendChild(elem);
     buff = m_CertificatesPanel.getOwnPubCert();
-    text = doc.createTextNode(Base64.encodeBytes(buff,true));
+    if(buff!=null)
+    {
+          text = doc.createTextNode(Base64.encodeBytes(buff,true));
 	  elem.appendChild(text);
-
+    }
     buff = m_CertificatesPanel.getPrevPubCert();
 	  if(buff!=null)
       {
