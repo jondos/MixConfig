@@ -38,6 +38,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     c.gridx=0;
     c.gridy=0;
     c.gridwidth = 1;
+    c.weightx = 0;
     layout.setConstraints(j1,c);
     add(j1);
     m_comboboxMixType = new JComboBox();
@@ -61,6 +62,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     c.gridx=0;
     c.gridy++;
     c.gridwidth = 1;
+    c.weightx = 0;
     layout.setConstraints(j1a,c);
     add(j1a);
     CascadeName = new JTextField(20);
@@ -95,7 +97,6 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     add(j3);
     Auto = new JCheckBox("Automatically Generated");
     c.gridx=1;
-    c.gridy++;
     c.gridwidth = 3;
     c.weightx = 1;
     layout.setConstraints(Auto,c);
@@ -145,6 +146,8 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     m_checkboxDaemon = new JCheckBox("Run as Daemon");
     c.gridx = 0;
     c.gridy++;
+    c.gridwidth = 1;
+    c.weightx = 0;
     m_checkboxDaemon.addItemListener(this);
     layout.setConstraints(m_checkboxDaemon,c);
     add(m_checkboxDaemon);
@@ -152,6 +155,8 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     m_checkboxLogging = new JCheckBox("Enable Logging");
     c.gridx = 0;
     c.gridy++;
+    c.gridwidth = 1;
+    c.weightx = 0;
     m_checkboxLogging.addItemListener(this);
     layout.setConstraints(m_checkboxLogging,c);
     add(m_checkboxLogging);
@@ -159,6 +164,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     Console = new JRadioButton("Log to Console");
     c.gridx = 1;
     c.weightx = 1;
+    c.gridwidth = 3;
     Console.setActionCommand("LogtoConsole");
     Console.addActionListener(this);
     layout.setConstraints(Console,c);
@@ -166,7 +172,8 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     Console.setEnabled(false);
 
     File = new JRadioButton("Log to Directory");
-    c.weightx = 0;
+    c.gridwidth = 3;
+    c.weightx = 1;
     c.gridy++;
     File.addActionListener(this);
     File.setActionCommand("Logtodir");
@@ -178,6 +185,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     FileName.setText("");
     c.gridx = 1;
     c.gridy++;
+    c.gridwidth = 3;
     c.weightx = 1;
     layout.setConstraints(FileName,c);
     add(FileName);
