@@ -697,7 +697,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 						Document doc = docBuilder.newDocument();
 
 						Element root = doc.createElement("MixConfiguration");
-						root.setAttribute("version", "0.1");
+						root.setAttribute("version", "0.2");
 						doc.appendChild(root);
 						Element elemGeneral = doc.createElement("General");
 						root.appendChild(elemGeneral);
