@@ -489,7 +489,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 							p = q + 1;
 					}
 
-					if (version[0] > 0 || version[1] > 1) {
+					if (version[0] > 0 || version[1] > 2) {
 						int ret =
 								JOptionPane.showConfirmDialog(
 								MixConfig.getMainWindow(),
