@@ -44,8 +44,8 @@
 			<!-- If a ListenerInterface is "hidden" this means, that information about this interface
 					is not propagate to the InfoService -->
 			<!-- If a ListenerInterface is "virtual" this means, that the Mix will not really bind and listen
-					on this interface (but information about this interface is transfered to the InfoService)
-			<!-- Note: "hidden" and "virtual" are usefully for instance if the mix is behind a NAT-Gateway-->
+					on this interface (but information about this interface is transfered to the InfoService) -->
+			<!-- Note: "hidden" and "virtual" are usefully for instance if the mix is behind a NAT-Gateway -->
 
 			<!-- NEW: Type of Listener Interface-->
 			<NetworkProtocol><!-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></NetworkProtocol>
@@ -131,10 +131,10 @@
 
 </Certificates>
 
-<Description>
+<Description><!-- optional -->
 	<Location> <!-- Describes the location of the mix server -->
-		<City>    </City>
-		<Country> </Country>
+		<City>    <!-- optional --></City>
+		<Country> <!-- optional --></Country>
 		<State> <!-- optional --> </State>
 
 		<Position>
