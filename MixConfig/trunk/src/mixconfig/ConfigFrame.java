@@ -449,27 +449,6 @@ public class ConfigFrame extends JPanel implements ActionListener
 		m_DescriptionPanel.setOperatorURL("");
 	}
 
-	private Element getChild(Node node, String name)
-	{
-		if (node == null)
-		{
-			return null;
-		}
-		Node tmp = node.getFirstChild();
-		while (tmp != null)
-		{
-			if (tmp.getNodeName().equals(name))
-			{
-				if (tmp.getNodeType() == Node.ELEMENT_NODE)
-				{
-					return (Element) tmp;
-				}
-			}
-			tmp = tmp.getNextSibling();
-		}
-		return null;
-	}
-
 	private String getElementValue(Element elem, String def)
 	{
 		if (elem == null)
@@ -579,20 +558,20 @@ public class ConfigFrame extends JPanel implements ActionListener
 					}
 				}
 			}
-			Element elemGeneral = getChild(root, "General");
-			Element elemType = getChild(elemGeneral, "MixType");
+			Element elemGeneral = (Element)XMLUtil.getFirstChildByName(root, "General");
+			Element elemType = (Element)XMLUtil.getFirstChildByName(elemGeneral, "MixType");
 			String MixType = getElementValue(elemType, null);
 			m_GeneralPanel.setMixType(MixType);
 
-			Element elemName = getChild(elemGeneral, "MixName");
+			Element elemName = (Element)XMLUtil.getFirstChildByName(elemGeneral, "MixName");
 			String MixName = getElementValue(elemName, null);
 			m_GeneralPanel.setMixName(MixName);
 
-			Element elemCascade = getChild(elemGeneral, "CascadeName");
+			Element elemCascade = (Element)XMLUtil.getFirstChildByName(elemGeneral, "CascadeName");
 			String CascadeName = getElementValue(elemCascade, null);
 			m_GeneralPanel.setCascadeName(CascadeName);
 
-			Element elemMixID = getChild(elemGeneral, "MixID");
+			Element elemMixID = (Element)XMLUtil.getFirstChildByName(elemGeneral, "MixID");
 			String MixID = getElementValue(elemMixID, null);
 			if (MixID != null)
 			{
@@ -600,23 +579,23 @@ public class ConfigFrame extends JPanel implements ActionListener
 			}
 			m_GeneralPanel.setMixID(MixID);
 
-			Element elemUserID = getChild(elemGeneral, "UserID");
+			Element elemUserID = (Element)XMLUtil.getFirstChildByName(elemGeneral, "UserID");
 			if (elemUserID != null)
 			{
 				m_GeneralPanel.setUserID(getElementValue(elemUserID, null));
 			}
 
-			Element elemFileDes = getChild(elemGeneral, "NrOfFileDescriptors");
+			Element elemFileDes = (Element)XMLUtil.getFirstChildByName(elemGeneral, "NrOfFileDescriptors");
 			if (elemFileDes != null)
 			{
 				m_GeneralPanel.setFileDes(getElementValue(elemFileDes, null));
 			}
 
-			Element elemDaemon = getChild(elemGeneral, "Daemon");
+			Element elemDaemon = (Element)XMLUtil.getFirstChildByName(elemGeneral, "Daemon");
 			String daemon = getElementValue(elemDaemon, "False");
 			m_GeneralPanel.setDaemon(daemon);
 
-			Element elemEnableLog = getChild(elemGeneral, "Logging");
+			Element elemEnableLog = (Element)XMLUtil.getFirstChildByName(elemGeneral, "Logging");
 			if (elemEnableLog != null)
 			{
 				boolean bLogFile = false;
@@ -624,7 +603,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 				boolean bLogSyslog = false;
 				String file = null;
 				boolean bLogcompress = false;
-				Element elemFile = getChild(elemEnableLog, "File");
+				Element elemFile = (Element)XMLUtil.getFirstChildByName(elemEnableLog, "File");
 				if (elemFile != null)
 				{
 					file = getElementValue(elemFile, null);
@@ -635,14 +614,14 @@ public class ConfigFrame extends JPanel implements ActionListener
 						bLogcompress = false;
 					}
 				}
-				Element elemSyslog = getChild(elemEnableLog, "SysLog");
+				Element elemSyslog = (Element)XMLUtil.getFirstChildByName(elemEnableLog, "SysLog");
 				if (elemSyslog != null)
 				{
 					bLogSyslog =
 						getElementValue(elemSyslog, "False").equalsIgnoreCase(
 						"true");
 				}
-				Element elemConsole = getChild(elemEnableLog, "Console");
+				Element elemConsole = (Element)XMLUtil.getFirstChildByName(elemEnableLog, "Console");
 				if (elemConsole != null)
 				{
 					bLogConsole =
@@ -655,12 +634,12 @@ public class ConfigFrame extends JPanel implements ActionListener
 					bLogFile,
 					file,
 					bLogcompress);
-				Element elemEncLog = getChild(elemEnableLog, "EncryptedLog");
+				Element elemEncLog = (Element)XMLUtil.getFirstChildByName(elemEnableLog, "EncryptedLog");
 				if (elemEncLog != null)
 				{
-					Element elemKeyInfo = getChild(elemEncLog, "KeyInfo");
-					Element elemX509Data = getChild(elemKeyInfo, "X509Data");
-					Element elemX509Cert = getChild(elemX509Data, "X509Certificate");
+					Element elemKeyInfo = (Element)XMLUtil.getFirstChildByName(elemEncLog, "KeyInfo");
+					Element elemX509Data = (Element)XMLUtil.getFirstChildByName(elemKeyInfo, "X509Data");
+					Element elemX509Cert = (Element)XMLUtil.getFirstChildByName(elemX509Data, "X509Certificate");
 					String strCert = getElementValue(elemX509Cert, null);
 					if (strCert != null)
 					{
@@ -674,25 +653,25 @@ public class ConfigFrame extends JPanel implements ActionListener
 				}
 			}
 			// begin Payment Section, added by Bastian Voigt
-			Element elemPayment = getChild(root, "Accounting");
+			Element elemPayment = (Element)XMLUtil.getFirstChildByName(root, "Accounting");
 			if (elemPayment != null)
 			{
 				m_PaymentPanel.m_chkPaymentEnabled.setSelected(true);
 
-				Element elemJPI = getChild(elemPayment, "PaymentInstance");
-				Element elemMisc = getChild(elemJPI, "Host");
+				Element elemJPI = (Element)XMLUtil.getFirstChildByName(elemPayment, "PaymentInstance");
+				Element elemMisc = (Element)XMLUtil.getFirstChildByName(elemJPI, "Host");
 				m_PaymentPanel.m_textJPIHost.setText(getElementValue(elemMisc, "127.0.0.1"));
-				elemMisc = getChild(elemJPI, "Port");
+				elemMisc = (Element)XMLUtil.getFirstChildByName(elemJPI, "Port");
 				m_PaymentPanel.m_textJPIPort.setText(getElementValue(elemMisc, "4223"));
 
-				Element elemDatabase = getChild(elemPayment, "Database");
-				elemMisc = getChild(elemDatabase, "Host");
+				Element elemDatabase = (Element)XMLUtil.getFirstChildByName(elemPayment, "Database");
+				elemMisc = (Element)XMLUtil.getFirstChildByName(elemDatabase, "Host");
 				m_PaymentPanel.m_textDatabaseHost.setText(getElementValue(elemMisc, "127.0.0.1"));
-				elemMisc = getChild(elemDatabase, "Port");
+				elemMisc = (Element)XMLUtil.getFirstChildByName(elemDatabase, "Port");
 				m_PaymentPanel.m_textDatabasePort.setText(getElementValue(elemMisc, "5432"));
-				elemMisc = getChild(elemDatabase, "DBName");
+				elemMisc = (Element)XMLUtil.getFirstChildByName(elemDatabase, "DBName");
 				m_PaymentPanel.m_textDatabaseDBName.setText(getElementValue(elemMisc, "paydb"));
-				elemMisc = getChild(elemDatabase, "Username");
+				elemMisc = (Element)XMLUtil.getFirstChildByName(elemDatabase, "Username");
 				m_PaymentPanel.m_textDatabaseUsername.setText(getElementValue(elemMisc, "pay"));
 			}
 			else
@@ -701,7 +680,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 			}
 			// end Payment Section
 
-			Element elemNetwork = getChild(root, "Network");
+			Element elemNetwork = (Element)XMLUtil.getFirstChildByName(root, "Network");
 			Node netChild = elemNetwork.getFirstChild();
 			while (netChild != null)
 			{
@@ -714,24 +693,24 @@ public class ConfigFrame extends JPanel implements ActionListener
 				}
 				netChild = netChild.getNextSibling();
 			}
-			Element elemInfoServer = getChild(elemNetwork, "InfoService");
-			Element elemHost = getChild(elemInfoServer, "Host");
+			Element elemInfoServer = (Element)XMLUtil.getFirstChildByName(elemNetwork, "InfoService");
+			Element elemHost = (Element)XMLUtil.getFirstChildByName(elemInfoServer, "Host");
 			String host = getElementValue(elemHost, null);
 			m_NetworkPanel.setInfoHost(host);
-			Element elemIP = getChild(elemInfoServer, "IP");
+			Element elemIP = (Element)XMLUtil.getFirstChildByName(elemInfoServer, "IP");
 			if (elemIP != null)
 			{
 				String IP = getElementValue(elemIP, null);
 				m_NetworkPanel.setInfoIP(IP);
 			}
-			Element elemPort = getChild(elemInfoServer, "Port");
+			Element elemPort = (Element)XMLUtil.getFirstChildByName(elemInfoServer, "Port");
 			String port = getElementValue(elemPort, null);
 			m_NetworkPanel.setInfoPort(port);
 
-			Element elemCertificates = getChild(root, "Certificates");
-			Element elemOwnCert = getChild(elemCertificates, "OwnCertificate");
-			Element elem = getChild(elemOwnCert, "X509PKCS12");
-			String name = getElementValue(elem, null);
+			Element elemCertificates = (Element)XMLUtil.getFirstChildByName(root, "Certificates");
+			Element elemOwnCert = (Element)XMLUtil.getFirstChildByName(elemCertificates, "OwnCertificate");
+			Element elem = (Element)XMLUtil.getFirstChildByName(elemOwnCert, "X509PKCS12");
+			String name = XMLUtil.parseNodeString(elem, null);
 			if (name != null)
 			{
 				System.out.println("Loading own Priv-Cert");
@@ -742,8 +721,8 @@ public class ConfigFrame extends JPanel implements ActionListener
 				m_CertificatesPanel.setOwnPrivCert(null);
 			}
 			Element elemPrevCert =
-				getChild(elemCertificates, "PrevMixCertificate");
-			elem = getChild(elemPrevCert, "X509Certificate");
+				(Element)XMLUtil.getFirstChildByName(elemCertificates, "PrevMixCertificate");
+			elem = (Element)XMLUtil.getFirstChildByName(elemPrevCert, "X509Certificate");
 			name = getElementValue(elem, null);
 			if (name == null)
 			{
@@ -755,8 +734,8 @@ public class ConfigFrame extends JPanel implements ActionListener
 
 			}
 			Element elemNextCert =
-				getChild(elemCertificates, "NextMixCertificate");
-			elem = getChild(elemNextCert, "X509Certificate");
+				(Element)XMLUtil.getFirstChildByName(elemCertificates, "NextMixCertificate");
+			elem = (Element)XMLUtil.getFirstChildByName(elemNextCert, "X509Certificate");
 			name = getElementValue(elem, null);
 			if (name == null)
 			{
@@ -767,35 +746,35 @@ public class ConfigFrame extends JPanel implements ActionListener
 				m_CertificatesPanel.setNextPubCert(Base64.decode(name));
 
 			}
-			Element elemDescription = getChild(root, "Description");
-			Element elemLocation = getChild(elemDescription, "Location");
-			Element elemCity = getChild(elemLocation, "City");
+			Element elemDescription = (Element)XMLUtil.getFirstChildByName(root, "Description");
+			Element elemLocation = (Element)XMLUtil.getFirstChildByName(elemDescription, "Location");
+			Element elemCity = (Element)XMLUtil.getFirstChildByName(elemLocation, "City");
 			String city = getElementValue(elemCity, null);
 			m_DescriptionPanel.setCity(city);
-			Element elemState = getChild(elemLocation, "State");
+			Element elemState = (Element)XMLUtil.getFirstChildByName(elemLocation, "State");
 			String state = getElementValue(elemState, null);
 			m_DescriptionPanel.setState(state);
-			Element elemCountry = getChild(elemLocation, "Country");
+			Element elemCountry = (Element)XMLUtil.getFirstChildByName(elemLocation, "Country");
 			String country = getElementValue(elemCountry, null);
 			m_DescriptionPanel.setCountry(country);
 
 			Element elemGeo =
-				getChild(getChild(elemLocation, "Position"), "Geo");
-			Element elemLongi = getChild(elemGeo, "Longitude");
+				(Element)XMLUtil.getFirstChildByName((Element)XMLUtil.getFirstChildByName(elemLocation, "Position"), "Geo");
+			Element elemLongi = (Element)XMLUtil.getFirstChildByName(elemGeo, "Longitude");
 			String longi = getElementValue(elemLongi, null);
 			m_DescriptionPanel.setLongi(longi);
 
-			Element elemLati = getChild(elemGeo, "Latitude");
+			Element elemLati = (Element)XMLUtil.getFirstChildByName(elemGeo, "Latitude");
 			String lati = getElementValue(elemLati, null);
 			m_DescriptionPanel.setLati(lati);
 
-			Element elemOperator = getChild(elemDescription, "Operator");
+			Element elemOperator = (Element)XMLUtil.getFirstChildByName(elemDescription, "Operator");
 
-			Element elemOperatorOrg = getChild(elemOperator, "Organisation");
+			Element elemOperatorOrg = (Element)XMLUtil.getFirstChildByName(elemOperator, "Organisation");
 			String oporg = getElementValue(elemOperatorOrg, null);
 			m_DescriptionPanel.setOperatorOrg(oporg);
 
-			Element elemOperatorURL = getChild(elemOperator, "URL");
+			Element elemOperatorURL = (Element)XMLUtil.getFirstChildByName(elemOperator, "URL");
 			String opurl = getElementValue(elemOperatorURL, null);
 			m_DescriptionPanel.setOperatorURL(opurl);
 
