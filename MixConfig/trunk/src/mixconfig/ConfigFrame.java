@@ -332,6 +332,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 			}
 			else if (evt.getActionCommand().equals("About"))
 			{
+				MixConfig.about();
 			}
 		}
 		catch (Exception e)
