@@ -1106,7 +1106,10 @@ class OutgoingModel extends ConnectionModel
 								org.w3c.dom.Element proxy = getData(i).createAsElement(doc);
 								proxies.appendChild(proxy);
 						}
-				return proxies;
+                                if(proxies.hasChildNodes())
+				    return proxies;
+                                else
+                                    return null;
 		}
 
 		org.w3c.dom.Element createMixAsElement(org.w3c.dom.Document doc)
