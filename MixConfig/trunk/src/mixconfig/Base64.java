@@ -1,4 +1,6 @@
 package mixconfig;
+
+import anon.crypto.*;
 /**
  * Encodes and decodes to and from Base64 notation.
  *

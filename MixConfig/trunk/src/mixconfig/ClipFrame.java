@@ -35,6 +35,7 @@ import java.awt.BorderLayout;
 import java.awt.event.*;
 
 import javax.swing.JOptionPane;
+import anon.crypto.*;
 
 class ClipFrame extends Dialog implements ActionListener, ItemListener
 {
