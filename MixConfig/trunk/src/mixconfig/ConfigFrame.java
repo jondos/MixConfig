@@ -61,7 +61,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-
+import mixconfig.networkpanel.NetworkPanel;
+import mixconfig.networkpanel.ConnectionData;
 /**
  * The Frame of the MixConfig Application.
  */
@@ -74,7 +75,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 		//public static boolean New;
 		private JMenuItem saveMenuItem, saveclipItem;
 
-		protected static GeneralPanel m_GeneralPanel;
+		public static GeneralPanel m_GeneralPanel;
 		protected static NetworkPanel m_NetworkPanel;
 		protected static CertificatesPanel m_CertificatesPanel;
 		private static DescriptionPanel m_DescriptionPanel;

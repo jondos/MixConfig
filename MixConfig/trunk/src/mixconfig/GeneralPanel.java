@@ -46,7 +46,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-class GeneralPanel extends JPanel implements ItemListener,ActionListener
+final public class GeneralPanel extends JPanel implements ItemListener,ActionListener
 {
 	private JComboBox m_comboboxMixType;
 	private JTextField MixName,CascadeName,MixID,FileName,ID_Text,num_file;
