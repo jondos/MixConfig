@@ -131,178 +131,178 @@ class MyFrame extends JPanel implements ActionListener
     {
       if(evt.getActionCommand().equals("New"))
       {
-        int ret=JOptionPane.showConfirmDialog(TheApplet.getMainWindow(),
-                                              "You will lose unsaved information. Do you want to continue?",
-                                              "Caution!",JOptionPane.OK_CANCEL_OPTION);
-        if(ret==JOptionPane.OK_OPTION)
-           reset();
+	int ret=JOptionPane.showConfirmDialog(TheApplet.getMainWindow(),
+					      "You will lose unsaved information. Do you want to continue?",
+					      "Caution!",JOptionPane.OK_CANCEL_OPTION);
+	if(ret==JOptionPane.OK_OPTION)
+	   reset();
       }
       else if(evt.getActionCommand().equals("Exit"))
       {
-          //dispose();
-          System.exit(0);
+	  //dispose();
+	  System.exit(0);
       }
       else if(evt.getActionCommand().equals("Check"))
       {
-          String[] msg = check();
-          if(msg!=null && msg.length>0)
-              JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-                      msg, "Errors", JOptionPane.INFORMATION_MESSAGE);
-          else
-              JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-                      "No errors found.", "Check", JOptionPane.INFORMATION_MESSAGE);
+	  String[] msg = check();
+	  if(msg!=null && msg.length>0)
+	      JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+		      msg, "Errors", JOptionPane.INFORMATION_MESSAGE);
+	  else
+	      JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+		      "No errors found.", "Check", JOptionPane.INFORMATION_MESSAGE);
       }
       else if(evt.getActionCommand().equals("Save"))
       {
-          if(m_aktFileName!= null)
-              save(m_aktFileName);
+	  if(m_aktFileName!= null)
+	      save(m_aktFileName);
       }
       else if(evt.getActionCommand().equals("SaveAs"))
       {
-          try
-          {
-              File file = TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_XML).getSelectedFile();
-              if(file!=null)
-              {
-                  save(file.getCanonicalPath());
-                  saveMenuItem.setText("Save ["+file.getName()+"] ");
-                  saveMenuItem.setEnabled(true);
-                  m_aktFileName=file.getCanonicalPath();
-                  setTitle(TITLE+" - "+m_aktFileName);
-              }
-          }
-          catch(Exception e){};
+	  try
+	  {
+	      File file = TheApplet.showFileDialog(TheApplet.SAVE_DIALOG,TheApplet.FILTER_XML).getSelectedFile();
+	      if(file!=null)
+	      {
+		  save(file.getCanonicalPath());
+		  saveMenuItem.setText("Save ["+file.getName()+"] ");
+		  saveMenuItem.setEnabled(true);
+		  m_aktFileName=file.getCanonicalPath();
+		  setTitle(TITLE+" - "+m_aktFileName);
+	      }
+	  }
+	  catch(Exception e){};
       }
       else if(evt.getActionCommand().equals("OpenClip"))
       {
-          try
-          {
-              Clipboard cb = null;
-              try
-              {
-                  cb = (Clipboard) getToolkit().getClass().getMethod("getSystemSelection", new Class[] {}).invoke(getToolkit(),new Object[] {});
-              }
-              catch(Exception ex) {}
-              if(cb == null)
-                  cb = getToolkit().getSystemClipboard();
-              Transferable data = cb.getContents(this);
-              if(data!=null && data.isDataFlavorSupported(DataFlavor.stringFlavor))
-              {
-                  String text = (String)data.getTransferData(DataFlavor.stringFlavor);
-                  open_internal(text.getBytes());
-                  return;
-              }
-          }
-          catch(Exception e) { }
-          ClipFrame Open = new ClipFrame("Paste a file to be opened in the area provided.",true);
-          Open.show();
-          open_internal(Open.getText().getBytes());
+	  try
+	  {
+	      Clipboard cb = null;
+	      try
+	      {
+		  cb = (Clipboard) getToolkit().getClass().getMethod("getSystemSelection", new Class[] {}).invoke(getToolkit(),new Object[] {});
+	      }
+	      catch(Exception ex) {}
+	      if(cb == null)
+		  cb = getToolkit().getSystemClipboard();
+	      Transferable data = cb.getContents(this);
+	      if(data!=null && data.isDataFlavorSupported(DataFlavor.stringFlavor))
+	      {
+		  String text = (String)data.getTransferData(DataFlavor.stringFlavor);
+		  open_internal(text.getBytes());
+		  return;
+	      }
+	  }
+	  catch(Exception e) { }
+	  ClipFrame Open = new ClipFrame("Paste a file to be opened in the area provided.",true);
+	  Open.show();
+	  open_internal(Open.getText().getBytes());
       }
       else if(evt.getActionCommand().equals("SaveClip"))
       {
-          try
-          {
-              Clipboard cb = null;
-              try
-              {
-                  cb = (Clipboard) getToolkit().getClass().getMethod("getSystemSelection", new Class[] {}).invoke(getToolkit(),new Object[] {});
-              }
-              catch(Exception ex) {}
-              if(cb == null)
-                  cb = getToolkit().getSystemClipboard();
-              cb.setContents(
-                      new StringSelection(new String(save_internal())),
-                      new ClipboardOwner()
-                          {
-                              public void lostOwnership( Clipboard cb, Transferable co)
-                              {
-                                  // Don't care.
-                              }
-                          }
-                      );
+	  try
+	  {
+	      Clipboard cb = null;
+	      try
+	      {
+		  cb = (Clipboard) getToolkit().getClass().getMethod("getSystemSelection", new Class[] {}).invoke(getToolkit(),new Object[] {});
+	      }
+	      catch(Exception ex) {}
+	      if(cb == null)
+		  cb = getToolkit().getSystemClipboard();
+	      cb.setContents(
+		      new StringSelection(new String(save_internal())),
+		      new ClipboardOwner()
+			  {
+			      public void lostOwnership( Clipboard cb, Transferable co)
+			      {
+				  // Don't care.
+			      }
+			  }
+		      );
 /*
-              JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-                  "Configuration saved into clipboard.", "Save", JOptionPane.INFORMATION_MESSAGE);
-              return;
+	      JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+		  "Configuration saved into clipboard.", "Save", JOptionPane.INFORMATION_MESSAGE);
+	      return;
 */
-          }
-          catch(Exception e) { }
-          // There are some problems with the access of the
-          // clipboard, so after the try to copy it, we
-          // still offer the ClipFrame.
-          try
-          {
-              ClipFrame Save = new ClipFrame("Copy and Save this file in a new Location.",false);
-              Save.setText(new String(save_internal()));
-              Save.show();
-          }
-          catch(Exception e)
-          {
-              e.printStackTrace();
-          }
+	  }
+	  catch(Exception e) { }
+	  // There are some problems with the access of the
+	  // clipboard, so after the try to copy it, we
+	  // still offer the ClipFrame.
+	  try
+	  {
+	      ClipFrame Save = new ClipFrame("Copy and Save this file in a new Location.",false);
+	      Save.setText(new String(save_internal()));
+	      Save.show();
+	  }
+	  catch(Exception e)
+	  {
+	      e.printStackTrace();
+	  }
       }
       else if(evt.getActionCommand().equals("Open"))
       {
-          File file=TheApplet.showFileDialog(TheApplet.OPEN_DIALOG,TheApplet.FILTER_XML).getSelectedFile();
-          if(file!=null)
-          {
-              try
-              {
-                  open(file.getCanonicalPath());
-                  saveMenuItem.setText("Save ["+file.getName()+"] ");
-                  saveMenuItem.setEnabled(true);
-                  m_aktFileName=file.getCanonicalPath();
-                  setTitle(TITLE+" - "+m_aktFileName);
-              }
-              catch(Exception e)
-              {
-                  e.printStackTrace();
-              }
-          }
+	  File file=TheApplet.showFileDialog(TheApplet.OPEN_DIALOG,TheApplet.FILTER_XML).getSelectedFile();
+	  if(file!=null)
+	  {
+	      try
+	      {
+		  open(file.getCanonicalPath());
+		  saveMenuItem.setText("Save ["+file.getName()+"] ");
+		  saveMenuItem.setEnabled(true);
+		  m_aktFileName=file.getCanonicalPath();
+		  setTitle(TITLE+" - "+m_aktFileName);
+	      }
+	      catch(Exception e)
+	      {
+		  e.printStackTrace();
+	      }
+	  }
       }
       else if(evt.getActionCommand().equals("About"))
       {
-          JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-                                        "Mix Configuration Tool\nVersion: "+TheApplet.VERSION,
-                                        "About",JOptionPane.INFORMATION_MESSAGE,TheApplet.loadImage("icon.gif"));
+	  JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
+					"Mix Configuration Tool\nVersion: "+TheApplet.VERSION,
+					"About",JOptionPane.INFORMATION_MESSAGE,TheApplet.loadImage("icon.gif"));
       }
     }
 
     private void setTitle(String s)
     {
-        if(m_Parent!=null)
-            m_Parent.setTitle(s);
+	if(m_Parent!=null)
+	    m_Parent.setTitle(s);
     }
 
     private void reset()
     {
-        setTitle(TITLE);
-        saveMenuItem.setText("Save [none]");
-        saveMenuItem.setEnabled(false);
-        m_aktFileName=null;
-        m_GeneralPanel.clear();
-        m_NetworkPanel.clear();
-        m_CertificatesPanel.clear();
+	setTitle(TITLE);
+	saveMenuItem.setText("Save [none]");
+	saveMenuItem.setEnabled(false);
+	m_aktFileName=null;
+	m_GeneralPanel.clear();
+	m_NetworkPanel.clear();
+	m_CertificatesPanel.clear();
 
-        m_DescriptionPanel.setCity("");
-        m_DescriptionPanel.setLati("");
-        m_DescriptionPanel.setLongi("");
-        m_DescriptionPanel.setState("");
+	m_DescriptionPanel.setCity("");
+	m_DescriptionPanel.setLati("");
+	m_DescriptionPanel.setLongi("");
+	m_DescriptionPanel.setState("");
     }
 
     private Element getChild(Node node,String name)
     {
       if(node==null)
-        return null;
+	return null;
       Node tmp=node.getFirstChild();
       while(tmp!=null)
       {
-        if(tmp.getNodeName().equals(name))
-        {
-          if(tmp.getNodeType()==Node.ELEMENT_NODE)
-            return (Element)tmp;
-        }
-        tmp=tmp.getNextSibling();
+	if(tmp.getNodeName().equals(name))
+	{
+	  if(tmp.getNodeType()==Node.ELEMENT_NODE)
+	    return (Element)tmp;
+	}
+	tmp=tmp.getNextSibling();
       }
       return null;
     }
@@ -310,29 +310,29 @@ class MyFrame extends JPanel implements ActionListener
     private String getElementValue(Element elem,String def)
     {
       if(elem==null)
-        return def;
+	return def;
       Node n=elem.getFirstChild();
       if(n==null||n.getNodeType()!=n.TEXT_NODE)
-        return def;
+	return def;
       return n.getNodeValue();
     }
 
     private void open(String filename)
     {
-        try
-        {
-          File f=new File(filename);
-          int len=(int)f.length();
-          byte[] buff=new byte[len];
-          FileInputStream fin=new FileInputStream(f);
-          fin.read(buff);
-          fin.close();
-          open_internal(buff);
-        }
-        catch(Exception e)
-        {
-          e.printStackTrace();
-        }
+	try
+	{
+	  File f=new File(filename);
+	  int len=(int)f.length();
+	  byte[] buff=new byte[len];
+	  FileInputStream fin=new FileInputStream(f);
+	  fin.read(buff);
+	  fin.close();
+	  open_internal(buff);
+	}
+	catch(Exception e)
+	{
+	  e.printStackTrace();
+	}
     }
 
     private void open_internal(byte[] config)
@@ -340,88 +340,88 @@ class MyFrame extends JPanel implements ActionListener
       reset();
       try
       {
-        DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder=factory.newDocumentBuilder();
-        Document doc=docBuilder.parse(new ByteArrayInputStream(config));
+	DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
+	DocumentBuilder docBuilder=factory.newDocumentBuilder();
+	Document doc=docBuilder.parse(new ByteArrayInputStream(config));
 
-        Element root=doc.getDocumentElement();
-        Element elemGeneral=getChild(root,"General");
-        Element elemType=getChild(elemGeneral,"MixType");
-        String MixType=getElementValue(elemType,null);
-        m_GeneralPanel.setMixType(MixType);
+	Element root=doc.getDocumentElement();
+	Element elemGeneral=getChild(root,"General");
+	Element elemType=getChild(elemGeneral,"MixType");
+	String MixType=getElementValue(elemType,null);
+	m_GeneralPanel.setMixType(MixType);
 
-        Element elemName=getChild(elemGeneral,"MixName");
-        String MixName=getElementValue(elemName,null);
-        m_GeneralPanel.setMixName(MixName);
+	Element elemName=getChild(elemGeneral,"MixName");
+	String MixName=getElementValue(elemName,null);
+	m_GeneralPanel.setMixName(MixName);
 
-        Element elemCascade=getChild(elemGeneral,"CascadeName");
-        String CascadeName=getElementValue(elemCascade,null);
-        m_GeneralPanel.setCascadeName(CascadeName);
+	Element elemCascade=getChild(elemGeneral,"CascadeName");
+	String CascadeName=getElementValue(elemCascade,null);
+	m_GeneralPanel.setCascadeName(CascadeName);
 
-        Element elemMixID=getChild(elemGeneral,"MixID");
-        m_GeneralPanel.setAuto(false);
-        String MixID = getElementValue(elemMixID,null);
-        if(MixID!=null)
-            MixID=URLDecoder.decode(MixID);
-        m_GeneralPanel.setMixID(MixID);
+	Element elemMixID=getChild(elemGeneral,"MixID");
+	m_GeneralPanel.setAuto(false);
+	String MixID = getElementValue(elemMixID,null);
+	if(MixID!=null)
+	    MixID=URLDecoder.decode(MixID);
+	m_GeneralPanel.setMixID(MixID);
 
-        Element elemUserID = getChild(elemGeneral,"UserID");
-        if(elemUserID != null)
-        {
-          m_GeneralPanel.setUserID(getElementValue(elemUserID,null));
-        }
+	Element elemUserID = getChild(elemGeneral,"UserID");
+	if(elemUserID != null)
+	{
+	  m_GeneralPanel.setUserID(getElementValue(elemUserID,null));
+	}
 
-        Element elemFileDes = getChild(elemGeneral,"NrOfFileDescriptors");
-        if(elemFileDes != null)
-        {
-          m_GeneralPanel.setFileDes(getElementValue(elemFileDes,null));
-        }
+	Element elemFileDes = getChild(elemGeneral,"NrOfFileDescriptors");
+	if(elemFileDes != null)
+	{
+	  m_GeneralPanel.setFileDes(getElementValue(elemFileDes,null));
+	}
 
-        Element elemDaemon = getChild(elemGeneral,"Daemon");
-        String daemon = getElementValue(elemDaemon,"False");
-        m_GeneralPanel.setDaemon(daemon);
+	Element elemDaemon = getChild(elemGeneral,"Daemon");
+	String daemon = getElementValue(elemDaemon,"False");
+	m_GeneralPanel.setDaemon(daemon);
 
-        Element elemEnableLog = getChild(elemGeneral,"Logging");
-        if(elemEnableLog != null)
-        {
-            boolean bLogFile=false;
-            boolean bLogConsole=false;
-            boolean bLogSyslog=false;
-            String file=null;
-            boolean bLogcompress=false;
-            Element elemFile = getChild(elemEnableLog,"File");
-            if(elemFile != null)
-            {
-              file = getElementValue(elemFile,null);
-              bLogFile=true;
-              String sCompr = elemFile.getAttribute("compressed");
-              if(sCompr!=null && sCompr.equalsIgnoreCase("true"))
-                  bLogcompress = false;
-            }
-            Element elemSyslog = getChild(elemEnableLog,"SysLog");
-            if(elemSyslog != null)
-            {
-              bLogSyslog=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
-            }
-            Element elemConsole = getChild(elemEnableLog,"Console");
-            if(elemConsole != null)
-            {
-              bLogConsole=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
-            }
-            m_GeneralPanel.setLogging(bLogConsole,bLogSyslog,bLogFile,file,bLogcompress);
-        }
+	Element elemEnableLog = getChild(elemGeneral,"Logging");
+	if(elemEnableLog != null)
+	{
+	    boolean bLogFile=false;
+	    boolean bLogConsole=false;
+	    boolean bLogSyslog=false;
+	    String file=null;
+	    boolean bLogcompress=false;
+	    Element elemFile = getChild(elemEnableLog,"File");
+	    if(elemFile != null)
+	    {
+	      file = getElementValue(elemFile,null);
+	      bLogFile=true;
+	      String sCompr = elemFile.getAttribute("compressed");
+	      if(sCompr!=null && sCompr.equalsIgnoreCase("true"))
+		  bLogcompress = false;
+	    }
+	    Element elemSyslog = getChild(elemEnableLog,"SysLog");
+	    if(elemSyslog != null)
+	    {
+	      bLogSyslog=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
+	    }
+	    Element elemConsole = getChild(elemEnableLog,"Console");
+	    if(elemConsole != null)
+	    {
+	      bLogConsole=getElementValue(elemSyslog,"False").equalsIgnoreCase("true");
+	    }
+	    m_GeneralPanel.setLogging(bLogConsole,bLogSyslog,bLogFile,file,bLogcompress);
+	}
 
-        Element elemNetwork = getChild(root,"Network");
-        Node netChild = elemNetwork.getFirstChild();
-        while(netChild!=null)
-        {
-            if(netChild.getNodeType()==netChild.ELEMENT_NODE)
-            {
-                m_NetworkPanel.getIncomingModel().readFromElement((Element)netChild);
-                m_NetworkPanel.getOutgoingModel().readFromElement((Element)netChild);
-            }
-            netChild = netChild.getNextSibling();
-        }
+	Element elemNetwork = getChild(root,"Network");
+	Node netChild = elemNetwork.getFirstChild();
+	while(netChild!=null)
+	{
+	    if(netChild.getNodeType()==netChild.ELEMENT_NODE)
+	    {
+		m_NetworkPanel.getIncomingModel().readFromElement((Element)netChild);
+		m_NetworkPanel.getOutgoingModel().readFromElement((Element)netChild);
+	    }
+	    netChild = netChild.getNextSibling();
+	}
 	Element elemInfoServer = getChild(elemNetwork,"InfoService");
 	Element elemHost = getChild(elemInfoServer,"Host");
 	String host = getElementValue(elemHost,null);
@@ -440,66 +440,66 @@ class MyFrame extends JPanel implements ActionListener
 	Element elemOwnCert = getChild(elemCertificates,"OwnCertificate");
 	Element elem = getChild(elemOwnCert,"X509PKCS12");
 	String name = getElementValue(elem,null);
-        if(name!=null)
-        {
-          System.out.println("Loading own Priv-Cert");
-          m_CertificatesPanel.setOwnPrivCert(Base64.decode(name));
-        }
-        else
-          m_CertificatesPanel.setOwnPrivCert(null);
-        Element elemPrevCert = getChild(elemCertificates,"PrevMixCertificate");
-        elem = getChild(elemPrevCert,"X509Certificate");
-        name = getElementValue(elem,null);
-        if(name==null)
-          m_CertificatesPanel.setPrevPubCert(null);
-        else
-          m_CertificatesPanel.setPrevPubCert(Base64.decode(name));
+	if(name!=null)
+	{
+	  System.out.println("Loading own Priv-Cert");
+	  m_CertificatesPanel.setOwnPrivCert(Base64.decode(name));
+	}
+	else
+	  m_CertificatesPanel.setOwnPrivCert(null);
+	Element elemPrevCert = getChild(elemCertificates,"PrevMixCertificate");
+	elem = getChild(elemPrevCert,"X509Certificate");
+	name = getElementValue(elem,null);
+	if(name==null)
+	  m_CertificatesPanel.setPrevPubCert(null);
+	else
+	  m_CertificatesPanel.setPrevPubCert(Base64.decode(name));
 
 	Element elemNextCert = getChild(elemCertificates,"NextMixCertificate");
 	elem = getChild(elemNextCert,"X509Certificate");
 	name = getElementValue(elem,null);
-        if(name==null)
-            m_CertificatesPanel.setNextPubCert(null);
-        else
-            m_CertificatesPanel.setNextPubCert(Base64.decode(name));
+	if(name==null)
+	    m_CertificatesPanel.setNextPubCert(null);
+	else
+	    m_CertificatesPanel.setNextPubCert(Base64.decode(name));
 
 	Element elemDescription = getChild(root,"Description");
 	Element elemLocation=getChild(elemDescription,"Location");
-        Element elemCity = getChild(elemLocation,"City");
+	Element elemCity = getChild(elemLocation,"City");
 	String city = getElementValue(elemCity,null);
 	m_DescriptionPanel.setCity(city);
-        Element elemState = getChild(elemLocation,"State");
+	Element elemState = getChild(elemLocation,"State");
 	String state = getElementValue(elemState,null);
 	m_DescriptionPanel.setState(state);
 
-        Element elemGeo=getChild(getChild(elemLocation,"Position"),"Geo");
+	Element elemGeo=getChild(getChild(elemLocation,"Position"),"Geo");
 	Element elemLongi = getChild(elemGeo,"Longitude");
-        String longi = getElementValue(elemLongi,null);
-        m_DescriptionPanel.setLongi(longi);
+	String longi = getElementValue(elemLongi,null);
+	m_DescriptionPanel.setLongi(longi);
 
 	Element elemLati = getChild(elemGeo,"Latitude");
-        String lati = getElementValue(elemLati,null);
-        m_DescriptionPanel.setLati(lati);
+	String lati = getElementValue(elemLati,null);
+	m_DescriptionPanel.setLati(lati);
       }
       catch(Exception e)
       {
-        System.out.println("Open() - There was an error:");
-        e.printStackTrace();
+	System.out.println("Open() - There was an error:");
+	e.printStackTrace();
       }
     }
 
     private void save(String fileName)
     {
-        try
-        {
-          FileOutputStream fout=new FileOutputStream(fileName);
-          fout.write(save_internal());
-          fout.close();
-        }
-        catch(Exception e)
-        {
-        e.printStackTrace();
-        }
+	try
+	{
+	  FileOutputStream fout=new FileOutputStream(fileName);
+	  fout.write(save_internal());
+	  fout.close();
+	}
+	catch(Exception e)
+	{
+	e.printStackTrace();
+	}
     }
 
     private byte[] save_internal()
@@ -507,10 +507,10 @@ class MyFrame extends JPanel implements ActionListener
       try
 	{
 	  DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
-          DocumentBuilder docBuilder=factory.newDocumentBuilder();
+	  DocumentBuilder docBuilder=factory.newDocumentBuilder();
 	  Document doc=docBuilder.newDocument();
 
-          DocumentBuilderFactory factory2=DocumentBuilderFactory.newInstance();
+	  DocumentBuilderFactory factory2=DocumentBuilderFactory.newInstance();
 	  DocumentBuilder docBuilder2=factory2.newDocumentBuilder();
 	  Document doc2=docBuilder2.newDocument();
 
@@ -525,22 +525,22 @@ class MyFrame extends JPanel implements ActionListener
 	  Text text1=doc.createTextNode(elemmixtype);
 	  MixType.appendChild(text1);
 
-          String elemcascadename=m_GeneralPanel.getCascadeName();
-          Element elemCascadeName=doc.createElement("CascadeName");
-          elemGeneral.appendChild(elemCascadeName);
-          Text text1a=doc.createTextNode(elemcascadename);
-          elemCascadeName.appendChild(text1a);
+	  String elemcascadename=m_GeneralPanel.getCascadeName();
+	  Element elemCascadeName=doc.createElement("CascadeName");
+	  elemGeneral.appendChild(elemCascadeName);
+	  Text text1a=doc.createTextNode(elemcascadename);
+	  elemCascadeName.appendChild(text1a);
 
 	  String elemmixname=m_GeneralPanel.getMixName();
-          Element elemMixName=doc.createElement("MixName");
+	  Element elemMixName=doc.createElement("MixName");
 	  elemGeneral.appendChild(elemMixName);
 	  Text text2=doc.createTextNode(elemmixname);
 	  elemMixName.appendChild(text2);
 
 
 	  String mixID=m_GeneralPanel.getMixID();
-          Element elemMixID=doc.createElement("MixID");
-          elemGeneral.appendChild(elemMixID);
+	  Element elemMixID=doc.createElement("MixID");
+	  elemGeneral.appendChild(elemMixID);
 	  Text text3=doc.createTextNode(URLEncoder.encode(mixID));
 	  elemMixID.appendChild(text3);
 
@@ -567,7 +567,7 @@ class MyFrame extends JPanel implements ActionListener
 	  Text text5 = doc.createTextNode(m_GeneralPanel.getDaemon());
 	  elemDaemon.appendChild(text5);
 
-          if(m_GeneralPanel.isLoggingEnabled())
+	  if(m_GeneralPanel.isLoggingEnabled())
 	  {
 	    Element elemLogging = doc.createElement("Logging");
 	    elemGeneral.appendChild(elemLogging);
@@ -589,7 +589,7 @@ class MyFrame extends JPanel implements ActionListener
 	      String filename = m_GeneralPanel.getFileName();
 	      Element elemLog = doc.createElement("File");
 	      elemLogging.appendChild(elemLog);
-              elemLog.setAttribute("compressed",m_GeneralPanel.isLoggingCompressed()?"true":"false");
+	      elemLog.setAttribute("compressed",m_GeneralPanel.isLoggingCompressed()?"true":"false");
 	      Text text6 = doc.createTextNode(filename);
 	      elemLog.appendChild(text6);
 	    }
@@ -597,15 +597,15 @@ class MyFrame extends JPanel implements ActionListener
 
 	  Element elemNetwork=doc.createElement("Network");
 	  root.appendChild(elemNetwork);
-          if(m_NetworkPanel.getIncomingModel()!=null)
-              elemNetwork.appendChild(m_NetworkPanel.getIncomingModel().createAsElement(doc));
-          if(m_NetworkPanel.getOutgoingModel()!=null)
-          {
-              org.w3c.dom.Element mix = m_NetworkPanel.getOutgoingModel().createMixAsElement(doc);
-              if(mix!=null)
-                  elemNetwork.appendChild(mix);
-              elemNetwork.appendChild(m_NetworkPanel.getOutgoingModel().createProxiesAsElement(doc));
-          }
+	  if(m_NetworkPanel.getIncomingModel()!=null)
+	      elemNetwork.appendChild(m_NetworkPanel.getIncomingModel().createAsElement(doc));
+	  if(m_NetworkPanel.getOutgoingModel()!=null)
+	  {
+	      org.w3c.dom.Element mix = m_NetworkPanel.getOutgoingModel().createMixAsElement(doc);
+	      if(mix!=null)
+		  elemNetwork.appendChild(mix);
+	      elemNetwork.appendChild(m_NetworkPanel.getOutgoingModel().createProxiesAsElement(doc));
+	  }
 	  Element elemInfoSer = doc.createElement("InfoService");
 	  elemNetwork.appendChild(elemInfoSer);
 	  String Host = m_NetworkPanel.getHost();
@@ -615,7 +615,7 @@ class MyFrame extends JPanel implements ActionListener
 	  elemHost.appendChild(text9);
 
 	  String IP_Text = m_NetworkPanel.getIP();
-          if(!IP_Text.equals(""))
+	  if(!IP_Text.equals(""))
 	  {
 	    Element elemIP = doc.createElement("IP");
 	    elemInfoSer.appendChild(elemIP);
@@ -629,54 +629,54 @@ class MyFrame extends JPanel implements ActionListener
 	  text9 = doc.createTextNode(Port);
 	  elemPort.appendChild(text9);
 
- 	  Element elemCertificate = doc.createElement("Certificates");
+	  Element elemCertificate = doc.createElement("Certificates");
 	  root.appendChild(elemCertificate);
 	  Element elemOwn = doc.createElement("OwnCertificate");
 	  elemCertificate.appendChild(elemOwn);
 
 	  Element elem = doc.createElement("X509PKCS12");
 	  elemOwn.appendChild(elem);
-          byte[] buff = m_CertificatesPanel.getOwnPrivCert();
-          Text text;
-          if(buff!=null)
-          {
-                 text = doc.createTextNode(Base64.encodeBytes(buff,true));
-                elem.appendChild(text);
-          }
+	  byte[] buff = m_CertificatesPanel.getOwnPrivCert();
+	  Text text;
+	  if(buff!=null)
+	  {
+		 text = doc.createTextNode(Base64.encodeBytes(buff,true));
+		elem.appendChild(text);
+	  }
 	  elem = doc.createElement("X509Certificate");
 	  elemOwn.appendChild(elem);
-          buff = m_CertificatesPanel.getOwnPubCert();
-          if(buff!=null)
-          {
-                text = doc.createTextNode(Base64.encodeBytes(buff,true));
-                elem.appendChild(text);
-          }
-          buff = m_CertificatesPanel.getPrevPubCert();
+	  buff = m_CertificatesPanel.getOwnPubCert();
 	  if(buff!=null)
-          {
-            Element elemPrevious = doc.createElement("PrevMixCertificate");
-                  elemCertificate.appendChild(elemPrevious);
-                  elem = doc.createElement("X509Certificate");
-            elemPrevious.appendChild(elem);
-            text = doc.createTextNode(Base64.encodeBytes(buff,true));
-                  elem.appendChild(text);
-          }
-          buff = m_CertificatesPanel.getNextPubCert();
+	  {
+		text = doc.createTextNode(Base64.encodeBytes(buff,true));
+		elem.appendChild(text);
+	  }
+	  buff = m_CertificatesPanel.getPrevPubCert();
 	  if(buff!=null)
-          {
-            Element elemNext = doc.createElement("NextMixCertificate");
-            elemCertificate.appendChild(elemNext);
-            elem = doc.createElement("X509Certificate");
-            elemNext.appendChild(elem);
-            buff = m_CertificatesPanel.getNextPubCert();
-            text = doc.createTextNode(Base64.encodeBytes(buff));
-            elem.appendChild(text);
-          }
+	  {
+	    Element elemPrevious = doc.createElement("PrevMixCertificate");
+		  elemCertificate.appendChild(elemPrevious);
+		  elem = doc.createElement("X509Certificate");
+	    elemPrevious.appendChild(elem);
+	    text = doc.createTextNode(Base64.encodeBytes(buff,true));
+		  elem.appendChild(text);
+	  }
+	  buff = m_CertificatesPanel.getNextPubCert();
+	  if(buff!=null)
+	  {
+	    Element elemNext = doc.createElement("NextMixCertificate");
+	    elemCertificate.appendChild(elemNext);
+	    elem = doc.createElement("X509Certificate");
+	    elemNext.appendChild(elem);
+	    buff = m_CertificatesPanel.getNextPubCert();
+	    text = doc.createTextNode(Base64.encodeBytes(buff));
+	    elem.appendChild(text);
+	  }
 	  Element elemDescription = doc.createElement("Description");
 	  root.appendChild(elemDescription);
 	  Element elemLocation=doc.createElement("Location");
-          elemDescription.appendChild(elemLocation);
-          Element elemCity = doc.createElement("City");
+	  elemDescription.appendChild(elemLocation);
+	  Element elemCity = doc.createElement("City");
 	  elemLocation.appendChild(elemCity);
 	  String city = m_DescriptionPanel.getCity();
 	  Text text11 = doc.createTextNode(city);
@@ -689,10 +689,10 @@ class MyFrame extends JPanel implements ActionListener
 	  elemState.appendChild(text11);
 
 	  Element elemPosition=doc.createElement("Position");
-          elemLocation.appendChild(elemPosition);
-          Element elemGeo=doc.createElement("Geo");
-          elemPosition.appendChild(elemGeo);
-          String Position = m_DescriptionPanel.getLongitude();
+	  elemLocation.appendChild(elemPosition);
+	  Element elemGeo=doc.createElement("Geo");
+	  elemPosition.appendChild(elemGeo);
+	  String Position = m_DescriptionPanel.getLongitude();
 	  Element elemLong = doc.createElement("Longitude");
 	  text11 = doc.createTextNode(Position);
 	  elemGeo.appendChild(elemLong);
@@ -706,20 +706,20 @@ class MyFrame extends JPanel implements ActionListener
 	  //Writing to File...
 	  ByteArrayOutputStream fout=new ByteArrayOutputStream();
 	  Transformer trans=TransformerFactory.newInstance().newTransformer();
-          trans.setOutputProperty("indent","yes");
-          try{trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");}catch(Exception e){e.printStackTrace();};
+	  trans.setOutputProperty("indent","yes");
+	  try{trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");}catch(Exception e){e.printStackTrace();};
 	  trans.getOutputProperties().list(System.out);
-          DOMSource src=new DOMSource(doc);
-          StreamResult target=new StreamResult(fout);
-          trans.transform(src,target);
+	  DOMSource src=new DOMSource(doc);
+	  StreamResult target=new StreamResult(fout);
+	  trans.transform(src,target);
 	  fout.close();
-          return fout.toByteArray();
+	  return fout.toByteArray();
 	}
-        catch(Exception e)
+	catch(Exception e)
 	{
 	  System.out.println("Save() - There was an error:");
 	  e.printStackTrace();
-          return null;
+	  return null;
 	}
     }
 
@@ -727,78 +727,78 @@ class MyFrame extends JPanel implements ActionListener
 
     private boolean isNumber(String str)
     {
-        try
-        {
-            Integer.parseInt(str, 10);
-            return true;
-        }
-        catch(NumberFormatException ev)
-        {
-            return false;
-        }
+	try
+	{
+	    Integer.parseInt(str, 10);
+	    return true;
+	}
+	catch(NumberFormatException ev)
+	{
+	    return false;
+	}
     }
     private String[] check()
     {
-        java.util.Vector errors = new java.util.Vector();
+	java.util.Vector errors = new java.util.Vector();
 
-        if(m_GeneralPanel.getMixName().equals(""))
-            errors.addElement("Mix Name not entered in General Panel.");
-        if(m_GeneralPanel.getMixType().equals("FirstMix") &&
-           m_GeneralPanel.getCascadeName().equals(""))
-            errors.addElement("Cascade Name not entered in General Panel.");
-        if(m_GeneralPanel.getMixID().equals(""))
-            errors.addElement("Mix ID field is blank in General Panel.");
-        if(m_GeneralPanel.getUserID()!=null &&
-           m_GeneralPanel.getUserID().equals(""))
-            errors.addElement("User ID not entered in General Panel.");
-        if(m_GeneralPanel.getUserID()!=null &&
-           m_GeneralPanel.getUserID().equals(""))
-            errors.addElement("User ID not entered in General Panel.");
-        if(m_GeneralPanel.getFileDes()!=null &&
-           !isNumber(m_GeneralPanel.getFileDes()))
-            errors.addElement("Number of File Descriptors is not a number in General Panel.");
-        if(m_GeneralPanel.getEnabled().equals("Logtodir") &&
-           m_GeneralPanel.getFileName().equals(""))
-            errors.addElement("No directory for logging entered in General Panel.");
+	if(m_GeneralPanel.getMixName().equals(""))
+	    errors.addElement("Mix Name not entered in General Panel.");
+	if(m_GeneralPanel.getMixType().equals("FirstMix") &&
+	   m_GeneralPanel.getCascadeName().equals(""))
+	    errors.addElement("Cascade Name not entered in General Panel.");
+	if(m_GeneralPanel.getMixID().equals(""))
+	    errors.addElement("Mix ID field is blank in General Panel.");
+	if(m_GeneralPanel.getUserID()!=null &&
+	   m_GeneralPanel.getUserID().equals(""))
+	    errors.addElement("User ID not entered in General Panel.");
+	if(m_GeneralPanel.getUserID()!=null &&
+	   m_GeneralPanel.getUserID().equals(""))
+	    errors.addElement("User ID not entered in General Panel.");
+	if(m_GeneralPanel.getFileDes()!=null &&
+	   !isNumber(m_GeneralPanel.getFileDes()))
+	    errors.addElement("Number of File Descriptors is not a number in General Panel.");
+	if(m_GeneralPanel.getEnabled().equals("Logtodir") &&
+	   m_GeneralPanel.getFileName().equals(""))
+	    errors.addElement("No directory for logging entered in General Panel.");
 
-        if(m_NetworkPanel.getIncomingModel().getRowCount()==0)
-            errors.addElement("No Incoming Connection given in Network Panel.");
-        if(m_NetworkPanel.getOutgoingModel().getRowCount()==0)
-            errors.addElement("No Outgoing Connection given in Network Panel.");
-        else if(!m_GeneralPanel.getMixType().equals("LastMix"))
-        {
-            if(m_NetworkPanel.getOutgoingModel().getRowCount()>1)
-                errors.addElement("Too many Outgoing Connections in Network Panel.");
-        }
-        if(m_NetworkPanel.getHost().equals(""))
-            errors.addElement("The Host field should not be blank in Network Panel.");
-        if(m_NetworkPanel.getPort().equals(""))
-            errors.addElement("The Port field should not be blank in Network Panel.");
-        if(!m_NetworkPanel.IP_Text.isEmpty() &&
-           !m_NetworkPanel.IP_Text.isCorrect())
-            errors.addElement("IP of Info Service is not correct in Network Panel.");
+	if(m_NetworkPanel.getIncomingModel().getRowCount()==0)
+	    errors.addElement("No Incoming Connection given in Network Panel.");
+	if(m_NetworkPanel.getOutgoingModel().getRowCount()==0)
+	    errors.addElement("No Outgoing Connection given in Network Panel.");
+	else if(!m_GeneralPanel.getMixType().equals("LastMix"))
+	{
+	    if(m_NetworkPanel.getOutgoingModel().getRowCount()>1)
+		errors.addElement("Too many Outgoing Connections in Network Panel.");
+	}
+	if(m_NetworkPanel.getHost().equals(""))
+	    errors.addElement("The Host field should not be blank in Network Panel.");
+	if(m_NetworkPanel.getPort().equals(""))
+	    errors.addElement("The Port field should not be blank in Network Panel.");
+	if(!m_NetworkPanel.IP_Text.isEmpty() &&
+	   !m_NetworkPanel.IP_Text.isCorrect())
+	    errors.addElement("IP of Info Service is not correct in Network Panel.");
 
-        if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
-            errors.addElement("Own Mix Certificate is missing in Certificates Panel.");
-        if(m_CertificatesPanel.getPrevPubCert()==null)
-            errors.addElement("Previous Mix Certificate is missing in Certificates Panel.");
-        if(m_CertificatesPanel.getNextPubCert()==null)
-            errors.addElement("Next Mix Certificate is missing in Certificates Panel.");
+	if(m_CertificatesPanel.getOwnPrivCert()==null||m_CertificatesPanel.getOwnPubCert()==null)
+	    errors.addElement("Own Mix Certificate is missing in Certificates Panel.");
+	if(m_CertificatesPanel.getPrevPubCert()==null)
+	    errors.addElement("Previous Mix Certificate is missing in Certificates Panel.");
+	if(m_CertificatesPanel.getNextPubCert()==null)
+	    errors.addElement("Next Mix Certificate is missing in Certificates Panel.");
 
-        if(m_DescriptionPanel.getCity().equals(""))
-            errors.addElement("The city field cannot be left blank in Description Panel.");
-        if(m_DescriptionPanel.getState().equals(""))
-            errors.addElement("The state field cannot be left blank in Description Panel.");
-        if(m_DescriptionPanel.getLatitude().equals("") && !m_DescriptionPanel.getLongitude().equals(""))
-            errors.addElement("Latitude is missing in Description Panel.");
-        if(!m_DescriptionPanel.getLatitude().equals("") && m_DescriptionPanel.getLongitude().equals(""))
-            errors.addElement("Longitude is missing in Description Panel.");
+	if(m_DescriptionPanel.getCity().equals(""))
+	    errors.addElement("The city field cannot be left blank in Description Panel.");
+	if(m_DescriptionPanel.getState().equals(""))
+	    errors.addElement("The state field cannot be left blank in Description Panel.");
+	if(m_DescriptionPanel.getLatitude().equals("") && !m_DescriptionPanel.getLongitude().equals(""))
+	    errors.addElement("Latitude is missing in Description Panel.");
+	if(!m_DescriptionPanel.getLatitude().equals("") && m_DescriptionPanel.getLongitude().equals(""))
+	    errors.addElement("Longitude is missing in Description Panel.");
 
-        String[] asString = new String[errors.size()];
-        for(int i=0;i<asString.length;i++)
-            asString[i] = (String)errors.elementAt(i);
-        // return (String[]) errors.toArray(new String[] {});
-        return asString;
+	String[] asString = new String[errors.size()];
+	for(int i=0;i<asString.length;i++)
+	    asString[i] = (String)errors.elementAt(i);
+	// return (String[]) errors.toArray(new String[] {});
+	return asString;
     }
 }
 
@@ -819,9 +819,9 @@ public class TheApplet extends JApplet
   {
       try
       {
-          //Security.addProvider((java.security.Provider)java.lang.Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider").newInstance());
-          Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-        }
+	  //Security.addProvider((java.security.Provider)java.lang.Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider").newInstance());
+	  Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+	}
       catch(Exception e) {
       e.printStackTrace();
       }
@@ -837,7 +837,7 @@ public class TheApplet extends JApplet
     {
        public void windowClosing(WindowEvent e)
        {
-           System.exit(0);
+	   System.exit(0);
        }
     });
 
@@ -857,7 +857,7 @@ public class TheApplet extends JApplet
     // Let's search for the parent frame:
     java.awt.Component comp = this;
     while((comp=comp.getParent())!=null &&
-          !(comp instanceof java.awt.Frame));
+	  !(comp instanceof java.awt.Frame));
     m_MainWindow=(Frame) comp;
     myFrame = new MyFrame(null);
     //myFrame.pack();//setBounds(10,10,600,650);
@@ -872,30 +872,30 @@ public class TheApplet extends JApplet
 
    public static ImageIcon loadImage(String name)
     {
-        return new ImageIcon(TheApplet.class.getResource(name));
-	   }
+	return new ImageIcon(TheApplet.class.getResource(name));
+    }
 
      public static JFileChooser showFileDialog(int type, int filter_type)
       {
-        SimpleFileFilter active = null;
-        JFileChooser fd2= new JFileChooser();
-        fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        if((filter_type&FILTER_CER)!=0)
-          fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_CER));
-        if((filter_type&FILTER_B64_CER)!=0)
-          fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_B64_CER));
-        if((filter_type&FILTER_XML)!=0)
-          fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_XML));
-        if((filter_type&FILTER_PFX)!=0)
-          fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_PFX));
-        if(active!=null)
-            fd2.setFileFilter(active);
-        fd2.setFileHidingEnabled(false);
-        if(type==SAVE_DIALOG)
-          fd2.showSaveDialog(myFrame);
-        else
-          fd2.showOpenDialog(myFrame);
-        return fd2;
+	SimpleFileFilter active = null;
+	JFileChooser fd2= new JFileChooser();
+	fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
+	if((filter_type&FILTER_CER)!=0)
+	  fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_CER));
+	if((filter_type&FILTER_B64_CER)!=0)
+	  fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_B64_CER));
+	if((filter_type&FILTER_XML)!=0)
+	  fd2.addChoosableFileFilter(active=new SimpleFileFilter(FILTER_XML));
+	if((filter_type&FILTER_PFX)!=0)
+	  fd2.addChoosableFileFilter(new SimpleFileFilter(FILTER_PFX));
+	if(active!=null)
+	    fd2.setFileFilter(active);
+	fd2.setFileHidingEnabled(false);
+	if(type==SAVE_DIALOG)
+	  fd2.showSaveDialog(myFrame);
+	else
+	  fd2.showOpenDialog(myFrame);
+	return fd2;
       }
 
 }
