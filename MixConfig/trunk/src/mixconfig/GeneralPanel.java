@@ -147,11 +147,11 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     add(Console);
     Console.setEnabled(false);
 
-    File = new JRadioButton("Log to file");
+    File = new JRadioButton("Log to directory");
     c.gridy = 10;
     c.weightx = 0;
     File.addActionListener(this);
-    File.setActionCommand("Logtofile");
+    File.setActionCommand("Logtodir");
     layout.setConstraints(File,c);
     add(File);
     File.setEnabled(false);
@@ -248,7 +248,7 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     if(Syslog.isSelected() == true)
       return "LogtoSyslog";
     if(File.isSelected() == true)
-      return "Logtofile";
+      return "Logtodir";
     if(Console.isSelected() == true)
       return "LogtoConsole";
     return "null";
@@ -334,10 +334,20 @@ class GeneralPanel extends JPanel implements ItemListener,ActionListener
     FileName.setEnabled(File.isSelected());
   }
 
+  public void updateMixId()
+  {
+      if(Auto.isSelected())
+          MixID.setText(java.net.URLEncoder.encode(MyFrame.m_NetworkPanel.getIP()+":"+MyFrame.m_NetworkPanel.getPort()));
+  }
   public void itemStateChanged(ItemEvent ie)
   {
     if(Auto.isSelected() == true)
-      MixID.setText("Auto is Selected");
+    {
+        MixID.setEnabled(false);
+        updateMixId();
+    }
+    else
+        MixID.setEnabled(true);
 
     if(m_checkboxLogging.isSelected())
       {
