@@ -28,13 +28,19 @@ package anon.crypto;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import anon.util.XMLUtil;
+
 import anon.util.IXMLEncodable;
 import anon.util.XMLParseException;
+import anon.util.XMLUtil;
 
 /**
  * Certificate store class. It contains the (root) certificates in a hashtable structure,
@@ -119,6 +125,7 @@ final public class JAPCertificateStore implements IXMLEncodable
 		try
 		{
 			m_HTCertStore.put(a_cert.getId(), a_cert);
+      LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Added / updated certificate '" + a_cert.getSubject().toString() + "' in the certificate store. Now there are " + Integer.toString(size()) + " certificates stored in this certificate store.");    
 			return true;
 		}
 		catch (Exception e)
