@@ -13,7 +13,6 @@ import java.awt.Insets;
 import java.awt.Frame;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.Toolkit;
 
 import java.math.BigInteger;
 
@@ -22,14 +21,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-import javax.swing.JTextArea;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.AttributeSet;
@@ -42,8 +39,6 @@ import java.security.cert.*;
 import java.security.*;
 import java.security.interfaces.*;
 import java.security.spec.DSAParameterSpec;
-import org.bouncycastle.jce.X509V3CertificateGenerator;
-import org.bouncycastle.jce.provider.*;
 
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.pkcs.*;
@@ -58,7 +53,6 @@ import org.bouncycastle.crypto.params.DSAParameters;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.signers.DSASigner;
 import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.CipherParameters;
 
 class CertificatesPanel extends JPanel implements ActionListener
   {
@@ -670,7 +664,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 	      day = new JTextField(2);
 	      day.setMinimumSize(day.getPreferredSize());
 	      day.setDocument(new DayDocument(day));
-	      day.setText(Integer.toString(cal.get(cal.DAY_OF_MONTH)));
+	      day.setText(Integer.toString(cal.get(Calendar.DAY_OF_MONTH)));
 	      gbc.weightx = 1;
 	      gbc.insets.right = 1;
 	      layout.setConstraints(day,gbc);
@@ -703,7 +697,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 		      return nr-1;
 		  }
 	      });
-	      month.setSelectedIndex(cal.get(cal.MONTH));
+	      month.setSelectedIndex(cal.get(Calendar.MONTH));
 	      gbc.weightx = 1;
 	      layout.setConstraints(month,gbc);
 	      add(month);
@@ -712,7 +706,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 	      year = new JTextField(4);
 	      year.setMinimumSize(year.getPreferredSize());
 	      year.setDocument(new IntegerDocument(year));
-	      year.setText(Integer.toString(cal.get(cal.YEAR)));
+	      year.setText(Integer.toString(cal.get(Calendar.YEAR)));
 	      gbc.weightx = 1;
 	      layout.setConstraints(year,gbc);
 	      add(year);
@@ -721,7 +715,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 	      hour = new JTextField(2);
 	      hour.setMinimumSize(day.getPreferredSize());
 	      hour.setDocument(new IntegerDocument(23,hour));
-	      hour.setText(Integer.toString(cal.get(cal.HOUR)));
+	      hour.setText(Integer.toString(cal.get(Calendar.HOUR)));
 	      gbc.weightx = 1;
 	      gbc.insets.right = 1;
 	      layout.setConstraints(hour,gbc);
@@ -736,7 +730,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 	      min = new JTextField(2);
 	      min.setMinimumSize(day.getPreferredSize());
 	      min.setDocument(new IntegerDocument(59,min));
-	      min.setText(Integer.toString(cal.get(cal.MINUTE)));
+	      min.setText(Integer.toString(cal.get(Calendar.MINUTE)));
 	      gbc.weightx = 1;
 	      layout.setConstraints(min,gbc);
 	      add(min);
@@ -749,7 +743,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 	      sec = new JTextField(2);
 	      sec.setMinimumSize(day.getPreferredSize());
 	      sec.setDocument(new IntegerDocument(59,sec));
-	      sec.setText(Integer.toString(cal.get(cal.SECOND)));
+	      sec.setText(Integer.toString(cal.get(Calendar.SECOND)));
 	      gbc.weightx = 1;
 	      layout.setConstraints(sec,gbc);
 	      add(sec);
@@ -765,12 +759,12 @@ class CertificatesPanel extends JPanel implements ActionListener
 	  {
 	      Calendar cal = Calendar.getInstance();
 	      cal.setTime(date);
-	      day.setText(Integer.toString(cal.get(cal.DAY_OF_MONTH)));
-	      month.setSelectedIndex(cal.get(cal.MONTH));
-	      year.setText(Integer.toString(cal.get(cal.YEAR)));
-	      hour.setText(Integer.toString(cal.get(cal.HOUR)));
-	      min.setText(Integer.toString(cal.get(cal.MINUTE)));
-	      sec.setText(Integer.toString(cal.get(cal.SECOND)));
+	      day.setText(Integer.toString(cal.get(Calendar.DAY_OF_MONTH)));
+	      month.setSelectedIndex(cal.get(Calendar.MONTH));
+	      year.setText(Integer.toString(cal.get(Calendar.YEAR)));
+	      hour.setText(Integer.toString(cal.get(Calendar.HOUR)));
+	      min.setText(Integer.toString(cal.get(Calendar.MINUTE)));
+	      sec.setText(Integer.toString(cal.get(Calendar.SECOND)));
 	  }
 
 	  public Date getDate()
@@ -843,7 +837,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 
 	    Calendar cal = Calendar.getInstance();
 	    cal.setTime(now);
-	    cal.add(cal.YEAR, 1);
+	    cal.add(Calendar.YEAR, 1);
 	    to = new DateTextField(cal.getTime());
 	    layout.setConstraints(to,gbc);
 	    getContentPane().add(to);
@@ -859,7 +853,7 @@ class CertificatesPanel extends JPanel implements ActionListener
 		    {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(from.getDate());
-			cal.add(cal.YEAR, 1);
+			cal.add(Calendar.YEAR, 1);
 			to.setDate(cal.getTime());
 		    }
 		}
@@ -955,8 +949,6 @@ class CertificatesPanel extends JPanel implements ActionListener
 
       SwingWorker worker = new SwingWorker()
       {
-          private static final int SALT_SIZE = 20;
-
 	  public Object construct()
 	  {
 	      V3TBSCertificateGenerator v3certgen=new V3TBSCertificateGenerator();
@@ -1334,8 +1326,8 @@ class BusyWindow extends javax.swing.JWindow implements ActionListener
 
     public void update(Graphics g)
     {
-       paint(g);
-       System.out.print("Update called\n");
+        paint(g);
+        System.out.print("Update called\n");
     }
 
     public void setSwingWorker(SwingWorker s)
