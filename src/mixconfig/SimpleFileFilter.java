@@ -5,13 +5,25 @@ import java.io.File;
       {
         private String m_strDesc;
         private String m_strExtension;
+        private int filterType;
+
+        public int getFilterType()
+        {
+            return filterType;
+        }
+
         public SimpleFileFilter(int filter_type)
           {
+            filterType = filter_type;
             switch (filter_type)
               {
                 case TheApplet.FILTER_CER:
                   m_strDesc="Public X.509 Certificate (*.cer)";
                   m_strExtension=".cer";
+                break;
+                case TheApplet.FILTER_B64_CER:
+                    m_strDesc="Base64 encoded Public X.509 Certificate (*.cer)";
+                    m_strExtension=".cer";
                 break;
                 case TheApplet.FILTER_XML:
                   m_strDesc="Mix Configuration (*.xml)";
@@ -25,7 +37,6 @@ import java.io.File;
                   m_strDesc="";
                   m_strExtension="";
               }
-
           };
 
         public boolean accept(File f)
