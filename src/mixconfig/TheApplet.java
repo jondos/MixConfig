@@ -22,7 +22,7 @@ public class TheApplet extends JApplet
 	public final static int FILTER_XML=2;
 	public final static int FILTER_PFX=4;
 	public final static int FILTER_B64_CER=8;
-	public final static String VERSION="00.01.016";
+	public final static String VERSION="00.01.017";
 
 	public static void main(String[] args)
 	{
