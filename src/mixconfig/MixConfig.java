@@ -70,7 +70,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.02.024"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.02.025"; //NEVER change the layout of this line!!
 
 	public static void main(String[] args)
 	{

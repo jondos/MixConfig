@@ -81,7 +81,7 @@ public class ConfigFrame extends JPanel implements ActionListener
 	private static DescriptionPanel m_DescriptionPanel;
 
 	// added by Bastian Voigt (Why static??)
-	private static PaymentPanel m_PaymentPanel;
+	protected static PaymentPanel m_PaymentPanel;
 
 	public ConfigFrame(JFrame parent)
 	{
@@ -923,15 +923,33 @@ public class ConfigFrame extends JPanel implements ActionListener
 				Element elemJPI = doc.createElement("PaymentInstance");
 				elemPayment.appendChild(elemJPI);
 
-				Element elemMisc = doc.createElement("Host");
+				Element elemMisc = doc.createElement("Name");
 				elemJPI.appendChild(elemMisc);
-				Text elemText = doc.createTextNode(m_PaymentPanel.m_textJPIHost.getText());
+				Text elemText = doc.createTextNode(m_PaymentPanel.m_textJPIName.getText());
+				elemMisc.appendChild(elemText);
+
+				elemMisc = doc.createElement("Host");
+				elemJPI.appendChild(elemMisc);
+				elemText = doc.createTextNode(m_PaymentPanel.m_textJPIHost.getText());
 				elemMisc.appendChild(elemText);
 
 				elemMisc = doc.createElement("Port");
 				elemJPI.appendChild(elemMisc);
 				elemText = doc.createTextNode(m_PaymentPanel.m_textJPIPort.getText());
 				elemMisc.appendChild(elemText);
+
+				// cert
+				byte[] certBuf = m_PaymentPanel.getJpiPubCert();
+				if (certBuf != null)
+				{
+					Element elemCert = doc.createElement("JPICertificate");
+					elemPayment.appendChild(elemCert);
+					elemMisc = doc.createElement("X509Certificate");
+					elemCert.appendChild(elemMisc);
+					elemText = doc.createTextNode(Base64.encode(certBuf, true));
+					elemMisc.appendChild(elemText);
+					elemMisc.setAttribute("xml:space", "preserve");
+				}
 
 				Element elemDatabase = doc.createElement("Database");
 				elemPayment.appendChild(elemDatabase);
