@@ -26,6 +26,7 @@
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
 package anon.crypto;
+
 /* Hint: This file may be only a copy of the original file which is always in the JAP source tree!
  * If you change something - do not forget to add the changes also to the JAP source tree!
  */
@@ -49,6 +50,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import anon.util.Base64;
 import anon.util.XMLUtil;
+import anon.crypto.*;
 
 public class JAPSignature
 {
@@ -298,16 +300,18 @@ public class JAPSignature
 	 */
 	public void signXmlNode(Element toSign) throws Exception
 	{
-          	/* if there are any Signature nodes, remove them --> we create a new one */
-		Node oldSig=XMLUtil.getFirstChildByName(toSign,"Signature");
-  		//NodeList signatureNodes = toSign.getElementsByTagName("Signature");
+		/* if there are any Signature nodes, remove them --> we create a new one */
+		Node oldSig = XMLUtil.getFirstChildByName(toSign, "Signature");
+		//NodeList signatureNodes = toSign.getElementsByTagName("Signature");
 		//for (int i = signatureNodes.getLength(); i > 0; i--)
 		//{
-			/* if there are any Signature nodes, remove them --> we create a new one */
+		/* if there are any Signature nodes, remove them --> we create a new one */
 		//	toSign.removeChild(signatureNodes.item(i - 1));
 		//}
-                if(oldSig!=null)
-                  toSign.removeChild(oldSig);
+		if (oldSig != null)
+		{
+			toSign.removeChild(oldSig);
+		}
 		ByteArrayOutputStream bytesToSign = nodeToCanonical(toSign);
 		/* now we have a XML bytestream of our toSign node (incl. name + attributes + child tree),
 		 * now use a message digest algorithm with it
@@ -384,101 +388,148 @@ public class JAPSignature
 	}
 
 	/**
-	 * Creates a bytestream out of the abstract tree of the node.
+	 * Signs an XML node with the own private key. The signature is directly inserted as
+	 * a child of the node, so there is nothing returned. If there is already a signature in
+	 * the tree under the node, it is removed. Also the given certifcates are included to make
+	 * it easier for the recipient to check the signature.
 	 *
-	 * @param inputNode The node (incl. the whole tree) which is flattened to a bytestream.
-	 *
-	 * @return The bytestream of the node (incl. the whole tree).
+	 * @param toSign The document you want to sign.
 	 */
-	private ByteArrayOutputStream nodeToCanonical(Node inputNode) throws Exception
+	public void signXmlNode(Element toSign, JAPCertificate certsToAdd[]) throws Exception
 	{
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		/* TODO: find a better way to get the data of the node as a bytestream, for
-		 * compatibility reasons we use this now
-		 */
-		if (makeCanonical(inputNode, out, true, null) == -1)
+		signXmlNode(toSign);
+		if (certsToAdd != null)
 		{
-			throw new Exception("JAPSignature: nodeToCanonical: Could not make the node canonical!");
+			/* now add X509 certificates */
+			Element signatureNode = (Element)XMLUtil.getFirstChildByName(toSign, "Signature");
+			if (signatureNode == null)
+			{
+				throw (new Exception("Error in XML structure."));
+			}
+			Document doc = toSign.getOwnerDocument();
+			Element elemKeyInfo = doc.createElement("KeyInfo");
+			Element elemX509Data = doc.createElement("X509Data");
+			signatureNode.appendChild(elemKeyInfo);
+			elemKeyInfo.appendChild(elemX509Data);
+			for (int i = 0; i < certsToAdd.length; i++)
+			{
+				elemX509Data.appendChild(certsToAdd[i].toXmlNode(doc));
+
+			}
 		}
-		out.flush();
-		return out;
 	}
 
-	//Thread safe ?
-	private int makeCanonical(Node node, OutputStream o, boolean bSiblings, Node excludeNode)
+	/**
+	 * Signs an XML node with the own private key. The signature is directly inserted as
+	 * a child of the node, so there is nothing returned. If there is already a signature in
+	 * the tree under the node, it is removed. Also the given certifcate is included to make
+	 * it easier for the recipient to check the signature.
+	 *
+	 * @param toSign The document you want to sign.
+	 */
+	public void signXmlNode(Element toSign, JAPCertificate certToAdd) throws Exception
 	{
-		try
+		JAPCertificate tmp[]=new JAPCertificate[1];
+		tmp[0]=certToAdd;
+		signXmlNode(toSign,tmp);
+}
+
+/**
+ * Creates a bytestream out of the abstract tree of the node.
+ *
+ * @param inputNode The node (incl. the whole tree) which is flattened to a bytestream.
+ *
+ * @return The bytestream of the node (incl. the whole tree).
+ */
+private ByteArrayOutputStream nodeToCanonical(Node inputNode) throws Exception
+{
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	/* TODO: find a better way to get the data of the node as a bytestream, for
+	 * compatibility reasons we use this now
+	 */
+	if (makeCanonical(inputNode, out, true, null) == -1)
+	{
+		throw new Exception("JAPSignature: nodeToCanonical: Could not make the node canonical!");
+	}
+	out.flush();
+	return out;
+}
+
+//Thread safe ?
+private int makeCanonical(Node node, OutputStream o, boolean bSiblings, Node excludeNode)
+{
+	try
+	{
+		if (node == null)
 		{
-			if (node == null)
+			return 0;
+		}
+		if (node.equals(excludeNode))
+		{
+			return 0;
+		}
+		if (node.getNodeType() == node.ELEMENT_NODE)
+		{
+			Element elem = (Element) node;
+			o.write('<');
+			o.write(elem.getNodeName().getBytes());
+			NamedNodeMap attr = elem.getAttributes();
+			if (attr.getLength() > 0)
 			{
-				return 0;
-			}
-			if (node.equals(excludeNode))
-			{
-				return 0;
-			}
-			if (node.getNodeType() == node.ELEMENT_NODE)
-			{
-				Element elem = (Element) node;
-				o.write('<');
-				o.write(elem.getNodeName().getBytes());
-				NamedNodeMap attr = elem.getAttributes();
-				if (attr.getLength() > 0)
+				for (int i = 0; i < attr.getLength(); i++)
 				{
-					for (int i = 0; i < attr.getLength(); i++)
-					{
-						o.write(' ');
-						o.write(attr.item(i).getNodeName().getBytes());
-						o.write('=');
-						o.write('\"');
-						o.write(attr.item(i).getNodeValue().getBytes());
-						o.write('\"');
-					}
+					o.write(' ');
+					o.write(attr.item(i).getNodeName().getBytes());
+					o.write('=');
+					o.write('\"');
+					o.write(attr.item(i).getNodeValue().getBytes());
+					o.write('\"');
 				}
-				o.write('>');
-				if (elem.hasChildNodes())
-				{
-					if (makeCanonical(elem.getFirstChild(), o, true, excludeNode) == -1)
-					{
-						return -1;
-					}
-				}
-				o.write('<');
-				o.write('/');
-				o.write(elem.getNodeName().getBytes());
-				o.write('>');
-				if (bSiblings && makeCanonical(elem.getNextSibling(), o, true, excludeNode) == -1)
+			}
+			o.write('>');
+			if (elem.hasChildNodes())
+			{
+				if (makeCanonical(elem.getFirstChild(), o, true, excludeNode) == -1)
 				{
 					return -1;
 				}
 			}
-			else if (node.getNodeType() == node.TEXT_NODE)
+			o.write('<');
+			o.write('/');
+			o.write(elem.getNodeName().getBytes());
+			o.write('>');
+			if (bSiblings && makeCanonical(elem.getNextSibling(), o, true, excludeNode) == -1)
 			{
-				o.write(node.getNodeValue().trim().getBytes());
-				if (makeCanonical(node.getNextSibling(), o, true, excludeNode) == -1)
-				{
-					return -1;
-				}
-				return 0;
+				return -1;
 			}
-			else if (node.getNodeType() == node.COMMENT_NODE)
-			{
-				if (makeCanonical(node.getNextSibling(), o, true, excludeNode) == -1)
-				{
-					return -1;
-				}
-				return 0;
-			}
-			else
+		}
+		else if (node.getNodeType() == node.TEXT_NODE)
+		{
+			o.write(node.getNodeValue().trim().getBytes());
+			if (makeCanonical(node.getNextSibling(), o, true, excludeNode) == -1)
 			{
 				return -1;
 			}
 			return 0;
 		}
-		catch (Exception e)
+		else if (node.getNodeType() == node.COMMENT_NODE)
+		{
+			if (makeCanonical(node.getNextSibling(), o, true, excludeNode) == -1)
+			{
+				return -1;
+			}
+			return 0;
+		}
+		else
 		{
 			return -1;
 		}
+		return 0;
 	}
+	catch (Exception e)
+	{
+		return -1;
+	}
+}
 
 }
