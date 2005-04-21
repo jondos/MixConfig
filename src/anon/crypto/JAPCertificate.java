@@ -685,8 +685,10 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 		X509CertificateStructure x509cert;
 		X509CertificateGenerator certgen = new X509CertificateGenerator(getTBSCertificate());
 		x509cert = certgen.sign(a_pkcs12Certificate);
-		certificate = getInstance(x509cert);
+	certificate = getInstance(x509cert);
+	boolean b=certificate.verify(a_pkcs12Certificate.getPublicKey());
 		certificate.setEnabled(getEnabled());
+
 		return certificate;
 	}
 

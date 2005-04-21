@@ -71,8 +71,12 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 	private JTextField m_textDatabasePort;
 	private JTextField m_textDatabaseDBName;
 	private JTextField m_textDatabaseUsername;
+	private JPanel m_generalPanel;
+	private JTextField m_textSoftLimit;
+	private JTextField m_textHardLimit;
+	private JTextField m_textSettleInterval;
 
-	public PaymentPanel()
+	public PaymentPanel() throws IOException
 	{
 		JLabel label;
 		GridBagLayout layout = new GridBagLayout();
@@ -98,9 +102,9 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 
 		// MISC Panel
 		m_miscPanel = new JPanel(new FlowLayout());
-		m_miscPanel.setBorder(new TitledBorder("Payment misc"));
-		m_miscPanel.setToolTipText("Please select whether you want to enable payment.<br>" +
-								   "This is only possible for the FirstMix at the moment");
+		m_miscPanel.setBorder(new TitledBorder("Payment enabled/disabled"));
+		m_miscPanel.setToolTipText("<html>Please select whether you want to enable payment.<br>" +
+								   "This is only possible for the FirstMix at the moment</html>");
 
 		m_chkPaymentEnabled = new JCheckBox("Enable Payment");
 		m_chkPaymentEnabled.setSelected(false);
@@ -109,6 +113,80 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 
 		layout.setConstraints(m_miscPanel, c);
 		this.add(m_miscPanel);
+
+	// GENERAL settings panel
+	GridBagLayout generalLayout = new GridBagLayout();
+	m_generalPanel = new JPanel(generalLayout);
+	m_generalPanel.setBorder(new TitledBorder("General settings"));
+	m_generalPanel.setToolTipText(
+		   "General settings regarding the payment system"
+	 );
+	label = new JLabel("SoftLimit (Bytes)");
+	label.setToolTipText(
+		   "<html>This is the soft limit for the number of bytes a Jap can use before <br>"+
+		   "sending a cost confirmation</html>"
+		   );
+	d.gridy = 0;
+	d.gridx = 0;
+	d.weightx = 0;
+	generalLayout.setConstraints(label, d);
+	m_generalPanel.add(label);
+	m_textSoftLimit = new JTextField();
+	m_textSoftLimit.setName("Accounting/SoftLimit");
+	m_textSoftLimit.addFocusListener(this);
+	d.gridy = 0;
+	d.gridx = 1;
+	d.weightx = 1;
+	generalLayout.setConstraints(m_textSoftLimit, d);
+	m_generalPanel.add(m_textSoftLimit);
+
+
+
+	label = new JLabel("HardLimit (Bytes)");
+	label.setToolTipText(
+		   "<html>This is the hard limit for the number of bytes a Jap can use without <br>"+
+		   "sending a cost confirmation, before he will be kicked.</html>"
+		   );
+	d.gridy = 1;
+	d.gridx = 0;
+	d.weightx = 0;
+	generalLayout.setConstraints(label, d);
+	m_generalPanel.add(label);
+	m_textHardLimit = new JTextField();
+	m_textHardLimit.setName("Accounting/HardLimit");
+	m_textHardLimit.addFocusListener(this);
+	d.gridy = 1;
+	d.gridx = 1;
+	d.weightx = 1;
+	generalLayout.setConstraints(m_textHardLimit, d);
+	m_generalPanel.add(m_textHardLimit);
+
+
+	label = new JLabel("SettleInterval (seconds)");
+	label.setToolTipText(
+		   "<html>This is the interval in seconds that the SettleThread will sleep<br>"+
+		   "before each cycle of transmitting all the open CostConfirmations to the BI</html>"
+		   );
+	d.gridy = 2;
+	d.gridx = 0;
+	d.weightx = 0;
+	generalLayout.setConstraints(label, d);
+	m_generalPanel.add(label);
+	m_textSettleInterval = new JTextField();
+	m_textSettleInterval.setName("Accounting/SettleInterval");
+	m_textSettleInterval.addFocusListener(this);
+	d.gridy = 2;
+	d.gridx = 1;
+	d.weightx = 1;
+	generalLayout.setConstraints(m_textSettleInterval, d);
+	m_generalPanel.add(m_textSettleInterval);
+
+	c.gridy++;
+	layout.setConstraints(m_generalPanel, c);
+	this.add(m_generalPanel);
+
+
+
 
 		// JPI Panel
 		GridBagLayout jpiLayout = new GridBagLayout();
@@ -126,7 +204,7 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 		m_jpiPanel.add(label);
 
 		m_textJPIName = new JTextField();
-		m_textJPIName.setName("Accounting/PaymentInstance/Name");
+		m_textJPIName.setName("Accounting/BI/BIName");
 		m_textJPIName.addFocusListener(this);
 		d.gridx = 1;
 		d.weightx = 1;
@@ -141,7 +219,7 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 		m_jpiPanel.add(label);
 
 		m_textJPIHost = new JTextField();
-		m_textJPIHost.setName("Accounting/PaymentInstance/Host");
+		m_textJPIHost.setName("Accounting/BI/HostName");
 		m_textJPIHost.addFocusListener(this);
 		d.gridx = 1;
 		d.weightx = 1;
@@ -156,7 +234,7 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 		m_jpiPanel.add(label);
 
 		m_textJPIPort = new JTextField();
-		m_textJPIPort.setName("Accounting/PaymentInstance/Port");
+		m_textJPIPort.setName("Accounting/BI/PortNumber");
 		m_textJPIPort.addFocusListener(this);
 		d.gridx = 1;
 		d.weightx = 1;
@@ -174,8 +252,8 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 									   "Or, if you want to setup your own JPI, " +
 									   "you can generate a certificate here<br> " +
 									   "and copy it to your JPI configuration.",
-									   (PKCS12)null);
-		m_jpiCertPanel.setName("Accounting/JPICertificate");
+										   (byte[])null);
+		m_jpiCertPanel.setName("Accounting/BI");
 		m_jpiCertPanel.setCertCreationValidator(this);
 		m_jpiCertPanel.addChangeListener(this);
 		c.gridy++;
@@ -301,7 +379,7 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 
 		// now check if payment should be really enabled
 		setAutoSaveEnabled(false);
-		String host = a_conf.getAttribute("Accounting/PaymentInstance/Host");
+		String host = a_conf.getAttribute("Accounting/BI/HostName");
 		String mixType = a_conf.getAttribute("General/MixType");
 		this.m_chkPaymentEnabled.setEnabled(mixType != null &&
 											Integer.valueOf(mixType).intValue() ==
@@ -348,6 +426,11 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 		boolean compEnabled = m_chkPaymentEnabled.isSelected() &&
 			m_chkPaymentEnabled.isEnabled();
 
+		co = m_generalPanel.getComponents();
+		for (i = 0; i < co.length; i++)
+		{
+			co[i].setEnabled(compEnabled);
+		}
 		co = m_jpiPanel.getComponents();
 		for (i = 0; i < co.length; i++)
 		{
