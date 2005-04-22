@@ -248,12 +248,9 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, Cert
 		// JPI Certificate Panel
 		m_jpiCertPanel = new CertPanel("JPI Certificate",
 									   "If you have the Public Certificate of a " +
-									   "running JPI, you can import it here.<br> " +
-									   "Or, if you want to setup your own JPI, " +
-									   "you can generate a certificate here<br> " +
-									   "and copy it to your JPI configuration.",
+									   "running JPI, you can import it here.",
 										   (byte[])null);
-		m_jpiCertPanel.setName("Accounting/BI");
+		m_jpiCertPanel.setName("Accounting/BI/TestCertificate");
 		m_jpiCertPanel.setCertCreationValidator(this);
 		m_jpiCertPanel.addChangeListener(this);
 		c.gridy++;
