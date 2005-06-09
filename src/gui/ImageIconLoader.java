@@ -32,6 +32,8 @@ import java.awt.Image;
 import java.awt.MediaTracker;
 import javax.swing.ImageIcon;
 
+import anon.util.ResourceLoader;
+
 /**
  * This class loads resources from the file system.
  */
@@ -84,27 +86,24 @@ final public class ImageIconLoader
 			return new ImageIcon((Image)ms_iconCache.get(a_strRelativeImagePath));
 		}
 
-		// load image from the local classpath or jar-file
+		// load image from the local classpath or the local directory
 		try
 		{
-			img = new ImageIcon(Object.class.getResource("/" + a_strRelativeImagePath));
+			img = new ImageIcon(ResourceLoader.getResourceURL(a_strRelativeImagePath));
 		}
 		catch (NullPointerException a_e)
 		{
 			img = null;
 		}
-		if (img == null || img.getImageLoadStatus() == MediaTracker.ERRORED)
-		{
-			// load image from the current directory
-			img = new ImageIcon(a_strRelativeImagePath);
-		}
 
+		if (img != null)
+		{
 		if (a_bSync)
 		{
 			int statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED | MediaTracker.COMPLETE;
-			while(true)
+			while (true)
 			{
-				if ((img.getImageLoadStatus() & statusBits) != 0)
+				if ( (img.getImageLoadStatus() & statusBits) != 0)
 				{
 					break;
 				}
@@ -117,6 +116,7 @@ final public class ImageIconLoader
 
 		// write the image to the cache
 		ms_iconCache.put(a_strRelativeImagePath, img.getImage());
+		}
 
 		return img;
 	}
