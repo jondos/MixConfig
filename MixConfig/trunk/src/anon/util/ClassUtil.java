@@ -33,8 +33,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.net.URL;
 
 /**
  * This class performs some basic operations related to Class objects.
@@ -42,13 +44,14 @@ import java.util.zip.ZipFile;
  */
 public final class ClassUtil
 {
+
 	private static final String JAR_FILE = "jar:file:";
 	private static final String FILE = "file:";
 
 	/**
 	 * Stores all loaded classes.
 	 */
-	private static Vector ms_loadedClasses = new Vector();
+	private static Hashtable ms_loadedClasses = new Hashtable();
 
 	/**
 	 * Stores all loaded directories.
@@ -192,7 +195,13 @@ public final class ClassUtil
 		catch (Throwable a_e)
 		{
 			System.setErr(syserror);
+			if (a_e instanceof Exception && !(a_e instanceof RuntimeException))
+			{
+				/** @todo throw the exception */
+				a_e.printStackTrace();
+			}
 		}
+		// reactivate standard error
 		System.setErr(syserror);
 
 		return ms_loadedClasses.elements();
@@ -211,32 +220,37 @@ public final class ClassUtil
 	{
 		String classResource;
 		String classDirectory;
+		URL classUrl;
 		File file;
 
-		// generate a url with this class as resource
-		classResource = a_class.getName();
-		classResource = "/" + classResource;
-		classResource = classResource.replace('.','/');
-		classResource += ".class";
-		classDirectory = URLDecoder.decode(a_class.getResource(classResource).toString());
+		// generate a URL that points to the location of this class
+		classResource = "/" + toRelativeResourcePath(a_class);
+		classUrl = a_class.getResource(classResource);
+
+		// check if the system resource protocol is used
+		file = ResourceLoader.getSystemResource(classUrl.toString());
+		if (file == null)
+		{
+			// the system resource protocol is not used; try to get the directory by another way...
+			classDirectory = URLDecoder.decode(classUrl.toString());
 
 		// check whether it is a jar file or a directory
 		if (classDirectory.startsWith(JAR_FILE))
 		{
 			classDirectory = classDirectory.substring(
-				JAR_FILE.length(), classDirectory.indexOf(classResource) - 1);
+					JAR_FILE.length(), classDirectory.lastIndexOf(classResource) - 1);
 			if (classDirectory.charAt(2) == ':')
 			{
 				// this is a windows file of the format /C:/...
 				classDirectory = classDirectory.substring(1, classDirectory.length());
 			}
-			classDirectory = toSystemSpecificFileName(classDirectory);
+				classDirectory = ResourceLoader.replaceFileSeparatorsSystemSpecific(classDirectory);
 			file = new File(classDirectory);
 		}
 		else if (classDirectory.startsWith(FILE))
 		{
 			classDirectory =
-				classDirectory.substring(FILE.length(), classDirectory.indexOf(classResource));
+					classDirectory.substring(FILE.length(), classDirectory.lastIndexOf(classResource));
 			file = new File(classDirectory);
 		}
 		else
@@ -249,8 +263,48 @@ public final class ClassUtil
 		{
 			return null;
 		}
+		}
 
 		return file;
+	}
+
+	/**
+	 * Generates a relative resource path to the given class.
+	 * @param a_class Class
+	 * @return URL
+	 */
+	public static String toRelativeResourcePath(Class a_class)
+	{
+		String classResource;
+
+		classResource = a_class.getName();
+		classResource = classResource.replace('.', '/');
+		classResource += ".class";
+
+		return classResource;
+	}
+
+	/**
+	 * Traverse a file, directory or zip/jar file recursive until a class file is found and
+	 * instantiated or all files are traversed. The instantiated class is returned.
+	 * @param a_file a file, directory or zip/jar file
+	 * @return the first class that was instnatiated or
+	 *         null if no class could be found and instantiated
+	 */
+	protected static Class getFirstClassFound(File a_file)
+	{
+		Hashtable classInstance = new Hashtable();
+
+		ResourceLoader.loadResources("/", a_file, new ClassInstantiator(3), true, true, false,
+									 classInstance);
+		// we choose "3" because after 3 tries it is highly possible this is not a valid classdir
+
+		if (classInstance.size() == 1)
+		{
+			return (Class)classInstance.elements().nextElement();
+		}
+
+		return null;
 	}
 
 	/**
@@ -273,11 +327,11 @@ public final class ClassUtil
 	 * Loads all classes into cache that are in the same file structure as the given class.
 	 * WARNING: this may be slow at the first call, especially for large packages (like the JRE)
 	 * @param a_rootClass the class from that loading is started
+	 * @throws IOException if an I/O error occurs
 	 */
-	private static void loadClassesInternal(Class a_rootClass)
+	private static void loadClassesInternal(Class a_rootClass) throws IOException
 	{
 		File file;
-		Enumeration entries;
 
 		if ((file = getClassDirectory(a_rootClass)) == null)
 		{
@@ -292,81 +346,9 @@ public final class ClassUtil
 		}
 		ms_loadedDirectories.addElement(file.getAbsolutePath());
 
-		if (file.isDirectory())
-		{
-			// fetch the classes
-			entries = getClasses(file, file).elements();
-			while (entries.hasMoreElements())
-			{
-				ms_loadedClasses.addElement(entries.nextElement());
-			}
-		}
-		else
-		{
-			try
-			{
-				// fetch the classes
-				Class classObject;
-				entries = new ZipFile(file).entries();
-				while (entries.hasMoreElements())
-				{
-					classObject = toClass(new File((((ZipEntry) entries.nextElement())).toString()),
-										  (File)null);
-					if (classObject != null)
-					{
-						ms_loadedClasses.addElement(classObject);
-					}
-				}
-			}
-			catch (IOException a_e)
-			{
-				// this zip file DOES exist, but we cannot read it; should not happen
-			}
-		}
-	}
-
-	/**
-	 * Returns all classes in a directory as Class objects or the given file itself as a Class,
-	 * if it is a class file.
-	 * @param a_file a class file or directory
-	 * @param a_classDirectory the directory where all class files and class directories reside
-	 * @return Class objects
-	 */
-	private static Vector getClasses(File a_file, File a_classDirectory)
-	{
-		Vector classes = new Vector();
-		Enumeration enumClasses;
-		String[] filesArray;
-
-		if (a_file != null)
-		{
-			if (!a_file.isDirectory())
-			{
-				Class classObject = toClass(a_file, a_classDirectory);
-
-				if (classObject != null)
-				{
-					classes.addElement(classObject);
-				}
-			}
-			else
-			{
-				// this file is a directory
-				filesArray = a_file.list();
-				for (int i = 0; i < filesArray.length; i++)
-				{
-					enumClasses = getClasses(new File(a_file.getAbsolutePath() +
-						File.separatorChar + filesArray[i]),
-											 a_classDirectory).elements();
-					while (enumClasses.hasMoreElements())
-					{
-						classes.addElement(enumClasses.nextElement());
-					}
-				}
-			}
-		}
-
-		return classes;
+		// read all classes in the directory
+		ResourceLoader.loadResources("/", file, new ClassInstantiator(),
+									 true, false, false, ms_loadedClasses);
 	}
 
 	/**
@@ -381,6 +363,11 @@ public final class ClassUtil
 		String className;
 		String classDirectory;
 		int startIndex;
+
+		if (a_classFile == null || !a_classFile.getName().endsWith(".class"))
+		{
+			return null;
+		}
 
 		if (a_classDirectory == null || !a_classDirectory.isDirectory())
 		{
@@ -402,7 +389,7 @@ public final class ClassUtil
 		try
 		{
 			className = a_classFile.toString();
-			className = className.substring(startIndex, className.indexOf(".class"));
+			className = className.substring(startIndex, className.lastIndexOf(".class"));
 			className = className.replace(File.separatorChar, '.');
 			classObject = Class.forName(className);
 		}
@@ -414,21 +401,62 @@ public final class ClassUtil
 		return classObject;
 	}
 
-	/**
-	 * Interprets a String as a filename and converts it to a system specific
-	 * file name.
-	 * @param a_filename a generic file name
-	 * @return a system specific file name
-	 */
-	private static String toSystemSpecificFileName(String a_filename)
-	{
-		if (a_filename == null)
-		{
-			return null;
-		}
-		a_filename = a_filename.replace('/', File.separatorChar);
-		a_filename = a_filename.replace('\\', File.separatorChar);
 
-		return a_filename;
+	private static class ClassInstantiator implements ResourceInstantiator
+	{
+		private int m_invalidAfterFailure;
+		private int m_currentFailure;
+
+		public ClassInstantiator()
+	{
+			m_invalidAfterFailure = 0;
+			m_currentFailure = 0;
+		}
+
+		public ClassInstantiator(int a_invalidAfterFailure)
+		{
+			m_invalidAfterFailure = a_invalidAfterFailure;
+			m_currentFailure = 0;
+		}
+
+		public Object getInstance(File a_file, File a_topDirectory)
+			throws ResourceInstantiator.ResourceInstantiationException
+
+		{
+			Class loadedClass = toClass(a_file, a_topDirectory);
+
+			if (m_invalidAfterFailure > 0)
+			{
+				checkValidity(loadedClass, a_file.getName());
+			}
+
+			return loadedClass;
+		}
+
+		public Object getInstance(ZipEntry a_entry, ZipFile a_file)
+			throws ResourceInstantiator.ResourceInstantiationException
+		{
+			Class loadedClass = toClass(new File( (a_entry).toString()), (File)null);
+
+			if (m_invalidAfterFailure > 0)
+			{
+				checkValidity(loadedClass, a_entry.getName());
+			}
+
+			return loadedClass;
+		}
+
+		private void checkValidity(Class a_loadedClass, String a_filename)
+			throws ResourceInstantiator.ResourceInstantiationException
+		{
+			if (a_loadedClass == null && a_filename.endsWith(".class"))
+			{
+				m_currentFailure++;
+			}
+			if (m_currentFailure >= m_invalidAfterFailure)
+			{
+				throw new ResourceInstantiator.ResourceInstantiationException();
+			}
+		}
 	}
 }

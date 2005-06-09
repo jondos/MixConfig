@@ -43,11 +43,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import org.bouncycastle.asn1.DERInputStream;
 import java.io.*;
 import org.bouncycastle.crypto.engines.*;
 import anon.crypto.*;
 import anon.util.*;
+import org.bouncycastle.asn1.DERTags;
+
 public class EncryptedLogTool extends JDialog implements ActionListener
 {
 	private JTextField m_textDecryptWithCertCN, m_textDecryptWithCertValidFrom, m_textDecryptWithCertValidTo;
@@ -228,9 +229,9 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 			{
 				PasswordBox pb =
 					new PasswordBox(
-					MixConfig.getMainWindow(),
-					"Enter the password",
-					PasswordBox.ENTER_PASSWORD, null);
+						MixConfig.getMainWindow(),
+						"Enter the password",
+						PasswordBox.ENTER_PASSWORD, null);
 				pb.show();
 				passwd = pb.getPassword();
 			}
@@ -243,8 +244,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 		{
 			if (cert != null)
 			{
-				if (cert[0]
-					!= (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
+				if (cert[0]!= (DERTags.SEQUENCE | DERTags.CONSTRUCTED))
 				{
 					throw (new RuntimeException("Not a PKCS 12 stream."));
 				}
@@ -254,9 +254,9 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 				m_textDecryptWithCertValidFrom.setText(
 					pkcs12.getX509Certificate().getStartDate().getDate().toString());
 				m_textDecryptWithCertValidTo.setText(
-								pkcs12.getX509Certificate().getEndDate().getDate().toString());
+					pkcs12.getX509Certificate().getEndDate().getDate().toString());
 				m_textDecryptWithCertCN.setText(
-								pkcs12.getX509Certificate().getSubject().toString());
+					pkcs12.getX509Certificate().getSubject().toString());
 				m_keyDecryptWith = (MyRSAPrivateKey) pkcs12.getPrivateKey();
 				return true;
 

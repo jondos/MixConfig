@@ -27,11 +27,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import org.bouncycastle.asn1.DERInputStream;
 import anon.crypto.DSAKeyPair;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
 import anon.crypto.ICertificate;
+import org.bouncycastle.asn1.DERTags;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -549,7 +549,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 */
 	private void setPrivCert(byte[] cert, char[] passwd) throws InvalidKeyException, IOException
 	{
-		if (cert[0] != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
+		if (cert[0] != (DERTags.SEQUENCE | DERTags.CONSTRUCTED))
 		{
 			throw new RuntimeException("Not a PKCS 12 stream.");
 		}

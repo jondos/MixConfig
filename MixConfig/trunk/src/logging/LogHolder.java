@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2000 - 2004, The JAP-Team
-All rights reserved.
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
+ Copyright (c) 2000 - 2004, The JAP-Team
+ All rights reserved.
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
 
 	- Redistributions of source code must retain the above copyright notice,
 		this list of conditions and the following disclaimer.
@@ -16,27 +16,28 @@ are permitted provided that the following conditions are met:
 		prior written permission.
 
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
-OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS
-BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
-OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
-*/
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
+ OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS
+ BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+ */
 package logging;
 
-import anon.util.Util;
-import java.util.StringTokenizer;
-import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.StringTokenizer;
+
+import anon.util.Util;
 
 /**
  * This class stores the Log instance.
  */
-public final class LogHolder {
+public final class LogHolder
+{
 
 	/// the lowest detail level that is possible
 	public static final int DETAIL_LEVEL_LOWEST = 0;
@@ -63,7 +64,8 @@ public final class LogHolder {
 	 * This creates a new instance of LogHolder. This is only used for setting some
 	 * values. Use LogHolder.getInstance() for getting an instance of this class.
 	 */
-	private LogHolder() {
+	private LogHolder()
+	{
 		m_logInstance = new DummyLog();
 	}
 
@@ -118,7 +120,7 @@ public final class LogHolder {
 	 * @param logType The log type (see constants in class LogType).
 	 * @param a_throwable a Throwable to log
 	 */
-	public static void log(int logLevel, int logType, Throwable a_throwable)
+	public static synchronized void log(int logLevel, int logType, Throwable a_throwable)
 	{
 		if (isLogged(logLevel, logType))
 		{
@@ -143,8 +145,11 @@ public final class LogHolder {
 	 * @param logLevel The log level (see constants in class LogLevel).
 	 * @param logType The log type (see constants in class LogType).
 	 * @param message The message to log.
+	 * @param a_bSkipCallingMethod true if not the name of the calling method should be logged but
+	 *                             the name of the method that has called the caller;
+	 *                             false if the name of the calling method should be logged (default)
 	 */
-	public static void log(int logLevel, int logType, String message)
+	public static synchronized void log(int logLevel, int logType, String message, boolean a_bSkipCallingMethod)
 	{
 		if (isLogged(logLevel, logType))
 		{
@@ -155,14 +160,30 @@ public final class LogHolder {
 			else if (m_messageDetailLevel == DETAIL_LEVEL_HIGH)
 			{
 				getInstance().getLogInstance().log(logLevel, logType,
-				Util.normaliseString(getCallingClassFile() + ": ", 40) + message);
+				Util.normaliseString(
+								getCallingClassFile(a_bSkipCallingMethod) + ": ", 40) + message);
 			}
 			else
 			{
 				getInstance().getLogInstance().log(logLevel, logType,
-					Util.normaliseString(getCallingMethod() + ": ", 80) + message);
+					Util.normaliseString(
+							   getCallingMethod(a_bSkipCallingMethod) + ": ", 80) + message);
 			}
 		}
+	}
+
+
+
+	/**
+	 * Write the log data to the Log instance.
+	 *
+	 * @param logLevel The log level (see constants in class LogLevel).
+	 * @param logType The log type (see constants in class LogType).
+	 * @param message The message to log.
+	 */
+	public static void log(int logLevel, int logType, String message)
+	{
+		log(logLevel, logType, message, false);
 	}
 
 	/**
@@ -170,7 +191,7 @@ public final class LogHolder {
 	 *
 	 * @param logInstance The instance of a Log implementation.
 	 */
-	public static void setLogInstance(Log logInstance)
+	public static synchronized void setLogInstance(Log logInstance)
 	{
 		getInstance().m_logInstance = logInstance;
 		if (getInstance().m_logInstance == null)
@@ -214,11 +235,16 @@ public final class LogHolder {
 	/**
 	 * Returns the filename and line number of the calling method (from outside
 	 * this class) in the form <Code> (class.java:<LineNumber>) </Code>.
+	 * @param a_bSkipCallingMethod if true, the true calling method is skipped and the class file
+	 *                             of the caller of the calling method is returned;
+	 *                             if false, the class file of the calling method is returned
+	 *                             (default)
+	 *
 	 * @return the filename and line number of the calling method
 	 */
-	private static String getCallingClassFile()
+	private static String getCallingClassFile(boolean a_bSkipCallingMethod)
 	{
-		String strClassFile = getCallingMethod();
+		String strClassFile = getCallingMethod(a_bSkipCallingMethod);
 		strClassFile = strClassFile.substring(strClassFile.indexOf('('), strClassFile.indexOf(')') + 1);
 		return strClassFile;
 	}
@@ -227,9 +253,12 @@ public final class LogHolder {
 	 * Returns the name, class, file and line number of the calling method (from outside
 	 * this class) in the form <Code> package.class.method(class.java:<LineNumber>) </Code>.
 	 * This method does need some processing time, as an exception with the stack trace is generated.
+	 * @param a_bSkipCallingMethod if true, the true calling method is skipped and the caller of the
+	 *                             calling method is returned; if false, the calling method is
+	 *                             returned (default)
 	 * @return the name, class and line number of the calling method
 	 */
-	private static String getCallingMethod()
+	private static String getCallingMethod(boolean a_bSkipCallingMethod)
 	{
 		StringTokenizer tokenizer;
 		String strCurrentMethod = "";
@@ -244,9 +273,20 @@ public final class LogHolder {
 		{
 			tokenizer.nextToken(); // jump over the "at"
 			/* jump over all local class calls */
-			if ( (strCurrentMethod = tokenizer.nextToken()).indexOf(LogHolder.class.getName()) < 0)
+			if (!(strCurrentMethod = tokenizer.nextToken()).replace('/','.') .startsWith(
+				 LogHolder.class.getName()))
 			{
 				// this is the method that called us
+				if (a_bSkipCallingMethod)
+				{
+					// the calling method is skipped
+					if (tokenizer.countTokens() >= 2)
+					{
+						tokenizer.nextToken();
+						strCurrentMethod = tokenizer.nextToken();
+					}
+				}
+
 				break;
 			}
 		}
