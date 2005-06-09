@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<!-- 
+  The following packages should be in the classpath:
+    - Ant 1.5.x (http://ant.apache.org/)
+    - GenJar (http://genjar.sourceforge.net/)
+    - Java Compiler (In Java 1.4.1 lib/tools.jar of the JDK)
+
+  
+  This build.xml automatically downloads the JARs of Xerces and
+  BouncyCastle into the 'jars' directory.
+	
+	Comment by Bastian Voigt (2004-04-17): The automatic build of the
+	BouncyCastle jar file does not work, but you can download 
+	http://anon.inf.tu-dresden.de/develop/BouncyCastleLightForMixConfig.jar
+	and put it in MixConfig/jars/lcrypto.jar
+
+
+    For building with Java 1.3.1 and an 1.4.x version of ant (like on Debian
+    woody systems) you have to set JAVA_HOME and download a current ant
+    version and add it's jar files to your CLASSPATH before starting ant.
+
+    e.g. I use these commands before running ant:
+    export JAVA_HOME=/usr/lib/j2sdk1.3
+    export CLASSPATH=/usr/local/lib/java/GenJar.jar:/opt/ant-1.5.3.jar:/opt/ant-1.5.3-optional.jar
+
+    and you have to change 
+     <jar destfile="${incjars.dir}/lcrypto.jar" basedir="${incjars.dir}/tmp/lclasses"/>
+    to
+     <jar jarfile="${incjars.dir}/lcrypto.jar" basedir="${incjars.dir}/tmp/lclasses"/>
+    below, because the keywords have slightly changed from ant 1.4 to 1.5.
+ 
+-->
+<project name="MixConfig" default="jar" basedir=".">
+  <property name="build.dir" value="classes"/>
+  <property name="src.dir" value="src"/>
+  <property name="incjars.dir" value="jars"/>
+  <property name="jar.dir" value="."/>
+  <property name="app.jar" value="MixConfig.jar"/>
+  <property environment="env"/>
+  
+  <path id="class.path">
+    <fileset dir="${incjars.dir}">
+      <include name="*.jar"/>
+    </fileset>
+    <pathelement location="${build.dir}"/>
+  </path>
+
+  <target name="get.xerces" unless="xerces.present">
+    <mkdir dir="${incjars.dir}"/>
+    <mkdir dir="${incjars.dir}/tmp"/>
+    <get src="http://xml.apache.org/dist/xerces-j/Xerces-J-bin.2.5.0.zip" dest="${incjars.dir}/tmp/xerces.zip" verbose="true"/>
+    <unzip src="${incjars.dir}/tmp/xerces.zip" dest="${incjars.dir}/tmp">
+      <patternset>
+        <include name="**/xercesImpl.jar" />
+        <include name="**/xml-apis.jar" />
+      </patternset>
+    </unzip>
+    <move todir="${incjars.dir}" flatten="true">
+      <fileset dir="${incjars.dir}/tmp">
+        <include name="**/xercesImpl.jar" />
+        <include name="**/xml-apis.jar" />
+      </fileset>
+    </move>
+    <delete dir="${incjars.dir}/tmp"/>
+  </target>
+	
+  <target name="get.lcrypto" unless="lcrypto.present">
+    <mkdir dir="${incjars.dir}"/>
+    <mkdir dir="${incjars.dir}/tmp"/>
+    <get src="http://www.bouncycastle.org/download/jce-jdk11-119.zip" dest="${incjars.dir}/tmp/lcrypto.zip" verbose="true"/>
+    <unzip src="${incjars.dir}/tmp/lcrypto.zip" dest="${incjars.dir}/tmp">
+      <patternset>
+        <include name="**/classes/**" />
+      </patternset>
+    </unzip>
+    <move todir="${incjars.dir}/tmp/lclasses">
+      <fileset dir="${incjars.dir}/tmp">
+        <include name="**/classes/**" />
+      </fileset>
+      <mapper type="regexp" from="^.*/classes/(.*)$$" to="\1"/>
+    </move>
+    <jar destfile="${incjars.dir}/lcrypto.jar" basedir="${incjars.dir}/tmp/lclasses"/>
+    <delete dir="${incjars.dir}/tmp"/>
+  </target>
+  
+  <target name="check">
+    <available file="${incjars.dir}/xercesImpl.jar" property="xerces.present"/>
+    <available file="${incjars.dir}/lcrypto.jar" property="lcrypto.present"/>
+  </target>
+  
+  <target name="init" depends="check,get.xerces,get.lcrypto">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${jar.dir}"/>
+  </target>
+
+  <target name="compile" depends="init">
+    <javac srcdir="${src.dir}" destdir="${build.dir}">
+      <classpath refid="class.path"/>
+    </javac>
+  </target>
+  
+  <target name="jar" depends="init,compile">
+    <taskdef name="genjar" classname="org.apache.tools.ant.taskdefs.optional.genjar.GenJar"/>
+    <genjar jarfile="${jar.dir}/${app.jar}">
+      <class name="mixconfig.MixConfig"/>
+      <class name="org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"/>
+      <class name="org.apache.xerces.parsers.XML11Configuration"/>
+      <class name="org.apache.xerces.impl.dv.dtd.DTDDVFactoryImpl"/>
+      <classpath refid="class.path"/>
+      <classfilter>
+        <include name="javax.xml."/>
+      </classfilter>
+      <resource>
+        <fileset dir="${src.dir}">
+          <include name="mixconfig/*.gif"/>
+        </fileset>
+      </resource>
+      <!-- library jar="${incjars.dir}/swing.jar"/-->
+      <manifest generateEntryAttributes="no">
+        <attribute name="Main-Class" value="mixconfig.MixConfig"/>
+      </manifest>
+    </genjar>
+  </target>
+</project>
