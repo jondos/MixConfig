@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000 - 2004, The JAP-Team
+ Copyright (c) 2000 - 2005, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -131,6 +131,7 @@ public final class ClassUtil
 		while (classes.hasMoreElements())
 		{
 			possibleSubclass = (Class) classes.nextElement();
+
 			if (a_class.isAssignableFrom(possibleSubclass))
 			{
 				subclasses.addElement(possibleSubclass);
@@ -209,8 +210,8 @@ public final class ClassUtil
 
 	/**
 	 * Returns the class directory of the specified class. The class directory is either the
-	 * directory in that the highest package in the package structure of the class is contained, 
-	 * or the jar-File in that the class is contained. For extracting the contents of a jar-File, 
+	 * directory in that the highest package in the package structure of the class is contained,
+	 * or the jar-File in that the class is contained. For extracting the contents of a jar-File,
 	 * see {@link java.util.zip.ZipFile}.
 	 * @param a_class a class
 	 * @return the class directory of the specified class, either a real directory or a Jar-file
@@ -234,35 +235,35 @@ public final class ClassUtil
 			// the system resource protocol is not used; try to get the directory by another way...
 			classDirectory = URLDecoder.decode(classUrl.toString());
 
-		// check whether it is a jar file or a directory
-		if (classDirectory.startsWith(JAR_FILE))
-		{
-			classDirectory = classDirectory.substring(
-					JAR_FILE.length(), classDirectory.lastIndexOf(classResource) - 1);
-			if (classDirectory.charAt(2) == ':')
+			// check whether it is a jar file or a directory
+			if (classDirectory.startsWith(JAR_FILE))
 			{
-				// this is a windows file of the format /C:/...
-				classDirectory = classDirectory.substring(1, classDirectory.length());
-			}
+				classDirectory = classDirectory.substring(
+					JAR_FILE.length(), classDirectory.lastIndexOf(classResource) - 1);
+				if (classDirectory.charAt(2) == ':')
+				{
+					// this is a windows file of the format /C:/...
+					classDirectory = classDirectory.substring(1, classDirectory.length());
+				}
 				classDirectory = ResourceLoader.replaceFileSeparatorsSystemSpecific(classDirectory);
-			file = new File(classDirectory);
-		}
-		else if (classDirectory.startsWith(FILE))
-		{
-			classDirectory =
+				file = new File(classDirectory);
+			}
+			else if (classDirectory.startsWith(FILE))
+			{
+				classDirectory =
 					classDirectory.substring(FILE.length(), classDirectory.lastIndexOf(classResource));
-			file = new File(classDirectory);
-		}
-		else
-		{
-			// we cannot read from this source; it is neither a jar-file nor a directory
-			file = null;
-		}
+				file = new File(classDirectory);
+			}
+			else
+			{
+				// we cannot read from this source; it is neither a jar-file nor a directory
+				file = null;
+			}
 
-		if (file == null || !file.exists())
-		{
-			return null;
-		}
+			if (file == null || !file.exists())
+			{
+				return null;
+			}
 		}
 
 		return file;
@@ -291,11 +292,11 @@ public final class ClassUtil
 	 * @return the first class that was instnatiated or
 	 *         null if no class could be found and instantiated
 	 */
-	protected static Class getFirstClassFound(File a_file)
+	public static Class getFirstClassFound(File a_file)
 	{
 		Hashtable classInstance = new Hashtable();
 
-		ResourceLoader.loadResources("/", a_file, new ClassInstantiator(3), true, true, false,
+		ResourceLoader.loadResources("/", a_file, new ClassInstantiator(3), true, true,
 									 classInstance);
 		// we choose "3" because after 3 tries it is highly possible this is not a valid classdir
 
@@ -348,7 +349,7 @@ public final class ClassUtil
 
 		// read all classes in the directory
 		ResourceLoader.loadResources("/", file, new ClassInstantiator(),
-									 true, false, false, ms_loadedClasses);
+									 true, false, ms_loadedClasses);
 	}
 
 	/**
@@ -408,7 +409,7 @@ public final class ClassUtil
 		private int m_currentFailure;
 
 		public ClassInstantiator()
-	{
+		{
 			m_invalidAfterFailure = 0;
 			m_currentFailure = 0;
 		}

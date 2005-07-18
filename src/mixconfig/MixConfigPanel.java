@@ -31,6 +31,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.FocusEvent;
@@ -50,6 +53,7 @@ import javax.swing.JToggleButton.ToggleButtonModel;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import anon.util.Base64;
 import mixconfig.networkpanel.IPTextField;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
@@ -57,6 +61,7 @@ import mixconfig.networkpanel.OutgoingConnectionTableModel;
 import javax.swing.JTabbedPane;
 import anon.crypto.ICertificate;
 import anon.crypto.PKCS12;
+import logging.LogType;
 
 /** This is the abstract superclass of all configuration panels. It saves
  * the data entered by the user to the underlying configuration object, and updates
@@ -89,13 +94,47 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	/** The Mix configuration currently being edited. */
 	private MixConfiguration m_mixConf = null;
 
-	/** Constructs a new instance of <CODE>MixConfiPanel</CODE> */
-	protected MixConfigPanel()
+	private Insets m_insets;
+
+	/** Constructs a new instance of <CODE>MixConfiPanel</CODE>
+	 * @param a_name the initial name of the panel; must be a non-blank String longer than zero
+	 */
+	protected MixConfigPanel(String a_name)
 	{
-		super();
+		super(new GridBagLayout());
+		setName(a_name);
+
+		m_insets = new Insets(5, 5, 5, 5);
+
 		// this causes a NullPointerException as components of subclasses are not
 		// yet constructed
 		// setConfiguration(MixConfig.getMixConfiguration());
+	}
+
+	/**
+	 * Returns the default insets for subpanels.
+	 * @return Insets
+	 */
+	public Insets getDefaultInsets()
+	{
+		return m_insets;
+	}
+
+	/**
+	 * (Re)sets the name of this panel.
+	 * @param a_name the new name of the panel; must be a non-blank String longer than zero
+	 */
+	public final void setName(String a_name)
+	{
+		if (a_name != null && a_name.trim().length() > 0)
+		{
+			super.setName(a_name);
+		}
+		else
+		{
+			throw new IllegalArgumentException("Panel name must be a valid string!");
+
+		}
 	}
 
 	/** Checks the panel for inconsistencies and returns a <CODE>java.util.Vector</CODE>
@@ -111,6 +150,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 			Object source = ie.getSource();
 
 			enableComponents();
+			validate();
 
 			if (m_autoSave && ( (Component) source).getName() != null)
 			{
@@ -138,7 +178,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		}
 		catch (Exception uee)
 		{
-			MixConfig.handleException(uee);
+			MixConfig.handleError(uee, null, LogType.GUI);
 		}
 	}
 
@@ -153,10 +193,14 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 			{
 				save( (JTextField) e.getSource());
 			}
+			else if (e.getSource() instanceof IPTextField)
+			{
+				save((IPTextField)e.getSource());
+			}
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleException(ex);
+			MixConfig.handleError(ex, null, LogType.GUI);
 		}
 	}
 
@@ -260,23 +304,33 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		save(this);
 	}
 
+	/**
+	 * Saves the value of the IP address in the IPTextField.
+	 * @param a_ipTextField an IPTextField
+	 */
+	protected void save(IPTextField a_ipTextField)
+	{
+		String s =a_ipTextField.getText().trim();
+
+		if (!a_ipTextField.isEnabled() || !a_ipTextField.isCorrect())
+		{
+			s = null;
+		}
+		m_mixConf.setValue(a_ipTextField.getName(), s);
+	}
+
 	/** Saves the value of all components in the specified container. The method
-         * iterates over all of the container's components and invokes the appropriate save
-         * method for them. If the container is an instance of <CODE>mixconfig.networkpanel.IPTextField</CODE>, the value of
-         * the IPTextField is saved instead.
-         * @param a A container
-         * @throws IOException If an error occurs while writing the values to the configuration object
-         */
+	 * iterates over all of the container's components and invokes the appropriate save
+	 * method for them. If the container is an instance of <CODE>mixconfig.networkpanel.IPTextField</CODE>, the value of
+	 * the IPTextField is saved instead.
+	 * @param a A container
+	 * @throws IOException If an error occurs while writing the values to the configuration object
+	 */
 	protected void save(Container a) throws IOException
 	{
 		if (a instanceof IPTextField)
 		{
-			String s = ( (IPTextField) a).getText().trim();
-			if (!a.isEnabled())
-			{
-				s = null;
-			}
-			m_mixConf.setAttribute(a.getName(), s);
+			save((IPTextField)a);
 			return;
 		}
 
@@ -316,10 +370,15 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 			{
 				save( (JRadioButton) c[i]);
 			}
+			else if (c[i] instanceof IPTextField)
+			{
+				save( (IPTextField) c[i]);
+			}
 			else if (c[i] instanceof Container)
 			{
 				save( (Container) c[i]);
 			}
+
 		}
 	}
 
@@ -332,15 +391,15 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		Object o = a.getModel();
 		if (o instanceof IncomingConnectionTableModel)
 		{
-			m_mixConf.setAttribute(a.getName(), (IncomingConnectionTableModel) o);
+			m_mixConf.setValue(a.getName(), (IncomingConnectionTableModel) o);
 		}
 		else if (o instanceof OutgoingConnectionTableModel)
 		{
-			m_mixConf.setAttribute(a.getName(), (OutgoingConnectionTableModel) o);
+			m_mixConf.setValue(a.getName(), (OutgoingConnectionTableModel) o);
 		}
 		else if (o instanceof CascadePanel.MixListTableModel)
 		{
-			m_mixConf.setAttribute(a.getName(), (CascadePanel.MixListTableModel) o);
+			m_mixConf.setValue(a.getName(), (CascadePanel.MixListTableModel) o);
 		}
 	}
 
@@ -356,19 +415,19 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		ICertificate certificate = a.getCert();
 		if (!a.isEnabled() || certificate == null)
 		{
-			m_mixConf.removeAttribute(name);
+			m_mixConf.removeNode(name);
 		}
 		else
 		{
 			if (name.endsWith("OwnCertificate"))
 			{
-				m_mixConf.setAttribute(name + "/X509PKCS12",
+				m_mixConf.setValue(name + "/X509PKCS12",
 									   ((PKCS12)certificate).toByteArray(
 											   a.getPrivateCertPassword()));
 
 			}
 
-			m_mixConf.setAttribute(name + "/X509Certificate",
+			m_mixConf.setValue(name + "/X509Certificate",
 								   certificate.getX509Certificate().toByteArray());
 		}
 	}
@@ -383,11 +442,29 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		String s = a.getText().trim();
 		if (!a.isEnabled())
 		{
-			m_mixConf.removeAttribute(a.getName());
+			m_mixConf.removeNode(a.getName());
 		}
 		else
 		{
-			m_mixConf.setAttribute(a.getName(), s);
+			m_mixConf.setValue(a.getName(), s);
+		}
+	}
+
+	/**
+	 * Saves the value for the specified xml path to the configuration object.
+	 * If the value is null or empty the path specified is deleted.
+	 * @param a_xmlPath an xml path
+	 * @param a_value a value
+	 */
+	protected void save(String a_xmlPath, String a_value)
+	{
+		if (a_value == null || a_value.trim().length() == 0)
+		{
+			m_mixConf.removeNode(a_xmlPath);
+		}
+		else
+		{
+			m_mixConf.setValue(a_xmlPath, a_value);
 		}
 	}
 
@@ -398,7 +475,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
          */
 	protected void save(JCheckBox a)
 	{
-		m_mixConf.setAttribute(a.getName(), a.isSelected() && a.isEnabled());
+		m_mixConf.setValue(a.getName(), a.isSelected() && a.isEnabled());
 	}
 
 	/** Saves the values of a combo box to the configuration object. The value is only saved
@@ -411,11 +488,11 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		int s = a.getSelectedIndex();
 		if (!a.isEnabled())
 		{
-			m_mixConf.removeAttribute(a.getName());
+			m_mixConf.removeNode(a.getName());
 		}
 		else
 		{
-			m_mixConf.setAttribute(a.getName(), s);
+			m_mixConf.setValue(a.getName(), s);
 		}
 	}
 
@@ -463,7 +540,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 */
 	protected void load(JTextField a)
 	{
-		a.setText(m_mixConf.getAttribute(a.getName()));
+		a.setText(m_mixConf.getValue(a.getName()));
 	}
 
 	/** Loads the value with the same name as the specified checkbox from the configuration object
@@ -472,7 +549,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 */
 	protected void load(JCheckBox a)
 	{
-		Boolean b = new Boolean(m_mixConf.getAttribute(a.getName()));
+		Boolean b = new Boolean(m_mixConf.getValue(a.getName()));
 		a.setSelected(b.booleanValue());
 	}
 
@@ -483,7 +560,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 */
 	protected void load(JComboBox a)
 	{
-		String s = m_mixConf.getAttribute(a.getName());
+		String s = m_mixConf.getValue(a.getName());
 		int i;
 		try
 		{
@@ -502,7 +579,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 */
 	protected void load(JRadioButton a)
 	{
-		Boolean b = new Boolean(m_mixConf.getAttribute(a.getName()));
+		Boolean b = new Boolean(m_mixConf.getValue(a.getName()));
 		a.setSelected(b.booleanValue());
 	}
 
@@ -547,6 +624,15 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		this.setAutoSaveEnabled(prevAutoSave);
 	}
 
+	protected void load(IPTextField a_ipTextField)
+	{
+		if (a_ipTextField.getName() != null)
+		{
+			( (IPTextField) a_ipTextField).setText(m_mixConf.getValue(a_ipTextField.getName()));
+			return;
+		}
+	}
+
 	/** Loads the value of all components in the specified container. The method
 	 * iterates over all of the container's components and invokes the appropriate load
 	 * method for them. If the container is an instance of <CODE>mixconfig.networkpanel.IPTextField</CODE>,
@@ -556,9 +642,9 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 */
 	protected void load(Container a) throws IOException
 	{
-		if (a instanceof IPTextField && a.getName() != null)
+		if (a instanceof IPTextField)
 		{
-			( (IPTextField) a).setText(m_mixConf.getAttribute(a.getName()));
+			load((IPTextField) a);
 			return;
 		}
 
@@ -596,6 +682,11 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 				{
 					load( (JRadioButton) c[i]);
 				}
+				else if (c[i] instanceof IPTextField)
+				{
+					load( (IPTextField) c[i]);
+				}
+
 			}
 		}
 	}
@@ -617,13 +708,14 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 			name = name + "/X509Certificate";
 		}
 
-		String cert = m_mixConf.getAttribute(name);
+		String cert = m_mixConf.getValue(name);
 		byte b[] = null;
 
 		if (cert != null && !cert.equals(""))
 		{
 			b = Base64.decode(cert);
 		}
+
 		a.setCert(b);
 	}
 

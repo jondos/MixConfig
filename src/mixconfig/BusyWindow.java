@@ -28,7 +28,6 @@
 
 package mixconfig;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -37,33 +36,22 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.MediaTracker;
 import java.awt.Point;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.JWindow;
-import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
 
 class BusyWindow extends JWindow implements ActionListener
 {
 	private SwingWorker sw;
 
-	public BusyWindow(Frame parent, String reason)
+	public BusyWindow(Component parent, String reason)
 	{
-		super(parent);
 		JPanel p = new JPanel();
 		p.setBorder(BorderFactory.createRaisedBevelBorder());
 		getContentPane().add(p);
@@ -84,10 +72,9 @@ class BusyWindow extends JWindow implements ActionListener
 		p.add(label);
 		gbc.gridy++;
 		label = new JLabel("Please wait.");
-		layout.setConstraints(label, gbc);
-		p.add(label);
+		p.add(label, gbc);
 		gbc.gridy++;
-		ImageIcon img = MixConfig.loadImage("busy.gif");
+		ImageIcon img = MixConfig.loadImageIcon("busy.gif");
 		MediaTracker mt = new MediaTracker(this);
 		mt.addImage(img.getImage(), 1);
 		try
@@ -99,8 +86,7 @@ class BusyWindow extends JWindow implements ActionListener
 			e.printStackTrace();
 		}
 		label = new JLabel(img);
-		layout.setConstraints(label, gbc);
-		p.add(label);
+		p.add(label, gbc);
 		/* Funktioniert nicht. Der Abbruch wird irgendwo abgefangen.
 		 gbc.gridy++;
 		 JButton button = new JButton("Cancel");
@@ -108,6 +94,7 @@ class BusyWindow extends JWindow implements ActionListener
 		 layout.setConstraints(button, gbc);
 		 p.add(button);
 		 */
+
 		this.pack();
 		Dimension d = parent.getSize();
 		Dimension d2 = this.getSize();

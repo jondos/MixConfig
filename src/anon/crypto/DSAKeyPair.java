@@ -34,6 +34,7 @@ import org.bouncycastle.crypto.generators.DSAKeyPairGenerator;
 import org.bouncycastle.crypto.generators.DSAParametersGenerator;
 import org.bouncycastle.crypto.params.DSAKeyGenerationParameters;
 import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
+import gui.*;
 
 /**
  * This class creates key pairs for the DSA algorithm.

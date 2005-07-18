@@ -28,6 +28,7 @@
 package anon.crypto;
 
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import gui.*;
 
 /**
  * This interface represents an algorithm that creates cryptographic signatures.

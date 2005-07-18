@@ -27,6 +27,8 @@
  */
 package anon.crypto;
 
+import gui.*;
+
 /**
  * This interface represents the common methods of cryptographic certificates.
  * @author Rolf Wendolsky

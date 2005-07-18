@@ -27,6 +27,8 @@
  */
 package anon.crypto;
 
+import gui.*;
+
 /**
  * This interface represents an algorithm that verifies cryptographic signatures.
  */

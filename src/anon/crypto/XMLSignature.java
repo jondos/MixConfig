@@ -368,7 +368,8 @@ public final class XMLSignature implements IXMLEncodable
 	 *
 	 * @param a_node A signed XML node.
 	 * @param a_rootCertificates A Vector of trusted root certificates which is used to verify
-	 *                           the certificate maybe appended at the signature.
+	 *                           certificates that maybe appended to the signature or to verify the
+	 *                           signature itself.
 	 * @param a_directCertificates A Vector of certificates to verify the signature, if it could
 	 *                             not be verified by the appended certificates (if there are no
 	 *                             appended certificates or the appended certificates could not
@@ -379,7 +380,8 @@ public final class XMLSignature implements IXMLEncodable
 	 *                              has an invalid structure
 	 * @todo do not accept expired certificates?
 	 */
-	public static XMLSignature verify(Node a_node, Vector a_rootCertificates, Vector a_directCertificates) throws
+	public static XMLSignature verify(Node a_node, Vector a_rootCertificates,
+									  Vector a_directCertificates) throws
 		XMLParseException
 	{
 		XMLSignature signature;
@@ -397,57 +399,54 @@ public final class XMLSignature implements IXMLEncodable
 		bVerified = false; // this is set to 'true' if the signature could be verified
 		try
 		{
-				// verify the signature against the appended certificates first
-				certificates = signature.getCertificates();
-			while (certificates!=null&&certificates.hasMoreElements())
-				{
-					// get the next appended certificate
-					currentCertificate = (JAPCertificate) certificates.nextElement();
+			// verify the signature against the appended certificates first
+			certificates = signature.getCertificates();
+			while (!bVerified && certificates != null && certificates.hasMoreElements())
+			{
+				// get the next appended certificate
+				currentCertificate = (JAPCertificate) certificates.nextElement();
+
 				/* try to verify this appended certificate against the root certificates */
-
-				if (!currentCertificate.verify(a_rootCertificates))
-					{
+				if (!currentCertificate.verify(a_rootCertificates.elements()))
+				{
 					/* this certificate cannot be verified; therefore, we do not use it here */
-						continue;
-					}
+					continue;
+				}
 
-					// check the signature against this certificate if it is not verified yet
-					if (!bVerified && verify(a_node, signature, currentCertificate.getPublicKey()))
+				// check the signature against this certificate if it is not verified yet
+				if (verify(a_node, signature, currentCertificate.getPublicKey()))
+				{
+					// the signature has been verified successfully
+					bVerified = true;
+				}
+			}
+		}
+		catch (Exception a_e)
+		{
+		}
+
+		if (!bVerified)
+		{
+			/* the signature could not be verified against the appended certificates;
+			 * check the signature against the Vector of direct certificates
+			 */
+			certificates = a_directCertificates.elements();
+			while (!bVerified && certificates.hasMoreElements())
+			{
+				try
+				{
+					if (verify(a_node, signature,
+							   ( (JAPCertificate) (certificates.nextElement())).getPublicKey()))
 					{
-						// the signature has been verified successfully
+						/* signature could be verified against one of the direct certificates */
 						bVerified = true;
 					}
 				}
-			}
-			catch (Exception a_e)
-			{
-			}
-
-			if (!bVerified)
-			{
-				/* the signature could not be verified against the appended certificates;
-			 * check the signature against the Vector of direct certificates
-				 */
-
-			Enumeration additionalCertificates = a_directCertificates.elements();
-
-			/* try to verify the signature against the direct certificate */
-			while (!bVerified && additionalCertificates.hasMoreElements())
-					{
-						try
-						{
-							if (verify(a_node, signature,
-							   ( (JAPCertificate) (additionalCertificates.nextElement())).getPublicKey()))
-							{
-						/* signature could be verified against one of the direct certificates */
-								bVerified = true;
-							}
-						}
-						catch (Exception e)
-						{
-						}
-					}
+				catch (Exception e)
+				{
 				}
+			}
+		}
 
 		if (bVerified)
 		{
@@ -476,7 +475,7 @@ public final class XMLSignature implements IXMLEncodable
 		JAPCertificate certificate;
 
 		// transform the public key into a temporary certificate
-		certificate = JAPCertificate.getInstance(a_publicKey,  new GregorianCalendar());
+		certificate = JAPCertificate.getInstance(a_publicKey, new GregorianCalendar());
 
 		return verify(a_node, certificate);
 	}
@@ -614,27 +613,27 @@ public final class XMLSignature implements IXMLEncodable
 		{
 			nodeCertificateContainer =
 				getSignatureElement().getOwnerDocument().createElement(
-							   JAPCertificate.XML_ELEMENT_CONTAINER_NAME);
+					JAPCertificate.XML_ELEMENT_CONTAINER_NAME);
 			nodeKeyInfo.appendChild(nodeCertificateContainer);
 		}
 
-			/* test if the signature already contains the certificate and
-			 * if the certificate is suitable to verify the signature
-			 */
+		/* test if the signature already contains the certificate and
+		 * if the certificate is suitable to verify the signature
+		 */
 		if (m_appendedCertificates.containsKey(a_certificate) ||
 			!checkSignature(this, a_certificate.getPublicKey()))
-			{
+		{
 			return false;
-			}
+		}
 
-			// create a new certificate element
+		// create a new certificate element
 		elemCertificate = a_certificate.toXmlElement(getSignatureElement().getOwnerDocument());
 
-			// add the certificate to the hashtable
+		// add the certificate to the hashtable
 		m_appendedCertificates.put(a_certificate, elemCertificate);
 
-			// add the certificate to the signature element
-			nodeCertificateContainer.appendChild(elemCertificate);
+		// add the certificate to the signature element
+		nodeCertificateContainer.appendChild(elemCertificate);
 
 		return true;
 	}

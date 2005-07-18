@@ -38,6 +38,7 @@ import java.security.Signature;
 
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
+import gui.*;
 
 /**
  * Implements the DSA algorithm for signatures.

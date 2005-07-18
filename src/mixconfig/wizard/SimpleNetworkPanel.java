@@ -1,3 +1,30 @@
+/*
+ Copyright (c) 2000 - 2005, The JAP-Team
+ All rights reserved.
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+
+  - Redistributions of source code must retain the above copyright notice,
+ this list of conditions and the following disclaimer.
+
+  - Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation and/or
+ other materials provided with the distribution.
+
+  - Neither the name of the University of Technology Dresden, Germany nor the names of its contributors
+ may be used to endorse or promote products derived from this software without specific
+ prior written permission.
+
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
+ OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS
+ BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+ */
 package mixconfig.wizard;
 
 import mixconfig.MixConfigPanel;
@@ -22,6 +49,8 @@ import javax.swing.event.ChangeEvent;
 import mixconfig.ConfigurationEvent;
 import javax.swing.event.ChangeListener;
 
+import logging.LogType;
+
 /** This panel is a simplified form of
  * <CODE>mixconfig.networkpanel.NetworkPanel</CODE>, as the name suggests.<br>
  * It lets the user specify only one non-virtual, non-hidden listener interface for
@@ -45,15 +74,6 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 	/** A text field containing this mix's port */
 	private JTextField m_tfLPort;
 
-	/** A text field containing this mix's IP address (may be left blank if host name is
-	 * specified)
-	 */
-	private IPTextField m_tfLIP;
-
-	/** A text field containing the InfoService's IP address (may be left blank if host name is
-	 * specified)
-	 */
-	private IPTextField m_tfISIP;
 
 	/** A combo box to set the network protocol type: TCP or Unix Domain Socket, SSL or
 	 * normal
@@ -63,8 +83,6 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 	/** The label for the listener host name field */
 	private JLabel inHost;
 
-	/** The label for the listener IP address name field */
-	private JLabel inIP;
 
 	/** The label for the listener port field */
 	private JLabel inPort;
@@ -72,6 +90,7 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 	/** Constructs a new instance of <CODE>SimpleNetworkPanel</CODE> */
 	public SimpleNetworkPanel()
 	{
+		super("SimpleNetwork");
 		GridBagLayout layout = new GridBagLayout();
 		setLayout(layout);
 
@@ -127,23 +146,6 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 		Listener_Layout.setConstraints(m_tfLHost, f);
 		simpleListenerInput.add(m_tfLHost);
 
-		inIP = new JLabel("IP");
-		f.gridy++;
-		f.gridx = 0;
-		f.weightx = 0;
-		Listener_Layout.setConstraints(inIP, f);
-		simpleListenerInput.add(inIP);
-
-		m_tfLIP = new IPTextField();
-		m_tfLIP.setText("");
-		m_tfLIP.setName("Network/ListenerInterfaces/ListenerInterface/IP");
-		m_tfLIP.addFocusListener(this);
-		f.gridx = 1;
-		f.weightx = 0;
-		f.fill = GridBagConstraints.NONE;
-		Listener_Layout.setConstraints(m_tfLIP, f);
-		simpleListenerInput.add(m_tfLIP);
-
 		inPort = new JLabel("Port");
 		f.gridy++;
 		f.gridx = 0;
@@ -190,23 +192,6 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 		f.weightx = 1;
 		Info_Layout.setConstraints(m_tfISHost, f);
 		panel3.add(m_tfISHost);
-
-		JLabel IP = new JLabel("IP");
-		f.gridy = 1;
-		f.gridx = 0;
-		f.weightx = 0;
-		Info_Layout.setConstraints(IP, f);
-		panel3.add(IP);
-
-		m_tfISIP = new IPTextField();
-		m_tfISIP.setText("");
-		m_tfISIP.setName("Network/InfoService/IP");
-		m_tfISIP.addFocusListener(this);
-		f.gridx = 1;
-		f.weightx = 0;
-		f.fill = GridBagConstraints.NONE;
-		Info_Layout.setConstraints(m_tfISIP, f);
-		panel3.add(m_tfISIP);
 
 		JLabel port = new JLabel("Port");
 		f.gridy = 2;
@@ -257,7 +242,7 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 					IPTextField ipt = (IPTextField) c;
 					if (ipt.isCorrect())
 					{
-						getConfiguration().setAttribute(ipt.getName(), ipt.getText());
+						getConfiguration().setValue(ipt.getName(), ipt.getText());
 					}
 				}
 				else
@@ -272,7 +257,7 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleException(ex);
+			MixConfig.handleError(ex, null, LogType.GUI);
 		}
 	}
 
@@ -282,10 +267,10 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 
 		if (this.m_cbProtocol.getSelectedIndex() == 0 || this.m_cbProtocol.getSelectedIndex() == 2)
 		{
-			if ( (m_tfLHost.getText() == null || m_tfLHost.getText().equals("")) && !m_tfLIP.isCorrect())
+			if ( (m_tfLHost.getText() == null || m_tfLHost.getText().equals("")))
 			{
 				errors.addElement(new String(
-					"Listener host name and/or IP address is missing in Network Panel."));
+					"Listener host name  is missing in Network Panel."));
 			}
 		}
 		else
@@ -297,10 +282,10 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 			}
 		}
 
-		if ( (m_tfISHost.getText() == null || m_tfISHost.getText().equals("")) && !m_tfISIP.isCorrect())
+		if ( (m_tfISHost.getText() == null || m_tfISHost.getText().equals("")))
 		{
 			errors.addElement(new String(
-				"InfoService host name and/or IP address is missing in Network Panel."));
+				"InfoService host name address is missing in Network Panel."));
 		}
 
 		return errors;
@@ -321,16 +306,14 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 	{
 		if (getConfiguration() != null)
 		{
-			Integer t = new Integer(getConfiguration().getAttribute("General/MixType"));
+			Integer t = new Integer(getConfiguration().getValue("General/MixType"));
 			setEnabled(getParent() instanceof ConfigWizardPanel &&
-					   t.intValue() != MixConfiguration.MIXTYPE_LAST);
+					   t.intValue() == MixConfiguration.MIXTYPE_FIRST);
 		}
 
 		boolean e = (m_cbProtocol.getSelectedIndex() == 1 || m_cbProtocol.getSelectedIndex() == 3);
-		m_tfLIP.setEnabled(!e);
 		m_tfLPort.setEditable(!e);
 		inPort.setEnabled(!e);
-		inIP.setEnabled(!e);
 	}
 
 	public void setConfiguration(MixConfiguration a_mixConf) throws IOException
@@ -340,7 +323,6 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 		{
 			a_mixConf.removeChangeListener(this);
 			a_mixConf.addChangeListener(this);
-			a_mixConf.setAttribute("Network/InfoService/AllowAutoConfiguration", true);
 		}
 	}
 
@@ -352,7 +334,7 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 				{
 				"RAW/TCP", "RAW/UNIX", "SSL/TCP", "SSL/UNIX"};
 
-			String v = getConfiguration().getAttribute(
+			String v = getConfiguration().getValue(
 				"Network/ListenerInterfaces/ListenerInterface/NetworkProtocol");
 
 			m_cbProtocol.setSelectedIndex(0);
@@ -375,7 +357,7 @@ public class SimpleNetworkPanel extends MixConfigPanel implements ChangeListener
 				{
 				"RAW/TCP", "RAW/UNIX", "SSL/TCP", "SSL/UNIX"};
 
-			getConfiguration().setAttribute(
+			getConfiguration().setValue(
 				"Network/ListenerInterfaces/ListenerInterface/NetworkProtocol",
 				vs[m_cbProtocol.getSelectedIndex()]);
 

@@ -54,6 +54,7 @@ import org.w3c.dom.Node;
 
 import anon.util.Base64;
 import anon.util.XMLUtil;
+import gui.*;
 
 final public class XMLEncryption
 {

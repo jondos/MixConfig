@@ -67,6 +67,12 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import anon.crypto.AsymmetricCryptoKeyPair;
 import anon.crypto.MyRSAPrivateKey;
 import anon.crypto.PKCS12;
+import anon.crypto.Validity;
+import anon.crypto.X509DistinguishedName;
+import gui.*;
+
+
+
 
 public class PGPtoX509Tool extends JDialog implements ActionListener
 {
@@ -324,8 +330,9 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 			secKey.getCrtCoefficient());
 
 
-		PKCS12 privateCertificate = new PKCS12(uidp.getID(), new AsymmetricCryptoKeyPair(tmpSecKey),
-											   Calendar.getInstance(), 10);
+		PKCS12 privateCertificate = new PKCS12(new X509DistinguishedName("CN=" +uidp.getID()),
+											   new AsymmetricCryptoKeyPair(tmpSecKey),
+											   new Validity(Calendar.getInstance(), 10));
 
 		File fileDir = new File(m_File.getParent());
 		FileOutputStream fout = new FileOutputStream(new File(fileDir, m_File.getName() + ".cer"));

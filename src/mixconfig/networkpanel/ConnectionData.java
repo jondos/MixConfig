@@ -3,9 +3,9 @@ package mixconfig.networkpanel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import mixconfig.MixConfig;
 import anon.util.XMLUtil;
+import gui.JAPMessages;
+
 final public class ConnectionData
 {
 	public static final int TRANSPORT = 1; // Bit mask
@@ -93,7 +93,7 @@ final public class ConnectionData
 		setIsHidden(false);
 	}
 
-	ConnectionData deepClone()
+	public ConnectionData deepClone()
 	{
 		return new ConnectionData(m_strXMLNodeName, m_iTransport, m_strHostname, m_arIPAddr, m_iPort,
 								  m_iFlags, m_bIsVirtual, m_bIsHidden);
@@ -129,7 +129,7 @@ final public class ConnectionData
 		return m_iTransport;
 	}
 
-	void setName(String n)
+	public void setName(String n)
 	{
 		m_strHostname = n;
 	}
@@ -232,7 +232,11 @@ final public class ConnectionData
 		if ( (m_iTransport & UNIX) == 0) // TCP?
 		{
 			data = docOwner.createElement("Host");
-			data.appendChild(docOwner.createTextNode(m_strHostname));
+			if (!m_strHostname.equalsIgnoreCase(JAPMessages.getString("configuredByMixOnCD")))
+			{
+				data.appendChild(docOwner.createTextNode(m_strHostname));
+			}
+
 			elemRoot.appendChild(data);
 			if (m_arIPAddr != null)
 			{
@@ -248,7 +252,10 @@ final public class ConnectionData
 		else // UNIX?
 		{
 			data = docOwner.createElement("File");
-			data.appendChild(docOwner.createTextNode(m_strHostname));
+			if (!m_strHostname.equalsIgnoreCase(JAPMessages.getString("configuredByMixOnCD")))
+			{
+				data.appendChild(docOwner.createTextNode(m_strHostname));
+			}
 			elemRoot.appendChild(data);
 		}
 		return elemRoot;
@@ -256,107 +263,98 @@ final public class ConnectionData
 
 	static ConnectionData createFromElement(String t, Element elemRoot)
 	{
-		try
+		if (!elemRoot.getTagName().equals(t))
 		{
-			if (!elemRoot.getTagName().equals(t))
-			{
-				return null;
-			}
+			return null;
+		}
 
-			int trans, ptype;
-			String n, ip = null, data;
-			int p = 0;
-			boolean hidden = false, virtual = false;
-			String tmp = elemRoot.getAttribute("hidden");
-			if (tmp != null && tmp.equals("True"))
-			{
-				hidden = true;
-			}
-			tmp = elemRoot.getAttribute("virtual");
-			if (tmp != null && tmp.equals("True"))
-			{
-				virtual = true;
+		int trans, ptype;
+		String n, ip = null, data;
+		int p = 0;
+		boolean hidden = false, virtual = false;
+		String tmp = elemRoot.getAttribute("hidden");
+		if (tmp != null && tmp.equals("True"))
+		{
+			hidden = true;
+		}
+		tmp = elemRoot.getAttribute("virtual");
+		if (tmp != null && tmp.equals("True"))
+		{
+			virtual = true;
 
-			}
+		}
 
-			data = getChildElementValue(elemRoot, "ProxyType");
+		data = getChildElementValue(elemRoot, "ProxyType");
+		if (data == null)
+		{
+			ptype = NO_PROXY;
+		}
+		else if (data.equalsIgnoreCase("HTTP"))
+		{
+			ptype = HTTP_PROXY;
+		}
+		else
+		{
+			ptype = SOCKS_PROXY;
+		}
+		data = getChildElementValue(elemRoot, "NetworkProtocol");
+		if (data.equalsIgnoreCase("RAW/UNIX"))
+		{
+			trans = RAW_UNIX;
+		}
+		else if (data.equalsIgnoreCase("RAW/TCP"))
+		{
+			trans = RAW_TCP;
+		}
+		else if (data.equalsIgnoreCase("SSL/UNIX"))
+		{
+			trans = SSL_UNIX;
+		}
+		else if (data.equalsIgnoreCase("SSL/TCP"))
+		{
+			trans = SSL_TCP;
+		}
+		else if (getChildElementValue(elemRoot, "File") != null)
+		{
+			trans = RAW_UNIX;
+		}
+		else
+		{
+			trans = RAW_TCP;
+		}
+		if ( (trans & UNIX) == 0)
+		{
+			n = getChildElementValue(elemRoot, "Host");
+			if (n == null)
+			{
+				n = "";
+			}
+			ip = getChildElementValue(elemRoot, "IP");
+			data = getChildElementValue(elemRoot, "Port");
 			if (data == null)
 			{
-				ptype = NO_PROXY;
-			}
-			else if (data.equalsIgnoreCase("HTTP"))
-			{
-				ptype = HTTP_PROXY;
+				p = 0;
 			}
 			else
 			{
-				ptype = SOCKS_PROXY;
+				p = Integer.parseInt(data);
 			}
-			data = getChildElementValue(elemRoot, "NetworkProtocol");
-			if (data.equalsIgnoreCase("RAW/UNIX"))
-			{
-				trans = RAW_UNIX;
-			}
-			else if (data.equalsIgnoreCase("RAW/TCP"))
-			{
-				trans = RAW_TCP;
-			}
-			else if (data.equalsIgnoreCase("SSL/UNIX"))
-			{
-				trans = SSL_UNIX;
-			}
-			else if (data.equalsIgnoreCase("SSL/TCP"))
-			{
-				trans = SSL_TCP;
-			}
-			else if (getChildElementValue(elemRoot, "File") != null)
-			{
-				trans = RAW_UNIX;
-			}
-			else
-			{
-				trans = RAW_TCP;
-			}
-			if ( (trans & UNIX) == 0)
-			{
-				n = getChildElementValue(elemRoot, "Host");
-				if (n == null)
-				{
-					n = "";
-				}
-				ip = getChildElementValue(elemRoot, "IP");
-				data = getChildElementValue(elemRoot, "Port");
-				if (data == null)
-				{
-					p = 0;
-				}
-				else
-				{
-					p = Integer.parseInt(data);
-				}
-				return new ConnectionData(t, trans, n, ip, p, ptype, virtual, hidden);
-			}
-			else
-			{
-				n = getChildElementValue(elemRoot, "File");
-				if (n == null)
-				{
-					n = "";
-				}
-				return new ConnectionData(t, trans, n, ptype);
-			}
+			return new ConnectionData(t, trans, n, ip, p, ptype, virtual, hidden);
 		}
-		catch (Exception e)
+		else
 		{
-			MixConfig.handleException(e);
-			//System.out.println("Network interface not set");
-			return null;
+			n = getChildElementValue(elemRoot, "File");
+			if (n == null)
+			{
+				n = "";
+			}
+			return new ConnectionData(t, trans, n, ptype);
 		}
 	}
 
-	static private String getChildElementValue(Element elemParent,String childName)
+	static private String getChildElementValue(Element elemParent, String childName)
 	{
-		Node nodeChild=XMLUtil.getFirstChildByName(elemParent,childName);
-		return XMLUtil.parseValue(nodeChild,null);
+		Node nodeChild = XMLUtil.getFirstChildByName(elemParent, childName);
+		return XMLUtil.parseValue(nodeChild, null);
 	}
 }

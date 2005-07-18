@@ -55,6 +55,8 @@ import javax.swing.text.html.HTMLEditorKit.ParserCallback;
 import javax.swing.text.html.parser.DTD;
 import javax.swing.text.html.parser.DocumentParser;
 
+import logging.LogType;
+
 /** This class provides a dialog showing a map section loaded from MapQuest(R)
  * according to the specified latitude and longitude.
  */
@@ -149,7 +151,7 @@ class MapBox extends JDialog implements ChangeListener
 		{
 			//String logo = "http://art.mapquest.com/mqsite_english/logo";
 			//URL MapLogo = new URL(logo);
-			ImageIcon maplogo = MixConfig.loadImage("mapquest-logo.gif");
+			ImageIcon maplogo = MixConfig.loadImageIcon("mapquest-logo.gif");
 			JLabel logolabel = new JLabel(maplogo);
 			c.gridx = 1;
 			c.gridy = 2;
@@ -201,7 +203,7 @@ class MapBox extends JDialog implements ChangeListener
 		}
 		catch (IOException ioe)
 		{
-			MixConfig.handleException(ioe);
+			MixConfig.handleError(ioe, null, LogType.GUI);
 		}
 	}
 

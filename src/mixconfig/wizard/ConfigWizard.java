@@ -30,24 +30,17 @@ package mixconfig.wizard;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import javax.xml.parsers.ParserConfigurationException;
+import java.util.Vector;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.xml.sax.SAXException;
-import anon.util.ResourceLoader;
+import logging.LogType;
+import mixconfig.ChoicePanel;
+import mixconfig.Menu;
 import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
-import gui.ImageIconLoader;
-
 
 /** A class that displays the Mix configuration panels as a wizard. To the left of
  * the panel, a logo is displayed; at the bottom, there are three navigation
@@ -61,97 +54,72 @@ import gui.ImageIconLoader;
  * configuration.
  * @author ronin &lt;ronin2@web.de&gt;
  */
-public class ConfigWizard extends JPanel implements ActionListener, ChangeListener
+public class ConfigWizard extends WizardLayout implements ActionListener, ChangeListener
 {
-	/** The path to the logo to display at the left side of the wizard */
-	private static final String PATH_LOG = new String("mixconfig/anonLogo.jpg");
 
 	/** A container laid out with a <CODE>CardLayout</CODE> that contains the wizard's
 	 * pages
 	 */
 	private ConfigWizardPanel m_wizPanel;
 
-	/** The forward navigation button */
-	private JButton m_bttnForward;
-
-	/** The back navigation button */
-	private JButton m_bttnBack;
-
-	/** The cancel navigation button */
-	private JButton m_bttnClose;
-
 	/** Constructs a new instance of <CODE>ConfigWizard</CODE>
-         * @throws ParserConfigurationException If an XML error occurs while the wizard is active
-         * @throws SAXException If an XML error occurs while the wizard is active
 	 * @throws IOException If an I/O error occurs while saving the configuration
 	 */
-	public ConfigWizard() throws IOException, ParserConfigurationException, SAXException
+	public ConfigWizard() throws IOException
 	{
-		// DEBUG
-//		MixConfig.setMixConfiguration(new MixConfiguration(new java.io.FileReader(
-//			"/home/ronin/mixtest-payment-wiz.xml")));
-
-		setLayout(new BorderLayout());
-
-		JLabel imageCanvas = new JLabel(ImageIconLoader.loadImageIcon(PATH_LOG, true));
 		m_wizPanel = new ConfigWizardPanel();
 		m_wizPanel.addChangeListener(this);
 
-		m_bttnBack = new JButton("<- Back");
-		m_bttnClose = new JButton("Cancel");
-		m_bttnForward = new JButton("Next ->");
-
-		Box buttonBox = Box.createHorizontalBox();
-		buttonBox.add(Box.createHorizontalGlue());
-		buttonBox.add(m_bttnBack);
-		buttonBox.add(m_bttnForward);
-		buttonBox.add(m_bttnClose);
-
-		add(imageCanvas, BorderLayout.WEST);
 		add(m_wizPanel, BorderLayout.CENTER);
-		add(buttonBox, BorderLayout.SOUTH);
 
-		m_bttnForward.addActionListener(this);
-		m_bttnBack.addActionListener(this);
-		m_bttnClose.addActionListener(this);
-
-		Dimension d = new Dimension(900, 700);
-		setSize(d);
-		setPreferredSize(d);
+		getButtonForward().addActionListener(this);
+		getButtonBack().addActionListener(this);
+		getButtonCancel().addActionListener(this);
 
 		stateChanged(null);
 	}
 
 	public void stateChanged(ChangeEvent e)
 	{
-		m_bttnBack.setEnabled( (m_wizPanel.getState() & ConfigWizardPanel.STATE_BEGIN) == 0);
+		//getButtonBack().setEnabled( (m_wizPanel.getState() & ConfigWizardPanel.STATE_BEGIN) == 0);
 	}
 
 	public void actionPerformed(ActionEvent e)
 	{
 		try
 		{
-			m_bttnForward.setText("Next ->");
+			getButtonForward().setText("Next ->");
 
 			try
 			{
-				if (e.getSource() == m_bttnForward)
+				if (e.getSource() == getButtonForward())
 				{
 					m_wizPanel.forward();
 				}
-				else if (e.getSource() == m_bttnBack)
+				else if (e.getSource() == getButtonBack())
 				{
-					m_wizPanel.back();
+					if ( (m_wizPanel.getState() & ConfigWizardPanel.STATE_BEGIN) == 0)
+					{
+						m_wizPanel.back();
+					}
+					else
+					{
+						Menu menu = ( (ChoicePanel)this.getParent()).getMenu();
+						menu.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
+							"New_from_Cancel"));
+					}
 				}
-				else if (e.getSource() == m_bttnClose)
+				else if (e.getSource() == getButtonCancel())
 				{
-					MixConfig.getMainWindow().dispose();
+					Menu menu = ( (ChoicePanel)this.getParent()).getMenu();
+					menu.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
+						"New_from_Cancel"));
 
 				}
 				int i = m_wizPanel.getState();
 				if ( (i & ConfigWizardPanel.STATE_READY_TO_FINISH) != 0)
 				{
-					m_bttnForward.setText("Finish");
+					getButtonForward().setText("Finish");
 				}
 			}
 			catch (CannotContinueException cce)
@@ -163,29 +131,89 @@ public class ConfigWizard extends JPanel implements ActionListener, ChangeListen
 					String[] msg = cce.getMessages();
 					if (msg != null && msg.length > 0)
 					{
-						JOptionPane.showMessageDialog(
-							MixConfig.getMainWindow(),
-							msg,
-							"Errors",
-							JOptionPane.INFORMATION_MESSAGE);
+						MixConfig.info("Errors", msg);
 					}
 				}
 				else if ( (i & ConfigWizardPanel.STATE_END) > 0)
 				{
-					m_bttnForward.setText("Finish");
+					getButtonForward().setText("Finish");
 					if (save())
 					{
-						// TODO: Start mix now
-						System.exit(0);
+						Menu menu = ( (ChoicePanel)this.getParent()).getMenu();
+						menu.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
+							Menu.CMD_RESET));
+						( (ChoicePanel)this.getParent()).setStartScreenVisible();
+						m_wizPanel.finish();
+						changeButtonLabelToNext();
+						stateChanged(new ChangeEvent(this));
 					}
 				}
 			}
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleException(ex);
+			MixConfig.handleError(ex, null, LogType.GUI);
+		}
+
+		//Set the title with steps
+		((ChoicePanel)this.getParent()).setMessageTitle();
+
+	}
+
+	/**
+	 * Calls the load-Methode of each Panel
+	 * This is necessary if you change the view (expert|wizard)
+	 */
+	public void load()
+	{
+		try
+		{
+			m_wizPanel.load();
+		}
+		catch (Exception io)
+		{
+			MixConfig.handleError(io, "Switching View to Wizard: Error on loading the MixConfiguration", LogType.MISC);
 		}
 	}
+
+	/**
+	 * Calls the setConfiguration method of ConfigWizardPanel
+	 * This is necessary if you change the view (expert|wizard)
+	 * @param mixconfig a mix configuration
+	 */
+	public void setConfiguration(MixConfiguration mixconfig)
+	{
+		try
+		{
+			m_wizPanel.setConfiguration(mixconfig);
+		}
+		catch (Exception io)
+		{
+			MixConfig.handleError(io, "Switching View to Wizard: Error on loading the MixConfiguration",
+								  LogType.MISC);
+		}
+	}
+
+	/**
+	 * Calls the reset method of ConfigWizardPanel
+	 * If you choose "new" from the MenuBar, this is necessary to change to the first leaf.
+	 */
+	public void reset()
+	{
+		m_wizPanel.reset();
+
+	}
+
+
+	/**
+	 * Change button Label to "Next ->"
+	 * This is necessary if you coose "new" in the menubar, when the button lable says "finish"
+	 */
+	public void changeButtonLabelToNext()
+	{
+		getButtonForward().setText("Next ->");
+	}
+
 
 	/** Shows a file dialog and saves the configuration
 	 * @throws IOException If an I/O error occurs while saving the configuration
@@ -220,5 +248,15 @@ public class ConfigWizard extends JPanel implements ActionListener, ChangeListen
 		}
 
 		return file != null;
+	}
+
+	public int getPageCount()
+	{
+		return m_wizPanel.getPageCount();
+	}
+
+	public int getCurrentPageNr()
+	{
+		return m_wizPanel.getCurrentPageNr();
 	}
 }

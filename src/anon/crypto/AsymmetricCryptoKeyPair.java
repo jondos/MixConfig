@@ -37,6 +37,7 @@ import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 
 import anon.util.ClassUtil;
+import gui.*;
 
 /**
  * A key pair used for signing and encryption with an asymmetric cryptographic algorithm.

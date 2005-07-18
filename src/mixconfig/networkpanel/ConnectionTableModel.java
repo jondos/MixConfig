@@ -37,7 +37,7 @@ abstract public class ConnectionTableModel extends AbstractTableModel
 		return rows[index];
 	}
 
-	void changeData(ConnectionData data, ConnectionData olddata)
+	public void changeData(ConnectionData data, ConnectionData olddata)
 	{
 		for (int i = 0; i < rows.length; i++)
 		{
@@ -51,7 +51,7 @@ abstract public class ConnectionTableModel extends AbstractTableModel
 		addData(data);
 	}
 
-	void deleteData(int index)
+	public void deleteData(int index)
 	{
 		if (index >= 0 && index < rows.length)
 		{

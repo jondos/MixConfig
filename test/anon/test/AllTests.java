@@ -50,8 +50,9 @@ public class AllTests
 	 */
 	public static Test suite()
 	{
-		TestSuite suite = new TestSuite("All tests of anon.");
-		suite.addTestSuite(SampleTest.class);
+		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTest(anon.crypto.test.AllTests.suite());
+		suite.addTest(anon.util.test.AllTests.suite());
 		return suite;
 	}
 

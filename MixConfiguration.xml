@@ -3,7 +3,7 @@
 
 <!-- XML File for Mix Configuration -->
 
-<MixConfiguration version="0.4">  <!-- Root-Element -->
+<MixConfiguration version="0.5">  <!-- Root-Element -->
 <!-- Changes in Version 0.2:
 		- added attr 'hidden' and 'virtual' to ListenerInterface
 	- Changes in Version 0.3:
@@ -26,13 +26,13 @@
 	Only available if MixType==FirstMix
 	--></CascadeName>
 	<Daemon> <!-- Should the mix run in the background as daemon ? Values: True | False --> </Daemon>
-	<UserID> <!-- The userid the Mix-process should use than running --> </UserID>
+	<UserID> <!-- The username the Mix-process should use when running --> </UserID>
 	<NrOfFileDescriptors> <!-- max Number of file descriptors the mix should use --> </NrOfFileDescriptors>
 
 	<Logging>
 		<!-- Information of how to log some events -->
 		<!-- Only one of File|SysLog|Console is possible -->
-		<File compressed="True|False"><!--The file to which the log data should be writen--></File>
+		<File compressed="True|False"><!--The file to which the log data should be written--></File>
 		<SysLog>  <!-- Values: True | False --> </SysLog>
 		<Console> <!-- Values: True | False, must be False, if Daemon=True --> </Console>
 
@@ -65,30 +65,21 @@
 
 			<!-- NEW: Type of Listener Interface-->
 			<NetworkProtocol><!-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></NetworkProtocol>
-
-
 			<!-- For TCP/IP (if type= */TCP) -->
 			<Host> <!-- Hostname or IP on which to listen --> </Host>
-			<IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
 			<Port> <!-- Port on which to listen--></Port>
-
 			<!-- For Unix Domain Sockets (if type= */UNIX)-->
 			<File> <!-- Filename, which should be used for Unix Domain Sockets--> </File>
-
 	 </ListenerInterface>
-
 	</ListenerInterfaces>
 
 	<NextMix>
 	<!-- Describes how to connect to the next mix,
-			 only usefull for First- or MiddleMix -->
+			 only useful for First- or MiddleMix -->
 			 <NetworkProtocol>  !-- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></NetworkProtocol>
 			 <Host> hostname or ip of next Mix </Host>
-			 <IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
 			 <Port> port of next mix </Port>
-
 			 <File> <!-- Filename, if unix Domain Sockets should be used --> </File>
-
 	</NextMix>
 
 	<Proxies>
@@ -101,25 +92,22 @@
 					<NetworkProtocol> !-- Network protocol -- Possible Values: RAW/TCP, RAW/UNIX, SSL/TCP, SSL/UNIX --></NetworkProtocol>
 					<!-- How to reach this proxy ?-->
 					<Host> </Host>
-					<IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
 					<Port> </Port>
 					<File> </File>
-
 			</Proxy>
 
 	</Proxies>
 	<InfoService>
 		<!-- Describes how to connect to the InfoService -->
-
 			 <Host> hostname or ip of the InfoService </Host>
-			 <IP> <!-- Optional, if given it must be the IP for <HOST> --> </IP>
 			 <Port> port of the InfoService </Port>
-
+			 <!-- If set to 'true', the InfoService may change previous/next mix. 
+			 If 'fallback' is 'true' this change may only happen if the default mixes are not available for some time. -->
+			 <AllowAutoConfiguration fallback="true|false">True</AllowAutoConfiguration>
 	</InfoService>
 </Network>
 
 <Certificates>
-
 	<OwnCertificate>
 		<X509PKCS12>
 			<!-- Base64 encoded version of the DER encoded version of a PKCS#12 structure which includes the private key and X.509 Certificate -->
@@ -143,8 +131,7 @@
 		<X509Certificate>
 			<!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
 		</X509Certificate>
-	</NextMixCertificate>
-
+	</NextMixCertificate>s
 </Certificates>
 
 <Description><!-- optional -->
@@ -168,6 +155,27 @@
 	</Operator>
 
 </Description>
+
+
+<MixOnCD>
+	<Network dhcp="true|false">
+		<Hostname><!-- Hostname (optional - default: "mixoncd" --></Hostname>
+	 	<NetworkInterface><!-- NIC identifier (optional - default: "eth0") --></NetworkInterface>
+ 		<IP><!-- IPv4 address [XXX.XXX.XXX.XXX] (optional - omitting implies DHCP-based or manual configuration!) --></IP>
+	 	<SubnetMask><!-- IPv4 subnet mask [XXX.XXX.XXX.XXX] (optional - see above! --></SubnetMask>
+ 		<DefaultGateway><!-- IPv4 address of standard gateway [XXX.XXX.XXX.XXX] (optional - see above!) --></DefaultGateway>
+		<DNSServers>
+			<IP><!-- IPv4 address of primary nameserver [XXX.XXX.XXX.XXX] (optional - see above!) --></IP>
+			<IP><!-- IPv4 address of secondary nameserver [XXX.XXX.XXX.XXX] (optional - see above!) --></IP>
+			<!-- ... -->
+		</DNSServers>
+	</Network>
+	<Login>
+		<Password user="root"><!-- Superuser's password (optional) --> </RootPassword>
+		<Password user="mix"><!-- Password of regular user "mix" for SSH login (optional)--></UserPassword>
+		<!-- ... -->
+	</Login>
+</MixOnCD>
 
 <Accounting>
 	<!-- This section contains the configuration for the accounting instance (payment functionality). -->
