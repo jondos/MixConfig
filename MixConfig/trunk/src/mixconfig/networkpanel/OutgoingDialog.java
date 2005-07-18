@@ -57,9 +57,9 @@ public class OutgoingDialog extends ConnectionDialog
 		layout.setConstraints(t, rc);
 		getContentPane().add(t);
 		proxytype.add(t);
-		if (firstone == null)
+		if (getFirstone() == null)
 		{
-			firstone = t;
+			setFirstone(t);
 		}
 		rc.gridx += 4;
 		t = new JRadioButton("Socks", ptype == ConnectionData.SOCKS_PROXY);
@@ -95,7 +95,7 @@ public class OutgoingDialog extends ConnectionDialog
 		rc.weightx = 0;
 
 		MixConfiguration mixConf = MixConfig.getMixConfiguration();
-		String s = mixConf.getAttribute("General/MixType");
+		String s = mixConf.getValue("General/MixType");
 
 		if (Integer.valueOf(s).intValue() == MixConfiguration.MIXTYPE_LAST)
 		{
@@ -106,13 +106,13 @@ public class OutgoingDialog extends ConnectionDialog
 			proxytype = null;
 		}
 		addTransport(data, layout, lc, rc);
-		addName(data, layout, lc, rc);
+		addName(data, layout, lc, rc, true);
 		addIP(data, layout, lc, rc);
 		addPort(data, layout, lc, rc);
 		addKeys(data, where, layout, lc, rc);
 
 		pack();
-		firstone.requestFocus();
+		getFirstone().requestFocus();
 	}
 
 	OutgoingDialog(Frame parent, String title, final OutgoingConnectionTableModel where)

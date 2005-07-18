@@ -29,7 +29,6 @@ package mixconfig;
 
 import java.io.File;
 import java.io.FileOutputStream;
-
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,9 +43,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
-
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
+
+import logging.LogType;
+import gui.*;
 
 public class SigCertTool extends JDialog implements ActionListener
 {
@@ -283,8 +284,7 @@ public class SigCertTool extends JDialog implements ActionListener
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleException(e);
-			System.out.println("Cert to Sign not set: " + e.getMessage());
+			MixConfig.handleError(e, "Certificate to sign not set.", LogType.MISC);
 			setCertToSign( (JAPCertificate)null);
 		}
 	}
@@ -316,8 +316,7 @@ public class SigCertTool extends JDialog implements ActionListener
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleException(e);
-			System.out.println("Cert to Sign not set: " + e.getMessage());
+			MixConfig.handleError(e, "Cert to sign not set.", LogType.MISC);
 			setCertToSign( (JAPCertificate)null);
 		}
 	}

@@ -1,4 +1,33 @@
+/*
+ Copyright (c) 2000, The JAP-Team
+ All rights reserved.
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+
+ - Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+
+ - Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation and/or
+  other materials provided with the distribution.
+
+ - Neither the name of the University of Technology Dresden, Germany nor the names of its contributors
+  may be used to endorse or promote products derived from this software without specific
+  prior written permission.
+
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
+ OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS
+ BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+ */
 package mixconfig.networkpanel;
+
+import java.util.Vector;
 
 import java.awt.Component;
 import java.awt.Frame;
@@ -10,7 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,26 +47,31 @@ import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+
+import gui.JAPMessages;
 import mixconfig.IntegerDocument;
+import javax.swing.JComponent;
 
 abstract class ConnectionDialog extends JDialog
 {
 	private JTextField nametext, iptext[];
 	private ButtonGroup ssl, m_bttngrpType;
-	private JCheckBox m_checkboxVirtual, m_checkboxHidden;
+	private JComboBox m_type;
 	private JLabel namelabel, iplabel[];
-	protected javax.swing.JComponent firstone;
+	private JComponent m_firstone;
+	private boolean m_bMixOnCD;
+
 	abstract protected String getType();
 
 	protected ConnectionData getData()
 	{
 		boolean bHidden = false;
 		boolean bVirtual = false;
-		if (m_checkboxVirtual != null && m_checkboxVirtual.isSelected())
+		if (m_type != null && m_type.getSelectedIndex() == 1)
 		{
 			bVirtual = true;
 		}
-		if (m_checkboxHidden != null && m_checkboxHidden.isSelected())
+		if (m_type != null && m_type.getSelectedIndex() == 2)
 		{
 			bHidden = true;
 		}
@@ -57,16 +91,32 @@ abstract class ConnectionDialog extends JDialog
 				}
 			}
 
-			return new ConnectionData(getType(),
-									  ssl.getSelection().getActionCommand().equals("SSL") ?
-									  ConnectionData.SSL_TCP : ConnectionData.RAW_TCP,
-									  nametext.getText(),
-									  ips,
-									  (iptext[4].getText().length() == 0) ? 0 :
-									  Integer.parseInt(iptext[4].getText(), 10),
-									  0,
-									  bVirtual,
-									  bHidden);
+			if (!m_bMixOnCD)
+			{
+				return new ConnectionData(getType(),
+										  ssl.getSelection().getActionCommand().equals("SSL") ?
+										  ConnectionData.SSL_TCP : ConnectionData.RAW_TCP,
+										  nametext.getText(),
+										  ips,
+										  (iptext[4].getText().length() == 0) ? 0 :
+										  Integer.parseInt(iptext[4].getText(), 10),
+										  0,
+										  bVirtual,
+										  bHidden);
+			}
+			else
+			{
+				return new ConnectionData(getType(),
+										  ssl.getSelection().getActionCommand().equals("SSL") ?
+										  ConnectionData.SSL_TCP : ConnectionData.RAW_TCP,
+										  JAPMessages.getString("configuredByMixOnCD"), ips,
+										  (iptext[4].getText().length() == 0) ? 0 :
+										  Integer.parseInt(iptext[4].getText(), 10),
+										  0,
+										  bVirtual,
+										  bHidden);
+
+			}
 		}
 		else
 		{
@@ -98,9 +148,9 @@ abstract class ConnectionDialog extends JDialog
 		rc.gridwidth = 3;
 		m_bttngrpType = new ButtonGroup();
 		JRadioButton t = new JRadioButton("TCP", (ttype & ConnectionData.UNIX) == 0);
-		if (firstone == null)
+		if (m_firstone == null)
 		{
-			firstone = t;
+			m_firstone = t;
 		}
 		t.setActionCommand("TCP");
 		ActionListener tcpunixswitcher = new ActionListener()
@@ -108,12 +158,13 @@ abstract class ConnectionDialog extends JDialog
 			public void actionPerformed(ActionEvent ev)
 			{
 				boolean is_tcp = ev.getActionCommand().equals("TCP");
-				namelabel.setText(is_tcp ? "Host Name" : "File Name");
+				namelabel.setText(is_tcp ? "Host name" : "File name");
 				for (int i = 0; i < 5; i++)
 				{
 					iplabel[i].setEnabled(is_tcp);
 					iptext[i].setEnabled(is_tcp);
 				}
+
 			}
 		};
 
@@ -168,10 +219,10 @@ abstract class ConnectionDialog extends JDialog
 	};
 
 	protected void addName(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc,
-						   GridBagConstraints rc)
+						   GridBagConstraints rc, boolean a_enabled)
 	{
 		boolean isHost = m_bttngrpType.getSelection().getActionCommand().equals("TCP");
-		namelabel = new JLabel(isHost ? "Host Name" : "File Name");
+		namelabel = new JLabel(isHost ? "Host name" : "File name");
 		layout.setConstraints(namelabel, lc);
 		getContentPane().add(namelabel);
 		lc.gridy++;
@@ -191,10 +242,13 @@ abstract class ConnectionDialog extends JDialog
 		getContentPane().add(nametext);
 		nametext.addActionListener(nextfocusaction);
 		rc.gridy++;
-		if (firstone == null)
+		if (m_firstone == null)
 		{
-			firstone = nametext;
+			m_firstone = nametext;
 		}
+		nametext.setEnabled(a_enabled);
+		namelabel.setEnabled(a_enabled);
+
 	}
 
 	protected void addIP(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc,
@@ -220,9 +274,9 @@ abstract class ConnectionDialog extends JDialog
 		ic.weightx = 0;
 		for (int i = 0; i < 4; i++)
 		{
-			iplabel[i] = new JLabel( (i == 0) ? "IP Address" : ".");
+			iplabel[i] = new JLabel( (i == 0) ? "IP address" : ".");
 			layout.setConstraints(iplabel[i], (i == 0) ? lc : ic);
-			getContentPane().add(iplabel[i]);
+			//getContentPane().add(iplabel[i]);
 			iplabel[i].setEnabled(isHost);
 			ic.gridx++;
 
@@ -234,7 +288,7 @@ abstract class ConnectionDialog extends JDialog
 				iptext[i].setText(Integer.toString(ips[i], 10));
 			}
 			layout.setConstraints(iptext[i], ic);
-			getContentPane().add(iptext[i]);
+			//getContentPane().add(iptext[i]);
 			iptext[i].addActionListener(nextfocusaction);
 			iptext[i].setEnabled(isHost);
 			ic.gridx++;
@@ -245,9 +299,9 @@ abstract class ConnectionDialog extends JDialog
 		}
 		lc.gridy++;
 		rc.gridy++;
-		if (firstone == null)
+		if (m_firstone == null)
 		{
-			firstone = iptext[0];
+			m_firstone = iptext[0];
 		}
 	}
 
@@ -269,24 +323,29 @@ abstract class ConnectionDialog extends JDialog
 		{
 			iptext[4].setText(String.valueOf(data.getPort()));
 		}
+		if (isHost && data == null)
+		{
+			iptext[4].setText("6544");
+		}
+
 		layout.setConstraints(iptext[4], rc);
 		getContentPane().add(iptext[4]);
 		iptext[4].addActionListener(nextfocusaction);
 		iptext[4].setEnabled(isHost);
 		rc.gridy++;
-		if (firstone == null)
+		if (m_firstone == null)
 		{
-			firstone = iptext[4];
+			m_firstone = iptext[4];
 		}
 	}
 
 	protected void addOptions(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc,
-							  GridBagConstraints rc)
+							  GridBagConstraints rc, boolean a_enabled)
 	{
 		JPanel p = new JPanel(new GridLayout(1, 2));
 		p.setToolTipText(
-			"This are two additional options, which are useful if you are for instance behind a NAT gateway.");
-		p.setBorder(new TitledBorder("Additional Options "));
+			"These are two additional options which are useful if you are behind a NAT gateway  for instance.");
+		p.setBorder(new TitledBorder("Visibility"));
 		lc.gridwidth = 8;
 		lc.gridx = 0;
 		lc.anchor = lc.NORTHEAST;
@@ -296,18 +355,50 @@ abstract class ConnectionDialog extends JDialog
 		getContentPane().add(p);
 		lc.gridy++;
 		rc.gridy++;
-		m_checkboxVirtual = new JCheckBox("Virtual");
-		m_checkboxVirtual.setToolTipText("Virutal - the Mix will not bind or listen on this interface, but the information is transferred to the InfoService");
-		m_checkboxHidden = new JCheckBox("Hidden");
-		m_checkboxHidden.setToolTipText(
-			"Hidden - information about this interface is not propagate to the InfoService.");
+		Vector items = new Vector();
+		JLabel virtual = new JLabel("Virtual");
+		virtual.setToolTipText("Virtual - the Mix will not bind or listen on this interface, but the information is transferred to the InfoService");
+		items.addElement("Default");
+		items.addElement("Virtual");
+		items.addElement("Hidden");
+		m_type = new JComboBox(items);
+		m_type.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (m_type.getSelectedIndex() == 0)
+				{
+					m_type.setToolTipText("");
+				}
+				else if (m_type.getSelectedIndex() == 1)
+				{
+					m_type.setToolTipText("Virtual - the Mix will not bind or listen on this interface, but the information is transferred to the InfoService");
+				}
+				else if (m_type.getSelectedIndex() == 2)
+				{
+					m_type.setToolTipText(
+						"Hidden - information about this interface is not propagated to the InfoService.");
+				}
+			}
+		});
+
 		if (data != null)
 		{
-			m_checkboxVirtual.setSelected(data.isVirtual());
-			m_checkboxHidden.setSelected(data.isHidden());
+			if (data.isVirtual())
+			{
+				m_type.setSelectedIndex(1);
+			}
+			else if (data.isHidden())
+			{
+				m_type.setSelectedIndex(2);
+			}
+			else
+			{
+				m_type.setSelectedIndex(0);
+			}
 		}
-		p.add(m_checkboxVirtual);
-		p.add(m_checkboxHidden);
+		m_type.setEnabled(a_enabled);
+		p.add(m_type);
 	}
 
 	protected void addKeys(final ConnectionData data, final ConnectionTableModel where, GridBagLayout layout,
@@ -342,7 +433,7 @@ abstract class ConnectionDialog extends JDialog
 									break;
 								}
 								javax.swing.JOptionPane.showMessageDialog(parent,
-									"IP Address is not complete.",
+									"IP address is not complete.",
 									"Error", javax.swing.JOptionPane.ERROR_MESSAGE);
 								return;
 							}
@@ -396,9 +487,9 @@ abstract class ConnectionDialog extends JDialog
 		});
 		keylayout.setConstraints(key, kc);
 		keys.add(key);
-		if (firstone == null)
+		if (m_firstone == null)
 		{
-			firstone = key;
+			m_firstone = key;
 		}
 		lc.gridwidth = 8;
 		lc.fill = GridBagConstraints.HORIZONTAL;
@@ -410,6 +501,22 @@ abstract class ConnectionDialog extends JDialog
 
 	ConnectionDialog(Frame parent, String title)
 	{
-		super(parent, title, false);
+		super(parent, title, true);
+		this.setResizable(false);
+	}
+
+	protected void setMixOnCDEnabled(boolean a_bEnabled)
+	{
+		m_bMixOnCD = a_bEnabled;
+	}
+
+	protected JComponent getFirstone()
+	{
+		return m_firstone;
+	}
+
+	protected void setFirstone(JComponent a_firstone)
+	{
+		m_firstone = a_firstone;
 	}
 }

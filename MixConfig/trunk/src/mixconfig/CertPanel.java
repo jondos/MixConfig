@@ -1,37 +1,68 @@
+/*
+ Copyright (c) 2000 - 2005, The JAP-Team
+ All rights reserved.
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+
+  - Redistributions of source code must retain the above copyright notice,
+ this list of conditions and the following disclaimer.
+
+  - Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation and/or
+ other materials provided with the distribution.
+
+  - Neither the name of the University of Technology Dresden, Germany nor the names of its contributors
+ may be used to endorse or promote products derived from this software without specific
+ prior written permission.
+
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
+ OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS
+ BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+ */
 package mixconfig;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.SecureRandom;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import anon.crypto.DSAKeyPair;
+import anon.crypto.ICertificate;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
-import anon.crypto.ICertificate;
-import org.bouncycastle.asn1.DERTags;
+import anon.crypto.Validity;
+import anon.util.IMiscPasswordReader;
+import gui.GUIUtils;
+import gui.PasswordBox;
+import logging.LogType;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -47,14 +78,27 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private static final String STRING_ZERO = new String(new char[]
 		{0});
 
+	// the trusted CSs against those all certificates are tested
+	private static final Hashtable TRUSTED_CERTIFICATES =
+		JAPCertificate.getInstance("certificates/acceptedCAs/", true);
+
+	private static final String CERT_VALID = "../cert.gif";
+	private static final String CERT_INVALID = "../certinvalid.gif";
+	private static final String CERT_VALID_INACTIVE = "../certinactive.gif";
+	private static final String CERT_INVALID_INACTIVE = "../certinvalidinactive.gif";
+	private static final String CERT_DISABLED = "../certdisabled.gif";
+
+	// holds a Vector with all instanciated CertPanels
+	private static Vector ms_certpanels = new Vector();
+
 	/** The 'create new certificate' button */
 	private JButton m_bttnCreateCert;
 
 	/** The 'import certificate' button */
-	private JButton m_bttnImportPub;
+	private JButton m_bttnImportCert;
 
 	/** The 'export certificate' button */
-	private JButton m_bttnExportPub;
+	private JButton m_bttnExportCert;
 
 	/** The 'change certificate's password' button */
 	private JButton m_bttnChangePasswd;
@@ -62,17 +106,17 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/** The 'remove certificate' button */
 	private JButton m_bttnRemoveCert;
 
-	/** A text field for the subject name */
-	private JTextField m_textCertCN;
+	/** The certificate graphic */
+	private JLabel m_certLabel;
 
-	/** A text field for the issuer name */
-	private JTextField m_textCertIssuer;
-
-	/** A text field for the validity start date */
-	private JTextField m_textCertValidFrom;
+	/** A label for the validity start date */
+	private JLabel m_textCertValidity;
 
 	/** A text field for the validity end date */
-	private JTextField m_textCertValidTo;
+	/*private JTextField m_textCertValidTo;*/
+
+	private JLabel m_sha1Part1Label;
+	private JLabel m_sha1Part2Label;
 
 	/** Indicates whether the certificate object is PKCS12 (<CODE>true</CODE>) or X.509 (<CODE>false</CODE>) */
 	private boolean m_certIsPKCS12;
@@ -88,61 +132,58 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/** The validator for newly generated certificates.
 	 * @see mixconfig.CertPanel.CertCreationValidator
 	 */
-	private CertCreationValidator m_validator;
+	private ICertCreationValidator m_validator;
 
 	/** The list of objects that listen to <CODE>ChangeEvent</CODE>s from this object */
 	private Vector m_changeListeners = new Vector();
 
-	/** Constructs a new instance of <CODE>CertPanel</CODE> with the specified name, the
-	 * specified tool tip and the specified PKCS12 certificate.
+	/**
+	 * Constructs a new instance of <CODE>CertPanel</CODE> with the specified name, the
+	 * specified tool tip and the specified X.509 certificate.
 	 * @param a_name A name that will be displayed above the panel.
-	 * @param a_toolTip A text that will be displayed as a tool tip when the user moves the mouse over
-	 * the panel.
-	 * @param a_cert The PKCS12 private certificate
+	 * @param a_toolTip A text that will be displayed as a tool tip when the user moves the
+	 * mouse over the panel.
+	 * @param a_certificate the certificate (X.509)
 	 */
-	public CertPanel(String a_name, String a_toolTip, PKCS12 a_cert)
+	public CertPanel(String a_name, String a_toolTip, JAPCertificate a_certificate)
 	{
-		this(a_name, a_toolTip, true);
-		if (a_cert != null)
-		{
-			this.setPrivCert(a_cert);
-		}
+		this(a_name, a_toolTip, (ICertificate) a_certificate, false);
 	}
 
-	/** Constructs a new instance of <CODE>CertPanel</CODE> with the specified name, the
-	 * specified tool tip and the specified X.509 public certificate.
+	/**
+	 * Constructs a new instance of <CODE>CertPanel</CODE> with the specified name, the
+	 * specified tool tip and the specified X.509 certificate.
 	 * @param a_name A name that will be displayed above the panel.
-	 * @param a_toolTip A text that will be displayed as a tool tip when the user moves the mouse over
-	 * the panel.
-	 * @param a_cert The X.509 public certificate
-	 * @throws IOException If an error occurs while extracting the certificte from the byte array
-	 * <code>a_cert</code>
+	 * @param a_toolTip A text that will be displayed as a tool tip when the user moves the
+	 * mouse over the panel.
+	 * @param a_certificate the certificate (PKCS12)
 	 */
-	public CertPanel(String a_name, String a_toolTip, byte[] a_cert) throws IOException
+	public CertPanel(String a_name, String a_toolTip, PKCS12 a_certificate)
 	{
-		this(a_name, a_toolTip, false);
-		if (a_cert != null)
-		{
-			this.setPubCert(a_cert);
-		}
+		this(a_name, a_toolTip, (ICertificate) a_certificate, true);
 	}
 
-	/** Constructs a new instance of <CODE>CertPanel</CODE>. Wrapped by the public constructors
+	/**
+	 * Constructs a new instance of <CODE>CertPanel</CODE> with the specified name, the
+	 * specified tool tip and the specified certificate.
 	 * @param a_name A name that will be displayed above the panel.
-	 * @param a_toolTip A text that will be displayed as a tool tip when the user moves the mouse over
-	 * the panel.
-	 * @param a_private <CODE>true</CODE> indicates that the certificate is expected to be PKCS12,
-	 * <code>false</code> otherwise.
+	 * @param a_toolTip A text that will be displayed as a tool tip when the user moves the
+	 * mouse over the panel.
+	 * @param a_certificate the certificate (PKCS12 or X.509)
+	 * @param a_pkcs12 true if the certificate is PKCS12; false otherwise
 	 */
-	private CertPanel(String a_name, String a_toolTip, boolean a_private)
+	private CertPanel(String a_name, String a_toolTip, ICertificate a_certificate,
+					  boolean a_pkcs12)
 	{
-		m_certIsPKCS12 = a_private;
+		ms_certpanels.addElement(this);
+
+		m_certIsPKCS12 = a_pkcs12;
 		GridBagLayout layout = new GridBagLayout();
 		setLayout(layout);
 
-		GridBagConstraints d = new GridBagConstraints();
-		d.anchor = GridBagConstraints.NORTHWEST;
-		d.insets = new Insets(5, 5, 5, 5);
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.anchor = GridBagConstraints.NORTHWEST;
+		constraints.insets = new Insets(5, 5, 5, 5);
 
 		setBorder(new TitledBorder(a_name));
 		if (a_toolTip != null)
@@ -151,177 +192,161 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 
 		// --- Buttons
+		m_bttnImportCert = new JButton("Import");
 
-		if (a_private)
-		{
-			m_bttnCreateCert = new JButton("Create a New One");
-			d.gridx = 1;
-			d.gridy = 0;
-			d.gridwidth = 1;
-			d.fill = GridBagConstraints.NONE;
-			m_bttnCreateCert.addActionListener(this);
-			m_bttnCreateCert.setActionCommand("Create");
-			layout.setConstraints(m_bttnCreateCert, d);
-			add(m_bttnCreateCert);
-		}
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 
-		m_bttnImportPub = new JButton("Import...");
-		if (a_private)
-		{
-			d.gridx = 2;
-		}
-		else
-		{
-			d.gridx = 1;
-		}
-		d.gridy = 0;
-		if (a_private)
-		{
-			d.gridwidth = 1;
-		}
-		else
-		{
-			d.fill = GridBagConstraints.NONE;
-		}
-		m_bttnImportPub.addActionListener(this);
-		m_bttnImportPub.setActionCommand("ImportOwnCert");
-		layout.setConstraints(m_bttnImportPub, d);
-		add(m_bttnImportPub);
+		m_bttnImportCert.addActionListener(this);
+		m_bttnImportCert.setActionCommand("ImportOwnCert");
+		layout.setConstraints(m_bttnImportCert, constraints);
+		add(m_bttnImportCert);
 
-		m_bttnExportPub = new JButton("Export...");
-		if (a_private)
-		{
-			d.gridx = 3;
-			d.gridy = 0;
-			d.gridwidth = 1;
-		}
-		else
-		{
-			d.gridx = 2;
-		}
-		m_bttnExportPub.addActionListener(this);
-		m_bttnExportPub.setActionCommand("ExportOwnPubCert");
-		layout.setConstraints(m_bttnExportPub, d);
-		add(m_bttnExportPub);
+		m_bttnExportCert = new JButton("Export");
 
-		if (a_private)
-		{
-			m_bttnChangePasswd = new JButton("Change Password");
-			d.gridx = 4;
-			m_bttnChangePasswd.addActionListener(this);
-			m_bttnChangePasswd.setActionCommand("passwd");
-			layout.setConstraints(m_bttnChangePasswd, d);
-			add(m_bttnChangePasswd);
-		}
+		constraints.gridx = 1;
+		constraints.gridy = 0;
+
+		m_bttnExportCert.addActionListener(this);
+		m_bttnExportCert.setActionCommand("ExportOwnPubCert");
+		layout.setConstraints(m_bttnExportCert, constraints);
+		add(m_bttnExportCert);
 
 		m_bttnRemoveCert = new JButton("Remove");
-		if (a_private)
-		{
-			d.gridx = 5;
-		}
-		else
-		{
-			d.gridx = 3;
-		}
+
+		constraints.gridx = 2;
+		constraints.gridy = 0;
+
 		m_bttnRemoveCert.addActionListener(this);
 		m_bttnRemoveCert.setActionCommand("RemoveOwnCert");
 		m_bttnRemoveCert.setEnabled(false);
-		layout.setConstraints(m_bttnRemoveCert, d);
+		layout.setConstraints(m_bttnRemoveCert, constraints);
 		add(m_bttnRemoveCert);
 
-		// ------ Text fields
+		if (m_certIsPKCS12)
+		{
+			m_bttnCreateCert = new JButton("Create");
+			constraints.gridx = 0;
+			constraints.gridy = 1;
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			m_bttnCreateCert.addActionListener(this);
+			m_bttnCreateCert.setActionCommand("Create");
+			layout.setConstraints(m_bttnCreateCert, constraints);
+			add(m_bttnCreateCert);
 
-		JLabel name1 = new JLabel("Subject Name");
-		d.gridx = 0;
-		d.gridy = 1;
-		d.fill = GridBagConstraints.HORIZONTAL;
-		layout.setConstraints(name1, d);
-		add(name1);
+			m_bttnChangePasswd = new JButton("Change Password");
+			constraints.gridx = 1;
+			constraints.gridy = 1;
+			constraints.gridwidth = 2;
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			m_bttnChangePasswd.addActionListener(this);
+			m_bttnChangePasswd.setActionCommand("passwd");
+			layout.setConstraints(m_bttnChangePasswd, constraints);
+			add(m_bttnChangePasswd);
+			constraints.fill = GridBagConstraints.NONE;
+		}
 
-		m_textCertCN = new JTextField();
-		m_textCertCN.setEditable(false);
-		d.gridx = 1;
-		d.gridwidth = 5;
-		d.weightx = 1;
-		layout.setConstraints(m_textCertCN, d);
-		add(m_textCertCN);
+		m_certLabel = new JLabel(MixConfig.loadImageIcon(CERT_DISABLED));
+		m_certLabel.setBorder(null);
+		m_certLabel.addMouseListener(new MouseAdapter()
+		{
+			public void mouseClicked(MouseEvent a_event)
+			{
+				if (m_certLabel.isEnabled())
+				{
+					CertDetailsDialog dialog = new CertDetailsDialog(m_cert.getX509Certificate());
+					GUIUtils.positionWindow(dialog, MixConfig.getMainWindow());
+					dialog.show();
+				}
+			}
 
-		JLabel name9 = new JLabel("Issuer Name");
-		d.gridx = 0;
-		d.gridy = 2;
-		d.fill = GridBagConstraints.HORIZONTAL;
-		layout.setConstraints(name9, d);
-		add(name9);
+			public void mouseEntered(MouseEvent a_event)
+			{
+				if (m_certLabel.isEnabled())
+				{
+					updateCertificateIcon(true);
+				}
+			}
 
-		m_textCertIssuer = new JTextField();
-		m_textCertIssuer.setEditable(false);
-		d.gridx = 1;
-		d.gridwidth = 5;
-		d.weightx = 1;
-		layout.setConstraints(m_textCertIssuer, d);
-		add(m_textCertIssuer);
+			public void mouseExited(MouseEvent a_event)
+			{
+				if (m_certLabel.isEnabled())
+				{
+					updateCertificateIcon(false);
+				}
+			}
 
-		JLabel from1 = new JLabel("Valid From");
-		d.gridx = 0;
-		d.gridy = 3;
-		d.gridwidth = 1;
-		d.weightx = 0;
-		layout.setConstraints(from1, d);
-		add(from1);
+		});
+		constraints.gridy = 2;
+		constraints.gridheight = 3;
+		constraints.gridwidth = 1;
+		constraints.gridx = 0;
+		add(m_certLabel, constraints);
 
-		m_textCertValidFrom = new JTextField();
-		m_textCertValidFrom.setEditable(false);
-		d.gridx = 1;
-		d.gridwidth = 5;
-		d.weightx = 1;
-		layout.setConstraints(m_textCertValidFrom, d);
-		add(m_textCertValidFrom);
+		constraints.gridheight = 1;
+		constraints.gridwidth = 3;
+		constraints.gridx++;
+		constraints.insets = new Insets(0, 5, 0, 0);
 
-		JLabel to1 = new JLabel("Valid To");
-		d.gridx = 0;
-		d.gridy = 4;
-		d.gridwidth = 1;
-		d.weightx = 0;
-		layout.setConstraints(to1, d);
-		add(to1);
+		m_sha1Part1Label = new JLabel();
+		m_sha1Part1Label.setFont(new Font(m_sha1Part1Label.getFont().getName(),
+										  m_sha1Part1Label.getFont().getStyle(), 10));
+		m_sha1Part1Label.setPreferredSize( (new JLabel("00:00:00:00:00:00:00:00:00:00")).getPreferredSize());
 
-		m_textCertValidTo = new JTextField();
-		m_textCertValidTo.setEditable(false);
-		d.gridx = 1;
-		d.gridwidth = 5;
-		d.weightx = 1;
-		layout.setConstraints(m_textCertValidTo, d);
-		add(m_textCertValidTo);
+		add(m_sha1Part1Label, constraints);
+
+		m_sha1Part2Label = new JLabel();
+		m_sha1Part2Label.setFont(new Font(m_sha1Part2Label.getFont().getName(),
+										  m_sha1Part2Label.getFont().getStyle(), 10));
+		m_sha1Part2Label.setPreferredSize( (new JLabel("00:00:00:00:00:00:00:00:00:00")).getPreferredSize());
+
+		m_sha1Part1Label.setToolTipText("SHA-1 Fingerprint");
+		m_sha1Part2Label.setToolTipText("SHA-1 Fingerprint");
+
+		constraints.gridy++;
+		constraints.insets = new Insets(0, 5, 5, 0);
+		add(m_sha1Part2Label, constraints);
+
+		m_textCertValidity = new JLabel();
+		m_textCertValidity.setToolTipText("Validity");
+		m_textCertValidity.setPreferredSize(new JLabel("00.00.0000 - 00.00.0000").getPreferredSize());
+
+		constraints.gridx = 1;
+		constraints.gridy++;
+		constraints.gridwidth = 5;
+		constraints.weightx = 1;
+		layout.setConstraints(m_textCertValidity, constraints);
+		add(m_textCertValidity, constraints);
+		constraints.weightx = 0;
+
 
 		enableButtons();
+
+		if (a_certificate != null)
+		{
+			setCert(a_certificate.toByteArray());
+		}
 	}
 
 	/** Sets the validator for the creation of new certificates.
 	 * @param a_cg the new validator
 	 * @see #CertCreationValidator
 	 */
-	public void setCertCreationValidator(CertCreationValidator a_cg)
+	public void setCertCreationValidator(ICertCreationValidator a_cg)
 	{
 		this.m_validator = a_cg;
 	}
 
-	/** Returns whether the certificate is PKCS12 or X.509
-	 * @return <code>true</code> if the certificate is PKCS12, <CODE>false</code> if X.509
-	 */
-	public boolean isPKCS12()
-	{
-		return this.m_certIsPKCS12;
-	}
-
 	public void setEnabled(boolean enabled)
 	{
-		Component c[] = getComponents();
+		Component components[] = getComponents();
 
-		for (int i = 0; i < c.length; i++)
+		for (int i = 0; i < components.length; i++)
 		{
-			if (! (c[i] instanceof JButton))
+			if (! (components[i] instanceof JButton))
 			{
-				c[i].setEnabled(enabled);
+				components[i].setEnabled(enabled);
 			}
 		}
 
@@ -330,9 +355,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		enableButtons();
 	}
 
-	public void actionPerformed(ActionEvent e)
+	public void actionPerformed(ActionEvent a_event)
 	{
-		Object source = e.getSource();
+		Object source = a_event.getSource();
 		try
 		{
 			if (source == this.m_bttnChangePasswd)
@@ -341,19 +366,17 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			}
 			else if (source == this.m_bttnCreateCert)
 			{
-				this.generateNewCert();
+				generateNewCert();
 			}
-			else if (source == this.m_bttnExportPub)
+			else if (source == this.m_bttnExportCert)
 			{
-				this.exportCert();
+				exportCert();
 			}
 			else if (source == this.m_bttnRemoveCert)
 			{
-				this.m_cert = null;
-				clearCertInfo();
-				fireStateChanged();
+				removeCert();
 			}
-			else if (source == this.m_bttnImportPub)
+			else if (source == this.m_bttnImportCert)
 			{
 				if (this.m_certIsPKCS12)
 				{
@@ -368,24 +391,24 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleException(ex);
+			MixConfig.handleError(ex, null, LogType.GUI);
 		}
 	}
 
-	public void stateChanged(ChangeEvent e)
+	public void stateChanged(ChangeEvent a_event)
 	{
 		try
 		{
-			if (e.getSource() instanceof KeyPairGenerator)
+			if (a_event.getSource() instanceof CertificateGenerator)
 			{
-				setPrivCert( ( (KeyPairGenerator) e.getSource()).getCertificate(),
-							( (KeyPairGenerator) e.getSource()).getPassword());
+				setCertificate( ( (CertificateGenerator) a_event.getSource()).getCertificate(),
+							   ( (CertificateGenerator) a_event.getSource()).getPassword());
 
 			}
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleException(ex);
+			MixConfig.handleError(ex, null, LogType.GUI);
 		}
 	}
 
@@ -398,7 +421,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		return m_privCertPasswd.toCharArray();
 	}
 
-	/** Returns the certificate.
+	/**
+	 * Returns the certificate.
 	 * @return The certificate
 	 */
 	public ICertificate getCert()
@@ -408,116 +432,42 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 	/** Set the certificate. The method decides according to {@link #isPKCS12()} whether to set the
 	 * PKCS12 or X.509 certificate.
-	 * @param b A certificate, which must be of the appropriate type for this object.
+	 * @param cert A certificate, which must be of the appropriate type for this object.
 	 * @throws IOException If an error occurs while converting the certificate
 	 * @throws IllegalArgumentException If the certificate is not of the required type
 	 */
-	public void setCert(byte[] b) throws IOException, IllegalArgumentException
+	public void setCert(byte[] cert) throws IllegalArgumentException
 	{
-		if (this.m_certIsPKCS12)
-		{
-			setPrivCert(b);
-		}
-		else
-		{
-			setPubCert(b);
-		}
-	}
-
-	/** Sets the PKCS12 certificate.
-	 * @param pkcs12 The new PKCS12 certificate.
-	 */
-	public void setPrivCert(PKCS12 pkcs12)
-	{
-		setPrivCert(pkcs12, null);
-	}
-
-	/** Sets the PKCS12 certificate.
-	 * @param cert The new PKCS12 certificate.
-	 * @throws IllegalArgumentException If the certificate is not of the required type.
-	 */
-	public void setPrivCert(byte[] cert) throws IllegalArgumentException
-	{
-		if (!this.m_certIsPKCS12)
-		{
-			throw new IllegalArgumentException("This panel does not support " +
-											   "PKCS12 certificate structures.");
-		}
+		JAPCertificate x509cert = JAPCertificate.getInstance(cert);
 
 		if (cert == null)
 		{
-			this.m_cert = null;
-			this.clearCertInfo();
+			m_cert = null;
+			clearCertInfo();
 		}
-		else
+		else if (m_certIsPKCS12)
 		{
-			//Ok the problem is that an empty string (size =0) is different from an empty string (first char=0)
-			// so we try both...
-			char[] passwd = new char[0];
-			try
+			if (x509cert != null)
 			{
-				setPrivCert(cert, passwd);
-				return;
-			}
-			catch (Exception e)
-			{
-				/* TODO: Catch only the exception thrown in case of wrong password */
-				//e.printStackTrace();
-			}
-			passwd = new char[]
-				{
-				0};
-			while (passwd != null)
-			{
-				try
-				{
-					setPrivCert(cert, passwd);
-					break;
-				}
-				catch (Exception e)
-				{
-					/* TODO: Catch only the exception thrown in case of wrong password */
-					//e.printStackTrace();
-				}
-				PasswordBox pb =
-					new PasswordBox(
-					MixConfig.getMainWindow(),
-					"Enter the password",
-					PasswordBox.ENTER_PASSWORD, null);
-				pb.show();
-				passwd = pb.getPassword();
-			}
-		}
-		enableButtons();
-		fireStateChanged();
-	}
-
-	/** Sets the public certificate. If the stored certificate is PKCS12, the new
-	 * certificate is set as the PKCS12 certificate's public part.
-	 * @param cert The new public certificate.
-	 * @throws IOException If an error occurs while converting the certificate
-	 */
-	public void setPubCert(byte[] cert) throws IOException
-	{
-		if (cert == null)
-		{
-			this.m_cert = null;
-			this.clearCertInfo();
-		}
-		else
-		{
-			if (this.m_certIsPKCS12)
-			{
-				( (PKCS12) m_cert).setX509Certificate(JAPCertificate.getInstance(cert));
-
+				( (PKCS12) m_cert).setX509Certificate(x509cert);
 			}
 			else
 			{
-				JAPCertificate x509cs = JAPCertificate.getInstance(cert);
-				setCertInfo(x509cs);
-
-				m_cert = x509cs;
+				PasswordBox pb = new PasswordBox(MixConfig.getMainWindow(), "Enter the password",
+												 PasswordBox.ENTER_PASSWORD, null);
+				CertPanelPasswordReader pwReader = new CertPanelPasswordReader(pb);
+				PKCS12 privateCertificate = PKCS12.getInstance(cert, pwReader);
+				setCertificate(privateCertificate, pwReader.getPassword());
 			}
+		}
+		else if (x509cert != null)
+		{
+			setCertInfo(x509cert);
+			m_cert = x509cert;
+		}
+		else
+		{
+			throw new IllegalArgumentException("Unknown certificate type!");
 		}
 		enableButtons();
 		fireStateChanged();
@@ -532,41 +482,37 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	}
 
 	/** Sends a <CODE>ChangeEvent</CODE> to all of this object's <CODE>ChangeListener</CODE>s */
-	protected void fireStateChanged()
+	private void fireStateChanged()
 	{
-		ChangeEvent e = new ChangeEvent(this);
+		ChangeEvent event = new ChangeEvent(this);
 		for (int i = 0; i < m_changeListeners.size(); i++)
 		{
-			( (ChangeListener) m_changeListeners.elementAt(i)).stateChanged(e);
+			( (ChangeListener) m_changeListeners.elementAt(i)).stateChanged(event);
 		}
-	}
-
-	/** Sets the PKCS12 certificate and the password.
-	 * @param cert The new PKCS12 certificate.
-	 * @param passwd The new password for the certificate.
-	 * @throws InvalidKeyException If an error occurs during key generation
-	 * @throws IOException If an error occurs while converting the certificate
-	 */
-	private void setPrivCert(byte[] cert, char[] passwd) throws InvalidKeyException, IOException
-	{
-		if (cert[0] != (DERTags.SEQUENCE | DERTags.CONSTRUCTED))
-		{
-			throw new RuntimeException("Not a PKCS 12 stream.");
-		}
-		PKCS12 pkcs12 = PKCS12.getInstance(cert, passwd);
-		setPrivCert(pkcs12, new String(passwd));
 	}
 
 	/** Sets the PKCS12 certificate and the password.
 	 * @param pkcs12 The new PKCS12 certificate.
 	 * @param strPrivCertPasswd The new password for the certificate.
 	 */
-	private void setPrivCert(PKCS12 pkcs12, String strPrivCertPasswd)
+	private void setCertificate(PKCS12 pkcs12, char[] strPrivCertPasswd)
 	{
+		if (pkcs12 == null)
+		{
+			return;
+		}
+
 		JAPCertificate x509cs = pkcs12.getX509Certificate();
 		setCertInfo(x509cs);
 		m_cert = pkcs12;
-		m_privCertPasswd = strPrivCertPasswd;
+		if (strPrivCertPasswd != null)
+		{
+			m_privCertPasswd = new String(strPrivCertPasswd);
+		}
+		else
+		{
+			m_privCertPasswd = new String();
+		}
 		if (m_privCertPasswd.equals(STRING_ZERO)) //change a passwd which has len=1 and char[0]=0
 		{
 			//to a passwd with len=0 [because both seam to be 'empty'
@@ -575,6 +521,53 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		enableButtons();
 		fireStateChanged();
+	}
+
+	private void updateCertificateIcon(boolean a_bActive)
+	{
+		if (m_cert != null)
+		{
+			boolean bValid = m_cert.getX509Certificate().verify(TRUSTED_CERTIFICATES.elements());
+
+			if (a_bActive)
+			{
+				if (bValid)
+				{
+					m_certLabel.setIcon(MixConfig.loadImageIcon(CERT_VALID));
+				}
+				else
+				{
+					m_certLabel.setIcon(MixConfig.loadImageIcon(CERT_INVALID));
+				}
+			}
+			else
+			{
+				if (bValid)
+				{
+					m_certLabel.setIcon(MixConfig.loadImageIcon(CERT_VALID_INACTIVE));
+				}
+				else
+				{
+					m_certLabel.setIcon(MixConfig.loadImageIcon(CERT_INVALID_INACTIVE));
+				}
+			}
+
+			if (bValid)
+			{
+				m_certLabel.setToolTipText("");
+			}
+			else
+			{
+				m_certLabel.setToolTipText(
+							"The certificate cannot be verified! " +
+							"It is not signed by a trusted certificate authority.");
+			}
+		}
+		else
+		{
+			m_certLabel.setIcon(MixConfig.loadImageIcon(CERT_DISABLED));
+			m_certLabel.setToolTipText("");
+		}
 	}
 
 	/** Enables/disables the buttons according to this object's state.
@@ -591,13 +584,13 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			m_bttnCreateCert.setEnabled(enabled && !cert);
 		}
-		if (m_bttnImportPub != null)
+		if (m_bttnImportCert != null)
 		{
-			m_bttnImportPub.setEnabled(enabled);
+			m_bttnImportCert.setEnabled(enabled);
 		}
-		if (m_bttnExportPub != null)
+		if (m_bttnExportCert != null)
 		{
-			m_bttnExportPub.setEnabled(enabled && cert);
+			m_bttnExportCert.setEnabled(enabled && cert);
 		}
 		if (m_bttnRemoveCert != null)
 		{
@@ -607,6 +600,27 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			m_bttnChangePasswd.setEnabled(enabled && cert);
 		}
+		if (m_certLabel != null)
+		{
+			m_certLabel.setEnabled(enabled && cert);
+		}
+
+
+		updateCertificateIcon(false);
+
+
+		if (!cert || m_cert.getX509Certificate().getValidity().isValid(
+				  Calendar.getInstance().getTime()))
+		{
+			m_textCertValidity.setForeground(new JLabel().getForeground());
+			m_textCertValidity.setToolTipText("");
+		}
+		else
+		{
+			m_textCertValidity.setForeground(java.awt.Color.red);
+			m_textCertValidity.setToolTipText("The certificate has expired.");
+		}
+
 	}
 
 	/** Imports an X.509 public certificate. The user is prompted to give the name of a
@@ -616,19 +630,24 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 */
 	private void importPubCert() throws IOException
 	{
-		byte[] cert;
+		byte[] cert = null;
 		try
 		{
 			cert = MixConfig.openFile(MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
 		}
-		catch (RuntimeException e)
+		catch (RuntimeException a_ex)
 		{
-			ClipFrame Open = new ClipFrame("Paste a certificate to be imported in " +
+			ClipFrame open = new ClipFrame("Paste a certificate to be imported in " +
 										   "the area provided.", true);
-			Open.show();
-			cert = Open.getText().getBytes();
+			open.show();
+			cert = open.getText().getBytes();
 		}
-		setPubCert(cert);
+		if (cert == null)
+		{
+			return;
+		}
+
+		setCert(cert);
 	}
 
 	/** Imports a PKCS12 certificate. The user is prompted to give the name of a
@@ -659,13 +678,13 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				"is not supported when running as an applet.",
 				"Not supported!",
 				JOptionPane.ERROR_MESSAGE);
-			m_bttnImportPub.setEnabled(false);
+			m_bttnImportCert.setEnabled(false);
 			return;
 		}
 
 		if (buff == null)
 		{
-			throw new IOException("Could not read certificate.");
+			return;
 		}
 
 		//if own key is already set, then maybe only an other certificate for this key is imported...
@@ -678,7 +697,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				bIsPubCert = true;
 				if (pkcs12.setX509Certificate(cert1))
 				{
-					setPrivCert(pkcs12, m_privCertPasswd);
+					setCertificate(pkcs12, m_privCertPasswd.toCharArray());
 				}
 				else
 				{
@@ -693,7 +712,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		if (!bIsPubCert)
 		{
-			setPrivCert(buff);
+			setCert(buff);
 		}
 	}
 
@@ -701,10 +720,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private void changePasswd()
 	{
 		PasswordBox dialog =
-			new PasswordBox(
-			MixConfig.getMainWindow(),
-			"Change Password",
-			PasswordBox.CHANGE_PASSWORD, null);
+			new PasswordBox(MixConfig.getMainWindow(), "Change password",
+							PasswordBox.CHANGE_PASSWORD, m_validator.getPasswordInfoMessage());
+		GUIUtils.positionWindow(dialog, MixConfig.getMainWindow());
+
 		while (true)
 		{
 			dialog.show();
@@ -723,11 +742,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				m_privCertPasswd = new String(passwd);
 				break;
 			}
-			catch (SecurityException e)
+			catch (SecurityException a_ex)
 			{
 				javax.swing.JOptionPane.showMessageDialog(
 					this,
-					e.getMessage(),
+					a_ex.getMessage(),
 					"Password Error",
 					javax.swing.JOptionPane.ERROR_MESSAGE);
 			}
@@ -742,46 +761,52 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 */
 	private void generateNewCert() throws NullPointerException
 	{
+		Dimension windowSize;
+		Point windowLocation;
+		char[] passwd;
+
 		if (!m_validator.isValid())
 		{
 			throw new RuntimeException(m_validator.getInvalidityMessage());
 		}
 
-		final ValidityDialog vdialog =
-			new ValidityDialog(MixConfig.getMainWindow(), "Validity");
-
+		ValidityDialog vdialog = new ValidityDialog(MixConfig.getMainWindow(), "Validity");
+		GUIUtils.positionWindow(vdialog, MixConfig.getMainWindow());
 		vdialog.show();
+		windowSize = vdialog.getSize();
+		windowLocation = vdialog.getLocation();
 
-		if (vdialog.from == null)
+		if (vdialog.from == null || vdialog.to == null)
 		{
 			return;
 		}
 
-		PasswordBox dialog = new PasswordBox(MixConfig.getMainWindow(),
-											 "New Password",
-											 PasswordBox.NEW_PASSWORD,
-											 m_validator.getPasswordInfoMessage());
+		PasswordBox dialog = new PasswordBox(MixConfig.getMainWindow(), "New Password",
+											 PasswordBox.NEW_PASSWORD, m_validator.getPasswordInfoMessage());
+		//dialog.setSize(windowSize);
+		dialog.setLocation(windowLocation);
 		dialog.show();
-		final char[] passwd = dialog.getPassword();
+		passwd = dialog.getPassword();
 		if (passwd == null)
 		{
 			return;
 		}
 
-		KeyPairGenerator worker = new KeyPairGenerator(
-			m_validator.getSigName(),
-			vdialog.from.getDate(),
-			vdialog.to.getDate(),
-			passwd);
+		Calendar startDate = Calendar.getInstance();
+		Calendar endDate = Calendar.getInstance();
+		startDate.setTime(vdialog.from.getDate());
+		endDate.setTime(vdialog.to.getDate());
+		CertificateGenerator worker = new CertificateGenerator(
+			  m_validator.getSigName(), m_validator.getExtensions(),
+			  new Validity(startDate, endDate), passwd, dialog);
 
 		worker.addChangeListener(this);
 		worker.start();
 	}
 
 	/** Exports the certificate to a file.
-	 * @throws IOException If an error occurs while writing the file.
 	 */
-	private void exportCert() throws IOException
+	private void exportCert()
 	{
 		if (m_cert == null)
 		{
@@ -834,6 +859,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 						case MixConfig.FILTER_B64_CER:
 							ext = 2;
 							break;
+						default:
 					}
 					file = new File(file.getParent(), fname + extensions[ext]);
 				}
@@ -842,7 +868,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				switch (type)
 				{
 					case MixConfig.FILTER_PFX:
-						fout.write(((PKCS12)m_cert).toByteArray(getPrivateCertPassword()));
+						fout.write( ( (PKCS12) m_cert).toByteArray(getPrivateCertPassword()));
 						break;
 					case MixConfig.FILTER_CER:
 						fout.write(m_cert.getX509Certificate().toByteArray());
@@ -850,21 +876,23 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 					case MixConfig.FILTER_B64_CER:
 						fout.write(m_cert.getX509Certificate().toByteArray(true));
 						break;
+					default:
 				}
 				fout.close();
 			}
 			return;
 		}
-		catch (IOException e)
+		catch (IOException a_e)
 		{
-			MixConfig.handleException(e);
-			ClipFrame Save =
+			MixConfig.handleError(a_e, null, LogType.MISC);
+			ClipFrame save =
 				new ClipFrame(
-				"I/O error while saving, try clipboard. " +
-				"Copy and Save this file in a new Location.",
-				false);
-			Save.setText(new String(m_cert.getX509Certificate().toByteArray(true)));
-			Save.show();
+					"I/O error while saving, try clipboard. " +
+					"Copy and Save this file in a new Location.",
+					false);
+			save.setText(new String(m_cert.getX509Certificate().toByteArray(true)));
+			GUIUtils.positionWindow(save, MixConfig.getMainWindow());
+			save.show();
 		}
 	}
 
@@ -874,177 +902,97 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 */
 	private void setCertInfo(JAPCertificate a_x509cs)
 	{
-		m_textCertCN.setText(a_x509cs.getSubject().toString());
-		m_textCertIssuer.setText(a_x509cs.getIssuer().toString());
-		m_textCertValidFrom.setText(a_x509cs.getStartDate().getDate().toString());
-		m_textCertValidTo.setText(a_x509cs.getEndDate().getDate().toString());
+		//m_textCertCN.setText(a_x509cs.getSubject().toString());
+		//m_textCertIssuer.setText(a_x509cs.getIssuer().toString());
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(a_x509cs.getStartDate().getDate());
+		int day = cal.get(Calendar.DAY_OF_MONTH);
+		int month = cal.get(Calendar.MONTH) + 1;
+		int year = cal.get(Calendar.YEAR);
+		String startDate = day + "." + month + "." + year;
+		cal.setTime(a_x509cs.getEndDate().getDate());
+		day = cal.get(Calendar.DAY_OF_MONTH);
+		month = cal.get(Calendar.MONTH) + 1;
+		year = cal.get(Calendar.YEAR);
+		String endDate = day + "." + month + "." + year;
+		m_textCertValidity.setText(startDate + " - " + endDate);
+
+		String fp = a_x509cs.getSHA1Fingerprint();
+		fp = fp.replace(':', ' ');
+		String fp1 = fp.substring(0, fp.length() / 2);
+		String fp2 = fp.substring(fp.length() / 2 + 1, fp.length());
+		m_sha1Part1Label.setText(fp1);
+		m_sha1Part2Label.setText(fp2);
 	}
 
 	/** Clears the text fields that display info about the current certificate. */
 	private void clearCertInfo()
 	{
-		m_textCertCN.setText("");
-		m_textCertIssuer.setText("");
-		m_textCertValidFrom.setText("");
-		m_textCertValidTo.setText("");
+		//m_textCertCN.setText("");
+		//m_textCertIssuer.setText("");
+		m_textCertValidity.setText("");
+		m_sha1Part1Label.setText("");
+		m_sha1Part2Label.setText("");
 	}
 
-	/** This interface contains methods that provide information needed for generating
-	 * new certificates. Classes that use <CODE>CertPanel</CODE> must implement this
-	 * interface and use the {@link #setCertCreationValidator} to set themselves as the
-	 * validator for the certificate generation.
-	 */
-	public static interface CertCreationValidator
+	/** Removes the certficate from the panel */
+	public void removeCert()
 	{
-		/** Indicates whether the prerequisites for generating the certificate are met.
-		 * For example, if a certificate for the own Mix is to be created, the Mix id must
-		 * be valid as it is incorporated in the certificate's subject name.
-		 * @return <CODE>true</CODE> if the prerequisites are met, <CODE>false</CODE> otherwise
-		 */
-		public abstract boolean isValid();
-
-		/** Returns the signer name for the new certificate.
-		 * @return The signer name
-		 */
-		public abstract String getSigName();
-
-		/** Returns a message to be shown in the &quot;new password&quot; dialog for the PKCS12 certificate.
-		 * @return A password info message
-		 */
-		public abstract String getPasswordInfoMessage();
-
-		/** Returns a message to be shown when the prerequisites of generating a new
-		 * certificate are not met.
-		 * @return A warning about the prerequisites
-		 */
-		public abstract String getInvalidityMessage();
+		this.m_cert = null;
+		clearCertInfo();
+		fireStateChanged();
 	}
 
-	/** A subclass of <CODE>SwingWorker</CODE> that starts a new thread that generates the new
-	 * certificate in the background.
-	 */
-	protected class KeyPairGenerator extends SwingWorker
+	private class CertPanelPasswordReader implements IMiscPasswordReader
 	{
-		/** The start date of the certificate's validity. */
-		private Date m_startDate;
+		private char[] m_password;
+		private Vector m_certPanels;
+		private boolean m_triedOwnPassword;
+		private IMiscPasswordReader m_passwordReader;
 
-		/** The expiry date of the certificate. */
-		private Date m_endDate;
-
-		/** The password for the certificate to be generated. */
-		private char[] m_passwd;
-
-		/** A dialog to be shown as long as the certificate generation thread is busy. */
-		private BusyWindow m_notification;
-
-		/** The signer name for the certificate */
-		private String m_name;
-
-		/** A list of <CODE>ChangeListener</CODE>s that receive <CODE>ChangeEvent</CODE>s
-		 * from this object.
-		 */
-		private Vector m_changeListeners = new Vector();
-
-		/** The newly generated certificate. */
-		private byte[] m_cert;
-
-		/** Constructs a new instance of <CODE>KeyPairGenerator</CODE>
-		 * @param a_name The signer name
-		 * @param a_start The start date of the certificate's validity
-		 * @param a_end The certificate's expiry date
-		 * @param a_passwd The password for the certificate
-		 */
-		public KeyPairGenerator(String a_name, Date a_start, Date a_end, char[] a_passwd)
+		public CertPanelPasswordReader(IMiscPasswordReader a_passwordReader)
 		{
-			m_name = a_name;
-			m_startDate = a_start;
-			m_endDate = a_end;
-			m_passwd = a_passwd;
-			m_notification = new BusyWindow(MixConfig.getMainWindow(),
-											"Generating Key Pair.");
-			m_notification.setSwingWorker(KeyPairGenerator.this);
+			m_certPanels = (Vector) ms_certpanels.clone();
+			m_triedOwnPassword = false;
+			m_passwordReader = a_passwordReader;
 		}
 
-		/** Adds the specified <CODE>ChangeListener</CODE> to this object's listeners list.
-		 * @param a_cl A new <CODE>ChangeListener</CODE>
-		 */
-		public void addChangeListener(ChangeListener a_cl)
+		public String readPassword(Object message)
 		{
-			m_changeListeners.addElement(a_cl);
+			if (!m_triedOwnPassword && getPrivateCertPassword() != null)
+			{
+				m_triedOwnPassword = true;
+				m_password = getPrivateCertPassword();
+			}
+			else
+			{
+				m_password = null;
+				while (m_certPanels.size() > 0)
+				{
+					m_password = ( (CertPanel) (m_certPanels.elementAt(0))).getPrivateCertPassword();
+					m_certPanels.removeElementAt(0);
+					if (m_password != null)
+					{
+						break;
+					}
+				}
+
+			}
+
+			if (m_password == null)
+			{
+				m_password = m_passwordReader.readPassword("").toCharArray();
+				return null;
+			}
+			else
+			{
+				return new String(m_password);
+			}
 		}
 
-		/** Retrieves the newly generated certificate.
-		 * @return The new certificate
-		 */
-		public byte[] getCertificate()
-		{
-			return m_cert;
-		}
-
-		/** Retrieves the password of the newly generated certificate.
-		 * @return The new password
-		 */
 		public char[] getPassword()
 		{
-			return m_passwd;
-		}
-
-		/** Generates the new certificate. This method is used internally and should not
-		 * be called directly.
-		 * @return The generated certificate.
-		 */
-		public Object construct()
-		{
-			DSAKeyPair keyPair;
-			Calendar startDate = Calendar.getInstance();
-			Calendar endDate = Calendar.getInstance();
-
-			try
-			{
-				keyPair = DSAKeyPair.getInstance(new SecureRandom(), 1024, 80);
-				startDate.setTime(m_startDate);
-				endDate.setTime(m_endDate);
-
-				return new PKCS12(m_name, keyPair, startDate, endDate).toByteArray(m_passwd);
-			}
-			catch (Exception e)
-			{
-				if (!Thread.interrupted())
-				{
-					MixConfig.handleException(e);
-				}
-			}
-			return null;
-		}
-
-		/** Called internally when the certificate generation thread finishes. This method
-		 * should not be called directly.
-		 */
-		public void finished()
-		{
-			m_cert = (byte[]) get();
-			if (m_cert != null)
-			{
-				fireStateChanged();
-			}
-			m_notification.dispose();
-		}
-
-		/** Sends a <CODE>ChangeEvent</CODE> to all <CODE>ChangeListener</CODE>s of this
-		 * object. This method is called when the process of certificate generation is
-		 * aborted or complete.
-		 */
-		protected void fireStateChanged()
-		{
-			Object cl;
-			Enumeration e = m_changeListeners.elements();
-			for (cl = e.nextElement(); e.hasMoreElements(); cl = e.nextElement())
-			{
-				;
-			}
-			{
-				( (ChangeListener) cl).stateChanged(new ChangeEvent(this));
-			}
+			return m_password;
 		}
 	}
 }

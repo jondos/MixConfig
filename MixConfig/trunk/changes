@@ -1,0 +1,21 @@
+<MODIFIED>
+	anon.crypto.ByteSignature (neue Hilfsmethode)
+	anon.crypto.JAPCertificate (neuer Konstruktor)
+	anon.crypto.test.JAPCertificateTest
+	anon.crypto.X509SubjectKeyIdentifier (Logik ausgelagert)
+	anon.util.Base64 (Konstanten ergänzt)
+	gui.PasswordBox
+	junitx.framework.extension.TestProxy
+	anon.crypto.test.XMLSignatureTest
+	anon.crypto.PKCS10CertificationReuqestTest
+	anon.crypto.AllTests
+</MODIFIED>
+<CREATED>
+	images/cert.gif
+	images/certdisabled.gif
+	anon.crypto.UnixCrypt (Erzeugen von Unix-Passwoertern)
+	anon.util.CharArrayPasswordReader
+	anon.crypto.Validity (zur Vereinfachung einiger Klassenschnittstellen)
+	anon.crypto.TestProxy (angelegt im Verzeichnis test)
+</CREATED>
+

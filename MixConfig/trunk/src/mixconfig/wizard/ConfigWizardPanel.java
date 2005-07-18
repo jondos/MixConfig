@@ -32,26 +32,26 @@ import java.util.Vector;
 
 import java.awt.CardLayout;
 import java.awt.Container;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+import java.awt.GridBagConstraints;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import mixconfig.CertificatesPanel;
-import mixconfig.DescriptionPanel;
+import logging.LogType;
+
+import mixconfig.OwnCertificatesPanel;
 import mixconfig.GeneralPanel;
 import mixconfig.MixConfig;
 import mixconfig.MixConfigPanel;
 import mixconfig.MixConfiguration;
 import mixconfig.PaymentPanel;
-import mixconfig.networkpanel.NetworkPanel;
 import mixconfig.CascadePanel;
-import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.SAXException;
+import mixconfig.MixOnCDPanel;
+import mixconfig.PreviousMixPanel;
+import mixconfig.TitledGridBagPanel;
+import mixconfig.networkpanel.NextMixProxyPanel;
 
 /**
  * A class that represents a wizard.
@@ -86,7 +86,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 	private CardLayout m_layout = new CardLayout(4, 4);
 
 	/** the pages of this wizard */
-	private Container m_pages[];
+	private MixConfigPanel m_pages[];
 
 	/** a <CODE>ChangeListener</CODE> listening to <CODE>ChangeEvent</CODE>s from this object */
 	private Vector m_changeListener = new Vector();
@@ -104,18 +104,20 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 	{
 		setLayout(m_layout);
 		setBorder(new EtchedBorder());
-		m_pages = new Container[8];
-		m_pages[0] = new GeneralPanel();
-		// the next one is skipped when user selects last mix
-		m_pages[1] = new SimpleNetworkPanel();
-		// the next one is skipped when user selects first or middle mix
-		m_pages[2] = new NetworkPanel();
-		m_pages[3] = new CertificatesPanel();
-		m_pages[4] = new DescriptionPanel(false);
-		m_pages[5] = new PaymentPanel();
-		// the next one is skipped when user selects first or middle mix
-		m_pages[6] = new CascadePanel();
-		m_pages[7] = makeFinishPanel();
+		m_pages = new MixConfigPanel[7];
+		m_pages[0] = new MixOnCDPanel();
+		m_pages[1] = new GeneralPanel();
+		// the next one is skipped when user selects middle or last mix
+		//m_pages[1] = new SimpleNetworkPanel();
+		// the next one is skipped when user selects first mix
+		m_pages[2] = new OwnCertificatesPanel(false);
+		m_pages[3] = new NextMixProxyPanel();
+		m_pages[4] = new PreviousMixPanel();
+		//m_pages[4] = new OperatorPanel();
+		//m_pages[6] = new PaymentPanel(); // only for first mix
+		m_pages[5] = new CascadePanel(); // only last mix and dynamic
+
+		m_pages[6] = makeFinishPanel();
 
 		setConfiguration(null);
 
@@ -123,9 +125,6 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		{
 			add(m_pages[i], m_pages[i].getClass().getName());
 		}
-
-		// network panel is initially disabled
-		m_pages[2].setEnabled(false);
 
 		m_layout.first(this);
 		m_state = STATE_BEGIN;
@@ -142,21 +141,8 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		m_currentPage++;
 		m_layout.next(this);
 
-		Integer i =
-			new Integer(MixConfig.getMixConfiguration().getAttribute("General/MixType"));
-
 		// skip certain panels
-		if( ! m_pages[m_currentPage].isEnabled())
-/*		if ( (i.intValue() != MixConfiguration.MIXTYPE_LAST &&
-			  (m_pages[m_currentPage] instanceof CascadePanel ||
-			   m_pages[m_currentPage] instanceof NetworkPanel))
-			||
-			(i.intValue() == MixConfiguration.MIXTYPE_LAST &&
-			 m_pages[m_currentPage] instanceof SimpleNetworkPanel)
-			||
-			(i.intValue() != MixConfiguration.MIXTYPE_FIRST &&
-			 m_pages[m_currentPage] instanceof PaymentPanel)
-			)*/
+		if(!m_pages[m_currentPage].isEnabled())
 		{
 			forward();
 		}
@@ -211,7 +197,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 	 */
 	public void finish()
 	{
-		m_state = STATE_FINISHED;
+		m_state = STATE_BEGIN;
 		fireStateChanged();
 	}
 
@@ -238,6 +224,26 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 	public void stateChanged(ChangeEvent e)
 	{
 		fireStateChanged();
+	}
+
+	public Vector check()
+	{
+		Vector errors = new Vector();
+		Vector temp;
+
+		for (int i = 0; i < m_pages.length - 1; i++)
+		{
+			if (m_pages[i].isEnabled())
+			{
+				temp = m_pages[i].check();
+				for (int j = 0; j < temp.size(); j++)
+				{
+					errors.addElement(temp.elementAt(j));
+				}
+			}
+		}
+
+		return errors;
 	}
 
 	/**
@@ -302,6 +308,41 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		return newstate;
 	}
 
+	/**
+	 * Calls the load-method of each Panel
+	 * This is necessary if you change the view (expert|wizard)
+	 */
+	protected void load()
+	{
+		try
+		{
+			for (int i = 0; i < m_pages.length; i++)
+			{
+				m_pages[i].load();
+			}
+		}
+		catch (Exception io)
+		{
+			MixConfig.handleError(io, "Error on loading the MixConfiguration", LogType.MISC);
+		}
+		while (!m_pages[getCurrentPageNr()].isEnabled())
+		{
+			back();
+		}
+	}
+
+
+	/** Set the panel to first leaf.
+	 */
+	protected void reset()
+	{
+		m_layout.first(this);
+		m_state = STATE_BEGIN;
+		m_currentPage = 0;
+	}
+
+
+
 	/** Checks whether the state of the wizard has changed, e.g. when the user has entered data on a page. */
 	private void checkState()
 	{
@@ -313,15 +354,15 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		}
 	}
 
-        /** Sets the specified configuration object. If the object is <CODE>null</CODE>, the
-         * object returned by <CODE>mixconfig.MixConfig.getMixConfiguration()</CODE> is
-         * set instead.<br>
-         * This method will also call the <CODE>setConfiguration(MixConfiguration)</CODE>
-         * method of all contained <CODE>mixconfig.MixConfigPanel</CODE> instances.
-         * @param m A <CODE>MixConfiguration</CODE> object to be edited in the wizard
-         * @throws IOException If an I/O error occurs while setting the configuration
-         */
-	private void setConfiguration(MixConfiguration m) throws IOException
+		/** Sets the specified configuration object. If the object is <CODE>null</CODE>, the
+		 * object returned by <CODE>mixconfig.MixConfig.getMixConfiguration()</CODE> is
+		 * set instead.<br>
+		 * This method will also call the <CODE>setConfiguration(MixConfiguration)</CODE>
+		 * method of all contained <CODE>mixconfig.MixConfigPanel</CODE> instances.
+		 * @param m A <CODE>MixConfiguration</CODE> object to be edited in the wizard
+		 * @throws IOException If an I/O error occurs while setting the configuration
+		 */
+	protected void setConfiguration(MixConfiguration m) throws IOException
 	{
 		if (m == null)
 		{
@@ -339,10 +380,13 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 	 * is at its end
 	 * @return a <code>JPanel</code> showing a message
 	 */
-	private JPanel makeFinishPanel()
+	private MixConfigPanel makeFinishPanel()
 	{
-		JPanel finish = new JPanel();
-		finish.setLayout(new BoxLayout(finish, BoxLayout.Y_AXIS));
+		final ConfigWizardPanel panelWizard = this;
+		MixConfigPanel finish = new MixConfigPanel("Finish") {
+			// this is an anonymous class to insert it into the common MixConfigPanel array
+			public Vector check() {return panelWizard.check();}
+			public void enableComponents() {}};
 		String text[] =
 			{
 			"Mix configuration finished. Click the 'Finish' button to",
@@ -352,14 +396,17 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 			"Click the 'Cancel' button to quit without saving."
 		};
 
-		finish.setBorder(new EmptyBorder(10, 10, 10, 10));
+		TitledGridBagPanel panelMessage = new TitledGridBagPanel();
+		panelMessage.removeInsets();
 
 		for (int i = 0; i < text.length; i++)
 		{
-			finish.add(new JLabel(text[i]));
+			panelMessage.addRow(new JLabel(text[i]), null);
 		}
 
-		finish.add(Box.createVerticalGlue());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.anchor = GridBagConstraints.CENTER;
+		finish.add(panelMessage, gbc);
 
 		return finish;
 	}
@@ -370,6 +417,15 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 	public int getCurrentPageNr()
 	{
 		return m_currentPage;
+	}
+
+	/**
+	 * Gets the number of pages in this wizard
+	 * @return int
+	 */
+	public int getPageCount()
+	{
+		return m_pages.length;
 	}
 
 }

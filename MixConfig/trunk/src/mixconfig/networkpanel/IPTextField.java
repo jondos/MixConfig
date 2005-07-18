@@ -1,9 +1,12 @@
 package mixconfig.networkpanel;
 
+import java.util.Vector;
+import java.util.Enumeration;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.FocusEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JLabel;
@@ -14,9 +17,24 @@ import java.awt.event.FocusListener;
 import java.net.InetAddress;
 import java.net.*;
 
-final public class IPTextField extends JPanel
+final public class IPTextField extends JPanel implements FocusListener
 {
 	private JTextField[] iptext;
+	private Vector m_focusListeners;
+
+	public IPTextField()
+	{
+		super();
+		super.addFocusListener(this);
+
+		initIPTextField("");
+
+		for (int i = 0; i < iptext.length; i++)
+		{
+			iptext[i].addFocusListener(this);
+		}
+	}
+
 
 	private void initIPTextField(String IPStr)
 	{
@@ -75,20 +93,23 @@ final public class IPTextField extends JPanel
 
 	public void addFocusListener(FocusListener a_fl)
 	{
-		super.addFocusListener(a_fl);
-		if (iptext != null)
+		if (m_focusListeners == null)
 		{
-			for (int i = 0; i < iptext.length; i++)
-			{
-				iptext[i].addFocusListener(a_fl);
-			}
+			m_focusListeners = new Vector();
+		}
+
+		if (a_fl != null && !m_focusListeners.contains(a_fl))
+		{
+			m_focusListeners.addElement(a_fl);
 		}
 	}
 
-	public IPTextField()
+	public void removeFocusListener(FocusListener a_listener)
 	{
-		super();
-		initIPTextField("");
+		if (m_focusListeners != null)
+		{
+			m_focusListeners.removeElement(a_listener);
+		}
 	}
 
 	public String getText()
@@ -181,4 +202,29 @@ final public class IPTextField extends JPanel
 		}
 		return true;
 	}
+
+
+	public void focusGained(FocusEvent event)
+	{
+		Enumeration listeners = m_focusListeners.elements();
+		event = new FocusEvent(this, event.getID());
+		while(listeners.hasMoreElements())
+		{
+			((FocusListener)listeners.nextElement()).focusGained(event);
+		}
+	}
+
+	public void focusLost(FocusEvent event)
+	{
+		if (isCorrect() || isEmpty())
+		{
+			Enumeration listeners = m_focusListeners.elements();
+			event = new FocusEvent(this, event.getID());
+			while (listeners.hasMoreElements())
+			{
+				( (FocusListener) listeners.nextElement()).focusLost(event);
+			}
+		}
+	}
+
 }

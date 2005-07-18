@@ -27,8 +27,8 @@
  */
 package junitx.framework.extension;
 
-import junitx.framework.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import junitx.framework.TestAccessException;
 
 /**
  * This class should be inherited by other classes names "TestProxy" and
@@ -40,21 +40,25 @@ import java.lang.reflect.*;
  */
 public abstract class TestProxy extends junitx.framework.TestProxy
 {
-	protected Object createInstance(Constructor a_Constructor, Object[] a_args)
+	protected abstract Object createInstance(Constructor a_Constructor, Object[] a_args)
+			throws Exception;
+	/*
+	protected abstract Object createInstance(Constructor a_Constructor, Object[] a_args)
 		throws Exception
 	{
 		return a_Constructor.newInstance(a_args);
 	}
+   */
 
 	/**
 	 * Gets a class instance by calling the default constructor.
 	 *
-	 * @param args Object[] the constructor arguments
+	 * @param a_args Object[] the constructor arguments
 	 * @throws TestAccessException if the class could not be instanciated
 	 * @return Object an instance of the TestedClass
 	 * @see newInstanceWithKey
 	 */
-	public Object newInstance(Object[] a_args) throws TestAccessException
+	public final Object newInstance(Object[] a_args) throws TestAccessException
 	{
 	  return newInstanceWithKey(null, a_args);
 	}
@@ -62,13 +66,13 @@ public abstract class TestProxy extends junitx.framework.TestProxy
 	/**
 	 * Gets a class instance by calling a constructor.
 	 *
-	 * @param strConstructorKey String call the class constructor with the
+	 * @param a_strConstructorKey String call the class constructor with the
 	 * given name; <code> null </code> calls the default constructor
-	 * @param args Object[] the constructor arguments
+	 * @param a_args Object[] the constructor arguments
 	 * @throws TestAccessException if the class could not be instanciated
 	 * @return Object an instance of the TestedClass
 	 */
-	public Object newInstanceWithKey(String a_strConstructorKey, Object[] a_args)
+	public final Object newInstanceWithKey(String a_strConstructorKey, Object[] a_args)
 		throws TestAccessException
 	{
 		try

@@ -41,9 +41,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
@@ -53,10 +52,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1TaggedObject;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.BERInputStream;
 import org.bouncycastle.asn1.DERBitString;
 import org.bouncycastle.asn1.DEREncodableVector;
+import org.bouncycastle.asn1.DERInputStream;
 import org.bouncycastle.asn1.DERInteger;
 import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.DEROutputStream;
@@ -66,14 +67,13 @@ import org.bouncycastle.asn1.DERTags;
 import org.bouncycastle.asn1.DERUTCTime;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.SignedData;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.bouncycastle.asn1.x509.TBSCertificateStructure;
 import org.bouncycastle.asn1.x509.V3TBSCertificateGenerator;
 import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.bouncycastle.asn1.x509.X509Name;
-import org.bouncycastle.asn1.x509.X509Extensions;
-import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.crypto.digests.GeneralDigest;
+import org.bouncycastle.crypto.digests.MD5Digest;
+import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -86,14 +86,12 @@ import anon.util.ResourceLoader;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
-import org.bouncycastle.asn1.ASN1InputStream;
-
 
 /**
- * A certificate class.
+ * This class represents an X509 certificate.
  */
-final public class JAPCertificate extends X509CertificateStructure implements IXMLEncodable, Cloneable,
-	ICertificate
+public final class JAPCertificate extends X509CertificateStructure
+	implements IXMLEncodable, Cloneable, ICertificate
 {
 
 	/**
@@ -128,10 +126,8 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	public static final String XML_ELEMENT_NAME = "X509Certificate";
 	public static final String XML_ELEMENT_CONTAINER_NAME = "X509Data";
 
-	/**
-	 * This is the time (in minutes) a temporary certificate is valid.
-	 */
-	private static final int TEMPORARY_VALIDITY_IN_MINUTES = 10;
+	private static final String BASE64_TAG = "CERTIFICATE";
+	private static final String BASE64_ALTERNATIVE_TAG = "X509 CERTIFICATE";
 
 	/**
 	 * The dummy private key is used to create temporary certificates.
@@ -139,7 +135,10 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	private static IMyPrivateKey ms_dummyPrivateKey;
 
 	private IMyPublicKey m_PubKey;
-	private String m_id;
+	private String m_sha1Fingerprint;
+	private String m_md5Fingerprint;
+	private Validity m_validity;
+
 
 	/**
 	 * Creates a new certificate from a valid X509 certificate structure.
@@ -149,6 +148,8 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	private JAPCertificate(X509CertificateStructure x509cert) throws IllegalArgumentException
 	{
 		super(ASN1Sequence.getInstance(new DERTaggedObject(true, DERTags.BIT_STRING, x509cert), true));
+
+		byte[] data;
 
 		try
 		{
@@ -161,7 +162,16 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 				"Certificate structure contains invalid public key! " + a_e);
 		}
 
-		m_id = generateId();
+		data = toByteArray();
+		m_sha1Fingerprint = createFingerprint(new SHA1Digest(), data);
+		m_md5Fingerprint = createFingerprint(new MD5Digest(), data);
+
+		Calendar startDate, endDate;
+		startDate = Calendar.getInstance();
+		startDate.setTime(this.getStartDate().getDate());
+		endDate = Calendar.getInstance();
+		endDate.setTime(this.getEndDate().getDate());
+		m_validity = new Validity(startDate, endDate);
 	}
 
 	/**
@@ -192,72 +202,32 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	 */
 	public static JAPCertificate getInstance(byte[] a_certificate)
 	{
-		ByteArrayInputStream bin = null;
+		if (a_certificate == null || a_certificate.length == 0)
+		{
+			return null;
+		}
 
 		try
 		{
-			if (a_certificate[0] != (DERTags.SEQUENCE | DERTags.CONSTRUCTED))
+			ASN1Sequence certificate = toASN1Sequence(a_certificate);
+
+			if (certificate.size() > 1
+				&& certificate.getObjectAt(1) instanceof DERObjectIdentifier
+				&& certificate.getObjectAt(0).equals(PKCSObjectIdentifiers.signedData))
 			{
-				// Probably a Base64 encoded certificate
-				BufferedReader in =
-					new BufferedReader(
-					new InputStreamReader(new ByteArrayInputStream(a_certificate)));
-				StringBuffer sbuf = new StringBuffer();
-				String line;
-
-				while ( (line = in.readLine()) != null)
-				{
-					if (line.equals("-----BEGIN CERTIFICATE-----")
-						|| line.equals("-----BEGIN X509 CERTIFICATE-----"))
-					{
-						break;
-					}
-				}
-
-				while ( (line = in.readLine()) != null)
-				{
-					if (line.equals("-----END CERTIFICATE-----")
-						|| line.equals("-----END X509 CERTIFICATE-----"))
-					{
-						break;
-					}
-					sbuf.append(line);
-				}
-				bin = new ByteArrayInputStream(Base64.decode(sbuf.toString()));
+				return getInstance(X509CertificateStructure.getInstance(
+								new SignedData(
+					ASN1Sequence.getInstance(
+					(ASN1TaggedObject) certificate.getObjectAt(1),
+					true)).getCertificates()
+					.getObjectAt(0)));
 			}
 
-			if ((bin == null) && (a_certificate[1] == 0x80))
-			{
-				// a BER encoded certificate
-				ASN1InputStream in = new ASN1InputStream(new ByteArrayInputStream(a_certificate));
-				ASN1Sequence seq = (ASN1Sequence) in.readObject();
-				return getInstance(new X509CertificateStructure(seq));
-			}
-			else
-			{
-				if (bin == null)
-				{
-					bin = new ByteArrayInputStream(a_certificate);
-				}
-				ASN1InputStream in = new ASN1InputStream(bin);
-				ASN1Sequence seq = (ASN1Sequence) in.readObject();
-				if (seq.size() > 1
-					&& seq.getObjectAt(1) instanceof DERObjectIdentifier
-					&& seq.getObjectAt(0).equals(PKCSObjectIdentifiers.signedData))
-				{
-					return getInstance(X509CertificateStructure.getInstance(
-						new SignedData(
-						ASN1Sequence.getInstance(
-						(ASN1TaggedObject) seq.getObjectAt(1),
-						true)).getCertificates()
-						.getObjectAt(0)));
-				}
-				return getInstance(new X509CertificateStructure(seq));
-			}
+			return getInstance(new X509CertificateStructure(certificate));
 		}
 		catch (Exception a_e)
 		{
-			LogHolder.log(LogLevel.EXCEPTION, LogType.MISC, a_e);
+			//LogHolder.log(LogLevel.DEBUG, LogType.MISC, a_e);
 			return null;
 		}
 	}
@@ -365,67 +335,6 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	}
 
 	/**
-	 * Creates an X509 certificate from a key pair.
-	 * @param a_ownerAlias The owner of the certificate. The name is set as the common name (CN).
-	 * @param a_keyPair a key pair
-	 * @param a_validFrom The date from which the certificate is valid.
-	 * @param a_validityInYears the number of years the certificate is valid;
-	 *                          if the amount is 0 or less, the validity will
-	 *                          only be ahead from a_validFrom for a very small amount of time
-	 *                          (some minutes)
-	 * @return an X509 certificate
-	 */
-	public static JAPCertificate getInstance(String a_ownerAlias, AsymmetricCryptoKeyPair a_keyPair,
-											 Calendar a_validFrom, int a_validityInYears)
-	{
-		return getInstance(a_ownerAlias, a_keyPair, a_validFrom,
-						   createValidTo(a_validFrom, a_validityInYears));
-	}
-
-	/**
-	 * Creates an X509 certificate from a key pair.
-	 * @param a_ownerAlias The owner of the certificate. The name is set as the common name (CN).
-	 * @param a_keyPair a key pair
-	 * @param a_validFrom The date from which the certificate is valid.
-	 * @param a_validTo The date until which the certificate is valid.
-	 * @return an X509 certificate
-	 */
-	public static JAPCertificate getInstance(String a_ownerAlias, AsymmetricCryptoKeyPair a_keyPair,
-											 Calendar a_validFrom, Calendar a_validTo)
-	{
-		return getInstance(a_ownerAlias, a_keyPair.getPrivate(), a_keyPair.getPublic(),
-						   a_validFrom, a_validTo);
-	}
-
-	/**
-	 * For a given Calendar object that represents a start date (valid from), this method
-	 * creates an end date (valid to) that lies a specified amount of years ahead from the start
-	 * date.
-	 * @param a_validFrom a Calendar object that represents a start date
-	 * @param a_validityInYears an amount of years that the created date should lie ahead from the
-	 *                          start date; if the amount is 0 or less, the created date will
-	 *                          only be ahead from the start date for a very small time
-	 *                          (some minutes)
-	 * @return an end date (valid to) that lies a specified amount of years ahead from the start
-	 *         date
-	 */
-	public static Calendar createValidTo(Calendar a_validFrom, int a_validityInYears)
-	{
-		Calendar validTo = (Calendar) a_validFrom.clone();
-
-		if (a_validityInYears <= 0)
-		{
-			validTo.add(Calendar.MINUTE, TEMPORARY_VALIDITY_IN_MINUTES);
-		}
-		else
-		{
-			validTo.add(Calendar.YEAR, a_validityInYears);
-		}
-
-		return validTo;
-	}
-
-	/**
 	 * Creates an X509 certificate with a short validity from a public key.
 	 * The certificate has no owner an no valid signature, and it is not enabled.
 	 * But this method is useful if there is a trusted public key, but no corresponding
@@ -435,39 +344,66 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	 * @param a_validFrom The date from which the certificate is valid.
 	 * @return JAPCertificate
 	 */
-	public static JAPCertificate getInstance(IMyPublicKey a_publicKey, Calendar a_validFrom)
+	public static final JAPCertificate getInstance(IMyPublicKey a_publicKey, Calendar a_validFrom)
 	{
-		return getInstance("void", getDummyPrivateKey(), a_publicKey,
-						   a_validFrom, createValidTo(a_validFrom, 0));
+		return getInstance(new X509DistinguishedName("CN=void"),
+						   new X509DistinguishedName("CN=void"),
+                                   getDummyPrivateKey(), a_publicKey,
+                                   new Validity(a_validFrom, -1), null, new BigInteger("1"));
+	}
+
+	/**
+	 * Creates an X509 certificate from a key pair. This method is used to create a self-signed
+	 * public certificate.
+	 * @param a_ownerAlias The owner of the certificate.
+	 * @param a_keyPair a key pair
+	 * @param a_validity the validity period of this certificate
+	 * @return an X509 certificate
+	 */
+	public static JAPCertificate getInstance(X509DistinguishedName a_ownerAlias,
+											 AsymmetricCryptoKeyPair a_keyPair, Validity a_validity)
+	{
+		return getInstance(a_ownerAlias, a_keyPair, a_validity, null);
+	}
+
+	/**
+	 * Creates an X509 certificate from a key pair. This method is used to create a self-signed
+	 * public certificate.
+	 * @param a_ownerAlias The owner of the certificate.
+	 * @param a_keyPair a key pair
+	 * @param a_validity the validity period of this certificate
+	 * @param a_extensions some X509 extensions (may be null)
+	 * @return an X509 certificate
+	 */
+	public static JAPCertificate getInstance(X509DistinguishedName a_ownerAlias,
+											 AsymmetricCryptoKeyPair a_keyPair,
+											 Validity a_validity, X509Extensions a_extensions)
+	{
+		return getInstance(a_ownerAlias, a_ownerAlias, a_keyPair.getPrivate(),
+						   a_keyPair.getPublic(), a_validity, a_extensions,
+						   new BigInteger("1"));
 	}
 
 	public boolean equals(Object a_certificate)
 	{
-		JAPCertificate certificate;
+		if (this == a_certificate)
+		{
+			return true;
+		}
 
 		if (a_certificate == null || ! (a_certificate instanceof JAPCertificate))
 		{
 			return false;
 		}
 
-		// ok, this is a certificate
-		certificate = (JAPCertificate) a_certificate;
-
-		if (!getId().equals(certificate.getId()))
-		{
-			return false;
-		}
-
-		// is is almost impossible that the id and the dates are identical (they are part of the id)
-		if (getStartDate().getDate().getTime() != certificate.getStartDate().getDate().getTime() ||
-			getEndDate().getDate().getTime() != certificate.getEndDate().getDate().getTime())
-		{
-			return false;
-		}
-
-		return true;
+		// ok, this is a certificate; compare the IDs
+		return getId().equals(((JAPCertificate) a_certificate).getId());
 	}
 
+	/**
+	 * The hash code is derived from the certificate`s id.
+	 * @return the hash code
+	 */
 	public int hashCode()
 	{
 		return getId().hashCode();
@@ -475,44 +411,7 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 
 	public Object clone()
 	{
-		JAPCertificate cert = JAPCertificate.getInstance(this);
-		if (cert == null)
-		{
-			return null;
-		}
-		return cert;
-	}
-
-	/**
-	 * Generates a unique id for this certificate.
-	 * @return a unique id for this certificate
-	 */
-	private String generateId()
-	{
-		byte[] digest;
-		MessageDigest sha1;
-
-		StringBuffer r_strBuffId = new StringBuffer();
-		Enumeration enumer = getSubject().getValues().elements();
-		while (enumer.hasMoreElements())
-		{
-			r_strBuffId.append( (String) enumer.nextElement());
-		}
-		r_strBuffId.append(getStartDate().getDate().getTime());
-		r_strBuffId.append(getEndDate().getDate().getTime());
-		r_strBuffId.append(new String(getPublicKey().getEncoded()));
-		digest = r_strBuffId.toString().getBytes();
-		try
-		{
-			sha1 = MessageDigest.getInstance("SHA-1");
-			digest = sha1.digest(digest);
-		}
-		catch (NoSuchAlgorithmException a_e)
-		{
-			// doesn`t matter; if the algorithm does not exist, we take the whole String
-		}
-
-		return new String(digest);
+		return JAPCertificate.getInstance(this);
 	}
 
 	/**
@@ -521,7 +420,7 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	 */
 	public String getId()
 	{
-		return m_id;
+		return m_sha1Fingerprint;
 	}
 
 	/** Returns the public key of the certificate.
@@ -534,23 +433,12 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	}
 
 	/**
-	 * Returns the SubjectKeyIdentifier that should be calculated using a SHA1 hash over
-	 * the BIT STRING from SubjectPublicKeyInfo as defined in RFC2459.
-	 * @return the SubjectKeyIdentifier or null if it is not present
+	 * Returns the certificate's X509 extensions.
+	 * @return the certificate's X509 extensions
 	 */
-	public byte[] getSubjectKeyIdentifier()
+	public X509Extensions getExtensions()
 	{
-		X509Extension extSubjectKeyIdentifier;
-
-		extSubjectKeyIdentifier =
-			getTBSCertificate().getExtensions().getExtension(X509Extensions.SubjectKeyIdentifier);
-
-		if (extSubjectKeyIdentifier != null)
-		{
-			return extSubjectKeyIdentifier.getValue().getOctets();
-		}
-
-		return null;
+		return new X509Extensions(getTBSCertificate().getExtensions());
 	}
 
 	/**
@@ -560,6 +448,26 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	public JAPCertificate getX509Certificate()
 	{
 		return this;
+	}
+
+	/**
+	 * Gets a human readable SHA1 fingerprint for this certificate. This fingerprint may be
+	 * compared by a user with an other certificate's fingerprint to proof their equality.
+	 * @return a human readable SHA1 fingerprint for this certificate
+	 */
+	public String getSHA1Fingerprint()
+	{
+		return m_sha1Fingerprint;
+	}
+
+	/**
+	 * Gets a human readable MD5 fingerprint for this certificate. This fingerprint may be
+	 * compared by a user with an other certificate's fingerprint to proof their equality.
+	 * @return a human readable MD5 fingerprint for this certificate
+	 */
+	public String getMD5Fingerprint()
+	{
+		return m_md5Fingerprint;
 	}
 
 	/**
@@ -597,9 +505,9 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 
 			try
 			{
-				out.write("-----BEGIN CERTIFICATE-----\n".getBytes());
+				out.write(Base64.createBeginTag(BASE64_TAG).getBytes());
 				out.write(Base64.encode(toByteArray(), true).getBytes());
-				out.write("\n-----END CERTIFICATE-----\n".getBytes());
+				out.write(Base64.createEndTag(BASE64_TAG).getBytes());
 			}
 			catch (IOException a_e)
 			{
@@ -636,17 +544,13 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 		a_ostream.write(toByteArray(a_bBase64Encoded));
 	}
 
-	/** Checks if the certificate starting date is not before a given date and
-	 *  date of is not beyond the given date
-	 * @param a_date (Date)
-	 * @return true if certificate dates are within range of the given date
-	 * @return false if that's not the case
+	/**
+	 * Returns the validity period of this certificate.
+	 * @return the validity period of this certificate
 	 */
-	public boolean isDateValid(Date a_date)
+	public Validity getValidity()
 	{
-		boolean bValid = true;
-		bValid = (a_date.before(getStartDate().getDate()) || a_date.after(getEndDate().getDate()));
-		return bValid;
+		return m_validity;
 	}
 
 	/**
@@ -655,21 +559,24 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	 * @return True, if this certificate could be verified.
 	 * @todo do not accept expired certificates?
 	 */
-	public synchronized boolean verify(Vector a_verifyingCertificates)
+	public synchronized boolean verify(Enumeration a_verifyingCertificates)
 	{
 		if (a_verifyingCertificates == null)
 		{
 			return false;
 		}
 
-		Enumeration certificatesEnumerator = a_verifyingCertificates.elements();
-		while (certificatesEnumerator.hasMoreElements())
+		synchronized(a_verifyingCertificates)
 		{
-			JAPCertificate currentCertificate = (JAPCertificate) (certificatesEnumerator.nextElement());
-
-			if (verify(currentCertificate))
+			while (a_verifyingCertificates.hasMoreElements())
 			{
-				return true;
+				JAPCertificate currentCertificate =
+					(JAPCertificate) (a_verifyingCertificates.nextElement());
+
+				if (verify(currentCertificate))
+				{
+					return true;
+				}
 			}
 		}
 		return false;
@@ -688,7 +595,7 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 		{
 			return false;
 		}
-		return verify(a_certificate.getPublicKey());
+		return (verify(a_certificate.getPublicKey()));
 	}
 
 	/** Verifies the certificate by using the public key.
@@ -727,17 +634,64 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	/**
 	 * Creates a duplicate of this certificate that is signed with a the PKCS12 certificate.
 	 * A certificate can have only one signature.
-	 * @param a_pkcs12Certificate a PKCS12 certificate
+	 * @param a_signerCertificate the PKCS12 certificate of the signer
 	 * @return a duplicate of this certificate that is signed with a the PKCS12 certificate
 	 */
-	public JAPCertificate sign(PKCS12 a_pkcs12Certificate)
+	public JAPCertificate sign(PKCS12 a_signerCertificate)
 	{
 		JAPCertificate certificate;
 		X509CertificateStructure x509cert;
-		X509CertificateGenerator certgen = new X509CertificateGenerator(getTBSCertificate());
-		x509cert = certgen.sign(a_pkcs12Certificate);
-	certificate = getInstance(x509cert);
+		X509CertificateGenerator certgen =
+			new X509CertificateGenerator(getTBSCertificate());
+		x509cert = certgen.sign(a_signerCertificate);
+		certificate = getInstance(x509cert);
 		return certificate;
+	}
+
+	/**
+	 * Creates a duplicate of this certificate that is signed with a the PKCS12 certificate.
+	 * A certificate can have only one signature.
+	 * @param a_signerCertificate the PKCS12 certificate of the signer
+	 * @param a_validity the validity period of this certificate
+	 * @param a_extensions some X509 extensions (may be null)
+	 * @param a_serialNumber the serial number for this certificate (may be null)
+	 * @return a duplicate of this certificate that is signed with a the PKCS12 certificate
+	 */
+	public JAPCertificate sign(PKCS12 a_signerCertificate, Validity a_validity,
+							   X509Extensions a_extensions, BigInteger a_serialNumber)
+	{
+		return JAPCertificate.getInstance(
+				  new X509DistinguishedName(getSubject()),
+				  a_signerCertificate.getSubject(), a_signerCertificate.getPrivateKey(),
+				  getPublicKey(), a_validity, a_extensions, a_serialNumber);
+	}
+
+	/**
+	 * Creates an X509 certificate.
+	 * @param a_ownerAlias The owner of the certificate.
+	 * @param a_issuer The issuer and signer of this X509 certificate.
+	 * @param a_privateKey a private key
+	 * @param a_publicKey a public key
+	 * @param a_validity the validity period of this certificate
+	 * @param a_extensions some X509 extensions (may be null)
+	 * @param a_serialNumber the serial number for this certificate (may be null)
+	 * @return an X509 certificate
+	 */
+	public static JAPCertificate getInstance(X509DistinguishedName a_ownerAlias,
+											  X509DistinguishedName a_issuer,
+											  IMyPrivateKey a_privateKey,
+											  IMyPublicKey a_publicKey,
+											  Validity a_validity,
+											  X509Extensions a_extensions,
+											  BigInteger a_serialNumber)
+	{
+		X509CertificateGenerator v3CertGen;
+
+		v3CertGen = new X509CertificateGenerator(a_ownerAlias, a_validity.getValidFrom(),
+												 a_validity.getValidTo(), a_publicKey,
+												 a_extensions, a_serialNumber);
+
+		return getInstance(v3CertGen.sign(a_issuer.getX509Name(), a_privateKey));
 	}
 
 	/**
@@ -759,6 +713,86 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 	}
 
 	/**
+	 * Converts a DER or BER encoded byte array into an ASN1 sequence. The array may additionally
+	 * be Base64 encoded.
+	 * @param a_bytes an array of bytes
+	 * @return the byte array as ASN1Sequence
+	 */
+	static ASN1Sequence toASN1Sequence(byte[] a_bytes)
+	{
+		ByteArrayInputStream bin = null;
+
+		try
+		{
+			if (a_bytes[0] != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
+			{
+				// Probably a Base64 encoded certificate
+				BufferedReader in =
+					new BufferedReader(
+					new InputStreamReader(new ByteArrayInputStream(a_bytes)));
+				StringBuffer sbuf = new StringBuffer();
+				String line;
+
+				while ( (line = in.readLine()) != null)
+				{
+					if (line.startsWith(Base64.BEGIN_TAG) && line.endsWith(Base64.TAG_END_SEQUENCE))
+					{
+						break;
+					}
+				}
+
+				while ( (line = in.readLine()) != null)
+				{
+					if (line.startsWith(Base64.END_TAG) && line.endsWith(Base64.TAG_END_SEQUENCE))
+					{
+						break;
+					}
+					sbuf.append(line);
+				}
+				bin = new ByteArrayInputStream(Base64.decode(sbuf.toString()));
+			}
+
+			if (bin == null && a_bytes[1] == 0x80)
+			{
+				// a BER encoded certificate
+				BERInputStream in = new BERInputStream(new ByteArrayInputStream(a_bytes));
+				return (ASN1Sequence) in.readObject();
+			}
+			else
+			{
+				if (bin == null)
+				{
+					bin = new ByteArrayInputStream(a_bytes);
+					// DERInputStream
+				}
+				return (ASN1Sequence) (new ASN1InputStream(bin)).readObject();
+			}
+		}
+		catch (Exception e)
+		{
+			throw new IllegalArgumentException("Byte array is no valid ASN1 sequence data!");
+		}
+	}
+
+	/**
+	 * Creates a human readable fingerprint for this certificate. This fingerprint may be
+	 * compared by a user with an other certificate's fingerprint to proof their equality.
+	 * @param a_digestGenerator a digest generator
+	 * @param a_data the data to be 'fingerprinted'
+	 * @return the fingerprint
+	 */
+	protected static String createFingerprint(GeneralDigest a_digestGenerator, byte[] a_data)
+	{
+		byte[] digestData;
+
+		digestData = new byte[a_digestGenerator.getDigestSize()];
+		a_digestGenerator.update(a_data, 0, a_data.length);
+		a_digestGenerator.doFinal(digestData, 0);
+
+		return ByteSignature.toHexString(digestData);
+	}
+
+	/**
 	 * Gets a dummy private key for creating X509 certificates from trusted public keys.
 	 * @return a dummy private key for creating X509 certificates from trusted public keys
 	 */
@@ -770,41 +804,10 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 		{
 			random = new SecureRandom();
 			random.setSeed(58921787);
-			ms_dummyPrivateKey =  DSAKeyPair.getInstance(random, 256, 100).getPrivate();
+			ms_dummyPrivateKey = DSAKeyPair.getInstance(random, 256, 100).getPrivate();
 		}
 
 		return ms_dummyPrivateKey;
-	}
-
-	/**
-	 * Creates an X509 certificate from a private and a public key. This method is private as
-	 * it does not assure that private and public key correspond to each other. This is
-	 * only assured by a key pair.
-	 * @param a_ownerAlias The owner of the certificate. The name is set as the common name (CN).
-	 * @param a_privateKey a private key
-	 * @param a_publicKey a public key
-	 * @param a_validFrom The date from which the certificate is valid.
-	 * @param a_validTo The date until which the certificate is valid.
-	 * @return an X509 certificate
-	 */
-	private static JAPCertificate getInstance(String a_ownerAlias, IMyPrivateKey a_privateKey,
-	IMyPublicKey a_publicKey,
-											  Calendar a_validFrom, Calendar a_validTo)
-	{
-		X509CertificateGenerator v3CertGen;
-		try
-		{
-			v3CertGen = new X509CertificateGenerator(a_ownerAlias, a_validFrom.getTime(),
-				a_validTo.getTime(), a_publicKey);
-		}
-		catch (IOException a_e)
-		{
-			// should not happen
-			v3CertGen = null;
-		}
-		X509CertificateStructure x509Cert =
-			v3CertGen.sign(new X509Name("CN=" + a_ownerAlias), a_privateKey);
-		return getInstance(x509Cert);
 	}
 
 	/**
@@ -820,54 +823,53 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 		 * @param a_validFrom the date from which the certificate is valid
 		 * @param a_validTo the date on which the certificate looses validity
 		 * @param a_publicKey the public key that is enclosed in the certificate
+		 * @param a_extensions some X509 extensions (may be null)
+		 * @param a_serialNumber the serial number for this certificate (may be null)
 		 * @throws IOException if the public key`s encoding is invalid
 		 */
-		public X509CertificateGenerator(String a_ownerAlias, Date a_validFrom, Date a_validTo,
-										IMyPublicKey a_publicKey) throws IOException
+		public X509CertificateGenerator(X509DistinguishedName a_ownerAlias,
+										Date a_validFrom, Date a_validTo,
+										IMyPublicKey a_publicKey,
+										X509Extensions a_extensions,
+										BigInteger a_serialNumber)
 		{
-			SubjectPublicKeyInfo subPublicKeyInfo;
-
 			setStartDate(new DERUTCTime(a_validFrom));
 			setEndDate(new DERUTCTime(a_validTo));
-			setSerialNumber(new DERInteger(1));
-			setSubject(new X509Name("CN=" + a_ownerAlias));
-			subPublicKeyInfo =
-				new SubjectPublicKeyInfo( (ASN1Sequence) (new ASN1InputStream(new
-				ByteArrayInputStream(a_publicKey.getEncoded()))).readObject());
-			setSubjectPublicKeyInfo(subPublicKeyInfo);
-			setSubjectKeyIdentifier(subPublicKeyInfo);
+			if (a_serialNumber == null)
+			{
+				setSerialNumber(new DERInteger(1));
+			}
+			else
+			{
+				setSerialNumber(new DERInteger(a_serialNumber));
+			}
+			setSubject(a_ownerAlias.getX509Name());
+			setSubjectPublicKeyInfo(a_publicKey.getAsSubjectPublicKeyInfo());
+
+			if (a_extensions != null && a_extensions.getSize() > 0)
+			{
+				setExtensions(a_extensions.getBCX509Extensions());
+			}
+			else
+			{
+				setExtensions(new X509Extensions(new Vector()).getBCX509Extensions());
+			}
 		}
 
 		/**
 		 * Prepares a new X509 certificate from an existing X509 certificate.
-		 * Ignores all extensions (!) and adds the critical subject key identifier
-		 * extension which is calculated using a SHA1 hash over the BIT STRING from
-		 * SubjectPublicKeyInfo as defined in RFC2459.
-		 * @param cert X509CertificateStructure
-		 */
-		public X509CertificateGenerator(X509CertificateStructure cert)
-		{
-			this(cert.getTBSCertificate());
-		}
-
-		/**
-		 * Prepares a new X509 certificate from an existing X509 certificate.
-		 * Ignores all extensions (!) and adds the critical subject key identifier
-		 * extension which is calculated using a SHA1 hash over the BIT STRING from
-		 * SubjectPublicKeyInfo as defined in RFC2459.
 		 * @param tbs X509CertificateStructure
 		 */
 		public X509CertificateGenerator(TBSCertificateStructure tbs)
 		{
-			setEndDate(tbs.getEndDate());
-			setExtensions(tbs.getExtensions());
-			setIssuer(tbs.getIssuer());
-			setSerialNumber(tbs.getSerialNumber());
-			setSignature(tbs.getSignature());
 			setStartDate(tbs.getStartDate());
+			setEndDate(tbs.getEndDate());
+			setSerialNumber(tbs.getSerialNumber());
 			setSubject(tbs.getSubject());
 			setSubjectPublicKeyInfo(tbs.getSubjectPublicKeyInfo());
-			setSubjectKeyIdentifier(tbs.getSubjectPublicKeyInfo());
+			setExtensions(tbs.getExtensions());
+			setIssuer(tbs.getIssuer());
+			setSignature(tbs.getSignature());
 		}
 
 		public X509CertificateStructure sign(PKCS12 a_pkcs12Certificate)
@@ -880,25 +882,25 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 		{
 			try
 			{
-				TBSCertificateStructure tbsCer;
+				TBSCertificateStructure tbsCert;
 				DEREncodableVector seqv;
 				ByteArrayOutputStream bOut;
-				byte[] signa;
+				byte[] signature;
 
 				setIssuer(a_issuer);
 				setSignature(a_privateKey.getSignatureAlgorithm().getIdentifier());
 
 				/* generate signature */
 				bOut = new ByteArrayOutputStream();
-				tbsCer = generateTBSCertificate();
-				(new DEROutputStream(bOut)).writeObject(tbsCer);
-				signa = ByteSignature.sign(bOut.toByteArray(), a_privateKey);
+				tbsCert = generateTBSCertificate();
+				(new DEROutputStream(bOut)).writeObject(tbsCert);
+				signature = ByteSignature.sign(bOut.toByteArray(), a_privateKey);
 
 				/* construct certificate */
 				seqv = new DEREncodableVector();
-				seqv.add(tbsCer);
+				seqv.add(tbsCert);
 				seqv.add(a_privateKey.getSignatureAlgorithm().getIdentifier());
-				seqv.add(new DERBitString(signa));
+				seqv.add(new DERBitString(signature));
 
 				return new X509CertificateStructure(new DERSequence(seqv));
 			}
@@ -909,42 +911,16 @@ final public class JAPCertificate extends X509CertificateStructure implements IX
 				return null;
 			}
 		}
-
-		/**
-		 * Deletes all extensions (!) and adds the critical subject key identifier
-		 * extension which is calculated using a SHA1 hash over the BIT STRING from
-		 * SubjectPublicKeyInfo as defined in RFC2459.
-		 * @param a_subjectPublicKeyInfo a SubjectPublicKeyInfo
-		 */
-		///todo: maybe buggy.. ?
-		private void setSubjectKeyIdentifier(SubjectPublicKeyInfo a_subjectPublicKeyInfo)
-		{
-			Hashtable exts = new Hashtable();
-			X509Extension extSubjectKeyIdentifier;
-
-			extSubjectKeyIdentifier =
-				new X509Extension(false,
-								  ASN1OctetString.getInstance(
-										new SubjectKeyIdentifier(
-											  a_subjectPublicKeyInfo).getDERObject()));
-
-	///removed because reported to be buggy...!
-
-	//exts.put(X509Extensions.SubjectKeyIdentifier, extSubjectKeyIdentifier);
-		//	setExtensions(new X509Extensions(exts));
-		}
 	}
 
 	private static final class X509CertificateInstantiator implements ResourceInstantiator
 	{
-		public Object getInstance(File a_file, File a_topDirectory)
-			throws Exception
+		public Object getInstance(File a_file, File a_topDirectory) throws Exception
 		{
-				return JAPCertificate.getInstance(new FileInputStream(a_file));
-	}
+			return JAPCertificate.getInstance(new FileInputStream(a_file));
+		}
 
-		public Object getInstance(ZipEntry a_entry, ZipFile a_file)
-			throws Exception
+		public Object getInstance(ZipEntry a_entry, ZipFile a_file) throws Exception
 		{
 			return JAPCertificate.getInstance(a_file.getInputStream(a_entry));
 		}

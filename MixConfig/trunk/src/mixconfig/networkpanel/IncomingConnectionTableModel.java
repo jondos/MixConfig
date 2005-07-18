@@ -8,16 +8,15 @@ public final class IncomingConnectionTableModel extends ConnectionTableModel
 {
 	private static final String[] columnNames =
 		{
-		"No.", "Virtual", "Hidden", "Transport", "Host / FileName",
-		"IP Address", "Port"};
+		"No.", "V", "H", "Transport", "Host / FileName", "Port"};
 
 	public static final int SERIAL_NR = 0;
 	public static final int VIRTUAL = 1;
 	public static final int HIDDEN = 2;
 	public static final int TRANSPORT = 3;
 	public static final int NAME = 4;
-	public static final int IP_ADDR = 5;
-	public static final int PORT = 6;
+	//public static final int IP_ADDR = 5;
+	public static final int PORT = 5;
 
 	public Object getValueAt(int row, int column)
 	{
@@ -38,8 +37,8 @@ public final class IncomingConnectionTableModel extends ConnectionTableModel
 				return new Integer(data.getTransport());
 			case NAME:
 				return data.getName();
-			case IP_ADDR:
-				return data.getIPAddr();
+			/*case IP_ADDR:
+				return data.getIPAddr();*/
 			case PORT:
 				return new Integer(data.getPort());
 		}

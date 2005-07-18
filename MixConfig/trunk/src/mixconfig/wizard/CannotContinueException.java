@@ -74,4 +74,22 @@ public class CannotContinueException extends IndexOutOfBoundsException {
 		}
 		return m_messages;
 	}
+
+	/**
+	 * Returns all error messages in a whole String, separated by line separators.
+	 * @return all error messages in a whole String, separated by line separators
+	 */
+	public String getMessage()
+	{
+		String message = "";
+		String[] messages = getMessages();
+
+
+		for (int i = 0; i < messages.length; i++)
+		{
+			message += messages[i] + "\n";
+		}
+
+		return message.trim();
+	}
 }

@@ -29,6 +29,7 @@ package anon.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Vector;
 
 public final class Util
 {
@@ -150,6 +151,44 @@ public final class Util
 		}
 
 		return true;
+	}
+
+	/**
+	 * Creates a Vector from a single Object.
+	 * @param a_object an Object
+	 * @return a Vector containing the given Object or an empty Vector if the Object was null
+	 */
+	public static Vector toVector(Object a_object)
+	{
+		Vector value = new Vector();
+
+		if (a_object != null)
+		{
+			value.addElement(a_object);
+		}
+		return value;
+	}
+
+	/**
+	 * Creates an Object array from a single Object.
+	 * @param a_object an Object
+	 * @return an Object array containing the given Object or an empty array if the Object was null
+	 */
+	public static Object[] toArray(Object a_object)
+	{
+		Object[] value;
+
+		if (a_object != null)
+		{
+			value = new Object[1];
+			value[0] = a_object;
+		}
+		else
+		{
+			value = new Object[0];
+		}
+
+		return value;
 	}
 
 }

@@ -30,32 +30,21 @@ package mixconfig;
 
 import java.util.Calendar;
 import java.util.Date;
-
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.MediaTracker;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JWindow;
-import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -77,6 +66,9 @@ class ValidityDialog extends JDialog
 		gbc.gridy = 0;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		JLabel label;
+
+		addWindowListener(new WindowAdapter(){
+			public void windowClosing(WindowEvent e){from = null; to = null; dispose();}});
 
 		label = new JLabel("Valid from:");
 		gbc.gridx = 0;
@@ -149,7 +141,7 @@ class ValidityDialog extends JDialog
 		kc.gridx = 0;
 		kc.gridy = 0;
 		kc.gridwidth = 1;
-		kc.fill = GridBagConstraints.HORIZONTAL;
+		kc.fill = GridBagConstraints.NONE;
 		kc.insets = new Insets(1, 1, 1, 1);
 		JButton key = new JButton("OK");
 		key.addActionListener(new ActionListener()
@@ -177,7 +169,8 @@ class ValidityDialog extends JDialog
 
 		gbc.gridx = 0;
 		gbc.gridwidth = 3;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.NONE;
 		layout.setConstraints(keys, gbc);
 		getContentPane().add(keys);
 
@@ -190,10 +183,10 @@ class ValidityDialog extends JDialog
 		createValidityDialog();
 		setLocationRelativeTo(parent);
 	}
-	
+
 	class DateTextField extends JPanel
 	{
-		private JTextField hour, min, sec, day, year;
+		private JTextField day, year;
 		private JComboBox month;
 
 		class DayDocument extends PlainDocument
@@ -355,42 +348,6 @@ class ValidityDialog extends JDialog
 			layout.setConstraints(year, gbc);
 			add(year);
 			gbc.gridx++;
-
-			hour = new JTextField(2);
-			hour.setMinimumSize(day.getPreferredSize());
-			hour.setDocument(new IntegerDocument(23, hour));
-			hour.setText(Integer.toString(cal.get(Calendar.HOUR)));
-			gbc.weightx = 1;
-			gbc.insets.right = 1;
-			layout.setConstraints(hour, gbc);
-			add(hour);
-			gbc.gridx++;
-			label = new JLabel(":");
-			gbc.weightx = 0;
-			gbc.insets.left = 1;
-			layout.setConstraints(label, gbc);
-			add(label);
-			gbc.gridx++;
-			min = new JTextField(2);
-			min.setMinimumSize(day.getPreferredSize());
-			min.setDocument(new IntegerDocument(59, min));
-			min.setText(Integer.toString(cal.get(Calendar.MINUTE)));
-			gbc.weightx = 1;
-			layout.setConstraints(min, gbc);
-			add(min);
-			gbc.gridx++;
-			label = new JLabel(":");
-			gbc.weightx = 0;
-			layout.setConstraints(label, gbc);
-			add(label);
-			gbc.gridx++;
-			sec = new JTextField(2);
-			sec.setMinimumSize(day.getPreferredSize());
-			sec.setDocument(new IntegerDocument(59, sec));
-			sec.setText(Integer.toString(cal.get(Calendar.SECOND)));
-			gbc.weightx = 1;
-			layout.setConstraints(sec, gbc);
-			add(sec);
 		}
 
 		public DateTextField(Date date)
@@ -406,9 +363,6 @@ class ValidityDialog extends JDialog
 			day.setText(Integer.toString(cal.get(Calendar.DAY_OF_MONTH)));
 			month.setSelectedIndex(cal.get(Calendar.MONTH));
 			year.setText(Integer.toString(cal.get(Calendar.YEAR)));
-			hour.setText(Integer.toString(cal.get(Calendar.HOUR)));
-			min.setText(Integer.toString(cal.get(Calendar.MINUTE)));
-			sec.setText(Integer.toString(cal.get(Calendar.SECOND)));
 		}
 
 		public Date getDate()
@@ -417,11 +371,8 @@ class ValidityDialog extends JDialog
 			cal.set(
 				Integer.parseInt(year.getText()),
 				month.getSelectedIndex(),
-				Integer.parseInt(day.getText()),
-				Integer.parseInt(hour.getText()),
-				Integer.parseInt(min.getText()),
-				Integer.parseInt(sec.getText()));
+				Integer.parseInt(day.getText()));
 			return cal.getTime();
 		}
-	}	
+	}
 }

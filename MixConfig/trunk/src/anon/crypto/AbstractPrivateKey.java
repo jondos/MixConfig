@@ -32,6 +32,7 @@ import java.io.IOException;
 
 import org.bouncycastle.asn1.DEROutputStream;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import gui.*;
 
 /**
  * This class is an abstract implementation of a private key.

@@ -33,6 +33,9 @@ import java.awt.MediaTracker;
 import javax.swing.ImageIcon;
 
 import anon.util.ResourceLoader;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
 
 /**
  * This class loads resources from the file system.
@@ -46,7 +49,6 @@ final public class ImageIconLoader
 	{
 	}
 
-
 	/**
 	 * Loads an ImageIcon from the classpath or the current directory.
 	 * The icon may be contained in an archive (JAR) or a directory structure. If the icon could
@@ -54,7 +56,7 @@ final public class ImageIconLoader
 	 * Once an icon is loaded, it is stored in a memory cache, so that further calls of this method
 	 * do not load the icon from the file system, but from the cache.
 	 * @param a_strRelativeImagePath the relative resource path or filename of the Image
-	 * @return the loaded ImageIcon or an empty icon if the icon could not be loaded
+	 * @return the loaded ImageIcon or null if the icon could not be loaded
 	 *         (getImageLoadStatus() == java.awt.MediaTracker.ERRORED)
 	 */
 	public static ImageIcon loadImageIcon(String a_strRelativeImagePath)
@@ -73,12 +75,13 @@ final public class ImageIconLoader
 	 * the image has not been loaded yet.
 	 * @param a_strRelativeImagePath the relative resource path or filename of the Image
 	 * @param a_bSync true if the image is loaded synchronously; false otherwise
-	 * @return the loaded ImageIcon or an empty icon if the icon could not be loaded
+	 * @return the loaded ImageIcon or null if the icon could not be loaded
 	 *         (getImageLoadStatus() == java.awt.MediaTracker.ERRORED)
 	 */
 	public static ImageIcon loadImageIcon(String a_strRelativeImagePath, boolean a_bSync)
 	{
 		ImageIcon img;
+		int statusBits;
 
 		// try to load the image from the cache
 		if (ms_iconCache.containsKey(a_strRelativeImagePath))
@@ -98,24 +101,24 @@ final public class ImageIconLoader
 
 		if (img != null)
 		{
-		if (a_bSync)
-		{
-			int statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED | MediaTracker.COMPLETE;
-			while (true)
+			if (a_bSync)
 			{
-				if ( (img.getImageLoadStatus() & statusBits) != 0)
-				{
-					break;
-				}
-				else
+				statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED | MediaTracker.COMPLETE;
+				while ((img.getImageLoadStatus() & statusBits) == 0)
 				{
 					Thread.yield();
 				}
 			}
+
+			// write the image to the cache
+			ms_iconCache.put(a_strRelativeImagePath, img.getImage());
 		}
 
-		// write the image to the cache
-		ms_iconCache.put(a_strRelativeImagePath, img.getImage());
+		statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED;
+		if (img == null || (img.getImageLoadStatus() & statusBits) != 0)
+		{
+			LogHolder.log(LogLevel.INFO, LogType.GUI,
+						  "Could not load requested image '" + a_strRelativeImagePath + "'!");
 		}
 
 		return img;

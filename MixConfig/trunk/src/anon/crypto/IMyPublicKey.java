@@ -32,6 +32,7 @@ import java.security.PublicKey;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 
 import anon.util.IXMLEncodable;
+import gui.*;
 
 /**
  * Represents the public part of an asymmetric cryptographic key pair.

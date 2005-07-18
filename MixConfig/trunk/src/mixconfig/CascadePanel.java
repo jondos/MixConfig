@@ -1,45 +1,72 @@
+/*
+ Copyright (c) 2000, The JAP-Team
+ All rights reserved.
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+
+ - Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+
+ - Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation and/or
+  other materials provided with the distribution.
+
+ - Neither the name of the University of Technology Dresden, Germany nor the names of its contributors
+  may be used to endorse or promote products derived from this software without specific
+  prior written permission.
+
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
+ OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS
+ BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+ */
 package mixconfig;
 
-
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.Vector;
-import javax.swing.JTable;
-import javax.swing.Box;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
-import org.w3c.dom.Node;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.BoxLayout;
-import javax.swing.border.EmptyBorder;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.HttpURLConnection;
-import java.io.IOException;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
-import org.w3c.dom.Document;
-import javax.swing.JLabel;
-import javax.swing.event.TableModelEvent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.util.Enumeration;
-import org.w3c.dom.DocumentFragment;
-import java.net.ConnectException;
-import javax.swing.border.TitledBorder;
-import javax.swing.ImageIcon;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
+import logging.LogType;
 
 /** The <CODE>CascadePanel</CODE> is a panel that lets the user edit settings concerning
  * an entire mix cascade. It should only be made visible when the mix that is being
@@ -58,58 +85,48 @@ import javax.swing.event.ChangeEvent;
 public class CascadePanel extends MixConfigPanel implements ActionListener, ListSelectionListener,
 	ChangeListener
 {
-    /** A table holding the list of available mixes. */
-	JTable m_availableMixTable;
-        /** A table holding the list of configured mixes in the cascade. */
-	JTable m_configuredMixTable;
+	/** A table holding the list of available mixes. */
+	private JTable m_availableMixTable;
+	/** A table holding the list of configured mixes in the cascade. */
+	private JTable m_configuredMixTable;
 
-        /** A button to move a mix closer to the beginning of the cascade */
-        JButton m_moveMixUpButton;
+	/** A button to move a mix closer to the beginning of the cascade */
+	private JButton m_moveMixUpButton;
 
-        /** A button to move a mix closer to the end of the cascade */
-        JButton m_moveMixDownButton;
+	/** A button to move a mix closer to the end of the cascade */
+	private JButton m_moveMixDownButton;
 
-        /** A button to add a mix to the cascade */
-        JButton m_addMixButton;
+	/** A button to add a mix to the cascade */
+	private JButton m_addMixButton;
 
-        /** A button to remove a mix from the cascade */
-        JButton m_remMixButton;
+	/** A button to remove a mix from the cascade */
+	private JButton m_remMixButton;
 
-        /** A button that makes the panel fetch a list of available mixes from the
-         * InfoService host
-         */
-	JButton
-		m_recvMixListButton;
+	/** A button that makes the panel fetch a list of available mixes from the
+	 * InfoService host
+	 */
+	private JButton m_recvMixListButton;
 
-        /** Constructs a new instance of <CODE>CascadePanel</CODE> */
+	/** Constructs a new instance of <CODE>CascadePanel</CODE> */
 	public CascadePanel()
 	{
+		super("Cascade");
 		this.setBorder(new EmptyBorder(10, 10, 10, 10));
-		BoxLayout vb = new BoxLayout(this, BoxLayout.Y_AXIS);
-		setLayout(vb);
 
+		GridBagConstraints constraints = new GridBagConstraints();
+		GridBagLayout layout = new GridBagLayout();
+		this.setLayout(layout);
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.anchor = GridBagConstraints.NORTHWEST;
+		constraints.insets = new Insets(5, 5, 5, 5);
+		constraints.weightx = 0;
+		constraints.weighty = 0;
 
+		constraints.gridx = 0;
+		constraints.gridy = 0;
 
-		add(Box.createVerticalStrut(10));
-
-		JLabel infoLabel = new JLabel("Use the buttons to move available mixes into your cascade.");
-		Box b = Box.createHorizontalBox();
-		b.add(infoLabel);
-		b.add(Box.createHorizontalGlue());
-		add(b);
-
-		add(Box.createVerticalStrut(10));
-
-		Box updateBox = Box.createHorizontalBox();
-		m_recvMixListButton = new JButton("Fetch list of available mixes from InfoService");
+		m_recvMixListButton = new JButton("Update");
 		m_recvMixListButton.addActionListener(this);
-		updateBox.add(this.m_recvMixListButton);
-		updateBox.add(Box.createHorizontalGlue());
-		add(updateBox);
-
-		add(Box.createVerticalStrut(10));
-
-		Box tableBox = Box.createVerticalBox();
 
 		m_availableMixTable = new JTable(new MixListTableModel());
 
@@ -117,38 +134,46 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 												  ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 												  ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		scrollPane1.setBorder(new TitledBorder("Available mixes"));
-
-		tableBox.add(scrollPane1);
-
-		tableBox.add(Box.createVerticalStrut(5));
+		constraints.gridy++;
+		this.add(new JLabel("Available mixes:"), constraints);
+		constraints.gridx++;
+		this.add(m_recvMixListButton, constraints);
 
 		m_availableMixTable.getSelectionModel().addListSelectionListener(this);
+		constraints.gridy++;
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.weighty = 0.5;
+		constraints.gridx = 0;
+		constraints.gridwidth = 3;
+		this.add(scrollPane1, constraints);
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.weighty = 0;
 
-		Box buttonBox = Box.createHorizontalBox();
-
-		ImageIcon downarrow = MixConfig.loadImage("downarrow.gif");
+		ImageIcon downarrow = MixConfig.loadImageIcon("downarrow.gif");
 
 		m_addMixButton = new JButton(downarrow);
 		m_addMixButton.addActionListener(this);
+		m_addMixButton.setToolTipText("Use the buttons to move available mixes into your cascade.");
 
-		ImageIcon uparrow = MixConfig.loadImage("uparrow.gif");
+		ImageIcon uparrow = MixConfig.loadImageIcon("uparrow.gif");
 
 		m_remMixButton = new JButton(uparrow);
 		m_remMixButton.addActionListener(this);
+		m_remMixButton.setToolTipText("Use the buttons to move available mixes into your cascade.");
 
-		buttonBox.add(Box.createHorizontalGlue());
-		buttonBox.add(m_addMixButton);
-		buttonBox.add(Box.createHorizontalStrut(10));
-		buttonBox.add(m_remMixButton);
-		buttonBox.add(Box.createHorizontalGlue());
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+		buttonPanel.add(m_addMixButton);
+		buttonPanel.add(m_remMixButton);
+		constraints.gridy++;
+		constraints.gridwidth = 3;
+		constraints.anchor = GridBagConstraints.CENTER;
+		constraints.gridx = 0;
+		this.add(buttonPanel, constraints);
 
-		tableBox.add(buttonBox);
-		tableBox.add(Box.createVerticalStrut(5));
 
 		m_configuredMixTable = new JTable(new MixListTableModel());
 
-		Box confBox = Box.createHorizontalBox();
 		JScrollPane scrollPane2 = new JScrollPane(m_configuredMixTable,
 												  ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 												  ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -156,34 +181,36 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		m_configuredMixTable.getSelectionModel().addListSelectionListener(this);
 		m_configuredMixTable.setName("MixCascade");
 
-		scrollPane2.setBorder(new TitledBorder("Current cascade (top entry = first mix)"));
+		constraints.gridx = 0;
+		constraints.gridy++;
+		constraints.anchor = GridBagConstraints.NORTHWEST;
 
-		confBox.add(Box.createHorizontalGlue());
-		confBox.add(scrollPane2);
+		this.add(new JLabel("Current cascade (top entry = first mix):"), constraints);
 
-		tableBox.add(confBox);
+		constraints.gridy++;
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.weighty = 0.5;
+		constraints.gridwidth = 3;
+		this.add(scrollPane2, constraints);
+		constraints.gridwidth = 1;
+		constraints.fill = GridBagConstraints.NONE;
 
-		tableBox.add(Box.createHorizontalStrut(5));
-
-		Box buttonBox2 = Box.createVerticalBox();
-
-		m_moveMixUpButton = new JButton(uparrow);
+		m_moveMixUpButton = new JButton(MixConfig.loadImageIcon("../arrowUp.gif"));
 		m_moveMixUpButton.addActionListener(this);
-
-		m_moveMixDownButton = new JButton(downarrow);
+		m_moveMixUpButton.setToolTipText("Move selected mix up in cascade");
+		m_moveMixDownButton = new JButton(MixConfig.loadImageIcon("../arrowDown.gif"));
 		m_moveMixDownButton.addActionListener(this);
-
-		buttonBox2.add(Box.createVerticalGlue());
-		buttonBox2.add(m_moveMixUpButton);
-		buttonBox2.add(Box.createVerticalStrut(10));
-		buttonBox2.add(m_moveMixDownButton);
-		buttonBox2.add(Box.createVerticalGlue());
-
-		confBox.add(buttonBox2);
-		//confBox.add(Box.createHorizontalStrut(5));
-
-		add(tableBox);
-
+		m_moveMixDownButton.setToolTipText("Move selected mix down in cascade");
+		JPanel buttonPanel2 = new JPanel();
+		buttonPanel2.setLayout(new FlowLayout());
+		buttonPanel2.add(m_moveMixUpButton);
+		buttonPanel2.add(m_moveMixDownButton);
+		constraints.gridx = 2;
+		constraints.gridy++;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		constraints.anchor = GridBagConstraints.NORTHEAST;
+		this.add(buttonPanel2, constraints);
 		enableComponents();
 	}
 
@@ -191,34 +218,28 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 	{
 		Vector errors = new Vector();
 		MixListTableModel confMix = (MixListTableModel)this.m_configuredMixTable.getModel();
-		Integer t = new Integer(getConfiguration().getAttribute("General/MixType"));
+		Integer t = new Integer(getConfiguration().getValue("General/MixType"));
 		if (t.intValue() != MixConfiguration.MIXTYPE_LAST)
 		{
 			return errors;
 		}
 
-		String cname = getConfiguration().getAttribute("General/CascadeName");
-		if (cname == null || cname.equals(""))
-		{
-			errors.addElement("Please enter a name for the new cascade in Cascade Panel.");
-
-		}
 		if (confMix.getRowCount() > 1)
 		{
 			String mtype = confMix.getValueAt(0, 3).toString();
 			if (!mtype.equals("FirstMix"))
 			{
 				errors.addElement(new String(
-					"The first mix in the cascade does not want to be first mix. " +
-					"Please re-arrange the cascade in Cascade Panel."));
+								"The first mix in the cascade does not want to be first mix. " +
+								"Please re-arrange the cascade in Cascade Panel."));
 			}
 
 			mtype = confMix.getValueAt(confMix.getRowCount() - 1, 3).toString();
 			if (!mtype.equals("LastMix"))
 			{
 				errors.addElement(new String(
-					"The last mix in the cascade does not want to be last mix. " +
-					"Please re-arrange the cascade in Cascade Panel."));
+								"The last mix in the cascade does not want to be last mix. " +
+								"Please re-arrange the cascade in Cascade Panel."));
 			}
 
 			for (int i = confMix.getRowCount() - 2; i > 0; i--)
@@ -227,18 +248,20 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 				if (!mtype.equals("MiddleMix"))
 				{
 					errors.addElement(new String(
-						"One of the mixes in the cascade does not want to be middle mix. " +
-						"Please re-arrange the cascade."));
+									   "One of the mixes in the cascade does not want to be middle mix. " +
+									   "Please re-arrange the cascade."));
 				}
 			}
 
 			for (int i = 0; i < confMix.getRowCount() - 2; i++)
 			{
-				Integer cl = new Integer(confMix.getValueAt(i,4).toString());
-				if(cl.intValue() > confMix.getRowCount())
+				Integer cl = new Integer(confMix.getValueAt(i, 4).toString());
+				if (cl.intValue() > confMix.getRowCount())
+				{
 					errors.addElement(new String(
-						"One or more of the mixes in the cascade require(s) a greater " +
-						"cascade size. Please add more mixes or remove that mix."));
+									   "One or more of the mixes in the cascade require(s) a greater " +
+									   "cascade size. Please add more mixes or remove that mix."));
+				}
 			}
 		}
 		else
@@ -293,7 +316,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		catch (Exception ex)
 		{
 
-			MixConfig.handleException(ex);
+			MixConfig.handleError(ex, null, LogType.GUI);
 		}
 	}
 
@@ -302,18 +325,17 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		enableComponents();
 	}
 
-        /** Moves the currently selected entry from one table to another.
-         * @param src The source table from which the entry is to be moved away
-         * @param dest The destination table
-         */
-	private void moveMix(JTable src, JTable dest)
+	/** Moves the currently selected entry from one table to another.
+	 * @param src The source table from which the entry is to be moved away
+	 * @param dest The destination table
+	 */
+	private static void moveMix(JTable src, JTable dest)
 	{
 		MixListTableModel smltm = (MixListTableModel) src.getModel();
 		MixListTableModel dmltm = (MixListTableModel) dest.getModel();
 
-		int r = src.getSelectedRow();
-		Object mix[] = smltm.getRow(r);
-		smltm.removeRow(r);
+		Object mix[] = smltm.getRow(src.getSelectedRow());
+		smltm.removeRow(src.getSelectedRow());
 		dmltm.addRow(mix);
 	}
 
@@ -322,44 +344,44 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		String hostName = null, hostPort = null;
 		int c = m_configuredMixTable.getRowCount() - 1;
 		int s = m_configuredMixTable.getSelectedRow();
-		int sc = m_configuredMixTable.getSelectedRowCount();
+
 
 		if (getConfiguration() != null)
 		{
-			hostName = getConfiguration().getAttribute("Network/InfoService/Host");
+			hostName = getConfiguration().getValue("Network/InfoService/Host");
 			if (hostName == null || hostName.equals(""))
 			{
-				hostName = getConfiguration().getAttribute("Network/InfoService/IP");
+				hostName = getConfiguration().getValue("Network/InfoService/IP");
 			}
 
-			hostPort = getConfiguration().getAttribute("Network/InfoService/Port");
+			hostPort = getConfiguration().getValue("Network/InfoService/Port");
 		}
 
 		m_recvMixListButton.setEnabled(hostName != null && hostPort != null);
 		m_addMixButton.setEnabled(m_availableMixTable.getSelectedRowCount() == 1);
-		m_remMixButton.setEnabled(sc == 1 && s < c);
+		m_remMixButton.setEnabled(m_configuredMixTable.getSelectedRowCount() == 1 && s < c);
 		m_moveMixUpButton.setEnabled(s > 0 && s < c);
 		m_moveMixDownButton.setEnabled(s >= 0 && s < c - 1);
 	}
 
-        /** Fetches the list of available mixes from the InfoService host and returns it as
-         * an XML/DOM element.
-         * @throws MalformedURLException If the URL pointing to the InfoService is invalid
-         * @throws ParserConfigurationException If an error occurs during parsing the answer from the InfoService
-         * @throws IOException If an error occurs during communication
-         * @throws SAXException If an error occurs during parsing the answer from the InfoService
-         * @return An XML/DOM element containing the list of mixes
-         */
+	/** Fetches the list of available mixes from the InfoService host and returns it as
+	 * an XML/DOM element.
+	 * @throws MalformedURLException If the URL pointing to the InfoService is invalid
+	 * @throws ParserConfigurationException If an error occurs during parsing the answer from the InfoService
+	 * @throws IOException If an error occurs during communication
+	 * @throws SAXException If an error occurs during parsing the answer from the InfoService
+	 * @return An XML/DOM element containing the list of mixes
+	 */
 	private Element recvMixList() throws MalformedURLException, ParserConfigurationException, IOException,
 		SAXException
 	{
-		String hostName = getConfiguration().getAttribute("Network/InfoService/Host");
+		String hostName = getConfiguration().getValue("Network/InfoService/Host");
 		if (hostName == null || hostName.equals(""))
 		{
-			hostName = getConfiguration().getAttribute("Network/InfoService/IP");
+			hostName = getConfiguration().getValue("Network/InfoService/IP");
 		}
 
-		String hostPort = getConfiguration().getAttribute("Network/InfoService/Port");
+		String hostPort = getConfiguration().getValue("Network/InfoService/Port");
 
 		URL infoService = new URL("http", hostName, Integer.valueOf(hostPort).intValue(),
 								  "/availablemixes");
@@ -379,37 +401,41 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 						   "and retry later when enough mixes have",
 						   "registered themselves with the InfoService."});
 		}
-
 		return mixListDoc.getDocumentElement();
 	}
 
-        /** This inner class represents the data model for the two tables and holds the mix
-         * list entries.
-         */
+	/** This inner class represents the data model for the two tables and holds the mix
+	 * list entries.
+	 */
 	public class MixListTableModel extends AbstractTableModel
 	{
-            /** The names of the columns in the model */
+		/** The names of the columns in the model */
 		private final String columnName[] =
 			{
 			"Mix ID", "Mix name", "Location", "Type", "Desired cascade length"};
 
-                        /** The list of mix entries */
+		/** The list of mix entries */
 		Vector mixList = new Vector();
 
-                /** Constructs a new empty instance of <CODE>MixListTableModel</CODE> */
+		/** Constructs a new empty instance of <CODE>MixListTableModel</CODE> */
 		public MixListTableModel()
 		{
+			super();
 		}
 
-                /** Constructs a new instance of <code>MixListTableModel</code>.
-                 * @param a_mixList The list of mixes to be contained in the table model as an XML/DOM element
-                 */
+		/** Constructs a new instance of <code>MixListTableModel</code>.
+		 * @param a_mixList The list of mixes to be contained in the table model as an XML/DOM element
+		 */
 		public MixListTableModel(Element a_mixList)
 		{
 			NodeList nl = a_mixList.getElementsByTagName("Mix");
 			for (int i = 0; i < nl.getLength(); i++)
 			{
-				addRow( (Element) nl.item(i));
+				//Do not show LastMixes
+				if (!getElementData((Element)(nl.item(i)), "MixType").equalsIgnoreCase("LastMix"))
+				{
+					addRow( (Element) nl.item(i));
+				}
 			}
 		}
 
@@ -459,21 +485,21 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			return false;
 		}
 
-                /** Gets the entry at the specified index
-                 * @param rowIndex The index of the row to be returned
-                 * @return The row at the specified index as an array of <code>Object</code>
-                 */
+		/** Gets the entry at the specified index
+		 * @param rowIndex The index of the row to be returned
+		 * @return The row at the specified index as an array of <code>Object</code>
+		 */
 		public Object[] getRow(int rowIndex)
 		{
 			return (Object[]) mixList.elementAt(rowIndex);
 		}
 
-                /** Adds an entry to the table model. The array representing the entry must have 5
-                 * fields: Mix ID, mix name, location (City), type (FirstMix, MiddleMix, LastMix),
-                 * and desired cascade length (a <code>String</code> reprentation of an int value, or
-                 * <code>null</code>).
-                 * @param a_mix An array of <B>Object</B> holding the mix data.
-                 */
+		/** Adds an entry to the table model. The array representing the entry must have 5
+		 * fields: Mix ID, mix name, location (City), type (FirstMix, MiddleMix, LastMix),
+		 * and desired cascade length (a <code>String</code> reprentation of an int value, or
+		 * <code>null</code>).
+		 * @param a_mix An array of <B>Object</B> holding the mix data.
+		 */
 		public void addRow(Object a_mix[])
 		{
 			// check if that mix is already anywhere in the two tables;
@@ -503,19 +529,19 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			fireTableRowsInserted(mixList.size(), mixList.size());
 		}
 
-                /** Adds an entry to the table model. The <code>Element</code> representing the entry must have
-                 * one attribute named "id" containing the mix ID, and one or more of the following child
-                 * nodes:<br>
-                 * <ul>
-                 * <li><B>Name</B> (containing a text node with the mix's name)</li>
-                 * <li><B>MixType</B> (containing a text node with the mix's type)</li>
-                 * <li><B>Location</B> (containing a child node named <B>City</B> with a text node with the mix's type)</li>
-                 * <li><B>MinCascadeLength</B> (containing a text node with an integer value)</li>
-                 * </ul>
-                 * If one of the nodes is missing, the corresponding field in the table entry is
-                 * left blank. Additional other nodes will be ignored.
-                 * @param a_mix The DOM element containing the mix data
-                 */
+		/** Adds an entry to the table model. The <code>Element</code> representing the entry must have
+		 * one attribute named "id" containing the mix ID, and one or more of the following child
+		 * nodes:<br>
+		 * <ul>
+		 * <li><B>Name</B> (containing a text node with the mix's name)</li>
+		 * <li><B>MixType</B> (containing a text node with the mix's type)</li>
+		 * <li><B>Location</B> (containing a child node named <B>City</B> with a text node with the mix's type)</li>
+		 * <li><B>MinCascadeLength</B> (containing a text node with an integer value)</li>
+		 * </ul>
+		 * If one of the nodes is missing, the corresponding field in the table entry is
+		 * left blank. Additional other nodes will be ignored.
+		 * @param a_mix The DOM element containing the mix data
+		 */
 		public void addRow(Element a_mix)
 		{
 			NodeList nl;
@@ -536,9 +562,9 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			addRow(mix);
 		}
 
-                /** Removes the specified object from the list of entries.
-                 * @param a_mle An array of <CODE>Object</CODE> representing a mix list entry
-                 */
+		/** Removes the specified object from the list of entries.
+		 * @param a_mle An array of <CODE>Object</CODE> representing a mix list entry
+		 */
 		public void removeRow(Object a_mle)
 		{
 			int i = mixList.indexOf(a_mle);
@@ -546,19 +572,19 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			fireTableRowsDeleted(i, i);
 		}
 
-                /** Removes the object at the specified index from the list of entries.
-                 * @param rowIndex The index of the entry to be removed
-                 */
+		/** Removes the object at the specified index from the list of entries.
+		 * @param rowIndex The index of the entry to be removed
+		 */
 		public void removeRow(int rowIndex)
 		{
 			mixList.removeElementAt(rowIndex);
 			fireTableRowsDeleted(rowIndex, rowIndex);
 		}
 
-                /** Moves a row from one index to another. The other rows are shifted accordingly.
-                 * @param src The index of the row to be moved
-                 * @param dest The destination index
-                 */
+		/** Moves a row from one index to another. The other rows are shifted accordingly.
+		 * @param src The index of the row to be moved
+		 * @param dest The destination index
+		 */
 		public void moveRow(int src, int dest)
 		{
 			Object o = mixList.elementAt(src);
@@ -575,30 +601,30 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			}
 		}
 
-                /** Converts the data in this model to a XML/DOM structure.
-                 * @param d The document for which the resulting element will be created
-                 * @return An XML/DOM <CODE>DocumentFragment</CODE> object containing the mix list entries
-                 * as elements (<CODE>&lt;Mix id=&quot;...&quot;&gt;...&lt;/Mix&gt</CODE>)
-                 */
-		public Node createAsElement(Document d)
+		/** Converts the data in this model to a XML/DOM structure.
+		 * @param a_doc The document for which the resulting element will be created
+		 * @return An XML/DOM <CODE>DocumentFragment</CODE> object containing the mix list entries
+		 * as elements (<CODE>&lt;Mix id=&quot;...&quot;&gt;...&lt;/Mix&gt</CODE>)
+		 */
+		public Node toXmlElement(Document a_doc)
 		{
 			Object mle[];
 			Element f, g, h;
 			DocumentFragment e;
 			Enumeration list;
 
-			e = d.createDocumentFragment();
+			e = a_doc.createDocumentFragment();
 
 			list = mixList.elements();
 			while (list.hasMoreElements())
 			{
 				mle = (Object[]) list.nextElement();
-				String mixId = getConfiguration().getAttribute("General/MixID");
+				String mixId = getConfiguration().getValue("General/MixID");
 				if (mle[0] == null || mle[0].equals(mixId))
 				{
 					continue;
 				}
-				f = d.createElement("Mix");
+				f = a_doc.createElement("Mix");
 				e.appendChild(f);
 				if (mle[0] != null)
 				{
@@ -606,42 +632,42 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 				}
 				if (mle[1] != null)
 				{
-					g = d.createElement("Name");
-					g.appendChild(d.createTextNode(mle[1].toString()));
+					g = a_doc.createElement("Name");
+					g.appendChild(a_doc.createTextNode(mle[1].toString()));
 					f.appendChild(g);
 				}
 				if (mle[2] != null)
 				{
-					g = d.createElement("Location");
+					g = a_doc.createElement("Location");
 					f.appendChild(g);
-					h = d.createElement("City");
+					h = a_doc.createElement("City");
 					g.appendChild(h);
-					h.appendChild(d.createTextNode(mle[2].toString()));
+					h.appendChild(a_doc.createTextNode(mle[2].toString()));
 				}
 				if (mle[3] != null)
 				{
-					g = d.createElement("MixType");
+					g = a_doc.createElement("MixType");
 					f.appendChild(g);
-					g.appendChild(d.createTextNode(mle[3].toString()));
+					g.appendChild(a_doc.createTextNode(mle[3].toString()));
 				}
 				if (mle[4] != null)
 				{
-					g = d.createElement("MinCascadeLength");
+					g = a_doc.createElement("MinCascadeLength");
 					f.appendChild(g);
-					g.appendChild(d.createTextNode(mle[4].toString()));
+					g.appendChild(a_doc.createTextNode(mle[4].toString()));
 				}
 			}
 			return e;
 		}
 
-                /** Searches the specified element for a child node with the specified name, and
-                 * returns the first text node under that element (if found; <CODE>null</CODE>
-                 * otherwise).
-                 * @param a_parent The parent element to be searched
-                 * @param a_elementName The name of the child element whose text node is to be returned
-                 * @return The element's text node as a <CODE>String</CODE>, or <CODE>null</CODE> if there
-                 * is no such node
-                 */
+		/** Searches the specified element for a child node with the specified name, and
+		 * returns the first text node under that element (if found; <CODE>null</CODE>
+		 * otherwise).
+		 * @param a_parent The parent element to be searched
+		 * @param a_elementName The name of the child element whose text node is to be returned
+		 * @return The element's text node as a <CODE>String</CODE>, or <CODE>null</CODE> if there
+		 * is no such node
+		 */
 		private String getElementData(Element a_parent, String a_elementName)
 		{
 			NodeList nl = a_parent.getElementsByTagName(a_elementName);
@@ -671,11 +697,11 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		if (a_table == m_configuredMixTable)
 		{
 			Object myself[] = new Object[5];
-			myself[0] = getConfiguration().getAttribute("General/MixID");
-			myself[1] = getConfiguration().getAttribute("General/MixName");
-			myself[2] = getConfiguration().getAttribute("Description/Location/City");
-			myself[3] = getConfiguration().getAttribute("General/MixType");
-			if(myself[3] != null)
+			myself[0] = getConfiguration().getValue("General/MixID");
+			myself[1] = getConfiguration().getValue("General/MixName");
+			myself[2] = getConfiguration().getValue("Description/Location/City");
+			myself[3] = getConfiguration().getValue("General/MixType");
+			if (myself[3] != null)
 			{
 				Integer t = new Integer(myself[3].toString());
 				myself[3] = MixConfiguration.MIXTYPE_NAME[t.intValue()];
@@ -686,8 +712,8 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			m_configuredMixTable.setModel(new MixListTableModel());
 			m_availableMixTable.setModel(new MixListTableModel());
 
-			Document d = this.getConfiguration().getDocument();
-			NodeList n = d.getElementsByTagName("MixCascade");
+
+			NodeList n = getConfiguration().getDocument().getElementsByTagName("MixCascade");
 			if (n.getLength() > 0)
 			{
 				m_configuredMixTable.setModel(new MixListTableModel( (Element) n.item(0)));
@@ -703,15 +729,17 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		super.setConfiguration(a_mixConf);
 		a_mixConf.removeChangeListener(this);
 		a_mixConf.addChangeListener(this);
-		setEnabled(new Integer(a_mixConf.getAttribute("General/MixType")).intValue() ==
-				   MixConfiguration.MIXTYPE_LAST);
+		setEnabled(new Integer(a_mixConf.getValue("General/MixType")).intValue() ==
+				   MixConfiguration.MIXTYPE_LAST &&
+			getConfiguration().isAutoConfigurationAllowed());
 	}
 
-	public void stateChanged(ChangeEvent e)
+	public void stateChanged(ChangeEvent a_event)
 	{
-		if (e instanceof ConfigurationEvent)
+
+		if (a_event instanceof ConfigurationEvent)
 		{
-			ConfigurationEvent ce = (ConfigurationEvent) e;
+			ConfigurationEvent ce = (ConfigurationEvent) a_event;
 			int col = -1;
 			if (ce.getChangedAttribute().endsWith("MixID"))
 			{
@@ -725,11 +753,18 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			{
 				col = 2;
 			}
-			else if (ce.getChangedAttribute().endsWith("MixType"))
+			else if (ce.getChangedAttribute().equals("Network/InfoService/AllowAutoConfiguration"))
+			{
+				setEnabled(new Integer(getConfiguration().getValue("General/MixType")).intValue() ==
+						   MixConfiguration.MIXTYPE_LAST &&
+						   getConfiguration().isAutoConfigurationAllowed());
+			}
+			else if (ce.getChangedAttribute().equals("General/MixType"))
 			{
 				col = 3;
-				setEnabled(new Integer(ce.getNewValue().toString()).intValue() ==
-					MixConfiguration.MIXTYPE_LAST);
+				setEnabled(new Integer(getConfiguration().getValue("General/MixType")).intValue() ==
+						   MixConfiguration.MIXTYPE_LAST &&
+						   getConfiguration().isAutoConfigurationAllowed());
 			}
 			else if (ce.getChangedAttribute().endsWith("MinCascadeLength"))
 			{
@@ -738,16 +773,24 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 
 			if (col >= 0 && m_configuredMixTable.getRowCount() > 0)
 			{
-				String v = ce.getNewValue().toString();
-				if(col == 3)
+
+				String v;
+				if (ce.getNewValue() == null)
+				{ // this could be a problem...
+					v = "";
+				}
+				else
+				{
+					v = ce.getNewValue().toString();
+				}
+
+				if (col == 3)
 				{
 					Integer t = new Integer(v);
 					v = MixConfiguration.MIXTYPE_NAME[t.intValue()];
 				}
 
-				m_configuredMixTable.setValueAt(v,
-												m_configuredMixTable.getRowCount() - 1,
-												col);
+				m_configuredMixTable.setValueAt(v, m_configuredMixTable.getRowCount() - 1, col);
 			}
 
 			enableComponents();

@@ -1,0 +1,62 @@
+<Moved>
+	jap.JAPMessages -> gui.JAPMessages (zur gemeinsamen Verwendung in MixConfig)
+	jap.JAPAWTMsgBox -> gui.JAPAWTMsgBox (zur gemeinsamen Verwendung in MixConfig)
+	jap.JAPHelp -> gui.JAPHelp (zur gemeinsamen Verwendung in MixConfig)
+	jap.JAPHelpContext -> gui.JAPHelpContext (zur gemeinsamen Verwendung in MixConfig)
+</Moved>
+
+
+<Deleted>
+	anon.crypto.JAPDsaKeyGenerator (wird nicht mehr benötigt)
+	anon.crypto.X509CertGenerator (wird nicht mehr benötigt)
+</Deleted>
+
+<Created>
+	anon.crypto.PKCS10CertificationRequest (die Hauptklasse, um die sich alles dreht)
+	anon.crypto.CertificationRequestInfo (Hilfsklasse, wird nur von anon.crypto.PKCS10CertificationRequest verwendet)
+	anon.crypto.CertificationRequest (Hilfsklasse, wird nur von anon.crypto.PKCS10CertificationRequest verwendet)
+	anon.crypto.AbstractX509Extension (Die Oberklasse für alle Extensions)
+	anon.crypto.X509Extensions (Container für Extensions)
+	anon.crypto.X509Extensions (Container für Extensions)
+	anon.crypto.X509SubjectKeyIdentifier (Extension)
+	anon.crypto.X509SubjectAlternativeName (Extension)
+	anon.crypto.X509IssuerAlternativeName (Extension)
+	anon.crypto.AbstractX509AlternativeName (Extension)
+	anon.crypto.UnknownExtension (Klasse zur Instanzierung unbekannter Extensions)
+	anon.crypto.X509DistinguishedName (Selbsterklärend... ersetzt das BouncyCastle-Pendat X509name)
+	gui.PasswordBox (aus MixConfig übernommen, könnte allgemein nützlich sein und ist von anderen Klassen unabhängig)
+	gui.GUIUtils (enthält nun die Funktionen zum Laden von Images; bitte Entsprechung im JAPUtil vollständig(!) entfernen,
+		      da sonst die JAPHelp-Klassen nicht im MixCOnfig eingesetzt werden können; 
+                      JAPHelp muss(!) auf diese Methode verweisen)
+	gui.AutoScaleImage (Klasse zum automatischen Skalieren von Bildern)
+	anon.crypto.test.PKCS10CertificationRequestTest (noch leer, wird demnächst implementiert)
+	anon.crypto.test.PKCS12Test (noch ziemlich leer, test folgt noch)
+</Created>
+
+
+
+<Modified>
+	JAP (Initalisierung von JAPMessages geändert)
+	JAPiPAQ (Initalisierung von JAPMessages geändert)
+	jap.JAPConstants (einige Konstanten wurden ausgelagert, um Klassen in MixConfig wiederzuverwenden)
+	jap.JAPController (Initalisierung von JAPMessages geändert)
+	jap.JAPConstants (MESSAGESFN wurde public)
+	gui.ImageIconLoader (Logging wieder eingefügt)
+	gui.JAPHelp (getInstance() wurde public; einige Konstanten eingefügt, um Unabhängigkeit von JAPConstants zu erreichen)
+	gui.JAPHelpContext (Klasse wurde public)
+	gui.JAPAWTMsgBox (JDK 1.0.2-Bezug entfernt, da wir nur bis 1.1.8 kompatibel sind! 
+                          Alles ältere wäre nicht testbar und damit sinnlos.)
+	gui.JAPMessages (neue Funktionen zur leichten Parametriesierung eingefügt; 
+                         Methoden zur Initialisierung geändert, damit Unabhängigkeit von JAPConstants erreicht wird)
+	anon.util.ClassUtil (kleine Vereinfachung)
+	anon.util.ResourceLoader (kleine Vereinfachung)
+	anon.tor.FirstOnionRouterConnection (angepasst an neuen getInstance-Aufruf von JAPCertificate)
+	anon.util.Uitl (neue convenience-Methode toVector(Object) ergänzt)
+	anon.crypto.JAPCertificate (unter anderem unterstützung für X509DistinguishedName und Extensions)
+	anon.crypto.PKCS12 (unter anderem unterstützung für X509DistinguishedName und Extensions)
+	anon.crypto.XMLSignature (kleiner Bugfix)
+	anon.crypto.RSAKeyPair (einfachere methode zur Zertifikatserzeugung ergänzt)
+	anon.crypto.test.AllTest
+	anon.crypto.test.XMLSignatureTest
+	anon.crypto.test.JAPCertificateTest
+</Modified>
