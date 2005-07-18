@@ -25,13 +25,15 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-package mixconfig;
+package gui;
 
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -40,19 +42,25 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 
-class PasswordBox extends JDialog implements ActionListener
+import anon.util.IMiscPasswordReader;
+
+public class PasswordBox extends JDialog implements ActionListener, IMiscPasswordReader
 {
+	private static final String OK_COMMAND = "OK";
+
 	private JPasswordField m_textOldPasswd, m_textNewPasswd, m_textConfirmPasswd;
 	private char[] m_passwd = null;
 	private char[] m_oldPasswd = null;
 	private int m_Type;
+	private boolean m_bCanceled = false;
 	public final static int NEW_PASSWORD = 1;
 	public final static int ENTER_PASSWORD = 2;
 	public final static int CHANGE_PASSWORD = 3;
 
-	PasswordBox(Frame parent, String title, int type, String msg)
+	public PasswordBox(Frame parent, String title, int type, String msg)
 	{
 		super(parent, title, true);
+
 		m_Type = type;
 		GridBagLayout layout = new GridBagLayout();
 		getContentPane().setLayout(layout);
@@ -122,6 +130,7 @@ class PasswordBox extends JDialog implements ActionListener
 		getContentPane().add(new2);
 		m_textConfirmPasswd = new JPasswordField(20);
 		m_textConfirmPasswd.setEchoChar('*');
+		m_textConfirmPasswd.addKeyListener(new PasswordKeyListener());
 		c.gridx = 1;
 		c.weightx = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -129,8 +138,8 @@ class PasswordBox extends JDialog implements ActionListener
 		getContentPane().add(m_textConfirmPasswd);
 
 		JPanel p = new JPanel();
-		JButton b = new JButton("OK");
-		b.setActionCommand("OK");
+		JButton b = new JButton(OK_COMMAND);
+		b.setActionCommand(OK_COMMAND);
 		/*      c.gridx = 0;
 		   c.gridwidth=1;
 		   c.anchor=GridBagConstraints.CENTER;
@@ -159,12 +168,15 @@ class PasswordBox extends JDialog implements ActionListener
 		getContentPane().add(p);
 		pack();
 		setLocationRelativeTo(parent);
+		setResizable(false);
 	}
 
 	public void actionPerformed(ActionEvent ae)
 	{
-		if (ae.getActionCommand().equals("OK"))
+		if (ae.getActionCommand().equals(OK_COMMAND))
 		{
+			m_bCanceled = false;
+
 			if (m_Type == NEW_PASSWORD || m_Type == CHANGE_PASSWORD)
 			{
 				boolean eqv;
@@ -203,8 +215,28 @@ class PasswordBox extends JDialog implements ActionListener
 		else
 		{
 			m_passwd = null;
+			m_bCanceled = true;
 		}
 		dispose();
+	}
+
+	public boolean isCanceled()
+	{
+		return m_bCanceled;
+	}
+
+	public String readPassword(Object a_message)
+	{
+		show();
+		if (isCanceled())
+		{
+			return null;
+		}
+		if (getPassword() == null)
+		{
+			return new String();
+		}
+		return new String(getPassword());
 	}
 
 	public char[] getPassword()
@@ -217,4 +249,17 @@ class PasswordBox extends JDialog implements ActionListener
 		return m_oldPasswd;
 	}
 
+
+	private class PasswordKeyListener extends KeyAdapter
+	{
+		public void keyReleased(KeyEvent a_event)
+		{
+			if (a_event.getKeyCode() == KeyEvent.VK_ENTER)
+			{
+				actionPerformed(
+					new ActionEvent(
+					a_event.getSource(), ActionEvent.ACTION_PERFORMED, OK_COMMAND));
+			}
+		}
+	}
 }
