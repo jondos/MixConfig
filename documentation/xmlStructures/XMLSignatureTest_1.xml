@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DummyElement id="encodableAK33#3">
+    <!--This xml structure has been created by anon.crypto.test.XMLSignatureTest.-->
+    <!--The calling test class was anon.crypto.test.XMLSignatureTest.-->
+    <TextNode BooleanAttribute="false">dummy</TextNode>
+    <ContainerNode IntAttribute="682">
+        <NumberNode>142</NumberNode>
+        <NumberNode>5721672</NumberNode>
+    </ContainerNode>
+    <BooleanNode>true</BooleanNode>
+    <Signature>
+        <SignedInfo>
+            <CanonicalizationMethod/>
+            <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/>
+            <Reference>
+                <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                <DigestValue>6F/wvk51FFnVSXUqbyEFuWalbYs=</DigestValue>
+            </Reference>
+        </SignedInfo>
+        <SignatureValue>RNrehgWbTrA/TvcVM3ZTZXuKfjUJyPBeNeTlFbxjP++vsHnv7bZcaA==</SignatureValue>
+        <KeyInfo>
+            <X509Data>
+                <X509Certificate xml:space="preserve">MIIBMjCB8qADAgECAgEBMAkGByqGSM44BAMwEjEQMA4GA1UEAxMHcHJpdmF0ZTAeFw0wNTA2MTcx
+MTE5MTZaFw0wNTA2MTcxMTE5MTZaMBMxETAPBgNVBAMTCHByaXZhdGUyMIGPMGcGByqGSM44BAEw
+XAIhALEso6DY9xy1seIEBqMEGm6o4dOdy6AZTwN5+wZlwkQJAhUA11sS3TqrLPVnkALexTYIKGDD
+EIsCIAJxkhd9YI7cc9A2un4vWj29WFAoF/qsJcJE39KOJmPIAyQAAiEAgoMlzBhzyd3RtpQDpmHh
+24ecLimbZl+PESBMS/f2kDGjAjAAMAkGByqGSM44BAMDMAAwLQIUdYnIjJF9+t3J4dD84dqxbgiu
+KhMCFQDPiio2AkyuiZ+pKiUJX+w4A1Z5Mw==</X509Certificate>
+                <X509Certificate xml:space="preserve">MIIBMzCB86ADAgECAgEBMAkGByqGSM44BAMwEzERMA8GA1UEAxMIcHJpdmF0ZTMwHhcNMDUwNjE3
+MTExOTE2WhcNMDUwNjE3MTExOTE2WjATMREwDwYDVQQDEwhwcml2YXRlMjCBjzBnBgcqhkjOOAQB
+MFwCIQCxLKOg2PcctbHiBAajBBpuqOHTncugGU8DefsGZcJECQIVANdbEt06qyz1Z5AC3sU2CChg
+wxCLAiACcZIXfWCO3HPQNrp+L1o9vVhQKBf6rCXCRN/SjiZjyAMkAAIhAIKDJcwYc8nd0baUA6Zh
+4duHnC4pm2ZfjxEgTEv39pAxowIwADAJBgcqhkjOOAQDAzAAMC0CFQCIsdiNDwJ4ev6KHHuf828M
+gcl2PAIUB1+Pb51CY+m997Th7kIvOOD6avw=</X509Certificate>
+            </X509Data>
+        </KeyInfo>
+    </Signature>
+</DummyElement>
