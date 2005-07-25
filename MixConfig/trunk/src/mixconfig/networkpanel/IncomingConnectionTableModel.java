@@ -8,15 +8,13 @@ public final class IncomingConnectionTableModel extends ConnectionTableModel
 {
 	private static final String[] columnNames =
 		{
-		"No.", "V", "H", "Transport", "Host / FileName", "Port"};
+		"No.", "Visibility", "Transport", "Host / FileName", "Port"};
 
 	public static final int SERIAL_NR = 0;
-	public static final int VIRTUAL = 1;
-	public static final int HIDDEN = 2;
-	public static final int TRANSPORT = 3;
-	public static final int NAME = 4;
-	//public static final int IP_ADDR = 5;
-	public static final int PORT = 5;
+	public static final int VISIBILITY = 1;
+	public static final int TRANSPORT = 2;
+	public static final int NAME = 3;
+	public static final int PORT = 4;
 
 	public Object getValueAt(int row, int column)
 	{
@@ -29,16 +27,12 @@ public final class IncomingConnectionTableModel extends ConnectionTableModel
 		{
 			case SERIAL_NR:
 				return new Integer(row + 1);
-			case VIRTUAL:
-				return new Boolean(data.isVirtual());
-			case HIDDEN:
-				return new Boolean(data.isHidden());
+			case VISIBILITY:
+				return data.getVisibilityString();
 			case TRANSPORT:
 				return new Integer(data.getTransport());
 			case NAME:
 				return data.getName();
-			/*case IP_ADDR:
-				return data.getIPAddr();*/
 			case PORT:
 				return new Integer(data.getPort());
 		}
@@ -51,10 +45,8 @@ public final class IncomingConnectionTableModel extends ConnectionTableModel
 		{
 			case SERIAL_NR:
 				return Integer.class;
-			case VIRTUAL:
-				return Boolean.class;
-			case HIDDEN:
-				return Boolean.class;
+			case VISIBILITY:
+				return String.class;
 			case NAME:
 				return String.class;
 			case PORT:
@@ -110,3 +102,4 @@ public final class IncomingConnectionTableModel extends ConnectionTableModel
 		}
 	}
 }
+
