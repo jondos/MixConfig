@@ -62,11 +62,22 @@
   <property category="team" name="ignorePath.2" value="classes"/>
   <property category="team" name="ignorePath.3" value="doc"/>
   <property category="team" name="ignorePath.4" value="doc_doxy"/>
+  <node name="acceptedCAs" type="NavigationDirectory">
+    <property category="directorynode" name="url" value="certificates/acceptedCAs"/>
+  </node>
+  <node name="help" type="NavigationDirectory">
+    <property category="directorynode" name="url" value="help"/>
+  </node>
   <node name="Weitere Einstellungen" type="Folder">
     <property category="sys" name="SettingsFolder" value="1"/>
     <file path="jbuilder-build.xml">
       <property category="ant" name="isantfile" value="1"/>
     </file>
+  </node>
+  <node name="images" type="Folder">
+    <node name="mixconfig" type="NavigationDirectory">
+      <property category="directorynode" name="url" value="images/mixconfig"/>
+    </node>
   </node>
   <node name="anon" type="Package"/>
   <node name="gui" type="Package"/>

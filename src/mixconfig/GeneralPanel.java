@@ -197,7 +197,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 
 		int[] columnSizes1 =
 			{
-			15, 15, 15, 60, 195, 40};
+			15, 15, 60, 195, 40};
 
 		final TableCellRenderer IPRenderer = new DefaultTableCellRenderer()
 		{
@@ -621,8 +621,8 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		{
 			for (int i = 0; i < m_listenerModel.getRowCount(); i++)
 			{
-				virtual = ( (Boolean) m_listenerModel.getValueAt(i, 1)).booleanValue();
-				hidden = ( (Boolean) m_listenerModel.getValueAt(i, 2)).booleanValue();
+				virtual = m_listenerModel.getData(i).isVirtual();
+				hidden = m_listenerModel.getData(i).isHidden();
 
 				if (!hidden && !virtual)
 				{
@@ -841,3 +841,4 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		}
 	}
 }
+

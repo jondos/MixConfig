@@ -205,6 +205,22 @@ final public class ConnectionData
 		return m_bIsVirtual;
 	}
 
+	public String getVisibilityString()
+	{
+		if (m_bIsVirtual)
+		{
+			return new String("Virtual");
+		}
+		else if(m_bIsHidden)
+		{
+			return new String("Hidden");
+		}
+		else
+		{
+			return new String("");
+		}
+	}
+
 	Element createAsElement(Document docOwner)
 	{
 		Element elemRoot = docOwner.createElement(m_strXMLNodeName);
@@ -358,3 +374,4 @@ final public class ConnectionData
 		return XMLUtil.parseValue(nodeChild, null);
 	}
 }
+
