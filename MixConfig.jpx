@@ -209,7 +209,7 @@
   <property category="team" name="ignorePath.4" value="doc_doxy"/>
   <node name="help" type="NavigationDirectory">
     <property category="directorynode" name="showSubdirectories" value="1"/>
-    <property category="directorynode" name="url" value="help/help"/>
+    <property category="directorynode" name="url" value="help"/>
   </node>
   <node name="Weitere Einstellungen" type="Folder">
     <property category="sys" name="SettingsFolder" value="1"/>
