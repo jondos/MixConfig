@@ -168,7 +168,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 
 		m_panelInfoService = new TitledGridBagPanel("InfoService");
 		c.gridy = 1;
-		c.fill = c.HORIZONTAL;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		add(m_panelInfoService, c);
 
 		m_txtISHost = new JTextField(20);
@@ -192,7 +192,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_listenerPanel.setToolTipText(
 			"Interfaces the Mix should use for incoming connections (ListenerInterfaces)");
 		c.gridy = 2;
-		c.fill = c.HORIZONTAL;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		add(m_listenerPanel, c);
 
 		int[] columnSizes1 =
@@ -773,7 +773,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	public void paint(Graphics g)
 	{
 		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("index");
+		JAPHelp.getInstance().getContextObj().setContext("download");
 	}
 
 	public void tableChanged(TableModelEvent e)
@@ -816,8 +816,8 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		{
 			for (int i = 0; i < m_listenerModel.getRowCount(); i++)
 			{
-				ConnectionData olddata = (ConnectionData) m_listenerModel.getData(i);
-				if (olddata.getTransport() != olddata.UNIX && !olddata.isVirtual())
+				ConnectionData olddata = m_listenerModel.getData(i);
+				if (olddata.getTransport() != ConnectionData.UNIX && !olddata.isVirtual())
 				{
 					ConnectionData newdata = olddata.deepClone();
 					newdata.setName(JAPMessages.getString("configuredByMixOnCD"));
@@ -829,7 +829,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		{
 			for (int i = 0; i < m_listenerModel.getRowCount(); i++)
 			{
-				ConnectionData olddata = (ConnectionData) m_listenerModel.getData(i);
+				ConnectionData olddata = m_listenerModel.getData(i);
 				if (olddata.getName().equalsIgnoreCase(JAPMessages.getString("configuredByMixOnCD")))
 				{
 					ConnectionData newdata = olddata.deepClone();
