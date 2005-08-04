@@ -1,0 +1,27 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<H2>Debian linux setup</H2>
+
+
+Insert the package URL in your sources.list:
+<P><I> deb http://anon.inf.tu-dresden.de/develop/deb / </I></P>
+Then call
+
+<UL>
+    <LI> <I>apt-get update</I>  </LI>
+    <LI> <I>apt-get install mix</I> </LI>
+</UL>
+
+
+
+<P>Copy the configuration file created by the mix configuration tool in the directory <I>/etc/mix</I> and start
+   the mix by typing <I>sudo /etc/init.d/mix start</I></P>
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>

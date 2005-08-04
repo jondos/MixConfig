@@ -1,16 +1,25 @@
-h1{color:blue;text-align:center;}
-b,h3,h4,h5 { font-weight:bold; color:maroon; }
-body{background-color:white;margin:8%;}
-h1,h2,h3,h4,h5,p,address,ol,ul,tr,td,th,blockquote {font-family:geneva,arial,helvetica,sans-serif;}
-address{font-style:normal;}
-h2,hr {font-weight:bold;color:#006699;}
-a:link {color:blue;font-weight:bold;}
-a:visited {color:gray;font-weight:bold;}
-a:active {color:red;font-weight:bold;}
-a:hover {color:red;font-weight:bold;}
-th {color:white;background:#006699;font-weight:bold;text-align:left;}
-td.name   {border-bottom-style:solid;border-bottom-width:1pt;border-color:#006699;background:#eeeeff;}
+/* Never ever have more than one element definiton per line - because Java can NOT handle this!*/
+h1 {color:#0000FF;text-align:center;font-family:geneva,arial,helvetica,sans-serif;}
+h2 {font-weight:bold;color:#006699;font-family:geneva,arial,helvetica,sans-serif;}
+h3 {font-weight:bold; color:#800000;font-family:geneva,arial,helvetica,sans-serif;}
+h4 {font-weight:bold; color:#800000;font-family:geneva,arial,helvetica,sans-serif;}
+h5 {font-weight:bold; color:#800000;font-family:geneva,arial,helvetica,sans-serif;}
+p {font-family:geneva,arial,helvetica,sans-serif;}
+b {font-weight:bold;color:#800000;}
+address {font-family:geneva,arial,helvetica,sans-serif;font-style:normal;}
+ol {font-family:geneva,arial,helvetica,sans-serif;}
+ul {font-family:geneva,arial,helvetica,sans-serif;}
+tr {font-family:geneva,arial,helvetica,sans-serif;}
+td {font-family:geneva,arial,helvetica,sans-serif;}
+th {color:white;background:#006699;font-weight:bold;text-align:left;font-family:geneva,arial,helvetica,sans-serif;}
+body {background-color:white;margin:10;font-family:geneva,arial,helvetica,sans-serif;}
+
+blockquote {font-family:geneva,arial,helvetica,sans-serif;}
+
+hr {font-weight:bold;color:#006699;}
+a:link {color:#0000FF;font-weight:bold;}
+a:visited {color:#C0C0C0;font-weight:bold;}
+a:active {color:#FF0000;font-weight:bold;}
+a:hover {color:#FF0000;font-weight:bold;}
+td.name {border-bottom-style:solid;border-bottom-width:1pt;border-color:#006699;background:#eeeeff;}
 td.status {border-bottom-style:solid;border-bottom-width:1pt;border-color:#006699;}
-/* additional definitions for web only */
-/*h2{border:1pt solid;width:100%;background-color:white;text-align:center;color:black;padding:6pt}*/
-/*p,address,ol,ul,tr,td,th,blockquote {font-size:10pt;}*/
