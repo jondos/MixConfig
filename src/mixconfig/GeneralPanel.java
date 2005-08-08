@@ -766,16 +766,6 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_cascadeNameLabel.setEnabled(bEnableCascadeName);
 	}
 
-	/**
-	 * Registers for the correct help context every time the panel is painted.
-	 * @param g Graphics
-	 */
-	public void paint(Graphics g)
-	{
-		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("download");
-	}
-
 	public void tableChanged(TableModelEvent e)
 	{
 		enableComponents();
@@ -787,6 +777,17 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 			}
 		}
 	}
+
+	/**
+	 * Registers for the correct help context every time the panel is painted.
+	 * @param g Graphics
+	 */
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		JAPHelp.getInstance().getContextObj().setContext("index");
+	}
+
 
 	public void load() throws IOException
 	{
@@ -839,6 +840,13 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 			}
 
 		}
+	}
+
+	public void clearListenerInterfaces()
+	{
+		m_listenerModel = new IncomingConnectionTableModel();
+		m_listenerModel.addTableModelListener(this);
+		m_listenerTable.setModel(m_listenerModel);
 	}
 }
 
