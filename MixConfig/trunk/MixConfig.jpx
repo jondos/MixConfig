@@ -211,6 +211,10 @@
     <property category="directorynode" name="showSubdirectories" value="1"/>
     <property category="directorynode" name="url" value="help"/>
   </node>
+  <node name="images" type="NavigationDirectory">
+    <property category="directorynode" name="showSubdirectories" value="1"/>
+    <property category="directorynode" name="url" value="images"/>
+  </node>
   <node name="Weitere Einstellungen" type="Folder">
     <property category="sys" name="SettingsFolder" value="1"/>
     <file path="jbuilder-build.xml">
@@ -321,6 +325,12 @@
     <property category="archiving" name="contentRules.88" value="F:images/certinactive.gif;images/certinactive.gif"/>
     <property category="archiving" name="contentRules.89" value="F:images/certinvalidinactive.gif;images/certinvalidinactive.gif"/>
     <property category="archiving" name="contentRules.9" value="F:images/arrowUp.gif;images/arrowUp.gif"/>
+    <property category="archiving" name="contentRules.90" value="F:help/debian_en.html;help/debian_en.html"/>
+    <property category="archiving" name="contentRules.91" value="F:help/suse_en.html;help/suse_en.html"/>
+    <property category="archiving" name="contentRules.92" value="F:help/livecd_en.html;help/livecd_en.html"/>
+    <property category="archiving" name="contentRules.93" value="F:help/livecd_booting_en.html;help/livecd_booting_en.html"/>
+    <property category="archiving" name="contentRules.94" value="F:help/livecd_usage_en.html;help/livecd_usage_en.html"/>
+    <property category="archiving" name="contentRules.95" value="F:help/livecd_deployment_en.html;help/livecd_deployment_en.html"/>
     <property category="archiving" name="libraryStates.1" value="1:BouncyCastleLightForMixConfig"/>
     <property category="archiving" name="libraryStates.2" value="1:Log4j"/>
     <property category="archiving" name="libraryStates.3" value="1:XML-1.1"/>
