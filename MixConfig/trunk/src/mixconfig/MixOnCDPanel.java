@@ -43,6 +43,8 @@ import javax.swing.JPasswordField;
 
 import anon.crypto.UnixCrypt;
 import mixconfig.networkpanel.IPTextField;
+import gui.JAPHelp;
+import java.awt.Graphics;
 
 /**
  * This panel stores the MixOnCD configuration.
@@ -402,6 +404,16 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 						   "from http://anon.inf.tu-dresden.de " +
 						   "to create a bootable mix CD.");
 		}
+	}
+
+	/**
+	 * Registers for the correct help context every time the panel is painted.
+	 * @param g Graphics
+	 */
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		JAPHelp.getInstance().getContextObj().setContext("livecd");
 	}
 
 	public void focusLost(FocusEvent a_event)

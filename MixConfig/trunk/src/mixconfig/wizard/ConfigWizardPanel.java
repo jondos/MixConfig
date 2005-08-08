@@ -428,4 +428,9 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		return m_pages.length;
 	}
 
+	public MixConfigPanel getPage(int a_number)
+	{
+		return m_pages[a_number];
+	}
+
 }

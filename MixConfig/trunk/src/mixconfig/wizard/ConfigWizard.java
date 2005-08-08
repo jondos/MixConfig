@@ -41,6 +41,8 @@ import mixconfig.ChoicePanel;
 import mixconfig.Menu;
 import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
+import mixconfig.MixConfigPanel;
+import mixconfig.GeneralPanel;
 
 /** A class that displays the Mix configuration panels as a wizard. To the left of
  * the panel, a logo is displayed; at the bottom, there are three navigation
@@ -145,6 +147,16 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 						( (ChoicePanel)this.getParent()).setStartScreenVisible();
 						m_wizPanel.finish();
 						changeButtonLabelToNext();
+						/** Remove the listener interfaces */
+						for (int j = 0; j<m_wizPanel.getPageCount();j++)
+						{
+							MixConfigPanel p = m_wizPanel.getPage(j);
+							if (p instanceof GeneralPanel)
+							{
+								((GeneralPanel)p).clearListenerInterfaces();
+							}
+
+						}
 						stateChanged(new ChangeEvent(this));
 					}
 				}
