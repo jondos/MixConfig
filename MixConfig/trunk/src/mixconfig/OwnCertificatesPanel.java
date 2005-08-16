@@ -44,7 +44,7 @@ import anon.crypto.X509Extensions;
 import logging.LogType;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener,
-	ChangeListener, ICertCreationValidator
+	ChangeListener
 {
 	/** A <CODE>CertPanel</CODE> for this Mix's certificate. */
 	private CertPanel m_ownCert;
@@ -74,7 +74,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 								  "certificate to the operators of your " +
 								  "adjacent mixes", (PKCS12)null);
 		m_ownCert.setName("Certificates/OwnCertificate");
-		m_ownCert.setCertCreationValidator(this);
+		m_ownCert.setCertCreationValidator(new OwnCertCreationValidator());
 		m_ownCert.addChangeListener(this);
 		add(m_ownCert, c);
 
@@ -85,7 +85,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 									   "adjacent mixes",
 									   (PKCS12)null);
 		m_operatorCert.setName("Certificates/OperatorCertificate");
-		m_operatorCert.setCertCreationValidator(this);
+		m_operatorCert.setCertCreationValidator(new OwnCertCreationValidator());
 		m_operatorCert.addChangeListener(this);
 		c.gridx = 1;
 		add(m_operatorCert, c);
@@ -298,38 +298,52 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		enableComponents();
 	}
 
-	/**
-	 * @todo not implemented
-	 * @return X509DistinguishedName
-	 */
-	public X509DistinguishedName getSigName()
-	{
-		return new X509DistinguishedName("CN=");
-	}
 
-	/**
-	 * @todo not implemented
-	 * @return X509Extensions
-	 */
-	public X509Extensions getExtensions()
-	{
-		return null;
-	}
 
-	public String getPasswordInfoMessage()
-	{
-		return "This password has to be entered every time the Mix " +
-			"server starts.\nSo if you want to start it automatically " +
-			"you shouldn't enter a password.";
-	}
 
-	public String getInvalidityMessage()
-	{
-		return "Please enter a valid Mix ID in general panel,\n" +
-			"starting with a 'm' and containing only letters,\n" +
-			"digits, dots, underscores and minuses.";
-	}
 
+	private class OwnCertCreationValidator implements ICertCreationValidator
+	{
+		/**
+		 * @todo not implemented
+		 * @return boolean
+		 */
+		public boolean isValid()
+		{
+			return true;
+		}
+
+		/**
+		 * @todo not implemented
+		 * @return X509DistinguishedName
+		 */
+		public X509DistinguishedName getSigName()
+		{
+			return new X509DistinguishedName("CN=");
+		}
+
+		/**
+		 * @todo not implemented
+		 * @return X509Extensions
+		 */
+		public X509Extensions getExtensions()
+		{
+			return null;
+		}
+
+
+		public String getPasswordInfoMessage()
+		{
+			return "This password has to be entered every time the Mix " +
+				"server starts.\nSo if you want to start it automatically " +
+				"you shouldn't enter a password.";
+		}
+
+		public String getInvalidityMessage()
+		{
+			return null;
+	}
+}
 
 	protected void enableComponents()
 	{

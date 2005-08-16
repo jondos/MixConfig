@@ -68,14 +68,15 @@ import mixconfig.GeneralPanel;
 
 import anon.crypto.JAPCertificate;
 import logging.LogType;
-
+import java.awt.event.ComponentListener;
+import java.awt.event.ComponentEvent;
 
 /** A panel that provides settings for configuring the Mix's network access:<br>
  * Listeners for incoming connections, and network adresses of outgoing
  * connections (next Nix in the cascade or proxies).
  */
 public final class NextMixProxyPanel extends MixConfigPanel implements TableModelListener, ActionListener,
-	ChangeListener
+	ChangeListener, ComponentListener
 {
 	/** A <CODE>CertPanel</CODE> for the next Mix's certificate. */
 	private CertPanel m_nextCert;
@@ -90,7 +91,7 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 	public NextMixProxyPanel()
 	{
 		super("Next Mix/Proxy");
-
+		this.addComponentListener(this);
 		GridBagLayout Out_Layout = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
@@ -539,5 +540,31 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 			column.setPreferredWidth(columnSizes2[Index]);
 		}
 
+	}
+
+	public void componentResized(ComponentEvent e)
+	{
+	}
+
+	public void componentMoved(ComponentEvent e)
+	{
+	}
+
+	public void componentShown(ComponentEvent e)
+	{
+		MixConfiguration m = getConfiguration();
+		if (m.isMixOnCDEnabled() && m.getMixType() == m.MIXTYPE_LAST)
+		{
+			if (table2.getRowCount() == 0)
+			{
+				ConnectionData c = new ConnectionData("Proxy", ConnectionData.RAW_TCP, "localhost");
+				c.setPort(8080);
+				omodel.addData(c);
+			}
+		}
+	}
+
+	public void componentHidden(ComponentEvent e)
+	{
 	}
 }
