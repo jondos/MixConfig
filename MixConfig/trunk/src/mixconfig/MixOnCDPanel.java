@@ -40,8 +40,10 @@ import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
+import java.security.NoSuchAlgorithmException;
 
-import anon.crypto.UnixCrypt;
+import anon.crypto.MD5Crypt;
+import anon.crypto.DESCrypt;
 import mixconfig.networkpanel.IPTextField;
 import gui.JAPHelp;
 import java.awt.Graphics;
@@ -58,6 +60,8 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 	public static final String XMLATTRIBUTE_DHCP = "dhcp";
 	public static final String XMLVALUE_NETWORKINTERFACE = "NetworkInterface";
 
+	private static final int VISIBLE_PASSWORD_LENGTH = 15;
+
 	private JCheckBox m_cbxMixOnCD;
 	private JCheckBox m_cbDHCP;
 	private JTextField m_txtHostname;
@@ -73,7 +77,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 	private JLabel[] m_lblsPW;
 	private JButton[] m_btnsRemovePW;
 	private JPasswordField[] m_pwds;
-	private JLabel[] m_pwdsLabels;
+	private JTextField[] m_txtHashedPasswords;
 
 	private TitledGridBagPanel m_panelLocalNetworkSettings;
 	private TitledGridBagPanel m_panelPasswords;
@@ -175,18 +179,20 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		m_lblsPW = new JLabel[m_users.length];
 		m_btnsRemovePW = new JButton[m_users.length];
 		m_passwordHashes = new String[m_users.length];
-		m_pwdsLabels = new JLabel[m_users.length];
+		m_txtHashedPasswords = new JTextField[m_users.length];
 		for (int i = 0; i < m_users.length; i++)
 		{
-			m_pwdsLabels[i] = new JLabel(); // dummy label
+			m_txtHashedPasswords[i] = new JTextField(VISIBLE_PASSWORD_LENGTH); // dummy label
+			m_txtHashedPasswords[i].setEditable(false);
 
-			m_pwds[i] = new JPasswordField(15);
+			m_pwds[i] = new JPasswordField(VISIBLE_PASSWORD_LENGTH);
 
 			m_pwds[i].setName(XMLPATH_MIXONCD_LOGIN_PASSWORD + "/" + m_users[i]);
 			m_pwds[i].addFocusListener(this);
 
 			m_btnsRemovePW[i] = new JButton("Clear");
 			m_btnsRemovePW[i].addActionListener(this);
+			m_btnsRemovePW[i].addFocusListener(this);
 			m_lblsPW[i] = new JLabel(m_users[i]);
 			m_panelPasswords.addRow(m_lblsPW[i], m_btnsRemovePW[i], m_pwds[i]);
 		}
@@ -394,6 +400,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 				m_passwordHashes[i] = null;
 				savePasswords();
 				loadPasswords();
+				m_pwds[i].requestFocusInWindow();
 			}
 		}
 
@@ -401,7 +408,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		{
 			MixConfig.info("MixOnCD download hint",
 						   "You will have to download the MixOnCD iso-image " +
-						   "from http://anon.inf.tu-dresden.de " +
+						   "from http://anon.inf.tu-dresden.de/develop/MixOnCD.iso " +
 						   "to create a bootable mix CD.");
 		}
 	}
@@ -414,6 +421,21 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 	{
 		super.paint(g);
 		JAPHelp.getInstance().getContextObj().setContext("livecd");
+	}
+
+	public void focusGained(FocusEvent a_event)
+	{
+		for (int index = 0; index < m_btnsRemovePW.length; index++)
+		{
+			if (a_event.getSource() == m_btnsRemovePW[index])
+			{
+				if (!m_btnsRemovePW[index].isEnabled())
+				{
+					m_btnsRemovePW[index].transferFocus();
+				}
+			}
+		}
+		super.focusGained(a_event);
 	}
 
 	public void focusLost(FocusEvent a_event)
@@ -430,7 +452,14 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 				}
 				else
 				{
-					m_passwordHashes[i] = UnixCrypt.crypt(new String(password));
+					try
+					{
+						m_passwordHashes[i] = new MD5Crypt().crypt(new String(password));
+					}
+					catch (NoSuchAlgorithmException a_e)
+					{
+						m_passwordHashes[i] = new DESCrypt().crypt(new String(password));
+					}
 				}
 
 				savePasswords();
@@ -539,8 +568,8 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 				m_pwds[i].setVisible(true);
 				m_pwds[i].setEnabled(true);
 				m_pwds[i].invalidate();
-				m_pwdsLabels[i].setVisible(false);
-				m_pwdsLabels[i].invalidate();
+				m_txtHashedPasswords[i].setVisible(false);
+				m_txtHashedPasswords[i].invalidate();
 				m_panelPasswords.replaceRow(m_lblsPW[i],  m_btnsRemovePW[i], m_pwds[i], i);
 
 			}
@@ -551,9 +580,12 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 				m_btnsRemovePW[i].invalidate();
 				m_pwds[i].setVisible(false);
 				m_pwds[i].invalidate();
-				m_pwdsLabels[i] = new JLabel(password[0]);
-				m_pwdsLabels[i].invalidate();
-				m_panelPasswords.replaceRow(m_lblsPW[i], m_btnsRemovePW[i], m_pwdsLabels[i], i);
+				m_txtHashedPasswords[i] = new JTextField(password[0], VISIBLE_PASSWORD_LENGTH);
+				m_txtHashedPasswords[i].setEditable(false);
+				m_txtHashedPasswords[i].setCaretPosition(0);
+
+				m_txtHashedPasswords[i].invalidate();
+				m_panelPasswords.replaceRow(m_lblsPW[i], m_btnsRemovePW[i], m_txtHashedPasswords[i], i);
 			}
 			m_panelPasswords.revalidate();
 		}

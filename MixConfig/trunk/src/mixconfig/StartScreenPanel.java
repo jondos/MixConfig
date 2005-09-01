@@ -75,6 +75,7 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		start_text.setEnabled(false);
 		start_text.setEditable(false);
 		start_text.setText("\n" + START_TXT);
+		start_text.setDisabledTextColor(start_text.getCaretColor());
 		itemPanel.add(start_text, BorderLayout.NORTH);
 
 		JButton b_new = new JButton(BLABEL_NEW);

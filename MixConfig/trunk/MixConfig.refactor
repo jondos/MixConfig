@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refactor PUBLIC "-//Borland Software Corporation//Refactor 1.0//EN" "http://www.borland.com/devsupport/jbuilder/dtds/refactor_1_0.dtd">
+<refactor>
+  <rename-class id="6AP065TDV2DED2LS5ULFK8Z" creation-time="Thu Sep 01 12:21:52.508 CEST 2005">
+    <old-class-name>anon.crypto.JCrypt</old-class-name>
+    <new-class-name>anon.crypto.DESCrypt</new-class-name>
+  </rename-class>
+</refactor>
