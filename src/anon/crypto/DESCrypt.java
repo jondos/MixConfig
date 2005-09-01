@@ -1,56 +1,48 @@
-/**
- * This class provides us with the ability to encrypt passwords when sent
- * over the network stream
- *
- * <P>Contains static methods to encrypt and compare
- * passwords with Unix encrypted passwords.</P>
- *
- * <P>See <A HREF="http://www.zeh.com/local/jfd/crypt.html">
- * John Dumas's Java Crypt page</A> for the original source.</P>
- *
- * @author jdumas@zgs.com (John Dumas)
- */
 package anon.crypto;
 
+/****************************************************************************
+ * DESCrypt.java
+ *
+ * Java-based implementation of the unix crypt command
+ *
+ * Based upon C source code written by Eric Young, eay@psych.uq.oz.au
+ *
+ * from http://locutus.kingwoodcable.com/jfd/crypt.html
+ *
+ ****************************************************************************/
 
-public class UnixCrypt extends Object
+public class DESCrypt implements ICrypt
 {
-  //
-  // Null constructor - can't instantiate class
-  private UnixCrypt()
-  {
-  }
+   private static final int ITERATIONS = 16;
 
-  private static final char[] saltChars =
-  ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./".toCharArray());
+   private static final char[] saltChars =
+	   ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./".toCharArray());
 
-  private static final int ITERATIONS = 16;
+   private static final int con_salt[] =
+   {
+	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+	  0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+	  0x0A, 0x0B, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A,
+	  0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12,
+	  0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A,
+	  0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22,
+	  0x23, 0x24, 0x25, 0x20, 0x21, 0x22, 0x23, 0x24,
+	  0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C,
+	  0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x33, 0x34,
+	  0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C,
+	  0x3D, 0x3E, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00,
+   };
 
-  private static final int con_salt[] =
-  {
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
-	0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
-	0x0A, 0x0B, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A,
-	0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12,
-	0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A,
-	0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22,
-	0x23, 0x24, 0x25, 0x20, 0x21, 0x22, 0x23, 0x24,
-	0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C,
-	0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x33, 0x34,
-	0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C,
-	0x3D, 0x3E, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00,
-  };
-
-  private static final boolean shifts2[] =
-  {
-	false, false, true, true, true, true, true, true,
-	false, true,  true, true, true, true, true, false
-  };
+   private static final boolean shifts2[] =
+   {
+	  false, false, true, true, true, true, true, true,
+	  false, true,  true, true, true, true, true, false
+   };
 
    private static final int skb[][] =
    {
@@ -568,17 +560,32 @@ public class UnixCrypt extends Object
 	  return(out);
    }
 
-  /**
-   * <P>Encrypt a password given the cleartext password and a "salt".</P>
-   * @param salt A two-character string representing the salt used to
-   * iterate the encryption engine in lots of different ways. If you
-   * are generating a new encryption then this value should be
-   * randomised.
-   * @param original The password to be encrypted.
-   * @return A string consisting of the 2-character salt followed by the
-   * encrypted password.
-   */
-   public static final String crypt(String salt, String original)
+
+   /**
+	* <P>Encrypt a password given the cleartext password. This method
+	* generates a random salt using the 'java.security.SecureRandom' class.</P>
+	* @param original The password to be encrypted.
+	* @return A string consisting of the 2-character salt followed by the
+	* encrypted password.
+	* <P>See <A HREF="http://www.zeh.com/local/jfd/crypt.html">
+	* John Dumas's Java Crypt page</A> for the original source.</P>
+	*
+	* @author jdumas@zgs.com (John Dumas)
+	*/
+   public final String crypt(String original)
+   {
+	   java.util.Random randomGenerator = new java.security.SecureRandom();
+	   int numSaltChars = saltChars.length;
+	   String salt;
+
+	   salt = (new StringBuffer()).append(saltChars[Math.abs(randomGenerator.nextInt()) % numSaltChars]).
+		   append(saltChars[Math.abs(randomGenerator.nextInt()) % numSaltChars]).toString();
+
+	   return crypt(original, salt);
+   }
+
+
+   public final String crypt(String original, String salt)
    {
 	  while(salt.length() < 2)
 		 salt += "A";
@@ -636,40 +643,5 @@ public class UnixCrypt extends Object
 	  }
 	  return(buffer.toString());
    }
-
-  /**
-   * <P>Encrypt a password given the cleartext password. This method
-   * generates a random salt using the 'java.security.SecureRandom' class.</P>
-   * @param original The password to be encrypted.
-   * @return A string consisting of the 2-character salt followed by the
-   * encrypted password.
-   */
-  public static final String crypt(String original)
-  {
-	java.util.Random randomGenerator = new java.security.SecureRandom();
-	int numSaltChars = saltChars.length;
-	String salt;
-
-	salt = (new StringBuffer()).append(saltChars[Math.abs(randomGenerator.nextInt()) % numSaltChars]).append(saltChars[Math.abs(randomGenerator.nextInt()) % numSaltChars]).toString();
-
-	return crypt(salt, original);
-  }
-
-  /**
-   * <P>Check that <I>enteredPassword</I> encrypts to
-   * <I>encryptedPassword</I>.</P>
-   * @param encryptedPassword The <I>encryptedPassword</I>. The first
-   * two characters are assumed to be the salt. This string would
-   * be the same as one found in a Unix <U>/etc/passwd</U> file.
-   * @param enteredPassword The password as entered by the user (or
-   * otherwise aquired).
-   * @return <B>true</B> if the password should be considered correct.
-   */
-  public final static boolean matches(String encryptedPassword, String enteredPassword)
-  {
-	String salt = encryptedPassword.substring(0, 3);
-	String newCrypt = crypt(salt, enteredPassword);
-
-	return newCrypt.equals(encryptedPassword);
-  }
 }
+
