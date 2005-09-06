@@ -559,6 +559,7 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 			{
 				ConnectionData c = new ConnectionData("Proxy", ConnectionData.RAW_TCP, "localhost");
 				c.setPort(8080);
+				c.setFlags(ConnectionData.HTTP_PROXY);
 				omodel.addData(c);
 			}
 		}
