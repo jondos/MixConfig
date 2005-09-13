@@ -400,7 +400,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 				m_passwordHashes[i] = null;
 				savePasswords();
 				loadPasswords();
-				m_pwds[i].requestFocusInWindow();
+				m_pwds[i].requestFocus();
 			}
 		}
 
