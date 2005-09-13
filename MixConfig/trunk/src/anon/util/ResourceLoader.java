@@ -68,7 +68,7 @@ public final class ResourceLoader
 	private static Vector ms_classpathResourceTypes;
 	/// stores the parent directory of jar file that holds this class for caching purposes
 	private static File ms_parentResourceFile =
-		new File(ClassUtil.getClassDirectory(ClassUtil.getClassStatic()).getAbsolutePath());
+		new File(ClassUtil.getClassDirectory(ResourceLoader.class).getAbsolutePath());
 	private static String ms_parentResourceFileResourceURL;
 	private static String ms_parentResourceFileResourceType;
 	/// the class path at the last state it was read
