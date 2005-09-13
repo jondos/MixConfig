@@ -66,13 +66,28 @@ public final class ResourceLoader
 	private static Vector ms_classpathResourceURLs = new Vector();
 	/// the resource types: either SYSTEM_RESOURCE_TYPE_ZIP or SYSTEM_RESOURCE_TYPE_FILE
 	private static Vector ms_classpathResourceTypes;
-	/// stores the parent directory of jar file that holds this class for caching purposes
-	private static File ms_parentResourceFile =
-		new File(ClassUtil.getClassDirectory(ResourceLoader.class).getAbsolutePath());
+	/// stores the parent directory of the jar file that holds this class for caching purposes
+	private static File ms_parentResourceFile;
 	private static String ms_parentResourceFileResourceURL;
 	private static String ms_parentResourceFileResourceType;
 	/// the class path at the last state it was read
 	private static String ms_classpath;
+
+	/// static initialisation
+	{
+		try
+		{
+			ms_parentResourceFile =
+				new File(ClassUtil.getClassDirectory(ResourceLoader.class).getAbsolutePath());
+		}
+		catch (Exception a_e)
+		{
+			/**
+			 * @todo for some unknown reason, this fails when used as an applet; try to solve this later...
+			 */
+			ms_parentResourceFile = null;
+		}
+	}
 
 	private ResourceLoader()
 	{
@@ -94,7 +109,7 @@ public final class ResourceLoader
 
 		data = new byte[0];
 		// if readDataLength >= 0 there are more bytes available to read
-		while(readDataLength >= 0)
+		while (readDataLength >= 0)
 		{
 			// initialize the buffer
 			if (a_iStream.available() > 0)
@@ -130,7 +145,7 @@ public final class ResourceLoader
 		File localFile;
 		URL resourceURL = null;
 
-		if ((a_strRelativeResourcePath = formatResourcePath(a_strRelativeResourcePath)) == null ||
+		if ( (a_strRelativeResourcePath = formatResourcePath(a_strRelativeResourcePath)) == null ||
 			a_strRelativeResourcePath.endsWith("/"))
 		{
 			return null;
@@ -155,7 +170,8 @@ public final class ResourceLoader
 			}
 		}
 
-		if (resourceURL == null && !readFilesFromClasspath().contains(ms_parentResourceFile))
+		if (resourceURL == null && ms_parentResourceFile != null &&
+			!readFilesFromClasspath().contains(ms_parentResourceFile))
 		{
 			/**
 			 * The parent resource file is not contained in the class path.
@@ -179,15 +195,15 @@ public final class ResourceLoader
 		 * classpath. It may be used if class.getResource(..) does not work properly.
 		 * Please do not remove as this could be important for testing purposes.
 
-		if (resourceURL == null)
-		{
-			// classPathFiles and classPathResources must be synchronized!
-			synchronized (ms_classpathResourceURLs)
-			{
-				resourceURL = getResourceURL(a_strRelativeResourcePath, readFilesFromClasspath(),
-											 ms_classpathResourceURLs, ms_classpathResourceTypes);
-			}
-		}*/
+		   if (resourceURL == null)
+		   {
+		 // classPathFiles and classPathResources must be synchronized!
+		 synchronized (ms_classpathResourceURLs)
+		 {
+		  resourceURL = getResourceURL(a_strRelativeResourcePath, readFilesFromClasspath(),
+				  ms_classpathResourceURLs, ms_classpathResourceTypes);
+		 }
+		   }*/
 
 		return resourceURL;
 	}
@@ -205,7 +221,7 @@ public final class ResourceLoader
 	{
 		InputStream in;
 
-		if ((a_strRelativeResourcePath = formatResourcePath(a_strRelativeResourcePath)) == null ||
+		if ( (a_strRelativeResourcePath = formatResourcePath(a_strRelativeResourcePath)) == null ||
 			a_strRelativeResourcePath.endsWith("/"))
 		{
 			return null;
@@ -216,7 +232,8 @@ public final class ResourceLoader
 
 		try
 		{
-			if (in == null && !readFilesFromClasspath().contains(ms_parentResourceFile))
+			if (in == null && ms_parentResourceFile != null
+				&& !readFilesFromClasspath().contains(ms_parentResourceFile))
 			{
 				/**
 				 * The parent resource file is not contained in the class path. Try to load the
@@ -305,7 +322,7 @@ public final class ResourceLoader
 
 		while (classPathFiles.hasMoreElements())
 		{
-			loadResources(a_strResourceSearchPath, (File)classPathFiles.nextElement(),
+			loadResources(a_strResourceSearchPath, (File) classPathFiles.nextElement(),
 						  a_instantiator, a_bRecursive, false, resources);
 		}
 		loadResources(a_strResourceSearchPath, new File(System.getProperty("user.dir")),
@@ -426,17 +443,17 @@ public final class ResourceLoader
 		if (a_systemResource.toUpperCase().startsWith(SYSTEM_RESOURCE_TYPE_ZIP))
 		{
 			a_systemResource = a_systemResource.substring(
-				 SYSTEM_RESOURCE_TYPE_ZIP.length(), a_systemResource.length());
+				SYSTEM_RESOURCE_TYPE_ZIP.length(), a_systemResource.length());
 		}
 		else if (a_systemResource.toUpperCase().startsWith(SYSTEM_RESOURCE_TYPE_JAR))
 		{
 			a_systemResource = a_systemResource.substring(
-				 SYSTEM_RESOURCE_TYPE_JAR.length(), a_systemResource.length());
+				SYSTEM_RESOURCE_TYPE_JAR.length(), a_systemResource.length());
 		}
 		else if (a_systemResource.toUpperCase().startsWith(SYSTEM_RESOURCE_TYPE_FILE))
 		{
 			a_systemResource = a_systemResource.substring(
-				 SYSTEM_RESOURCE_TYPE_FILE.length(), a_systemResource.length());
+				SYSTEM_RESOURCE_TYPE_FILE.length(), a_systemResource.length());
 		}
 
 		// now find the end of the [id] string and extract the [id]
@@ -446,10 +463,10 @@ public final class ResourceLoader
 			a_systemResource = a_systemResource.substring(0, endIndex);
 		}
 
-	   // try to interpret the [id] as an integer number
+		// try to interpret the [id] as an integer number
 		try
 		{
-			return (File)readFilesFromClasspath().elementAt(Integer.parseInt(a_systemResource));
+			return (File) readFilesFromClasspath().elementAt(Integer.parseInt(a_systemResource));
 		}
 		catch (Exception a_e)
 		{
@@ -486,7 +503,7 @@ public final class ResourceLoader
 	{
 		Enumeration entries;
 
-		if ((a_strResourceSearchPath = formatResourcePath(a_strResourceSearchPath)) == null ||
+		if ( (a_strResourceSearchPath = formatResourcePath(a_strResourceSearchPath)) == null ||
 			a_loadedResources == null || a_Directory == null || a_instantiator == null ||
 			!a_Directory.exists() || !a_Directory.canRead())
 		{
@@ -513,7 +530,7 @@ public final class ResourceLoader
 				zipentry = zipfile.getEntry(a_strResourceSearchPath);
 				if (zipentry == null)
 				{
-					throw new IOException ("Requested entry not found.");
+					throw new IOException("Requested entry not found.");
 				}
 				// we have found the requested entry
 				Vector temp = new Vector();
@@ -599,13 +616,13 @@ public final class ResourceLoader
 											  ResourceInstantiator a_instantiator,
 											  Hashtable a_loadedResources,
 											  boolean a_bRecursive,
-											  boolean a_bStopAtFirstResource)
-		throws ResourceInstantiator.ResourceInstantiationException
+											  boolean a_bStopAtFirstResource) throws ResourceInstantiator.
+		ResourceInstantiationException
 	{
 		String[] filesArray;
 		String strCurrentResourcePath;
 
-		if ((!a_strResourceSearchPath.endsWith("/") || a_bStopAtFirstResource)
+		if ( (!a_strResourceSearchPath.endsWith("/") || a_bStopAtFirstResource)
 			&& a_loadedResources.size() > 0)
 		{
 			// the requested resource has already been found
@@ -629,7 +646,7 @@ public final class ResourceLoader
 			}
 
 			if (a_file.isFile() && isResourceInSearchPath(
-				 strCurrentResourcePath, a_strResourceSearchPath, a_bRecursive))
+				strCurrentResourcePath, a_strResourceSearchPath, a_bRecursive))
 			{
 				Object object = null;
 
@@ -663,7 +680,8 @@ public final class ResourceLoader
 				}
 			}
 			else if (a_file.isDirectory() && isResourceInSearchPath(
-			 strCurrentResourcePath, a_strResourceSearchPath, a_bRecursive)) {
+				strCurrentResourcePath, a_strResourceSearchPath, a_bRecursive))
+			{
 
 				filesArray = a_file.list();
 				for (int i = 0; i < filesArray.length; i++)
@@ -676,10 +694,10 @@ public final class ResourceLoader
 					}
 
 					loadResourcesFromFile(
-					   a_strResourceSearchPath,
-					   new File(a_file.getAbsolutePath() + separatorChar + filesArray[i]),
-					   a_topDirectory, a_instantiator, a_loadedResources, a_bRecursive,
-					   a_bStopAtFirstResource);
+						a_strResourceSearchPath,
+						new File(a_file.getAbsolutePath() + separatorChar + filesArray[i]),
+						a_topDirectory, a_instantiator, a_loadedResources, a_bRecursive,
+						a_bStopAtFirstResource);
 				}
 			}
 		}
@@ -821,7 +839,7 @@ public final class ResourceLoader
 	private static String getCurrentResourcePath(File a_currentFile, File a_topDirectory)
 	{
 
-		if(	a_currentFile.toString().equals(a_topDirectory.toString()))
+		if (a_currentFile.toString().equals(a_topDirectory.toString()))
 		{
 			return "/";
 		}
@@ -836,8 +854,8 @@ public final class ResourceLoader
 		}
 
 		strCurrentFile = a_currentFile.toString().substring(
-				  a_topDirectory.toString().length() + separator, a_currentFile.toString().length());
-		strCurrentFile = strCurrentFile.replace('\\','/');
+			a_topDirectory.toString().length() + separator, a_currentFile.toString().length());
+		strCurrentFile = strCurrentFile.replace('\\', '/');
 
 		if (a_currentFile.isDirectory() && !strCurrentFile.endsWith("/"))
 		{
@@ -908,7 +926,7 @@ public final class ResourceLoader
 					return true;
 				}
 				if (a_strCurrentResourcePath.substring(
-								a_strResourceSearchPath.length()).indexOf("/") < 0)
+					a_strResourceSearchPath.length()).indexOf("/") < 0)
 				{
 					return true;
 				}
@@ -951,7 +969,7 @@ public final class ResourceLoader
 		}
 
 		// interpret all "/../" as going up the tree
-		while ((index = a_strRelativeResourcePath.indexOf("/" + DIR_UP)) >= 0)
+		while ( (index = a_strRelativeResourcePath.indexOf("/" + DIR_UP)) >= 0)
 		{
 			if (a_strRelativeResourcePath.startsWith(DIR_UP))
 			{
@@ -960,7 +978,7 @@ public final class ResourceLoader
 			}
 
 			temp = a_strRelativeResourcePath.substring(0, index);
-			if ((tempIndex = temp.lastIndexOf("/")) >= 0)
+			if ( (tempIndex = temp.lastIndexOf("/")) >= 0)
 			{
 				temp = temp.substring(0, tempIndex + 1);
 			}
@@ -979,7 +997,7 @@ public final class ResourceLoader
 					break;
 				}
 				a_strRelativeResourcePath = a_strRelativeResourcePath.substring(
-								1, a_strRelativeResourcePath.length());
+					1, a_strRelativeResourcePath.length());
 			}
 		}
 		if (a_strRelativeResourcePath.startsWith(DIR_UP))
@@ -988,27 +1006,27 @@ public final class ResourceLoader
 		}
 
 		/*
-		while ((index = a_strRelativeResourcePath.lastIndexOf(DIR_CURRENT)) >= 0)
-		{
+		   while ((index = a_strRelativeResourcePath.lastIndexOf(DIR_CURRENT)) >= 0)
+		   {
 
-			if (a_strRelativeResourcePath.equals(DIR_CURRENT))
-			{
-				a_strRelativeResourcePath = "";
-			}
-			else if (index == 0)
-			{
-				a_strRelativeResourcePath =
-					a_strRelativeResourcePath.substring(index + DIR_CURRENT.length(),
-					a_strRelativeResourcePath.length());
-			}
-			else if (a_strRelativeResourcePath.charAt(index - 1) == '/')
-			{
-				temp = a_strRelativeResourcePath.substring(0, index) +
-					a_strRelativeResourcePath.substring(index + DIR_CURRENT.length(),
-					a_strRelativeResourcePath.length());
-				a_strRelativeResourcePath = temp;
-			}
-		}*/
+		 if (a_strRelativeResourcePath.equals(DIR_CURRENT))
+		 {
+		  a_strRelativeResourcePath = "";
+		 }
+		 else if (index == 0)
+		 {
+		  a_strRelativeResourcePath =
+		   a_strRelativeResourcePath.substring(index + DIR_CURRENT.length(),
+		   a_strRelativeResourcePath.length());
+		 }
+		 else if (a_strRelativeResourcePath.charAt(index - 1) == '/')
+		 {
+		  temp = a_strRelativeResourcePath.substring(0, index) +
+		   a_strRelativeResourcePath.substring(index + DIR_CURRENT.length(),
+		   a_strRelativeResourcePath.length());
+		  a_strRelativeResourcePath = temp;
+		 }
+		   }*/
 
 		return a_strRelativeResourcePath;
 	}
@@ -1029,7 +1047,7 @@ public final class ResourceLoader
 	{
 		byte[] temp;
 
-		if  (a_maxLength <= 0)
+		if (a_maxLength <= 0)
 		{
 			temp = a_arrayToAppendTo;
 		}
@@ -1078,9 +1096,9 @@ public final class ResourceLoader
 				while (tokenizer.hasMoreTokens())
 				{
 					ms_classpathFiles.addElement(
-					   new File(new File(tokenizer.nextToken()).getAbsolutePath()));
-					ms_classpathResourceURLs.addElement((Class)null);
-					ms_classpathResourceTypes.addElement((String)null);
+						new File(new File(tokenizer.nextToken()).getAbsolutePath()));
+					ms_classpathResourceURLs.addElement( (Class)null);
+					ms_classpathResourceTypes.addElement( (String)null);
 				}
 			}
 		}
@@ -1112,14 +1130,12 @@ public final class ResourceLoader
 	 */
 	private final class ByteArrayInstantiator implements ResourceInstantiator
 	{
-		public Object getInstance(File a_file, File a_topDirectory)
-			throws Exception
+		public Object getInstance(File a_file, File a_topDirectory) throws Exception
 		{
-				return getStreamAsBytes(new FileInputStream(a_file));
+			return getStreamAsBytes(new FileInputStream(a_file));
 		}
 
-		public Object getInstance(ZipEntry a_entry, ZipFile a_file)
-			throws Exception
+		public Object getInstance(ZipEntry a_entry, ZipFile a_file) throws Exception
 		{
 			return getStreamAsBytes(a_file.getInputStream(a_entry));
 		}
