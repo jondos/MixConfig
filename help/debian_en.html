@@ -8,7 +8,7 @@
 <H2>Debian linux setup</H2>
 
 
-Insert the package URL in your sources.list:
+Insert the package URL in your /etc/apt/sources.list:
 <P><I> deb http://anon.inf.tu-dresden.de/develop/deb / </I></P>
 Then call
 
@@ -19,8 +19,8 @@ Then call
 
 
 
-<P>Copy the configuration file created by the mix configuration tool in the directory <I>/etc/mix</I> and start
-   the mix by typing <I>sudo /etc/init.d/mix start</I></P>
+<P>Copy the configuration file(s) created by the mix configuration tool in the directory <I>/etc/mix</I> and start
+   the mix by typing <I>sudo /etc/init.d/mix start</I>. If you deploy more than one configuration file, a separate mix will be started for each of the files. To stop all running mixes, type <I>sudo /etc/init.d/mix stop</I>.</P>
 
 <!--#include virtual="/footer_en.html"-->
 </body>

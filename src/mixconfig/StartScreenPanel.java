@@ -37,6 +37,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import gui.GUIUtils;
 import logging.LogType;
 import mixconfig.wizard.WizardLayout;
 
@@ -70,12 +71,9 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		JPanel itemPanel = new JPanel(new BorderLayout());
 		itemPanel.setBorder(new EtchedBorder());
 
-		JTextPane start_text = new JTextPane();
-		start_text.setBackground(getBackground());
+		JTextPane start_text = GUIUtils.createSelectableAndResizeableLabel(this);
 		start_text.setEnabled(false);
-		start_text.setEditable(false);
 		start_text.setText("\n" + START_TXT);
-		start_text.setDisabledTextColor(start_text.getCaretColor());
 		itemPanel.add(start_text, BorderLayout.NORTH);
 
 		JButton b_new = new JButton(BLABEL_NEW);
