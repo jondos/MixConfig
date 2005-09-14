@@ -1,0 +1,60 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<H2>General Panel</H2>
+
+
+<B>General Settings</B>
+
+<UL>
+  <LI><B>Use bootable MixOnCD to create and install the mix (yes/no)</B><BR>
+                 Prepares the mix configuration for MixOnCD usage. This kind of configuration won't work with a harddisk installation, but you may switch back to "<I>no</I>" whenever you want.
+ </LI>
+  <LI><B>Local Network Settings</B><BR>
+  Tells MixOnCD how to configure the computer's network settings in a way it can access the internet via the local area network (LAN) it is connected to. It is supposed that the LAN already has a running internet connection, for example via DSL router. cable modem or broadband. Please note that WLAN (wireless) access is currently not supported.
+   </LI>
+  <UL>
+    <LI><B>Dynamic IP configuration</B></LI>
+    <UL>
+      <LI><B>Automatically configured by DHCP</B><BR>
+      Tells MixOnCD the get its network settings from a local DHCP server. This is the default configuration and
+      suitable for most networks. If your local network does not require manual configuration this is the right choice for you.
+      If automatic configuration is enabled, most of the other options are not needed and disabled.
+      </LI>
+    </UL>
+    <LI><B>Static IP configuration</B><BR>
+    The following values depend on your router configuration. Read your router manual for further details.
+    </LI>
+    <UL>
+      <LI><B>IP</B><BR>
+      The IP address that your mix should get in your local subnet. Note that this IP might differ from the IP that is visible
+      from outside your subnet.
+      </LI>
+      <LI><B>Subnet mask</B><BR>
+      The subnet mask of your local subnet. Typically 255.255.255.0 for small subnets.
+      </LI>
+      <LI><B>Default gateway</B><BR>
+      The gateway by which you get access to the internet. Typically ends with 1, like 192.168.2.1.
+      </LI>
+      <LI><B>Interface</B><BR>
+      The Unix network interface that should be used to connect to the network.This value is optional, default is <I>eth0</I>. 
+      Possible values are, for example, eth0, eth1, eth2,... 
+      </LI>
+    </UL>
+  </UL>
+</UL>
+
+<B>InfoService</B>
+<P></P>
+
+<B>Listener Interfaces</B>
+
+
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>
