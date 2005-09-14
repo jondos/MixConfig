@@ -63,6 +63,7 @@ import anon.util.IMiscPasswordReader;
 import gui.GUIUtils;
 import gui.PasswordBox;
 import logging.LogType;
+import javax.swing.JTextPane;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -115,8 +116,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/** A text field for the validity end date */
 	/*private JTextField m_textCertValidTo;*/
 
-	private JLabel m_sha1Part1Label;
-	private JLabel m_sha1Part2Label;
+	private JTextPane m_sha1Part1Label;
+	private JTextPane m_sha1Part2Label;
 
 	/** Indicates whether the certificate object is PKCS12 (<CODE>true</CODE>) or X.509 (<CODE>false</CODE>) */
 	private boolean m_certIsPKCS12;
@@ -289,16 +290,14 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		constraints.gridx++;
 		constraints.insets = new Insets(0, 5, 0, 0);
 
-		m_sha1Part1Label = new JLabel();
-		m_sha1Part1Label.setFont(new Font(m_sha1Part1Label.getFont().getName(),
-										  m_sha1Part1Label.getFont().getStyle(), 10));
+		m_sha1Part1Label = GUIUtils.createSelectableAndResizeableLabel(this);
+		m_sha1Part1Label.setFont(new Font(m_sha1Part1Label.getFont().getName(),Font.BOLD, 10));
 		m_sha1Part1Label.setPreferredSize( (new JLabel("00:00:00:00:00:00:00:00:00:00")).getPreferredSize());
 
 		add(m_sha1Part1Label, constraints);
 
-		m_sha1Part2Label = new JLabel();
-		m_sha1Part2Label.setFont(new Font(m_sha1Part2Label.getFont().getName(),
-										  m_sha1Part2Label.getFont().getStyle(), 10));
+		m_sha1Part2Label = GUIUtils.createSelectableAndResizeableLabel(this);
+		m_sha1Part2Label.setFont(new Font(m_sha1Part2Label.getFont().getName(),Font.BOLD, 10));
 		m_sha1Part2Label.setPreferredSize( (new JLabel("00:00:00:00:00:00:00:00:00:00")).getPreferredSize());
 
 		m_sha1Part1Label.setToolTipText("SHA-1 Fingerprint");
