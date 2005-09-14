@@ -49,6 +49,8 @@ import anon.crypto.JAPCertificate;
 import anon.crypto.X509DistinguishedName;
 
 import logging.LogType;
+import gui.JAPHelp;
+import java.awt.Graphics;
 
 /**
  * The PaymentPanel is one page in the MixConfig TabbedPane and allows the user to specify
@@ -410,6 +412,12 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, ICer
 		this.m_chkPaymentEnabled.setSelected(host != null && !host.equals(""));
 		enableComponents();
 		setAutoSaveEnabled(true);
+	}
+
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		JAPHelp.getInstance().getContextObj().setContext("index");
 	}
 
 	public Vector check()
