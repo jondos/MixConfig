@@ -168,7 +168,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 									  m_lblCascadeLength, m_combxCascadeLength,
 									  GridBagConstraints.HORIZONTAL);
 
-		m_panelInfoService = new TitledGridBagPanel("InfoService");
+		m_panelInfoService = new TitledGridBagPanel("Info Service");
 		c.gridy = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		add(m_panelInfoService, c);

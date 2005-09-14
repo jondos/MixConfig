@@ -9,50 +9,58 @@
 
 
 <B>General Settings</B>
-
 <UL>
-  <LI><B>Use bootable MixOnCD to create and install the mix (yes/no)</B><BR>
-                 Prepares the mix configuration for MixOnCD usage. This kind of configuration won't work with a harddisk installation, but you may switch back to "<I>no</I>" whenever you want.
+  <LI><B>Mix type</B><BR>
+       The mix type defines in which place in the cascade your mix will be located. A cascade consists of at least a first and a last mix, but may contain additional middle mixes. <em>If you choose your mix to become a last mix, please be aware of the fact that you are the first one to be contacted by law encforcement in case of misuse done by users of the service</em>. As a last mix you will also have to install a <A href="#">cache proxy</A> if you do not use <A  href="livecd_en.html">MixOnCD</A> where such a proxy is already integrated.
  </LI>
-  <LI><B>Local Network Settings</B><BR>
-  Tells MixOnCD how to configure the computer's network settings in a way it can access the internet via the local area network (LAN) it is connected to. It is supposed that the LAN already has a running internet connection, for example via DSL router. cable modem or broadband. Please note that WLAN (wireless) access is currently not supported.
+  <LI><B>Mix configuration</B><BR>
+      You may choose between two configuration types: static and dynamic. In a <em>static</em> configuration, you have to send your certificates and IP address to and receive the same information from your neighbour mixes before you can start your mix. If you choose <em>dynamic</em>, this information is automatically transfered by the Info Service network to each mix in the cascade and you have very little communication effort. The disadvantage of this concept is, that, except for a last mix, you also have very little influence which cascade your mix is assigned to (only minimum length of cascade and position in the cascade).
+      <em>Please note that this is an experimental feature that won't work in most cases!</em>
    </LI>
-  <UL>
-    <LI><B>Dynamic IP configuration</B></LI>
-    <UL>
-      <LI><B>Automatically configured by DHCP</B><BR>
-      Tells MixOnCD the get its network settings from a local DHCP server. This is the default configuration and
-      suitable for most networks. If your local network does not require manual configuration this is the right choice for you.
-      If automatic configuration is enabled, most of the other options are not needed and disabled.
-      </LI>
-    </UL>
-    <LI><B>Static IP configuration</B><BR>
-    The following values depend on your router configuration. Read your router manual for further details.
-    </LI>
-    <UL>
-      <LI><B>IP</B><BR>
-      The IP address that your mix should get in your local subnet. Note that this IP might differ from the IP that is visible
-      from outside your subnet.
-      </LI>
-      <LI><B>Subnet mask</B><BR>
-      The subnet mask of your local subnet. Typically 255.255.255.0 for small subnets.
-      </LI>
-      <LI><B>Default gateway</B><BR>
-      The gateway by which you get access to the internet. Typically ends with 1, like 192.168.2.1.
-      </LI>
-      <LI><B>Interface</B><BR>
-      The Unix network interface that should be used to connect to the network.This value is optional, default is <I>eth0</I>. 
-      Possible values are, for example, eth0, eth1, eth2,... 
-      </LI>
-    </UL>
-  </UL>
+  <LI><B>Allow dynamic fallback</B><BR>
+      This is only available in static configurations and allows for a temporary dynamic configuration if one or more mixes in the statically defined cascade are not available for some time.
+      <em>Please note that this is an experimental feature that won't work in most cases!</em>
+  </LI>
+  <LI><B>Mix name</B><BR>
+      Please give your mix a human-readable name.
+  </LI>
+  <LI><B>Cascade name</B><BR>
+      Dependend on the type of configuration, the first or the last mix has to define a human-readable name of the whole cascade.
+  </LI>
+ <LI><B>Minimum cascade length</B><BR>
+      In case of a dynamic configuration, this option defines the minimum length of the cascade the mix may be assigned to.
+      <em>Please note that this is an experimental feature that won't work in most cases!</em>
+  </LI>
 </UL>
 
-<B>InfoService</B>
-<P></P>
+<B>Info Service</B>
+<P>These fields contain the connection information that is needed to reach an InfoSerivce. The Info Service is not important to set up the cascade, but it tells the JAP users that this cascade exists and gives them additional information about it (length, number of users, mix organisations, mix locations). If no Info Service reachable, it is not possible to use a dynamic mix configuration as the needed information cannot be sent or received to/from the mixes.</P>
+<UL>
+  <LI><B>Host name</B><BR>
+      Either an IP address or a DNS name.
+  </LI>
+ <LI><B>Port</B><BR>
+      The port on which the Info Service is reachable.
+  </LI>
+</UL>
 
 <B>Listener Interfaces</B>
-
+<P>The listener interfaces are needed to tell the mix on which ports it should listen to connection requests from JAP users or a previous mix. For each listener interface you may specify the transport protocol, host name, port and visibility. You may specify as many listeners as you want.</P>
+<UL>
+  <LI><B>Transport protocol</B><BR>
+      In almost all cases, TCP + RAW should do the thing. If you really need to use the UNIX domain sockets, you should know what you are doing...
+  </LI>
+ <LI><B>Host name</B><BR>
+      If you have chosen to use <A  href="livecd_en.html">MixOnCD</A>, you won't need to insert anything here. Otherwise, you must enter the IP address of your mix.
+  </LI>
+  <LI><B>Port</B><BR>
+      The port on which your mix is listening. We suggest you to create listeners on the ports 80, 443 and 6544. Please note that in UNIX/Linux systems, you must start the mix as <I>root</I> user to bind it to ports lower that 1024.
+ </LI>
+  <LI><B>Visibility</B><BR>
+                 If your mix is not connected directly to the internet but is behind a router in a local area network (LAN), the internal IP address of the LAN differs from the external IP address your mix is visible from the internet. In this case, you will have to specify two listener interfaces for each port you are listening to: one virtual interface, that contains the host name visible from the internet, and one hidden interface, that contains the internal host name. The virtual host name will be transfered to the JAP users by the Info Service.<BR>
+                 If your mix is behind a NAT gateway, you may also need to define port forwarding for the mix listener ports on your router. Please consult the router manual for further details.
+            </LI>
+</UL>
 
 
 <!--#include virtual="/footer_en.html"-->
