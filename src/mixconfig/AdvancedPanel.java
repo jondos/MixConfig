@@ -46,6 +46,8 @@ import logging.LogType;
 import java.io.IOException;
 import anon.util.Base64;
 import gui.JAPMessages;
+import gui.JAPHelp;
+import java.awt.Graphics;
 
 /**
  * The panel for advanced settings
@@ -247,6 +249,12 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 		}
 
 		super.itemStateChanged(a_event);
+	}
+
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		JAPHelp.getInstance().getContextObj().setContext("index");
 	}
 
 	/**

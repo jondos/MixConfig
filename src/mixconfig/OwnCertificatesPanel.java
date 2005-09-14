@@ -42,6 +42,8 @@ import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import logging.LogType;
+import gui.JAPHelp;
+import java.awt.Graphics;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener,
 	ChangeListener
@@ -221,6 +223,13 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			MixConfig.handleError(e, null, LogType.GUI);
 		}
 	}
+
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		JAPHelp.getInstance().getContextObj().setContext("index");
+	}
+
 
 	public Vector check()
 	{

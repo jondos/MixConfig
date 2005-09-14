@@ -42,6 +42,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import logging.LogType;
 import java.io.IOException;
+import gui.JAPHelp;
+import java.awt.Graphics;
 
 /** This panel displays information about the previous mix if the current mix is
  * a middle or last mix.
@@ -254,6 +256,12 @@ public class PreviousMixPanel extends MixConfigPanel implements ChangeListener
 		}
 
 		return errors;
+	}
+
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		JAPHelp.getInstance().getContextObj().setContext("index");
 	}
 
 	protected void enableComponents()

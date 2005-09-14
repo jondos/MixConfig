@@ -70,6 +70,8 @@ import anon.crypto.JAPCertificate;
 import logging.LogType;
 import java.awt.event.ComponentListener;
 import java.awt.event.ComponentEvent;
+import gui.JAPHelp;
+import java.awt.Graphics;
 
 /** A panel that provides settings for configuring the Mix's network access:<br>
  * Listeners for incoming connections, and network adresses of outgoing
@@ -411,6 +413,13 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 		}
 
 		return errors;
+	}
+
+
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		JAPHelp.getInstance().getContextObj().setContext("index");
 	}
 
 	protected void enableComponents()

@@ -67,12 +67,12 @@ import mixconfig.networkpanel.IncomingDialog;
 public class GeneralPanel extends MixConfigPanel implements ActionListener, TableModelListener,
 	ChangeListener
 {
-	private static final String FIRST_MIX = "First mix";
-	private static final String MIDDLE_MIX = "Middle mix";
-	private static final String LAST_MIX = "Last mix";
+	private static final String FIRST_MIX = JAPMessages.getString("first_mix");
+	private static final String MIDDLE_MIX = JAPMessages.getString("middle_mix");
+	private static final String LAST_MIX = JAPMessages.getString("last_mix");
 
-	private static final String CONFIGURATION_STATIC = "Static (fixed neighbour mixes)";
-	private static final String CONFIGURATION_DYNAMIC = "Dynamic (configured by InfoService)";
+	private static final String CONFIGURATION_STATIC = JAPMessages.getString("configuration_static");
+	private static final String CONFIGURATION_DYNAMIC = JAPMessages.getString("configuration_dynamic");
 
 	public static final String XMLPATH_AUTOCONFIGURATION =
 		"Network/InfoService/AllowAutoConfiguration";
@@ -125,8 +125,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_combxConfiguration.addItem(CONFIGURATION_STATIC);
 		m_combxConfiguration.addItem(CONFIGURATION_DYNAMIC);
 		m_combxConfiguration.addItemListener(this);
+		m_combxConfiguration.setToolTipText(JAPMessages.getString("experimental_feature"));
 
-		m_cbxDynamicFallback = new JCheckBox("Allow dynamic fallback");
+		m_cbxDynamicFallback = new JCheckBox(JAPMessages.getString("allow_dynamic_fallback"));
+		m_cbxDynamicFallback.setToolTipText(JAPMessages.getString("experimental_feature"));
 		m_cbxDynamicFallback.setName(XMLPATH_AUTOCONFIGURATION + "/" + XML_ATTRIBUTE_FALLBACK );
 		m_cbxDynamicFallback.addItemListener(this);
 
@@ -785,7 +787,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	public void paint(Graphics g)
 	{
 		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("index");
+		JAPHelp.getInstance().getContextObj().setContext("GeneralPanel");
 	}
 
 
