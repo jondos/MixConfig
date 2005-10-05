@@ -27,21 +27,26 @@
  */
 package mixconfig;
 
-import javax.swing.JDialog;
-import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-import anon.crypto.JAPCertificate;
-import org.bouncycastle.asn1.x509.*;
-import org.bouncycastle.asn1.*;
-import java.util.Vector;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import anon.crypto.X509DistinguishedName;
-import gui.GUIUtils;
 import javax.swing.JScrollPane;
-import javax.swing.JButton;
-import java.awt.event.*;
+
+import anon.crypto.IMyPublicKey;
+import anon.crypto.JAPCertificate;
+import anon.crypto.X509DistinguishedName;
+import anon.crypto.X509Extensions;
+import gui.GUIUtils;
+import anon.crypto.X509UnknownExtension;
+import anon.crypto.AbstractX509Extension;
+import org.bouncycastle.asn1.DERString;
+import java.util.Vector;
 
 /** This dialog shows the details of a certificate from the CertPanel.
  * @author Tobias Bayer
@@ -125,6 +130,57 @@ public class CertDetailsDialog extends JDialog
 		root.add(new JLabel("Organisation:"), c);
 		c.gridx++;
 		root.add(new JLabel(dname.getOrganisation()), c);
+
+		//Public  Key
+		IMyPublicKey pkey = a_cert.getPublicKey();
+		c.gridx = 0;
+		c.gridy++;
+		c.insets = new Insets(5, 5, 5, 5);
+		root.add(new JLabel("Public Key"), c);
+		c.insets = new Insets(5, 15, 5, 5);
+
+		c.gridy++;
+		root.add(new JLabel("Algorithm:"), c);
+		c.gridx++;
+		root.add(new JLabel(pkey.getAlgorithm()), c);
+
+		//Extensions
+		c.gridx = 0;
+		c.gridy++;
+		c.insets = new Insets(5, 5, 5, 5);
+		root.add(new JLabel("Extensions"), c);
+		c.insets = new Insets(5, 15, 5, 5);
+
+		//try
+		//{
+			X509Extensions extensions = a_cert.getExtensions();
+
+			for (int i = 0; i < extensions.getSize(); i++)
+			{
+				c.gridx = 0;
+				c.gridy++;
+				AbstractX509Extension extension = extensions.getExtension(i);
+				root.add(new JLabel(extension.getName()), c);
+				Vector v = extension.getValues();
+				c.gridx++;
+				for (int j = 0; j < v.size(); j++)
+				{
+					if (v.elementAt(j) instanceof String)
+					{
+						String extValue = (String) v.elementAt(j);
+						root.add(new JLabel(extValue), c);
+						c.gridy++;
+					}
+				}
+			}
+		//}
+		/*
+		catch (NullPointerException e)
+		{
+			c.gridx = 0;
+			c.gridy++;
+			root.add(new JLabel("No extensions present"), c);
+		}*/
 		c.gridx = 0;
 		c.gridy++;
 		root.add(new JLabel("..."), c);
