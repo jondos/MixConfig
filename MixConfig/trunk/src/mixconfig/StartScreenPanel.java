@@ -40,6 +40,8 @@ import javax.swing.JTextPane;
 import gui.GUIUtils;
 import logging.LogType;
 import mixconfig.wizard.WizardLayout;
+import gui.JAPHelp;
+import java.awt.Graphics;
 
 public class StartScreenPanel  extends WizardLayout implements ActionListener
 {
@@ -126,6 +128,15 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		add(itemPanel, BorderLayout.CENTER);
 	}
 
+	/**
+	 * Registers for the correct help context every time the panel is painted.
+	 * @param g Graphics
+	 */
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		JAPHelp.getInstance().getContextObj().setContext("start");
+	}
 
 	public void actionPerformed(ActionEvent ae)
 	{
