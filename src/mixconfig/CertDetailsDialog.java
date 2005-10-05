@@ -151,36 +151,27 @@ public class CertDetailsDialog extends JDialog
 		root.add(new JLabel("Extensions"), c);
 		c.insets = new Insets(5, 15, 5, 5);
 
-		//try
-		//{
-			X509Extensions extensions = a_cert.getExtensions();
+		X509Extensions extensions = a_cert.getExtensions();
 
-			for (int i = 0; i < extensions.getSize(); i++)
-			{
-				c.gridx = 0;
-				c.gridy++;
-				AbstractX509Extension extension = extensions.getExtension(i);
-				root.add(new JLabel(extension.getName()), c);
-				Vector v = extension.getValues();
-				c.gridx++;
-				for (int j = 0; j < v.size(); j++)
-				{
-					if (v.elementAt(j) instanceof String)
-					{
-						String extValue = (String) v.elementAt(j);
-						root.add(new JLabel(extValue), c);
-						c.gridy++;
-					}
-				}
-			}
-		//}
-		/*
-		catch (NullPointerException e)
+		for (int i = 0; i < extensions.getSize(); i++)
 		{
 			c.gridx = 0;
 			c.gridy++;
-			root.add(new JLabel("No extensions present"), c);
-		}*/
+			AbstractX509Extension extension = extensions.getExtension(i);
+			root.add(new JLabel(extension.getName()), c);
+			Vector v = extension.getValues();
+			c.gridx++;
+			for (int j = 0; j < v.size(); j++)
+			{
+				if (v.elementAt(j) instanceof String)
+				{
+					String extValue = (String) v.elementAt(j);
+					root.add(new JLabel(extValue), c);
+					c.gridy++;
+				}
+			}
+		}
+
 		c.gridx = 0;
 		c.gridy++;
 		root.add(new JLabel("..."), c);
