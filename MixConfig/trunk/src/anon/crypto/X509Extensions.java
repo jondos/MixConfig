@@ -216,9 +216,15 @@ public final class X509Extensions
 	private static Vector createExtensionsFromX509Extensions(
 		   org.bouncycastle.asn1.x509.X509Extensions a_extensions)
 	{
-		DERSequence extensionWrapper = (DERSequence)a_extensions.getDERObject();
 		Vector vecExtensions = new Vector();
-		vecExtensions = new Vector();
+		DERSequence extensionWrapper;
+
+		if (a_extensions == null)
+		{
+			return vecExtensions;
+		}
+		extensionWrapper = (DERSequence)a_extensions.getDERObject();
+
 		for (int i = 0; i < extensionWrapper.size(); i++)
 		{
 			vecExtensions.addElement(
