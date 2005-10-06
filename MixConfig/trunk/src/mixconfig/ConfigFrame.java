@@ -96,6 +96,27 @@ public class ConfigFrame extends JPanel
 		}
 	}
 
+	/** Decision which panel active at the moment
+	*  Necessary if you change from Wizard -> Expert view
+	*/
+
+	protected void setActivePanel(Class a_panelClass)
+	{
+		if (a_panelClass == null)
+		{
+			return;
+		}
+
+		for (int i = 0; i < m_panels.length; i++)
+		{
+			if (m_panels[i].getClass().equals(a_panelClass))
+			{
+				m_tabbedPane.setSelectedComponent(m_panels[i]);
+				return;
+			}
+
+		}
+	}
 
 	/** Clears all data in the panels and restarts with a new configuration object.
 	 * @throws IOException If a communication error occurs

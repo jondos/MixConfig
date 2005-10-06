@@ -55,7 +55,6 @@ import logging.LogLevel;
 import logging.LogType;
 import gui.JAPHelp;
 import gui.GUIUtils;
-import gui.JAPMessages;
 import mixconfig.wizard.ConfigWizard;
 
 public class Menu implements ActionListener
@@ -102,40 +101,40 @@ public class Menu implements ActionListener
 		m_mainWin.setJMenuBar(m_MenuBar);
 
 		//the main menu
-	    m_fileMenu = new JMenu(JAPMessages.getString("menu_file"));
-		m_fileMenu.setMnemonic(JAPMessages.getString("menu_fileMnemonic").charAt(0));
+	    m_fileMenu = new JMenu("File");
+		m_fileMenu.setMnemonic('F');
 		m_MenuBar.add(m_fileMenu);
-		m_toolsMenu = new JMenu(JAPMessages.getString("menu_tools"));
-		m_toolsMenu.setMnemonic(JAPMessages.getString("menu_toolsMnemonic").charAt(0));
+		m_toolsMenu = new JMenu("Tools");
+		m_toolsMenu.setMnemonic('T');
 		m_MenuBar.add(m_toolsMenu);
-		JMenu viewMenu = new JMenu(JAPMessages.getString("menu_view"));
-		viewMenu.setMnemonic(JAPMessages.getString("menu_viewMnemonic").charAt(0));
+		JMenu viewMenu = new JMenu("View");
+		viewMenu.setMnemonic('V');
 		m_MenuBar.add(viewMenu);
-		JMenu helpMenu = new JMenu(JAPMessages.getString("menu_help"));
-		helpMenu.setMnemonic(JAPMessages.getString("menu_helpMnemonic").charAt(0));
+		JMenu helpMenu = new JMenu("Help");
+		helpMenu.setMnemonic('H');
 		m_MenuBar.add(helpMenu);
 
 		//items for "file"
-		m_newMenuItem = new JMenuItem(JAPMessages.getString("menu_new"));
-		JMenuItem exitMenuItem = new JMenuItem(JAPMessages.getString("menu_exit"));
-		m_openMenuItem = new JMenuItem(JAPMessages.getString("menu_open"));
-		m_openclipItem = new JMenuItem(JAPMessages.getString("menu_openClip"));
+		m_newMenuItem = new JMenuItem("New");
+		JMenuItem exitMenuItem = new JMenuItem("Exit");
+		m_openMenuItem = new JMenuItem("Open...");
+		m_openclipItem = new JMenuItem("Open from clipboard");
 
-     	m_checkItem = new JMenuItem(JAPMessages.getString("menu_check"));
+     	m_checkItem = new JMenuItem("Check");
 		m_checkItem.setEnabled(false);
 
 	    m_saveMenuItem = new JMenuItem();
 	    String curFileName = MixConfig.getCurrentFileName();
 		if (curFileName == null)
 		{
-			curFileName = JAPMessages.getString("menu_noFilename");
+			curFileName = "none";
 			m_saveMenuItem.setEnabled(false);
 		}
-		m_saveMenuItem.setText(JAPMessages.getString("menu_save", curFileName));
-		m_saveclipItem = new JMenuItem(JAPMessages.getString("menu_saveClip"));
+		m_saveMenuItem.setText("Save [" + curFileName + "] ");
+		m_saveclipItem = new JMenuItem("Save to clipboard");
 		m_saveclipItem.setEnabled(false);
 
-	    m_saveAsMenuItem = new JMenuItem(JAPMessages.getString("menu_saveAs"));
+	    m_saveAsMenuItem = new JMenuItem("Save as...");
 		m_saveAsMenuItem.setEnabled(false);
 
 		m_newMenuItem.addActionListener(this);
@@ -443,6 +442,7 @@ public class Menu implements ActionListener
 				ChoicePanel cp = (ChoicePanel)m_configFrame_Panel.getParent();
 				cp.setExpertVisible();
 				m_configFrame_Panel.load();
+				m_configFrame_Panel.setActivePanel(m_configWiz_Panel.getCurrentPageClass());
 			}
 
 		}
