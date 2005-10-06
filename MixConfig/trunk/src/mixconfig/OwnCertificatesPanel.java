@@ -93,8 +93,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		add(m_operatorCert, c);
 		m_operatorCert.setEnabled(false); // disabled at the moment
 
-
-
 		TitledGridBagPanel panelLocation = new TitledGridBagPanel("Location");
 		c.gridx = 0;
 		c.gridy = 1;
@@ -108,17 +106,17 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		text1.addFocusListener(this);
 		panelLocation.addRow(new JLabel("City"), text1, GridBagConstraints.HORIZONTAL);
 
-		text3 = new JTextField(15);
-		text3.setName("Description/Location/State");
-		text3.addFocusListener(this);
-		panelLocation.addRow(new JLabel("State"), text3, GridBagConstraints.HORIZONTAL);
-
 		text2 = new JTextField(15);
 		text2.setName("Description/Location/Country");
 		text2.addFocusListener(this);
 		panelLocation.addRow(new JLabel("Country"), text2, GridBagConstraints.HORIZONTAL);
 
-		/**
+		text3 = new JTextField(15);
+		text3.setName("Description/Location/State");
+		text3.addFocusListener(this);
+		panelLocation.addRow(new JLabel("State"), text3, GridBagConstraints.HORIZONTAL);
+
+	/**
 		JLabel pos = new JLabel("Geographical Position");
 		pos.setToolTipText(
 				  "Example: University of Technology Dresden, CS Department: Longitude: 13.761, Latitude: 51.053");
@@ -227,7 +225,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	public void paint(Graphics g)
 	{
 		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("OwnCertificatesPanel");
+		JAPHelp.getInstance().getContextObj().setContext("index");
 	}
 
 
@@ -313,13 +311,27 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	private class OwnCertCreationValidator implements ICertCreationValidator
 	{
-		/**
-		 * @todo not implemented
-		 * @return boolean
-		 */
+		private String m_invalidity = "";
+
 		public boolean isValid()
 		{
-			return true;
+			boolean valid = true;
+
+			m_invalidity = "";
+			if (text1.getText() == null || text1.getText().trim().equals(""))
+			{
+				m_invalidity += "City not valid!\n";
+				valid = false;
+			}
+
+			if (text2.getText() == null || text2.getText().trim().equals(""))
+			{
+				m_invalidity += "Country not valid!\n";
+				valid = false;
+			}
+
+			return valid;
+
 		}
 
 		/**
@@ -350,7 +362,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 		public String getInvalidityMessage()
 		{
-			return null;
+			return m_invalidity;
 	}
 }
 
