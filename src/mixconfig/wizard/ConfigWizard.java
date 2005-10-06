@@ -48,7 +48,7 @@ import mixconfig.GeneralPanel;
  * the panel, a logo is displayed; at the bottom, there are three navigation
  * buttons (back, next, and cancel). The center of the panel displays the wizard's
  * pages, where only one page is visible at a time.<br>
- * Upon click on &quot;next&quot;, a plausibility check is performed on the current
+ * Upon click on &quot;next&quot;, a plausibility check is performed on the
  * page and a warning about any inconsistent input is shown. If there are no
  * warnings, the wizard continues by displaying the next page. If the end is
  * reached, the &quot;next&quot; button changes into a &quot;finish&quot; button.
@@ -271,4 +271,16 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 	{
 		return m_wizPanel.getCurrentPageNr();
 	}
+
+	/** Decision of which class an instance is of
+	 * Necessary if you change from Wizard -> Expert view
+	 */
+
+	public Class getCurrentPageClass()
+	{
+			return m_wizPanel.getCurrentPage().getClass();
+	}
+
+
+
 }

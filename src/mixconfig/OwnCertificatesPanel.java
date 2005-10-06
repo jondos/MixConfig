@@ -227,7 +227,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	public void paint(Graphics g)
 	{
 		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("index");
+		JAPHelp.getInstance().getContextObj().setContext("OwnCertificatesPanel");
 	}
 
 
