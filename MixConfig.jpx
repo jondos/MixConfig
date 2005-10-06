@@ -112,7 +112,6 @@
   <property category="java.sapient" name="ULVFP" value="true"/>
   <property category="java.sapient" name="UMM" value="true"/>
   <property category="java.sapient" name="URSP" value="true"/>
-  <property category="java.sapient" name="enable" value="1"/>
   <property category="javaFormatting" name="EventMatch" value="0"/>
   <property category="javaFormatting" name="alwaysClasses" value="1"/>
   <property category="javaFormatting" name="classBraceNextLine" value="1"/>
@@ -189,7 +188,7 @@
   <property category="sys" name="Encoding" value="UTF8"/>
   <property category="sys" name="ExcludeClassEnabled" value="0"/>
   <property category="sys" name="IncludeTestPath" value="1"/>
-  <property category="sys" name="JDK" value="java 1.1 mit jdk 1.3.1_15 "/>
+  <property category="sys" name="JDK" value="java version 1.5.0_04-b05"/>
   <property category="sys" name="LastTag" value="36"/>
   <property category="sys" name="Libraries" value="Swing;BouncyCastleLightForMixConfig;JUnit;junitx;Log4j;XML-1.1"/>
   <property category="sys" name="MakeStable" value="0"/>
@@ -238,6 +237,9 @@
     <property category="archiving" name="buildWithProject" value="0"/>
     <property category="archiving" name="contentRules.1" value="I:**/*.*"/>
     <property category="archiving" name="contentRules.10" value="F:images/busy.gif;images/busy.gif"/>
+    <property category="archiving" name="contentRules.100" value="F:help/start_en.html;help/start_en.html"/>
+    <property category="archiving" name="contentRules.101" value="F:help/view_en.html;help/view_en.html"/>
+    <property category="archiving" name="contentRules.102" value="F:help/OwnCertificatesPanel_en.html;help/OwnCertificatesPanel_en.html"/>
     <property category="archiving" name="contentRules.11" value="F:images/cdisabled.gif;images/cdisabled.gif"/>
     <property category="archiving" name="contentRules.12" value="F:images/cenabled.gif;images/cenabled.gif"/>
     <property category="archiving" name="contentRules.13" value="F:images/copyicon.gif;images/copyicon.gif"/>
@@ -331,6 +333,10 @@
     <property category="archiving" name="contentRules.93" value="F:help/livecd_booting_en.html;help/livecd_booting_en.html"/>
     <property category="archiving" name="contentRules.94" value="F:help/livecd_usage_en.html;help/livecd_usage_en.html"/>
     <property category="archiving" name="contentRules.95" value="F:help/livecd_deployment_en.html;help/livecd_deployment_en.html"/>
+    <property category="archiving" name="contentRules.96" value="F:help/credits_en.html;help/credits_en.html"/>
+    <property category="archiving" name="contentRules.97" value="F:help/configuration_en.html;help/configuration_en.html"/>
+    <property category="archiving" name="contentRules.98" value="F:help/GeneralPanel_en.html;help/GeneralPanel_en.html"/>
+    <property category="archiving" name="contentRules.99" value="F:help/file_en.html;help/file_en.html"/>
     <property category="archiving" name="libraryStates.1" value="1:BouncyCastleLightForMixConfig"/>
     <property category="archiving" name="libraryStates.2" value="1:Log4j"/>
     <property category="archiving" name="libraryStates.3" value="1:XML-1.1"/>
