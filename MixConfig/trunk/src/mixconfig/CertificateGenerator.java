@@ -54,6 +54,9 @@ public class CertificateGenerator extends SwingWorker
 	/** The password for the certificate to be generated. */
 	private char[] m_passwd;
 
+	/** The overgiven Parent */
+	private Component m_parent;
+
 	/** A dialog to be shown as long as the certificate generation thread is busy. */
 	private BusyWindow m_notification;
 
@@ -84,11 +87,7 @@ public class CertificateGenerator extends SwingWorker
 		m_extensions = a_extensions;
 		m_validity = a_validity;
 		m_passwd = a_passwd;
-		if (a_parent != null)
-		{
-			m_notification = new BusyWindow(a_parent, "Generating Key Pair.");
-			m_notification.setSwingWorker(this);
-		}
+		m_parent = a_parent;
 	}
 
 	/** Adds the specified <CODE>ChangeListener</CODE> to this object's listeners list.
@@ -198,5 +197,17 @@ public class CertificateGenerator extends SwingWorker
 		{
 			( (ChangeListener) cl).stateChanged(new ChangeEvent(this));
 		}
+	}
+
+	protected void showBussyWin() {
+		if (m_parent != null)
+		{
+			m_notification = new BusyWindow(MixConfig.getMainWindow(), "Generating Key Pair.");
+			m_notification.setSwingWorker(this);
+			m_notification.setSize(m_parent.getSize());
+			m_notification.setLocation(m_parent.getLocation());
+			m_notification.setVisible(true);
+		}
+
 	}
 }

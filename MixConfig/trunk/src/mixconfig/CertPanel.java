@@ -258,7 +258,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				{
 					CertDetailsDialog dialog = new CertDetailsDialog(m_cert.getX509Certificate());
 					GUIUtils.positionWindow(dialog, MixConfig.getMainWindow());
-					dialog.show();
+					dialog.setVisible(true);
+
 				}
 			}
 
@@ -638,7 +639,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			ClipFrame open = new ClipFrame("Paste a certificate to be imported in " +
 										   "the area provided.", true);
-			open.show();
+			open.setVisible(true);
 			cert = open.getText().getBytes();
 		}
 		if (cert == null)
@@ -725,7 +726,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 		while (true)
 		{
-			dialog.show();
+			dialog.setVisible(true);
 			char[] passwd = dialog.getPassword();
 			char[] oldpasswd = dialog.getOldPassword();
 			if (passwd == null)
@@ -771,7 +772,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 		ValidityDialog vdialog = new ValidityDialog(MixConfig.getMainWindow(), "Validity");
 		GUIUtils.positionWindow(vdialog, MixConfig.getMainWindow());
-		vdialog.show();
+		vdialog.setVisible(true);
 		windowSize = vdialog.getSize();
 		windowLocation = vdialog.getLocation();
 
@@ -780,11 +781,13 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			return;
 		}
 
+
+	    //Dialog for password
 		PasswordBox dialog = new PasswordBox(MixConfig.getMainWindow(), "New Password",
 											 PasswordBox.NEW_PASSWORD, m_validator.getPasswordInfoMessage());
-		//dialog.setSize(windowSize);
+		dialog.setSize(windowSize);
 		dialog.setLocation(windowLocation);
-		dialog.show();
+		dialog.setVisible(true);
 		passwd = dialog.getPassword();
 		if (passwd == null)
 		{
@@ -795,12 +798,16 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		Calendar endDate = Calendar.getInstance();
 		startDate.setTime(vdialog.from.getDate());
 		endDate.setTime(vdialog.to.getDate());
-		CertificateGenerator worker = new CertificateGenerator(
+
+	    //Dialog which shows the progress
+	    CertificateGenerator worker = new CertificateGenerator(
 			  m_validator.getSigName(), m_validator.getExtensions(),
 			  new Validity(startDate, endDate), passwd, dialog);
 
 		worker.addChangeListener(this);
 		worker.start();
+		worker.showBussyWin();
+
 	}
 
 	/** Exports the certificate to a file.
@@ -891,7 +898,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 					false);
 			save.setText(new String(m_cert.getX509Certificate().toByteArray(true)));
 			GUIUtils.positionWindow(save, MixConfig.getMainWindow());
-			save.show();
+			save.setVisible(true);
 		}
 	}
 

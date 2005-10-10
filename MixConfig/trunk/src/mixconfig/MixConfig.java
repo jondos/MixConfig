@@ -185,7 +185,7 @@ public class MixConfig extends JApplet
 			Dimension size = m_MainWindow.getSize();
 			m_MainWindow.setLocation( (d.width - size.width) / 2, (d.height - size.height) / 2);
 			LogHolder.log(LogLevel.DEBUG, LogType.GUI, JAPMessages.getString("show_gui"));
-			m_MainWindow.show();
+			m_MainWindow.setVisible(true);
 
 			ImageIcon icon = loadImageIcon(MAIN_ICON_PATH);
 			if (icon != null)

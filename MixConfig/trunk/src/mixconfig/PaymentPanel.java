@@ -51,6 +51,10 @@ import anon.crypto.X509DistinguishedName;
 import logging.LogType;
 import gui.JAPHelp;
 import java.awt.Graphics;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JOptionPane;
+import jcui.common.TextFormatUtil;
 
 /**
  * The PaymentPanel is one page in the MixConfig TabbedPane and allows the user to specify
@@ -61,8 +65,10 @@ import java.awt.Graphics;
  * @todo Importing certificates is not implemented
  * @author Bastian Voigt
  * @author ronin &lt;ronin2@web.de&gt;
+ * @author Tobias Bayer
  */
-public class PaymentPanel extends MixConfigPanel implements ChangeListener, ICertCreationValidator
+public class PaymentPanel extends MixConfigPanel implements ActionListener, ChangeListener,
+	ICertCreationValidator
 {
 	private JPanel m_miscPanel;
 	private JCheckBox m_chkPaymentEnabled;
@@ -115,6 +121,7 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, ICer
 		m_chkPaymentEnabled = new JCheckBox("Enable Payment");
 		m_chkPaymentEnabled.setSelected(false);
 		m_chkPaymentEnabled.addItemListener(this);
+		m_chkPaymentEnabled.addActionListener(this);
 		m_miscPanel.add(m_chkPaymentEnabled);
 
 		layout.setConstraints(m_miscPanel, c);
@@ -266,7 +273,6 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, ICer
 		layout.setConstraints(m_jpiCertPanel, c);
 		this.add(m_jpiCertPanel);
 
-
 		// DATABASE Panel
 		GridBagLayout databaseLayout = new GridBagLayout();
 		m_databasePanel = new JPanel(databaseLayout);
@@ -352,13 +358,13 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, ICer
 		c.fill = c.BOTH;
 		this.add(dummyLabel1, c);
 
-	//Make panels equal
-	/*
-	m_jpiPanel.setPreferredSize(new Dimension((int)m_databasePanel.getPreferredSize().width,
-											  (int)m_jpiPanel.getPreferredSize().height));
-	m_databasePanel.setPreferredSize(new Dimension((int)m_databasePanel.getPreferredSize().width,
-											  (int)m_jpiCertPanel.getPreferredSize().height));
-								   */
+		//Make panels equal
+		/*
+		  m_jpiPanel.setPreferredSize(new Dimension((int)m_databasePanel.getPreferredSize().width,
+		   (int)m_jpiPanel.getPreferredSize().height));
+		  m_databasePanel.setPreferredSize(new Dimension((int)m_databasePanel.getPreferredSize().width,
+		   (int)m_jpiCertPanel.getPreferredSize().height));
+		 */
 		setEnabled(true);
 	}
 
@@ -478,6 +484,65 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener, ICer
 		for (i = 0; i < co.length; i++)
 		{
 			co[i].setEnabled(compEnabled);
+		}
+	}
+
+	public void actionPerformed(ActionEvent a_e)
+	{
+		if (a_e.getSource() == m_chkPaymentEnabled)
+		{
+			if (m_chkPaymentEnabled.isSelected())
+			{
+			}
+			else
+			{
+				boolean delete = true;
+				//Check if there is an entry in one or more textfield
+				if (!m_textDatabaseDBName.getText().equalsIgnoreCase("") ||
+					!m_textDatabaseHost.getText().equalsIgnoreCase("") ||
+					!m_textDatabasePort.getText().equalsIgnoreCase("") ||
+					!m_textDatabaseUsername.getText().equalsIgnoreCase("") ||
+					!m_textHardLimit.getText().equalsIgnoreCase("") ||
+					!m_textJPIHost.getText().equalsIgnoreCase("") ||
+					!m_textJPIName.getText().equalsIgnoreCase("") ||
+					!m_textJPIPort.getText().equalsIgnoreCase("") ||
+					!m_textSettleInterval.getText().equalsIgnoreCase("") ||
+					m_jpiCertPanel.getCert() != null ||
+					!m_textSoftLimit.getText().equalsIgnoreCase(""))
+				{
+					//Ask user before deleting entries
+					int i = JOptionPane.showConfirmDialog(MixConfig.getMainWindow(),
+						"Really delete all entries and switch off payment function?",
+						"Question",
+						JOptionPane.YES_NO_OPTION);
+					if (i == JOptionPane.NO_OPTION)
+					{
+						delete = false;
+					}
+				}
+				if (delete)
+				{
+					//Delete entries
+					m_textDatabaseDBName.setText("");
+					m_textDatabaseHost.setText("");
+					m_textDatabasePort.setText("");
+					m_textDatabaseUsername.setText("");
+					m_textHardLimit.setText("");
+					m_textJPIHost.setText("");
+					m_textJPIName.setText("");
+					m_textJPIPort.setText("");
+					m_textSettleInterval.setText("");
+					m_textSoftLimit.setText("");
+					m_jpiCertPanel.removeCert();
+
+					MixConfig.getMixConfiguration().removeNode("Accounting");
+				}
+				else
+				{
+					//Recheck box
+					m_chkPaymentEnabled.setSelected(true);
+				}
+			}
 		}
 	}
 }

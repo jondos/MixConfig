@@ -463,7 +463,7 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 					"Open of file failed. Paste a certificate to be imported " +
 					"in the area provided.",
 					true);
-			Open.show();
+			Open.setVisible(true);
 			cert = Open.getText().getBytes();
 		}
 		setEncKeyForLog(cert);

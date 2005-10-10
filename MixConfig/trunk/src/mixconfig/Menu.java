@@ -232,7 +232,7 @@ public class Menu implements ActionListener
 			{
 				JAPHelp.getInstance().getContextObj().setContext("index");
 				GUIUtils.positionWindow(JAPHelp.getInstance(), MixConfig.getMainWindow());
-				JAPHelp.getInstance().show();
+				JAPHelp.getInstance().setVisible(true);
 			}
 			else if (evt.getSource() == m_defaultSize)
 			{
@@ -346,7 +346,7 @@ public class Menu implements ActionListener
 					ClipFrame cf =
 						new ClipFrame("Copy and Save this file in a new Location.", false);
 					cf.setText(xmlString);
-					cf.show();
+					cf.setVisible(true);
 				}
 			}
 			else if (evt.getActionCommand().equals("OpenClip"))
@@ -362,7 +362,7 @@ public class Menu implements ActionListener
 				else
 				{
 					ClipFrame cf = new ClipFrame("Paste a file to be opened in the area provided.", true);
-					cf.show();
+					cf.setVisible(true);
 					xmlString = cf.getText();
 				}
 				//m_configFrame_Panel.setConfiguration(new MixConfiguration(new StringReader(xmlString)));

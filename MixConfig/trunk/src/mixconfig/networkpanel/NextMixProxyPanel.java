@@ -521,14 +521,14 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 			 */
 			new OutgoingDialog(MixConfig.getMainWindow(),
 							   "Add" + titles[mixType],
-							   omodel).show();
+							   omodel).setVisible(true);
 		}
 		else if (a.getActionCommand().equals("ChangeOutgoing"))
 		{
 			new OutgoingDialog(MixConfig.getMainWindow(),
 							   "Change" + titles[mixType],
 							   omodel,
-							   omodel.getData(table2.getSelectedRow())).show();
+							   omodel.getData(table2.getSelectedRow())).setVisible(true);
 		}
 		else if (a.getActionCommand().equals("DeleteOutgoing"))
 		{

@@ -28,30 +28,31 @@
 
 package mixconfig;
 
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.MediaTracker;
-import java.awt.Point;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JWindow;
+import javax.swing.JProgressBar;
 
-class BusyWindow extends JWindow implements ActionListener
+
+class BusyWindow extends JDialog implements ActionListener
 {
 	private SwingWorker sw;
+	private JProgressBar progressBar;
 
-	public BusyWindow(Component parent, String reason)
+	public BusyWindow(Frame parent, String reason)
 	{
+		super(parent,reason,true);
 		JPanel p = new JPanel();
 		p.setBorder(BorderFactory.createRaisedBevelBorder());
 		getContentPane().add(p);
@@ -95,14 +96,30 @@ class BusyWindow extends JWindow implements ActionListener
 		 p.add(button);
 		 */
 
+	    /* the progressbar
+		progressBar = new JProgressBar(0, 100);
+        progressBar.setValue(0);
+		//We call setStringPainted, even though we don't want the
+		//string to show up until we switch to determinate mode,
+		//so that the progress bar height stays the same whether
+		//or not the string is shown.
+		progressBar.setStringPainted(true); //get space for the string
+		progressBar.setString(""); //but don't paint it
+		//progressBar.setIndeterminate(true);
+
+		p.add(progressBar); */
+
 		this.pack();
-		Dimension d = parent.getSize();
-		Dimension d2 = this.getSize();
-		Point l = parent.getLocation();
-		this.setLocation(
-			l.x + (d.width - d2.width) / 2,
-			l.y + (d.height - d2.height) / 2);
-		this.setVisible(true);
+		//Dimension d = parent.getSize();
+		//Dimension d2 = this.getSize();
+		//Point l = parent.getLocation();
+		//this.setLocation(
+		//	l.x + (d.width - d2.width) / 2,
+		//	l.y + (d.height - d2.height) / 2);
+		//this.setLocation(parent.getLocation());
+		//this.setSize(d);
+		//this.setVisible(true);
+
 	}
 
 	public void update(Graphics g)
@@ -122,4 +139,5 @@ class BusyWindow extends JWindow implements ActionListener
 			sw.interrupt();
 		}
 	}
+
 }

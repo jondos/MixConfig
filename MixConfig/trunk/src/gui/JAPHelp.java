@@ -223,19 +223,26 @@ public final class JAPHelp extends JDialog
 		show();
 	}
 
-	public void show()
+	public void setVisible(boolean a_bVisible)
 	{
-		try
+		if (a_bVisible)
 		{
-			String currentContext = m_helpContext.getContext();
-			m_htmlpaneTheHelpPane.load(helpPath + currentContext + "_" + langShort + ".html");
-			if (!isVisible())
+			try
 			{
-				super.show();
+				String currentContext = m_helpContext.getContext();
+				m_htmlpaneTheHelpPane.load(helpPath + currentContext + "_" + langShort + ".html");
+				if (!isVisible())
+				{
+					super.setVisible(true);
+				}
+			}
+			catch (Exception e)
+			{
 			}
 		}
-		catch (Exception e)
+		else
 		{
+			super.setVisible(false);
 		}
 	}
 
