@@ -167,7 +167,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 
 		pack();
 		setLocationRelativeTo(parent);
-		show();
+		setVisible(true);
 	}
 
 	public void actionPerformed(ActionEvent e)
@@ -296,7 +296,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		PasswordBox pb = new PasswordBox(m_Parent, "Passphrase for reading PGP Key",
 										 PasswordBox.ENTER_PASSWORD,
 										 "Please enter the passphrase for the PGP key:");
-		pb.show();
+		pb.setVisible(true);
 		char[] passPhrase = pb.getPassword();
 
 		byte[] key = makeKeyFromPassPhrase(skp.getEncAlgorithm(),
@@ -342,7 +342,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		fout = new FileOutputStream(new File(fileDir, m_File.getName() + ".pfx"));
 		pb = new PasswordBox(m_Parent, "Password for X.509 key", PasswordBox.NEW_PASSWORD,
 							 "Please enter a password for the X.509 key:");
-		pb.show();
+		pb.setVisible(true);
 		passPhrase = pb.getPassword();
 		privateCertificate.store(fout, passPhrase);
 	}

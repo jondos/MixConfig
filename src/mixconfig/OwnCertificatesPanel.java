@@ -201,7 +201,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			{
 				box = new MapBox(MixConfig.getMainWindow(), lat, lon, 5);
 				box.addActionListener(this);
-				box.show();
+				box.setVisible(true);
 				map.setText("Update Map");
 				map.setActionCommand("Update");
 			}

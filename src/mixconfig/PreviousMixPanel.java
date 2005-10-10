@@ -134,7 +134,7 @@ public class PreviousMixPanel extends MixConfigPanel implements ChangeListener
 					final MapBox mapBox = new MapBox(MixConfig.getMainWindow(),
 						m_locLatLabel.getText(), m_locLongLabel.getText(),
 						5);
-					mapBox.show();
+					mapBox.setVisible(true);
 					m_mapButton.setText("Update Map");
 					m_mapButton.setActionCommand("Update");
 

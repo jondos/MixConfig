@@ -227,7 +227,7 @@ public class PasswordBox extends JDialog implements ActionListener, IMiscPasswor
 
 	public String readPassword(Object a_message)
 	{
-		show();
+		setVisible(true);
 		if (isCanceled())
 		{
 			return null;

@@ -211,7 +211,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 
 		pack();
 		setLocationRelativeTo(parent);
-		show();
+		setVisible(true);
 	}
 
 	private void setCertDecryptWithPrivCert(byte[] cert)
@@ -232,7 +232,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 					MixConfig.getMainWindow(),
 					"Enter the password",
 					PasswordBox.ENTER_PASSWORD, null);
-				pb.show();
+				pb.setVisible(true);
 				passwd = pb.getPassword();
 			}
 		}

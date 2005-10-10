@@ -292,7 +292,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 					new IncomingDialog(MixConfig.getMainWindow(),
 									   "Change", m_listenerModel,
 									   m_listenerModel.getData(m_listenerTable.getSelectedRow()),
-									   getConfiguration().isMixOnCDEnabled()).show();
+									   getConfiguration().isMixOnCDEnabled()).setVisible(true);
 				}
 			}
 		});
@@ -393,7 +393,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		if (ae.getActionCommand().equals("AddIncoming"))
 		{
 			new IncomingDialog(MixConfig.getMainWindow(), "Add", m_listenerModel,
-							   getConfiguration().isMixOnCDEnabled()).show();
+							   getConfiguration().isMixOnCDEnabled()).setVisible(true);
 		}
 		else if (ae.getActionCommand().equals("DeleteIncoming"))
 		{

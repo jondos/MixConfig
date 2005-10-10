@@ -82,7 +82,7 @@ final public class JAPAWTMsgBox extends WindowAdapter implements ActionListener
 			Dimension ownSize = d.getSize();
 			d.setLocation( (screenSize.width - ownSize.width) / 2,
 						  (screenSize.height - ownSize.height) / 2);
-			d.show();
+			d.setVisible(true);
 		}
 		catch (Exception e)
 		{
