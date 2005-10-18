@@ -116,7 +116,6 @@ public class MixConfiguration
 			"   <Network/>" +
 			"   <Certificates/>" +
 			"   <Description/>" +
-			"   <Accounting/>" +
 			"</MixConfiguration>";
 
 		m_configuration = XMLUtil.toXMLDocument(mixConfigXML);
@@ -874,6 +873,23 @@ public class MixConfiguration
 		XMLUtil.setAttribute((Element)root, XML_ATTRIBUTE_VERSION, VERSION);
 
 		return doc;
+	}
+
+	/**
+	 * Checks if there is a <Accounting> tag in the XML configuration structure
+	 * @return boolean
+	 */
+	public boolean isPaymentPresent()
+	{
+		NodeList list = m_configuration.getElementsByTagName("Accounting");
+		if (list.getLength() > 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 

@@ -32,29 +32,26 @@ import java.util.Vector;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import anon.crypto.X509Extensions;
 import anon.crypto.JAPCertificate;
 import anon.crypto.X509DistinguishedName;
-
-import logging.LogType;
+import anon.crypto.X509Extensions;
 import gui.JAPHelp;
-import java.awt.Graphics;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JOptionPane;
-import jcui.common.TextFormatUtil;
+import logging.LogType;
 
 /**
  * The PaymentPanel is one page in the MixConfig TabbedPane and allows the user to specify
@@ -408,14 +405,13 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 
 		// now check if payment should be really enabled
 		setAutoSaveEnabled(false);
-		String host = a_conf.getValue("Accounting/BI/HostName");
 		String mixType = a_conf.getValue("General/MixType");
 		this.m_chkPaymentEnabled.setEnabled(mixType != null &&
 											Integer.valueOf(mixType).intValue() ==
 											MixConfiguration.MIXTYPE_FIRST);
 		setEnabled(mixType != null &&
 				   Integer.valueOf(mixType).intValue() == MixConfiguration.MIXTYPE_FIRST);
-		this.m_chkPaymentEnabled.setSelected(host != null && !host.equals(""));
+		this.m_chkPaymentEnabled.setSelected(a_conf.isPaymentPresent());
 		enableComponents();
 		setAutoSaveEnabled(true);
 	}
@@ -497,7 +493,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 			else
 			{
 				boolean delete = true;
-				//Check if there is an entry in one or more textfield
+				//Check if there is an entry in one or more textfields
 				if (!m_textDatabaseDBName.getText().equalsIgnoreCase("") ||
 					!m_textDatabaseHost.getText().equalsIgnoreCase("") ||
 					!m_textDatabasePort.getText().equalsIgnoreCase("") ||
@@ -545,4 +541,4 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 			}
 		}
 	}
-}
+} 
