@@ -51,6 +51,7 @@ public class AllTests
 	{
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(XMLUtilTest.class);
+		suite.addTestSuite(UtilTest.class);
 		return suite;
 	}
 }

@@ -191,4 +191,96 @@ public final class Util
 		return value;
 	}
 
+	/**
+	 * Sorts a Vector alphabetically
+	 * @param a_vector a Vector
+	 * @return Vector
+	 */
+	public static Vector bubbleSort(Vector a_vector)
+	{
+		Vector sortedVector = new Vector();
+		String buffer[] = new String[a_vector.size()];
+		int bufferIndices[] = new int[a_vector.size()];
+		String temp;
+		int tempIndex;
+
+		for (int i = 0; i < buffer.length; i++)
+		{
+			buffer[i] = a_vector.elementAt(i).toString().toLowerCase();
+			bufferIndices[i] = i;
+		}
+
+		for (int i = 1; i <= a_vector.size(); i++)
+		{
+			for (int j = a_vector.size() - 1; j > i; j--)
+			{
+				if (buffer[j].compareTo(buffer[j - 1]) < 0)
+				{
+					temp = buffer[j];
+					tempIndex = bufferIndices[j];
+					buffer[j] = buffer[j - 1];
+					bufferIndices[j] = bufferIndices[j - 1];
+					buffer[j - 1] = temp;
+					bufferIndices[j - 1] = tempIndex;
+				}
+			}
+		}
+
+		for (int i = 0; i < buffer.length; i++)
+		{
+			sortedVector.addElement(a_vector.elementAt(bufferIndices[i]));
+		}
+		return sortedVector;
+	}
+
+	/**
+	 * Implementation of parseDouble not implemented in JDK 1.1.8
+	 * @param a_string String
+	 * @return float
+	 * @throws NumberFormatException
+	 */
+
+	public static float parseFloat(String a_string) throws NumberFormatException
+	{
+		char c;
+		int integerPart = 0;
+		int mantissaPart = 0;
+		int afterCommaDigits = 1;
+		boolean preComma = true;
+		int sign = 1;
+
+		for (int i = 0; i < a_string.length(); i++)
+		{
+			c = a_string.charAt(i);
+
+			if (Character.isDigit(c))
+			{
+				if (preComma)
+				{
+					integerPart = integerPart * 10 + (c - '0');
+				}
+				else
+				{
+					afterCommaDigits = afterCommaDigits * 10;
+					mantissaPart = mantissaPart * 10 + (c - '0');
+				}
+			}
+			else if (preComma && (c == '.' || c == ',') && a_string.length() > 1)
+			{
+				preComma = false;
+			}
+			else if (c == '+')
+			{}
+			else if (c == '-' && i == 0)
+			{
+				sign = -1;
+			}
+			else
+			{
+				throw new NumberFormatException(
+					"anon.util.parseFloat: no valid float value '" + a_string + "'!");
+			}
+		}
+		return (integerPart + ( (float) mantissaPart / afterCommaDigits)) * sign;
+	}
 }

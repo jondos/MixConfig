@@ -30,6 +30,7 @@ package mixconfig;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
+import anon.util.Util;
 
 /**
  *  A document that accepts only floating points.
@@ -37,13 +38,28 @@ import javax.swing.text.PlainDocument;
 class FloatDocument extends PlainDocument
 {
 	private float max, min;
+	private int aCDigits_max = 0;
 
 	// minval should be < 0, maxval > 0
+	// constructed by two float parameters
 	FloatDocument(float minval, float maxval)
 	{
 		super();
 		max = maxval;
 		min = minval;
+		aCDigits_max = getACDigits(maxval);
+	}
+
+	// minval should be < 0 maxval > 0
+	// String s is seen as a format pattern
+	FloatDocument(String minval, String maxval)
+	{
+		super();
+		 // Float.parseFloat() not available in JDK 1.1.8 !!!
+	    max =  Util.parseFloat(maxval);
+		min =  Util.parseFloat(minval);
+
+		aCDigits_max = getACDigits(maxval);
 	}
 
 	// Only positive floating points
@@ -60,6 +76,65 @@ class FloatDocument extends PlainDocument
 		max = 0;
 		min = 0;
 	}
+
+	/**
+	 * counts the digits after a comma
+	 * @param a_float float
+	 * @return int
+	 */
+
+	int getPCDigits(float a_float)
+	 {
+	  Float fObj = new Float(a_float);
+	  String str = fObj.toString();
+	  int idx = str.indexOf(".");
+
+	  if (str.startsWith("-"))
+	  {
+	   String sstr = str.substring(1, idx);
+	   return sstr.length();
+	  }
+	  else
+	  {
+	   String sstr = str.substring(0, idx);
+	   return sstr.length();
+	  }
+	 }
+
+	/**
+	 * counts the digits in front of a comma in a float
+	 * @param a_float float
+	 * @return int
+	 */
+	int getACDigits(float a_float)
+	{
+		Float fObj = new Float(a_float);
+		String str = fObj.toString();
+		int idx = str.indexOf(".");
+		String sstr = str.substring(idx, str.length() - 1);
+		return sstr.length();
+	}
+
+	/**
+	 * counts the digits in front of a comma in a string
+	 * @param a_string String
+	 * @return int
+	 */
+
+	int getACDigits(String a_string)
+	{
+		int idx = a_string.indexOf(".");
+		String sstr = a_string.substring(idx, a_string.length() - 1);
+		return sstr.length();
+	}
+
+	/**
+	 *
+	 * @param offset int
+	 * @param str String
+	 * @param attr AttributeSet
+	 * @throws BadLocationException
+	 */
 
 	public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException
 	{
@@ -105,18 +180,47 @@ class FloatDocument extends PlainDocument
 			}
 			else
 			{
-				String sstr = str.substring(i, i + 1);
-				float val = (new Float(p1 + res + sstr + p2)).floatValue();
-				if ( (max > 0 && val > max) || (min < 0 && val < min))
+				if (hasPoint == true)
 				{
-					java.awt.Toolkit.getDefaultToolkit().beep();
+					String all = p1 + p2;
+					int idx = all.indexOf(".");
+					int pt = all.length() - idx;
+					if (pt > aCDigits_max)
+					{
+						java.awt.Toolkit.getDefaultToolkit().beep();
+					}
+					else
+					{
+						String sstr = str.substring(i, i + 1);
+						float val = (new Float(p1 + res + sstr + p2)).floatValue();
+
+						if ( (max > 0 && val > max) || (min < 0 && val < min))
+						{
+							java.awt.Toolkit.getDefaultToolkit().beep();
+						}
+						else
+						{
+							res += sstr;
+						}
+					}
 				}
 				else
 				{
-					res += sstr;
+					String sstr = str.substring(i, i + 1);
+					float val = (new Float(p1 + res + sstr + p2)).floatValue();
+
+					if ( (max > 0 && val > max) || (min < 0 && val < min))
+					{
+						java.awt.Toolkit.getDefaultToolkit().beep();
+					}
+					else
+					{
+						res += sstr;
+					}
 				}
 			}
 		}
+
 		super.insertString(offset, res, attr);
 	}
 }
