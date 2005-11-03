@@ -38,11 +38,14 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.JComboBox;
+import java.util.Locale;
 import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import logging.LogType;
 import gui.JAPHelp;
+import gui.CountryMapper;
 import java.awt.Graphics;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener,
@@ -54,7 +57,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	private CertPanel m_operatorCert;
 
 	private JButton map;
-	private JTextField text1, text2, text3, longi, lati;
+	private JTextField text1, text3, longi, lati;
+	private JComboBox cboxCountry;
 	private MapBox box;
 
 	public OwnCertificatesPanel(boolean isApplet)
@@ -106,10 +110,10 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		text1.addFocusListener(this);
 		panelLocation.addRow(new JLabel("City"), text1, GridBagConstraints.HORIZONTAL);
 
-		text2 = new JTextField(15);
-		text2.setName("Description/Location/Country");
-		text2.addFocusListener(this);
-		panelLocation.addRow(new JLabel("Country"), text2, GridBagConstraints.HORIZONTAL);
+		cboxCountry = new JComboBox(CountryMapper.getLocalisedCountries());
+		cboxCountry.setName("Description/Location/Country");
+		cboxCountry.addFocusListener(this);
+		panelLocation.addRow(new JLabel("Country"), cboxCountry, GridBagConstraints.HORIZONTAL);
 
 		text3 = new JTextField(15);
 		text3.setName("Description/Location/State");
@@ -125,14 +129,14 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		longi = new JTextField(7);
 		longi.setName("Description/Location/Position/Geo/Longitude");
 		longi.addFocusListener(this);
-		longi.setDocument(new FloatDocument( -180, 180));
+		longi.setDocument(new FloatDocument( "-180.00", "180.00"));
 		longi.setToolTipText("Longitude in degrees east from Greenwich. ( -180.0 to 180.0)");
 		panelLocation.addRow(new JLabel("Longitude"), longi);
 
 		lati = new JTextField(7);
 		lati.setName("Description/Location/Position/Geo/Latitude");
 		lati.addFocusListener(this);
-		lati.setDocument(new FloatDocument( -90, 90));
+		lati.setDocument(new FloatDocument("-90.00", "90.00"));
 		lati.setToolTipText("Latitude in degrees. (-90.0: South Pole, 0: Equator, 90.0: North Pole)");
 		panelLocation.addRow(new JLabel("Latitude"), lati);
 
@@ -323,12 +327,12 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				m_invalidity += "City not valid!\n";
 				valid = false;
 			}
-
+			/*
 			if (text2.getText() == null || text2.getText().trim().equals(""))
 			{
 				m_invalidity += "Country not valid!\n";
 				valid = false;
-			}
+			}*/
 
 			return valid;
 
