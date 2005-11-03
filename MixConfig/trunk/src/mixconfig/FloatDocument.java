@@ -40,16 +40,6 @@ class FloatDocument extends PlainDocument
 	private float max, min;
 	private int aCDigits_max = 0;
 
-	// minval should be < 0, maxval > 0
-	// constructed by two float parameters
-	FloatDocument(float minval, float maxval)
-	{
-		super();
-		max = maxval;
-		min = minval;
-		aCDigits_max = getACDigits(maxval);
-	}
-
 	// minval should be < 0 maxval > 0
 	// String s is seen as a format pattern
 	FloatDocument(String minval, String maxval)
@@ -60,21 +50,6 @@ class FloatDocument extends PlainDocument
 		min =  Util.parseFloat(minval);
 
 		aCDigits_max = getACDigits(maxval);
-	}
-
-	// Only positive floating points
-	FloatDocument(float maxval)
-	{
-		super();
-		max = maxval;
-		min = 0;
-	}
-
-	FloatDocument()
-	{
-		super();
-		max = 0;
-		min = 0;
 	}
 
 	/**
