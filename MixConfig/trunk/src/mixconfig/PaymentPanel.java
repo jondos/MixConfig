@@ -451,9 +451,9 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 			"interaction, you should leave this\npassworld field blank.\n";
 	}
 
-	public String getInvalidityMessage()
+	public Vector getInvalidityMessages()
 	{
-		return "Please enter JPI Name first!";
+		return anon.util.Util.toVector("Please enter JPI Name first!");
 	}
 
 	protected void enableComponents()

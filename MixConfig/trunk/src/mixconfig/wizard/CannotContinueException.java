@@ -28,6 +28,8 @@
 
 package mixconfig.wizard;
 
+import java.util.Vector;
+
 /**
  * An exception class thrown when navigation in a wizard is not possible in the desired direction.
  *
@@ -42,7 +44,7 @@ public class CannotContinueException extends IndexOutOfBoundsException {
 	private String[] m_messages = null;
 
 	/** Creates a new instance of <CODE>CannotContinueException</CODE> */
-	public CannotContinueException() { super(); }
+	public CannotContinueException() {  }
 
 	/** Creates a new instance of <CODE>CannotContinueException</CODE>
 	 * @param message a message describing the cause of the exception
@@ -52,7 +54,27 @@ public class CannotContinueException extends IndexOutOfBoundsException {
 	/** Creates a new instance of <CODE>CannotContinueException</CODE>
 	 * @param a_messages an array of messages describing the cause of the exception
 	 */
-	public CannotContinueException(String a_messages[]) { super(); m_messages = a_messages; }
+	public CannotContinueException(Object a_messages[])
+	{
+		m_messages = new String[a_messages.length];
+		for (int i = 0; i < m_messages.length; i++)
+		{
+			m_messages[i] = a_messages[i].toString();
+		}
+
+	}
+
+	/** Creates a new instance of <CODE>CannotContinueException</CODE>
+	 * @param a_messages a Vector of messages describing the cause of the exception
+	 */
+	public CannotContinueException(Vector a_messages)
+	{
+		m_messages = new String[a_messages.size()];
+		for (int i = 0; i < m_messages.length; i++)
+		{
+			m_messages[i] = a_messages.elementAt(i).toString();
+		}
+	}
 
 	/** Creates a new instance of <CODE>CannotContinueException</CODE>
 	 * @param cause the <CODE>Throwable</CODE> object that caused the exception
@@ -69,8 +91,7 @@ public class CannotContinueException extends IndexOutOfBoundsException {
 	{
 		if(m_messages == null)
 		{
-			String m[] = { getMessage() };
-			return m;
+			return new String[0];
 		}
 		return m_messages;
 	}

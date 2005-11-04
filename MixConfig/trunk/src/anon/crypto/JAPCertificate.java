@@ -442,6 +442,15 @@ public final class JAPCertificate extends X509CertificateStructure
 	}
 
 	/**
+	 * Returns the distinguished name.
+	 * @return the distinguished name.
+	 */
+	public X509DistinguishedName getDistinguishedName()
+	{
+		return new X509DistinguishedName(getSubject());
+	}
+
+	/**
 	 * Returns a reference to this certificate.
 	 * @return a reference to this certificate
 	 */
