@@ -314,21 +314,28 @@ final public class ConnectionData
 			ptype = SOCKS_PROXY;
 		}
 		data = getChildElementValue(elemRoot, "NetworkProtocol");
-		if (data.equalsIgnoreCase("RAW/UNIX"))
+		if (data != null)
 		{
-			trans = RAW_UNIX;
-		}
-		else if (data.equalsIgnoreCase("RAW/TCP"))
-		{
-			trans = RAW_TCP;
-		}
-		else if (data.equalsIgnoreCase("SSL/UNIX"))
-		{
-			trans = SSL_UNIX;
-		}
-		else if (data.equalsIgnoreCase("SSL/TCP"))
-		{
-			trans = SSL_TCP;
+			if (data.equalsIgnoreCase("RAW/UNIX"))
+			{
+				trans = RAW_UNIX;
+			}
+			else if (data.equalsIgnoreCase("RAW/TCP"))
+			{
+				trans = RAW_TCP;
+			}
+			else if (data.equalsIgnoreCase("SSL/UNIX"))
+			{
+				trans = SSL_UNIX;
+			}
+			else if (data.equalsIgnoreCase("SSL/TCP"))
+			{
+				trans = SSL_TCP;
+			}
+			else
+			{
+				trans = 0;
+			}
 		}
 		else if (getChildElementValue(elemRoot, "File") != null)
 		{

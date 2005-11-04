@@ -192,54 +192,21 @@ public final class Util
 	}
 
 	/**
-	 * Sorts a Vector alphabetically
+	 * Sorts a Vector alphabetically using the toString() method of each object.
 	 * @param a_vector a Vector
-	 * @return Vector
+	 * @return an alphabetically sorted Vector
 	 */
-	public static Vector bubbleSort(Vector a_vector)
+	public static Vector sortStrings(Vector a_vector)
 	{
-		Vector sortedVector = new Vector();
-		String buffer[] = new String[a_vector.size()];
-		int bufferIndices[] = new int[a_vector.size()];
-		String temp;
-		int tempIndex;
-
-		for (int i = 0; i < buffer.length; i++)
-		{
-			buffer[i] = a_vector.elementAt(i).toString().toLowerCase();
-			bufferIndices[i] = i;
-		}
-
-		for (int i = 1; i <= a_vector.size(); i++)
-		{
-			for (int j = a_vector.size() - 1; j > i; j--)
-			{
-				if (buffer[j].compareTo(buffer[j - 1]) < 0)
-				{
-					temp = buffer[j];
-					tempIndex = bufferIndices[j];
-					buffer[j] = buffer[j - 1];
-					bufferIndices[j] = bufferIndices[j - 1];
-					buffer[j - 1] = temp;
-					bufferIndices[j - 1] = tempIndex;
-				}
-			}
-		}
-
-		for (int i = 0; i < buffer.length; i++)
-		{
-			sortedVector.addElement(a_vector.elementAt(bufferIndices[i]));
-		}
-		return sortedVector;
+		return bubbleSortStrings(a_vector);
 	}
 
 	/**
-	 * Implementation of parseDouble not implemented in JDK 1.1.8
+	 * Implementation of parseFloat not implemented in JDK 1.1.8
 	 * @param a_string String
 	 * @return float
 	 * @throws NumberFormatException
 	 */
-
 	public static float parseFloat(String a_string) throws NumberFormatException
 	{
 		char c;
@@ -278,9 +245,53 @@ public final class Util
 			else
 			{
 				throw new NumberFormatException(
-					"anon.util.parseFloat: no valid float value '" + a_string + "'!");
+								"No valid float value '" + a_string + "'!");
 			}
 		}
 		return (integerPart + ( (float) mantissaPart / afterCommaDigits)) * sign;
+	}
+
+	/**
+	 * Uses the Bubble Sort method to sort a vector of objects by comparing
+	 * the output of the toString() method.
+	 * @param a_vector a Vector
+	 * @return a sorted Vector
+	 * @todo Umlauts are not sorted correctly
+	 */
+	private static Vector bubbleSortStrings(Vector a_vector)
+	{
+		Vector sortedVector = new Vector();
+		String buffer[] = new String[a_vector.size()];
+		int bufferIndices[] = new int[a_vector.size()];
+		String temp;
+		int tempIndex;
+
+		for (int i = 0; i < buffer.length; i++)
+		{
+			buffer[i] = a_vector.elementAt(i).toString().toLowerCase();
+			bufferIndices[i] = i;
+		}
+
+		for (int i = 1; i <= a_vector.size(); i++)
+		{
+			for (int j = a_vector.size() - 1; j > i; j--)
+			{
+				if (buffer[j].compareTo(buffer[j - 1]) < 0)
+				{
+					temp = buffer[j];
+					tempIndex = bufferIndices[j];
+					buffer[j] = buffer[j - 1];
+					bufferIndices[j] = bufferIndices[j - 1];
+					buffer[j - 1] = temp;
+					bufferIndices[j - 1] = tempIndex;
+				}
+			}
+		}
+
+		for (int i = 0; i < buffer.length; i++)
+		{
+			sortedVector.addElement(a_vector.elementAt(bufferIndices[i]));
+		}
+		return sortedVector;
 	}
 }
