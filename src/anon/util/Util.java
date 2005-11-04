@@ -216,6 +216,11 @@ public final class Util
 		boolean preComma = true;
 		int sign = 1;
 
+		if (a_string == null)
+		{
+			throw new NumberFormatException("NULL cannot be parsed as float!");
+		}
+
 		for (int i = 0; i < a_string.length(); i++)
 		{
 			c = a_string.charAt(i);

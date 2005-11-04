@@ -60,10 +60,12 @@ import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
 import anon.crypto.Validity;
 import anon.util.IMiscPasswordReader;
+import anon.util.Util;
 import gui.GUIUtils;
 import gui.PasswordBox;
 import logging.LogType;
 import javax.swing.JTextPane;
+import mixconfig.wizard.CannotContinueException;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -767,7 +769,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 		if (!m_validator.isValid())
 		{
-			throw new RuntimeException(m_validator.getInvalidityMessage());
+			throw new CannotContinueException(
+				 m_validator.getInvalidityMessages());
 		}
 
 		ValidityDialog vdialog = new ValidityDialog(MixConfig.getMainWindow(), "Validity");

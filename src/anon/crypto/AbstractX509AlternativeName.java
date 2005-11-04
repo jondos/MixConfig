@@ -50,6 +50,7 @@ import anon.infoservice.ListenerInterface;
  * The SubjectAlternativeName extension represents an alias to distinguished name (DN).
  * It may contain several values and is often used for IPs, DNS-Names, URLs and E-Mail addresses.
  * @author Rolf Wendolsky
+ * @see http://www.faqs.org/rfcs/rfc2538.html
  */
 public abstract class AbstractX509AlternativeName extends AbstractX509Extension
 {

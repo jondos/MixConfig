@@ -171,7 +171,7 @@ public class CountryMapper
 				"ISO Country code must have a length of two characters!");
 		}
 
-		m_iso2 = a_ISO2CountryCode.trim();
+		m_iso2 = a_ISO2CountryCode.trim().toUpperCase();
 
 		if (a_locale == null)
 		{

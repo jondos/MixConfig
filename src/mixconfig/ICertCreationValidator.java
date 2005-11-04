@@ -27,6 +27,8 @@
  */
 package mixconfig;
 
+import java.util.Vector;
+
 import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;
 
@@ -64,5 +66,5 @@ public interface ICertCreationValidator
 	 * certificate are not met.
 	 * @return A warning about the prerequisites
 	 */
-	String getInvalidityMessage();
+	Vector getInvalidityMessages();
 }

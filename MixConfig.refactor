@@ -5,4 +5,10 @@
     <old-class-name>anon.crypto.JCrypt</old-class-name>
     <new-class-name>anon.crypto.DESCrypt</new-class-name>
   </rename-class>
+  <rename-method id="6AP02WRGIMFEQNTQI56YS6Y0" creation-time="Fri Nov 04 14:35:04.026 CET 2005">
+    <declaring-class-name>mixconfig.OwnCertificatesPanel$OwnCertCreationValidator</declaring-class-name>
+    <declared-method-signature>()Ljava/lang/String;</declared-method-signature>
+    <old-method-name>getInvalidityMessage</old-method-name>
+    <new-method-name>getInvalidityMessages</new-method-name>
+  </rename-method>
 </refactor>
