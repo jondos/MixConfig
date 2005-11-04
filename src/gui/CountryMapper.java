@@ -25,128 +25,225 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-
 package gui;
 
 import java.util.Locale;
 import java.util.Vector;
-import anon.util.Util;
-import gui.*;
 
+import anon.util.Util;
+
+/**
+ * Objects of this class store a country code an can translate it into
+ * the localised name of the corresponding country.
+ *
+ * @author Kuno G. Gruen
+ * @author Rolf Wendolsky
+ * @see http://www.iso.ch/iso/en/prods-services/iso3166ma/02iso-3166-code-lists/iso_3166-1_decoding_table.html
+ * @version ISO 3166 on 25.10.05
+ */
 public class CountryMapper
 {
 	private static final String[] ms_ctrArr =
-		// ISO 3166 on 25.10.05
-		// http://www.iso.ch/iso/en/prods-services/iso3166ma/
-		//           02iso-3166-code-lists/iso_3166-1_decoding_table.html
-
 		{
-		// Officially assigned code element
+		// Officially assigned code elements
 		"AD", "AE", "AF", "AG", "AI", "AL", "AM", "AN", "AO", "AQ", "AR", "AS",
 		"AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH",
-		"BI", "BJ", "BM", "BN", "BO", "BR", "BS", "BT", "BV", "BW",	"BY", "BZ",
+		"BI", "BJ", "BM", "BN", "BO", "BR", "BS", "BT", "BV", "BW", "BY", "BZ",
 		"CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO",
 		"CR", "CS", "CU", "CV", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO",
-		"DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET",	"FI", "FJ", "FK", "GA",
+		"DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "GA",
 		"GB", "FM", "FO", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY", "GD",
 		"GE", "GF", "GH", "GI", "GL", "GM", "GN", "HM", "HN", "HR", "HT", "HU",
-		"IQ", "IR", "IS", "IT", "LR", "LS",	"LT", "LU", "LV", "HK", "ID", "IE",
+		"IQ", "IR", "IS", "IT", "LR", "LS", "LT", "LU", "LV", "HK", "ID", "IE",
 		"IL", "IN", "IO", "KE", "KG", "KH", "KI", "JM", "JO", "JP", "KM", "KN",
 		"KP", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LY", "MA",
-		"MC", "MD", "MG", "MH",	"MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR",
+		"MC", "MD", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR",
 		"MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NF",
 		"NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "PA", "PE", "PF", "PG",
-		"PH", "OM",	"PK", "PL", "PM", "PN", "RU", "RW", "SV", "PR", "PS", "PT",
+		"PH", "OM", "PK", "PL", "PM", "PN", "RU", "RW", "SV", "PR", "PS", "PT",
 		"QA", "RE", "PW", "PY", "SY", "SZ", "SA", "SB", "SC", "SD", "SE", "SG",
 		"SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "RO", "SR", "ST", "TC",
 		"TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT",
 		"TV", "TW", "TZ", "UG", "UA", "UY", "UZ", "UM", "US", "VI", "VN", "ZM",
-		"YT", "VU", "VA", "VC", "VE", "VG", "WF", "WS", "ZA", "YE",	"ZW",
+		"YT", "VU", "VA", "VC", "VE", "VG", "WF", "WS", "ZA", "YE", "ZW",
 		/*
+		 // Exceptionally reserved code elements
+		   "AC", "DG", "EA", "CP", "EU", "FX", "GG", "IC", "JE", "IM", "UK",
 
-		 // Exceptionally reserved code element
-		"AC", "DG", "EA", "CP", "EU", "FX", "GG", "IC", "JE", "IM", "UK",
-
-		 // User-assigned code element
-		"TA", "QM", "QN", "QO", "QP", "QQ", "QR", "QS", "QT", "QU", "QV", "QW",
-		"QX", "QY", "QZ", "XA", "XB", "XC", "XD", "XE", "XF", "XG", "XH", "XI",
-		"XJ", "XK", "XL", "XM", "XN", "XO", "XP", "XQ", "XR", "XS", "XT", "XU",
-		"XV", "XW", "XX", "XY", "XZ", "ZZ"
+		 // User-assigned code elements
+		   "TA", "QM", "QN", "QO", "QP", "QQ", "QR", "QS", "QT", "QU", "QV", "QW",
+		   "QX", "QY", "QZ", "XA", "XB", "XC", "XD", "XE", "XF", "XG", "XH", "XI",
+		   "XJ", "XK", "XL", "XM", "XN", "XO", "XP", "XQ", "XR", "XS", "XT", "XU",
+		   "XV", "XW", "XX", "XY", "XZ", "ZZ"
 
 		 */
-};
+	};
 
+	private final int MAX_LENGTH;
 	private boolean m_bUseDefaultLocale;
 	private String m_iso2;
 	private Locale m_locale;
 
+
 	/**
-	 * Constructor with default Locale
-	 * @see getLocalisedCountries()
-	 * @param a_ISO2CountryCode String
+	 * Constructs an empty CountryMapper object. Its toString() method
+	 * returns a message that requests to choose a valid country code.
+	 * The message is defined by the default Locale.
+	 */
+	public CountryMapper()
+	{
+		this(null, 0);
+	}
+
+	/**
+	 * Constructs an empty CountryMapper object. Its toString() method
+	 * returns a message that requests to choose a valid country code.
+	 * The message is defined by the default Locale.
+	 * @param a_maxCountryLength the maximum length of the toString() output
+	 */
+	public CountryMapper(int a_maxCountryLength)
+	{
+		this(null, a_maxCountryLength);
+	}
+
+	/**
+	 * Constructs a new CountryMapper that uses the default Locale to
+	 * translate its country code.
+	 * @see getLocalisedCountries(int)
+	 * @param a_ISO2CountryCode a two-letter country code
+	 * @param a_maxCountryLength the maximum length of the toString() output
+	 * @throws IllegalArgumentException
+	 */
+	public CountryMapper(String a_ISO2CountryCode, int a_maxCountryLength)
+		throws IllegalArgumentException
+	{
+		this(a_ISO2CountryCode, a_maxCountryLength, null);
+	}
+
+	/**
+	 * Constructs a new CountryMapper that uses the default Locale to
+	 * translate its country code.
+	 * @see getLocalisedCountries(int)
+	 * @param a_ISO2CountryCode a two-letter country code
 	 * @throws IllegalArgumentException
 	 */
 	public CountryMapper(String a_ISO2CountryCode)
 		throws IllegalArgumentException
 	{
-		if (a_ISO2CountryCode == null || a_ISO2CountryCode.trim().length() == 0)
-		{
-			a_ISO2CountryCode = "  ";
-		}
-
-		if (a_ISO2CountryCode.length() != 2)
-		{
-			throw new IllegalArgumentException(
-					 "ISO Country code must have a length of two characters!");
-		}
-
-		m_iso2 = a_ISO2CountryCode.trim();
-		m_bUseDefaultLocale = true;
-		m_locale = Locale.getDefault();
+		this(a_ISO2CountryCode, 0, null);
 	}
 
 	/**
-	 * Constructor with given Locale
-	 * @see getLocalisedCountries(Locale)
-	 * @param a_ISO2CountryCode String
-	 * @param a_locale Locale
-	 * @return CountryMapper constuctor
+	 * Constructs a new CountryMapper that uses a specific Locale to
+	 * translate its country code.
+	 * @see getLocalisedCountries(int, Locale)
+	 * @param a_ISO2CountryCode a two-letter country code
+	 * @param a_locale a Locale
 	 * @throws IllegalArgumentException
 	 */
 	public CountryMapper(String a_ISO2CountryCode, Locale a_locale)
 		throws IllegalArgumentException
 	{
+		this(a_ISO2CountryCode, 0, a_locale);
+	}
+
+	/**
+	 * Constructs a new CountryMapper that uses a specific Locale to
+	 * translate its country code.
+	 * @see getLocalisedCountries(int, Locale)
+	 * @param a_ISO2CountryCode a two-letter country code
+	 * @param a_locale a Locale
+	 * @param a_maxCountryLength the maximum length of the toString() output
+	 * @throws IllegalArgumentException
+	 */
+	public CountryMapper(String a_ISO2CountryCode, int a_maxCountryLength,
+						 Locale a_locale) throws IllegalArgumentException
+	{
+		MAX_LENGTH = a_maxCountryLength;
+
 		if (a_ISO2CountryCode == null || a_ISO2CountryCode.trim().length() == 0)
-				{
-					a_ISO2CountryCode = "  ";
+		{
+			a_ISO2CountryCode = "";
 		}
-		if (a_ISO2CountryCode.length() != 2)
+		if (a_ISO2CountryCode.length() > 0 && a_ISO2CountryCode.length() != 2)
 		{
 			throw new IllegalArgumentException(
-					 "ISO Country code must have a length of two characters!");
+				"ISO Country code must have a length of two characters!");
 		}
 
 		m_iso2 = a_ISO2CountryCode.trim();
+
 		if (a_locale == null)
 		{
 			m_bUseDefaultLocale = true;
 			m_locale = Locale.getDefault();
 		}
-		m_bUseDefaultLocale = false;
-		m_locale = a_locale;
+		else
+		{
+			m_bUseDefaultLocale = false;
+			m_locale = a_locale;
+		}
 	}
 
 	/**
-	 * @return String[]
+	 * Returns a Vector with CountryMappers for all officially assigned
+	 * country codes. The constructed CountryMappers use the default locale.
+	 * @return a Vector with CountryMappers for all officially assigned
+	 * country codes
 	 */
-	static String[] getISOCountries()
+	public static Vector getLocalisedCountries()
 	{
-		return ms_ctrArr;
+		return (getLocalisedCountries(0, null));
 	}
 
 	/**
-	 * getter for the isoCountryCode
-	 * @return String
+	 * Returns a Vector with CountryMappers for all officially assigned
+	 * country codes. The constructed CountryMappers use the default locale.
+	 * @param a_loc the locale that is used in all contructed CountryMappers
+	 * @return a Vector with CountryMappers for all officially assigned
+	 * country codes
+	 */
+	public static Vector getLocalisedCountries(Locale a_loc)
+	{
+		return (getLocalisedCountries(0, a_loc));
+	}
+
+	/**
+	 * Returns a Vector with CountryMappers for all officially assigned
+	 * country codes. The constructed CountryMappers use the default locale.
+	 * @param a_maxCountryLength the maximum length of the toString() output
+	 * @return a Vector with CountryMappers for all officially assigned
+	 * country codes
+	 */
+	public static Vector getLocalisedCountries(int a_maxCountryLength)
+	{
+		return (getLocalisedCountries(a_maxCountryLength, null));
+	}
+
+	/**
+	 * Returns a Vector with CountryMappers for all officially assigned
+	 * country codes.
+	 * @param a_loc the locale that is used in all contructed CountryMappers
+	 * @param a_maxCountryLength the maximum length of the toString() output
+	 * @return a Vector with CountryMappers for all officially assigned
+	 * country codes
+	 */
+	public static Vector getLocalisedCountries(int a_maxCountryLength,
+											   Locale a_loc)
+	{
+		Vector localisedCountries = new Vector();
+
+		for (int i = 0; i < ms_ctrArr.length; i++)
+		{
+			localisedCountries.addElement(
+				 new CountryMapper(ms_ctrArr[i], a_maxCountryLength, a_loc));
+		}
+		return Util.sortStrings(localisedCountries);
+	}
+
+	/**
+	 * Returns the ISO country code stored in this CountryMapper object.
+	 * @return the ISO country code stored in this CountryMapper object
 	 */
 	public String getISOCountryCode()
 	{
@@ -154,58 +251,77 @@ public class CountryMapper
 	}
 
 	/**
-	 * overwritten for use by JComboBox
-	 * @return String
+	 * Returns if the ISO country codes of two CountryMapper objects are equal.
+	 * @param a_object an Object
+	 * @return true if the ISO country codes of two CountryMapper objects are
+	 *         equal; false otherwise
+	 */
+	public boolean equals(Object a_object)
+	{
+		if (a_object == null || !(a_object instanceof CountryMapper))
+		{
+			return false;
+		}
+		return getISOCountryCode().equals(
+			  ((CountryMapper)a_object).getISOCountryCode());
+	}
+
+	/**
+	 * Returns the hash code of the ISO country code.
+	 * @return the hash code of the ISO country code
+	 */
+	public int hashCode()
+	{
+		return getISOCountryCode().hashCode();
+	}
+
+	/**
+	 * Returns the localised name of the ISO country code of this
+	 * CountryMapper object. The output may depend on the current locale or
+	 * on the locale that may be defined in the constructor.
+	 * @return the localised name of the ISO country code
 	 */
 	public String toString()
 	{
+		String strCName;
+		Locale locale;
+
 		if (m_iso2.length() == 0)
 		{
-			return JAPMessages.getString("CountryMapper_ChooseCountry");
+			strCName = JAPMessages.getString("CountryMapper_ChooseCountry");
 		}
-
-		if (m_bUseDefaultLocale)
+		else
 		{
-			String cName = new Locale(Locale.getDefault().getLanguage(), m_iso2).getDisplayCountry();
-			if (cName.equals(m_iso2) || cName == null)
+			if (m_bUseDefaultLocale)
 			{
-				cName = JAPMessages.getString(m_iso2);
+				locale = Locale.getDefault();
 			}
-			return cName;
+			else
+			{
+				locale = m_locale;
+			}
 
+			strCName = new Locale(locale.getLanguage(), m_iso2).getDisplayCountry();
+			if (strCName == null || strCName.equals(m_iso2))
+			{
+				strCName = JAPMessages.getString(m_iso2);
+			}
 		}
-		return new Locale(m_locale.getLanguage(), m_iso2).getDisplayCountry();
+
+		if (MAX_LENGTH > 0 && strCName.length() > MAX_LENGTH)
+		{
+			strCName = strCName.substring(0, MAX_LENGTH);
+		}
+
+		return strCName;
 	}
 
 	/**
-	 * Factory for a Vector of CountryMappers
-	 * uses the default locale
-	 * @return Vector
+	 * Returns an array with all usable ISO country codes.
+	 * @return a String array with all usable ISO country codes
 	 */
-	public static Vector getLocalisedCountries()
+	private static String[] getISOCountries()
 	{
-		Vector localisedCountries = new Vector();
-
-		for (int i = 0; i < ms_ctrArr.length; i++)
-		{
-			localisedCountries.addElement(new CountryMapper(ms_ctrArr[i]));
-		}
-		return anon.util.Util.bubbleSort(localisedCountries);
-	}
-	/**
-	 * Factory for a Vector of CountryMappers
-	 * uses a given locale
-	 * @return Vector
-	 */
-
-	public static Vector getLocalisedCountries(Locale a_loc)
-	{
-		Vector localisedCountries = new Vector();
-
-		for (int i = 0; i < ms_ctrArr.length; i++)
-		{
-			localisedCountries.addElement(new CountryMapper(ms_ctrArr[i], a_loc));
-		}
-		return localisedCountries;
+		return ms_ctrArr;
 	}
 }

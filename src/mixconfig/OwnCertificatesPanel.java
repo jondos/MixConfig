@@ -39,7 +39,6 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.JComboBox;
-import java.util.Locale;
 import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
@@ -52,12 +51,13 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	ChangeListener
 {
 	/** A <CODE>CertPanel</CODE> for this Mix's certificate. */
+
+	private static final int MAX_COLUMN_LENGTH = 20;
+	private static final int MAX_COMBO_BOX_LENGTH = 32;
 	private CertPanel m_ownCert;
-
 	private CertPanel m_operatorCert;
-
 	private JButton map;
-	private JTextField text1, text3, longi, lati;
+	private JTextField m_txtCity, m_txtState, m_txtLongitude, m_txtLatitude;
 	private JComboBox cboxCountry;
 	private MapBox box;
 
@@ -105,20 +105,24 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		c.fill = GridBagConstraints.HORIZONTAL;
 		add(panelLocation, c);
 
-		text1 = new JTextField(15);
-		text1.setName("Description/Location/City");
-		text1.addFocusListener(this);
-		panelLocation.addRow(new JLabel("City"), text1, GridBagConstraints.HORIZONTAL);
+		m_txtCity = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtCity.setName("Description/Location/City");
+		m_txtCity.addFocusListener(this);
+		panelLocation.addRow(new JLabel("City"), m_txtCity, GridBagConstraints.HORIZONTAL);
 
-		cboxCountry = new JComboBox(CountryMapper.getLocalisedCountries());
-		cboxCountry.setName("Description/Location/Country");
+		Vector ctrVec = CountryMapper.getLocalisedCountries(MAX_COMBO_BOX_LENGTH);
+		ctrVec.insertElementAt(new CountryMapper(MAX_COMBO_BOX_LENGTH), 0);
+		cboxCountry = new JComboBox(ctrVec);
+	    cboxCountry.setName("Description/Location/Country");
 		cboxCountry.addFocusListener(this);
+		cboxCountry.addItemListener(this);
 		panelLocation.addRow(new JLabel("Country"), cboxCountry, GridBagConstraints.HORIZONTAL);
+		cboxCountry.setMaximumRowCount(10);
 
-		text3 = new JTextField(15);
-		text3.setName("Description/Location/State");
-		text3.addFocusListener(this);
-		panelLocation.addRow(new JLabel("State"), text3, GridBagConstraints.HORIZONTAL);
+		m_txtState = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtState.setName("Description/Location/State");
+		m_txtState.addFocusListener(this);
+		panelLocation.addRow(new JLabel("State"), m_txtState, GridBagConstraints.HORIZONTAL);
 
 	/**
 		JLabel pos = new JLabel("Geographical Position");
@@ -126,19 +130,19 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				  "Example: University of Technology Dresden, CS Department: Longitude: 13.761, Latitude: 51.053");
 		panelLocation.addRow(pos, null);**/
 
-		longi = new JTextField(7);
-		longi.setName("Description/Location/Position/Geo/Longitude");
-		longi.addFocusListener(this);
-		longi.setDocument(new FloatDocument( "-180.00", "180.00"));
-		longi.setToolTipText("Longitude in degrees east from Greenwich. ( -180.0 to 180.0)");
-		panelLocation.addRow(new JLabel("Longitude"), longi);
+		m_txtLongitude = new JTextField(7);
+		m_txtLongitude.setName("Description/Location/Position/Geo/Longitude");
+		m_txtLongitude.addFocusListener(this);
+		m_txtLongitude.setDocument(new FloatDocument( "-180.000", "180.000"));
+		m_txtLongitude.setToolTipText("Longitude in degrees east from Greenwich. ( -180.000 to 180.000)");
+		panelLocation.addRow(new JLabel("Longitude"), m_txtLongitude);
 
-		lati = new JTextField(7);
-		lati.setName("Description/Location/Position/Geo/Latitude");
-		lati.addFocusListener(this);
-		lati.setDocument(new FloatDocument("-90.00", "90.00"));
-		lati.setToolTipText("Latitude in degrees. (-90.0: South Pole, 0: Equator, 90.0: North Pole)");
-		panelLocation.addRow(new JLabel("Latitude"), lati);
+		m_txtLatitude = new JTextField(7);
+		m_txtLatitude.setName("Description/Location/Position/Geo/Latitude");
+		m_txtLatitude.addFocusListener(this);
+		m_txtLatitude.setDocument(new FloatDocument("-90.000", "90.000"));
+		m_txtLatitude.setToolTipText("Latitude in degrees. (-90.000: South Pole, 0: Equator, 90.000: North Pole)");
+		panelLocation.addRow(new JLabel("Latitude"), m_txtLatitude);
 
 		map = new JButton("Show on Map");
 		map.setToolTipText("Opens a window with a map from www.MapQuest.com " +
@@ -320,9 +324,9 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		public boolean isValid()
 		{
 			boolean valid = true;
-
 			m_invalidity = "";
-			if (text1.getText() == null || text1.getText().trim().equals(""))
+
+			if (m_txtCity.getText() == null || m_txtCity.getText().trim().equals(""))
 			{
 				m_invalidity += "City not valid!\n";
 				valid = false;
@@ -334,11 +338,16 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				valid = false;
 			}*/
 
-			return valid;
-
+		if ( ( (CountryMapper) cboxCountry.getSelectedItem()).getISOCountryCode().length() == 0)
+		{
+			m_invalidity += "Country not valid!\n";
+			valid = false;
 		}
 
-		/**
+		return valid;
+
+	}
+	/**
 		 * @todo not implemented
 		 * @return X509DistinguishedName
 		 */
@@ -367,8 +376,58 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		public String getInvalidityMessage()
 		{
 			return m_invalidity;
+		}
 	}
-}
+
+	protected void save(JComboBox a_comboBox)
+	{
+		if (a_comboBox == cboxCountry)
+		{
+			getConfiguration().setValue(a_comboBox.getName(),
+										((CountryMapper)a_comboBox.
+										 getSelectedItem()).getISOCountryCode());
+		}
+		else
+		{
+			super.save(a_comboBox);
+		}
+	}
+
+	protected void load(JComboBox a_comboBox)
+	{
+		if (a_comboBox == cboxCountry)
+		{
+			int selectedIndex = 0;
+			CountryMapper cmSelected = null;
+
+			try
+			{
+				cmSelected = new CountryMapper(
+					getConfiguration().getValue(a_comboBox.getName()));
+			}
+			catch (IllegalArgumentException a_e)
+			{
+			}
+
+			if (cmSelected != null)
+			{
+				for (int i = 0; i < a_comboBox.getItemCount(); i++)
+				{
+					if (cmSelected.equals(a_comboBox.getItemAt(i)))
+					{
+						selectedIndex = i;
+						break;
+					}
+				}
+			}
+			a_comboBox.setSelectedIndex(selectedIndex);
+		}
+		else
+		{
+			super.load(a_comboBox);
+		}
+	}
+
 
 	protected void enableComponents()
 	{

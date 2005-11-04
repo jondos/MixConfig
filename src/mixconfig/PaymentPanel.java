@@ -205,7 +205,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 			"Please enter the Hostname or IP Address and the port number of the JPI<br> " +
 			"that your mix should use.");
 
-		label = new JLabel("JPI Name:");
+		label = new JLabel("JPI ID:");
 		d.gridy = 0;
 		d.gridx = 0;
 		d.weightx = 0;
@@ -213,7 +213,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		m_jpiPanel.add(label);
 
 		m_textJPIName = new JTextField(14);
-		m_textJPIName.setName("Accounting/BI/BIName");
+		m_textJPIName.setName("Accounting/PaymentInstance/id");
 		m_textJPIName.addFocusListener(this);
 		d.gridx = 1;
 		d.weightx = 1;
@@ -228,7 +228,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		m_jpiPanel.add(label);
 
 		m_textJPIHost = new JTextField(14);
-		m_textJPIHost.setName("Accounting/BI/HostName");
+		m_textJPIHost.setName("Accounting/PaymentInstance/Network/ListenerInterfaces/ListenerInterface/Host");
 		m_textJPIHost.addFocusListener(this);
 		d.gridx = 1;
 		d.weightx = 1;
@@ -243,7 +243,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		m_jpiPanel.add(label);
 
 		m_textJPIPort = new JTextField(14);
-		m_textJPIPort.setName("Accounting/BI/PortNumber");
+		m_textJPIPort.setName("Accounting/PaymentInstance/Network/ListenerInterfaces/ListenerInterface/Port");
 		m_textJPIPort.addFocusListener(this);
 		d.gridx = 1;
 		d.weightx = 1;
@@ -263,7 +263,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 									   "If you have the Public Certificate of a " +
 									   "running JPI, you can import it here.",
 									   (JAPCertificate)null);
-		m_jpiCertPanel.setName("Accounting/BI/TestCertificate");
+		m_jpiCertPanel.setName("Accounting/PaymentInstance/Certificate");
 		m_jpiCertPanel.setCertCreationValidator(this);
 		m_jpiCertPanel.addChangeListener(this);
 		c.gridy++;
@@ -539,6 +539,21 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 					m_chkPaymentEnabled.setSelected(true);
 				}
 			}
+
 		}
 	}
-} 
+
+	protected void save(JTextField a_tf)
+	{
+		//Save the Payment Instance id as an attribute
+		if (a_tf.getName().equals("Accounting/PaymentInstance/id"))
+		{
+			getConfiguration().setAttribute("Accounting/PaymentInstance", "id",
+											a_tf.getText());
+		}
+		else
+		{
+			super.save(a_tf);
+		}
+	}
+}

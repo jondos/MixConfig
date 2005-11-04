@@ -266,17 +266,14 @@ class MapBox extends JDialog implements ChangeListener
 
 		public void handleStartTag(Tag t, MutableAttributeSet a, int pos)
 		{
-			String type = null, name = null, src = null;
-			if (t == Tag.INPUT)
+			if (t == Tag.IMG)
 			{
 				try
 				{
-					type = a.getAttribute(Attribute.TYPE).toString();
-					name = a.getAttribute(Attribute.NAME).toString();
-					if (type.equals("image") && name.equals("mqmap"))
+					if (a.getAttribute(Attribute.ALT).toString().equals("map"))
 					{
-						src = a.getAttribute(Attribute.SRC).toString();
-						MapBox.this.m_urlString = src;
+						MapBox.this.m_urlString =
+							a.getAttribute(Attribute.SRC).toString();
 					}
 				}
 				catch (NullPointerException npe)

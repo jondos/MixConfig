@@ -125,8 +125,8 @@ public class MixConfiguration
 		setValue("Network/InfoService/Host", "80.237.206.62");
 		setValue("Network/InfoService/Port", "6543");
 		/*
-		setValue(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK + "/" + MixOnCDPanel.XMLVALUE_NETWORKINTERFACE,
-				 "eth0");*/
+		   setValue(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK + "/" + MixOnCDPanel.XMLVALUE_NETWORKINTERFACE,
+		   "eth0");*/
 	}
 
 	/** Constructs a new instance of <CODE>MixConfiguration</CODE>. The configuration is
@@ -257,7 +257,7 @@ public class MixConfiguration
 		strValues = new String[values.size()];
 		for (int i = 0; i < strValues.length; i++)
 		{
-			strValues[i] = (String)values.elementAt(i);
+			strValues[i] = (String) values.elementAt(i);
 		}
 
 		return strValues;
@@ -273,14 +273,13 @@ public class MixConfiguration
 						 MixOnCDPanel.XMLATTRIBUTE_DHCP) != null);
 	}
 
-
 	/**
 	 * Returns if the mix may be configured by the info service.
 	 * @return true if the mix may be configured by the info service; false otherwise
 	 */
 	public boolean isAutoConfigurationAllowed()
 	{
-		return	Boolean.valueOf(getValue(GeneralPanel.XMLPATH_AUTOCONFIGURATION)).booleanValue();
+		return Boolean.valueOf(getValue(GeneralPanel.XMLPATH_AUTOCONFIGURATION)).booleanValue();
 	}
 
 	public boolean isFallbackEnabled()
@@ -334,7 +333,6 @@ public class MixConfiguration
 		{
 			return ( (Attr) n).getValue();
 		}
-
 
 		NodeList nl = n.getChildNodes();
 
@@ -475,9 +473,9 @@ public class MixConfiguration
 
 	/** Converts the specified table model to a DOM tree and integrates it below the
 	 * existing element with the specified name.
-         * @param a_mixListModel An instance of <CODE>mixconfig.CascadePanel.MixListTableModel</CODE>
-         * @param a_xmlPath The path to the DOM parent element of the connection element to be set
-         */
+	 * @param a_mixListModel An instance of <CODE>mixconfig.CascadePanel.MixListTableModel</CODE>
+	 * @param a_xmlPath The path to the DOM parent element of the connection element to be set
+	 */
 	public void setValue(String a_xmlPath, CascadePanel.MixListTableModel a_mixListModel)
 	{
 		Node f = a_mixListModel.toXmlElement(m_configuration);
@@ -493,8 +491,6 @@ public class MixConfiguration
 
 		fireStateChanged(a_xmlPath + "/" + f.getNodeName(), a_mixListModel);
 	}
-
-
 
 	/**
 	 * In the case that there is more than one value for a specified path, this
@@ -638,6 +634,14 @@ public class MixConfiguration
 
 		Attr at = getDocument().createAttribute(a_attribute);
 		at.setNodeValue(s);
+
+		setValue(a_xmlPath, null, at, false);
+	}
+
+	public void setAttribute(String a_xmlPath, String a_attribute, String a_value)
+	{
+		Attr at = getDocument().createAttribute(a_attribute);
+		at.setNodeValue(a_value);
 
 		setValue(a_xmlPath, null, at, false);
 	}
@@ -807,7 +811,6 @@ public class MixConfiguration
 			nl = n.getChildNodes();
 			p = n;
 
-
 		}
 		while (headPart != tailPart); // indicates that traversal is complete
 
@@ -830,7 +833,6 @@ public class MixConfiguration
 		doc = XMLUtil.readXMLDocument(r);
 		root = XMLUtil.assertNodeName(doc, "MixConfiguration");
 
-
 		String ver = XMLUtil.parseAttribute(root, XML_ATTRIBUTE_VERSION, null);
 		if (ver == null || ver.length() == 0)
 		{
@@ -843,16 +845,15 @@ public class MixConfiguration
 			}
 		}
 
-
 		try
 		{
 			if (Float.valueOf(ver).floatValue() > Float.valueOf(VERSION).floatValue())
 			{
 				if (!MixConfig.ask(
-								"XML file version mismatch",
-								"The version of this file is newer than this utility,\n" +
-								"thus information may not be read properly.\n" +
-								"Do you want to continue?"))
+					"XML file version mismatch",
+					"The version of this file is newer than this utility,\n" +
+					"thus information may not be read properly.\n" +
+					"Do you want to continue?"))
 				{
 					return null;
 				}
@@ -870,7 +871,7 @@ public class MixConfiguration
 			}
 		}
 
-		XMLUtil.setAttribute((Element)root, XML_ATTRIBUTE_VERSION, VERSION);
+		XMLUtil.setAttribute( (Element) root, XML_ATTRIBUTE_VERSION, VERSION);
 
 		return doc;
 	}
@@ -891,6 +892,5 @@ public class MixConfiguration
 			return false;
 		}
 	}
-
 
 }
