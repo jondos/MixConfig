@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.InetAddress;
 import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DERInputStream;
+import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.DEROutputStream;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DEREncodableVector;
@@ -53,10 +53,15 @@ import anon.infoservice.ListenerInterface;
  */
 public abstract class AbstractX509AlternativeName extends AbstractX509Extension
 {
+	public static final Integer TAG_OTHER = new Integer(0);
 	public static final Integer TAG_EMAIL = new Integer(1);
 	public static final Integer TAG_DNS = new Integer(2);
+	//public static final Integer TAG_X400ADDRESS = new Integer(3);
+	//public static final Integer TAG_DIRECTORY_NAME = new Integer(4);
+	//public static final Integer TAG_EDI_PARTY_NAME = new Integer(5);
 	public static final Integer TAG_URL = new Integer(6);
 	public static final Integer TAG_IP = new Integer(7);
+	//public static final Integer TAG_REGISTERED_ID = new Integer(8);
 
 	private Vector m_values;
 	private Vector m_tags;
@@ -129,7 +134,7 @@ public abstract class AbstractX509AlternativeName extends AbstractX509Extension
 		m_tags = new Vector();
 		try
 		{
-			values = (ASN1Sequence)(new DERInputStream(
+			values = (ASN1Sequence)(new ASN1InputStream(
 				  new ByteArrayInputStream(getDEROctets()))).readObject();
 		}
 		catch (IOException a_e)
@@ -292,6 +297,10 @@ public abstract class AbstractX509AlternativeName extends AbstractX509Extension
 				else if (tag.equals(TAG_DNS))
 				{
 					// todo...
+				}
+				else if (tag.equals(TAG_OTHER))
+				{
+					// OK, you may write everything...
 				}
 				else
 				{
