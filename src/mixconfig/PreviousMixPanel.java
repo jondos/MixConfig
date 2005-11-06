@@ -33,6 +33,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import logging.LogType;
+import javax.swing.JLabel;
+import java.awt.GridBagConstraints;
 
 /** This panel displays information about the previous mix if the current mix is
  * a middle or last mix.
@@ -44,6 +46,15 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 	public PreviousMixPanel()
 	{
 		super(OtherMixPanel.MIX_TYPE_PREVIOUS);
+		//Keep the panels in place
+		GridBagConstraints c = super.getGridBagConstraints();
+		JLabel dummyLabel1 = new JLabel("");
+		c.gridx = 2;
+		c.gridy = 2;
+		c.weightx = 1;
+		c.weighty = 1;
+		c.fill = c.BOTH;
+		this.add(dummyLabel1, c);
 	}
 
 	public void setConfiguration(MixConfiguration a_conf) throws IOException
@@ -59,9 +70,9 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 
 		int mixType = Integer.valueOf(getConfiguration().getValue("General/MixType")).
 			intValue();
-		setEnabled (mixType != MixConfiguration.MIXTYPE_FIRST &&
-					(!getConfiguration().isAutoConfigurationAllowed()
-					 || getConfiguration().isFallbackEnabled()));
+		setEnabled(mixType != MixConfiguration.MIXTYPE_FIRST &&
+				   (!getConfiguration().isAutoConfigurationAllowed()
+					|| getConfiguration().isFallbackEnabled()));
 
 		enableComponents();
 	}
@@ -79,11 +90,10 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 						intValue();
 
 					enableCert(mixType != MixConfiguration.MIXTYPE_FIRST &&
-										  (!getConfiguration().isAutoConfigurationAllowed() ||
-										   getConfiguration().isFallbackEnabled()));
+							   (!getConfiguration().isAutoConfigurationAllowed() ||
+								getConfiguration().isFallbackEnabled()));
 
-
-					setEnabled (mixType != MixConfiguration.MIXTYPE_FIRST);
+					setEnabled(mixType != MixConfiguration.MIXTYPE_FIRST);
 				}
 				else if (c.getChangedAttribute().indexOf(GeneralPanel.XMLPATH_AUTOCONFIGURATION) >= 0)
 				{
