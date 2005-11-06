@@ -304,10 +304,10 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		X509DistinguishedName dn;
 		X509Extensions extensions;
 		X509SubjectAlternativeName alternativeName;
-		CountryMapper mapper = null; ;
-		String strCity = "";
-		String strState = "";
-		String strCountry = "";
+		CountryMapper mapper;
+		String strCity;
+		String strState;
+		String strCountry = null;
 		Vector coordinates;
 		String strLongitude = "";
 		String strLatitude = "";
@@ -319,22 +319,30 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 			try
 			{
 				mapper = new CountryMapper(dn.getCountryCode());
+				if (mapper.getISOCountryCode().length() > 0)
+				{
+					strCountry = mapper.toString();
+				}
 			}
 			catch (IllegalArgumentException a_e)
 			{
-				MixConfig.handleError(a_e, "Could not initialized Country Mapper", 0);
+				strCountry = dn.getCountryCode();
+			}
+			if (strCountry == null)
+			{
+				strCountry = "";
 			}
 
 			strCity = dn.getLocalityName();
+			if (strCity == null)
+			{
+				strCity = "";
+			}
+
 			strState = dn.getStateOrProvince();
 			if (strState == null)
 			{
 				strState = "";
-			}
-
-			if (mapper.getISOCountryCode().length() > 0)
-			{
-				strCountry = mapper.toString();
 			}
 
 			alternativeName = (X509SubjectAlternativeName)
