@@ -44,7 +44,16 @@ import javax.swing.event.ChangeListener;
 
 import anon.crypto.JAPCertificate;
 import gui.JAPHelp;
+import javax.swing.event.ChangeEvent;
+import gui.CountryMapper;
+import anon.crypto.X509Extensions;
+import anon.crypto.X509DistinguishedName;
+import anon.crypto.X509SubjectAlternativeName;
 
+/**
+ * This class is an abstract superclass for NextMixProxyPanel and PreviousMixPanel
+ * @author Tobias Bayer
+ */
 public abstract class OtherMixPanel extends MixConfigPanel implements ChangeListener
 {
 	public static final String MIX_TYPE_PREVIOUS = "Previous Mix";
@@ -284,5 +293,84 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	 */
 	protected void enableComponents()
 	{
+	}
+
+	/**
+	 * Retrieves infomration about location from the certificate and puts it
+	 * into the right text fields
+	 */
+	private void loadLocationInfo()
+	{
+		X509DistinguishedName dn;
+		X509Extensions extensions;
+		X509SubjectAlternativeName alternativeName;
+		CountryMapper mapper = null; ;
+		String strCity = "";
+		String strState = "";
+		String strCountry = "";
+		Vector coordinates;
+		String strLongitude = "";
+		String strLatitude = "";
+
+		if (m_otherCert.getCert() != null)
+		{
+			dn = m_otherCert.getCert().getX509Certificate().getDistinguishedName();
+			extensions = m_otherCert.getCert().getX509Certificate().getExtensions();
+			try
+			{
+				mapper = new CountryMapper(dn.getCountryCode());
+			}
+			catch (IllegalArgumentException a_e)
+			{
+				MixConfig.handleError(a_e, "Could not initialized Country Mapper", 0);
+			}
+
+			strCity = dn.getLocalityName();
+			strState = dn.getStateOrProvince();
+			if (strState == null)
+			{
+				strState = "";
+			}
+
+			if (mapper.getISOCountryCode().length() > 0)
+			{
+				strCountry = mapper.toString();
+			}
+
+			alternativeName = (X509SubjectAlternativeName)
+				extensions.getExtension(X509SubjectAlternativeName.IDENTIFIER);
+
+			if (alternativeName != null)
+			{
+
+				if (alternativeName.getTags().size() == 2 &&
+					alternativeName.getValues().size() == 2)
+				{
+					coordinates = alternativeName.getTags();
+					if (coordinates.elementAt(0).equals(
+						X509SubjectAlternativeName.TAG_OTHER) &&
+						coordinates.elementAt(1).equals(
+							X509SubjectAlternativeName.TAG_OTHER))
+					{
+						coordinates = alternativeName.getValues();
+						strLongitude = coordinates.elementAt(0).toString();
+						strLatitude = coordinates.elementAt(1).toString();
+					}
+				}
+			}
+			m_locCityField.setText(strCity);
+			m_locCountryField.setText(strCountry);
+			m_locStateField.setText(strState);
+			m_locLongField.setText(strLongitude);
+			m_locLatField.setText(strLatitude);
+		}
+	}
+
+	public void stateChanged(ChangeEvent a_e)
+	{
+		if (a_e.getSource() == m_otherCert)
+		{
+			this.loadLocationInfo();
+		}
 	}
 }

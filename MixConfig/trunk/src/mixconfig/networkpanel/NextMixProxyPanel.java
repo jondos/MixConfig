@@ -89,27 +89,6 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		GridBagLayout Out_Layout = super.getGridBagLayout();
 		GridBagConstraints c = super.getGridBagConstraints();
 
-		int[] columnSizes1 =
-			{
-			15, 15, 15, 60, 195, 40};
-		// table1 = new JTable(data1, columnNames1);
-
-		final TableCellRenderer IPRenderer = new DefaultTableCellRenderer()
-		{
-			protected void setValue(Object v)
-			{
-				if (v == null)
-				{
-					super.setValue("");
-				}
-				else
-				{
-					int[] ips = (int[]) v;
-					super.setValue(ips[0] + "." + ips[1] + "." + ips[2] + "." + ips[3]);
-					setHorizontalAlignment(CENTER);
-				}
-			}
-		};
 		final TableCellRenderer PortRenderer = new DefaultTableCellRenderer()
 		{
 			protected void setValue(Object v)
@@ -209,7 +188,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 
 		// Man kann nur eine Zeile selektieren
 		table2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-		table2.setPreferredScrollableViewportSize(new Dimension(500, 90));
+		table2.setPreferredScrollableViewportSize(new Dimension(500, 50));
 
 		for (int Index = 0; Index < columnSizes2.length; Index++)
 		{
@@ -466,6 +445,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			{
 				save( (CertPanel) e.getSource());
 			}
+			super.stateChanged(e);
 
 		}
 		catch (Exception ex)
