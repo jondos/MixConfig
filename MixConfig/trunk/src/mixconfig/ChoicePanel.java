@@ -166,7 +166,7 @@ public class ChoicePanel extends JPanel
 
 	public void setDefaultSize()
 	{
-		Dimension dimension = new Dimension(730, 570);
+		Dimension dimension = new Dimension(800, 570);
 		setSize(dimension);
 		setMinimumSize(dimension);
 		setPreferredSize(dimension);

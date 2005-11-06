@@ -27,20 +27,22 @@
  */
 package mixconfig.networkpanel;
 
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.io.IOException;
 import java.util.Vector;
+
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -57,60 +59,35 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import logging.LogType;
-import mixconfig.ConfigurationEvent;
-import mixconfig.MixConfig;
-import mixconfig.MixConfigPanel;
-import mixconfig.MixConfiguration;
-import mixconfig.CertPanel;
-import mixconfig.GeneralPanel;
 
-
-import anon.crypto.JAPCertificate;
-import logging.LogType;
-import java.awt.event.ComponentListener;
-import java.awt.event.ComponentEvent;
 import gui.JAPHelp;
-import java.awt.Graphics;
+import logging.LogType;
+import mixconfig.CertPanel;
+import mixconfig.ConfigurationEvent;
+import mixconfig.GeneralPanel;
+import mixconfig.MixConfig;
+import mixconfig.MixConfiguration;
+import mixconfig.OtherMixPanel;
 
 /** A panel that provides settings for configuring the Mix's network access:<br>
  * Listeners for incoming connections, and network adresses of outgoing
  * connections (next Nix in the cascade or proxies).
  */
-public final class NextMixProxyPanel extends MixConfigPanel implements TableModelListener, ActionListener,
+public final class NextMixProxyPanel extends OtherMixPanel implements TableModelListener, ActionListener,
 	ChangeListener, ComponentListener
 {
-	/** A <CODE>CertPanel</CODE> for the next Mix's certificate. */
-	private CertPanel m_nextCert;
-
 	private JPanel panel2;
 	private JTable table2;
 	private OutgoingConnectionTableModel omodel;
 	private JButton m_bttnAddOutgoing;
-	//private JCheckBox m_chbAutoConfig;
 
 	/** Constructs a new instance of <CODE>NetworkPanel</CODE> */
 	public NextMixProxyPanel()
 	{
-		super("Next Mix/Proxy");
+		super(OtherMixPanel.MIX_TYPE_NEXT);
 		this.addComponentListener(this);
-		GridBagLayout Out_Layout = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.insets = getDefaultInsets();
-		c.fill = GridBagConstraints.NONE;
-		c.gridx = 0;
-		c.gridy = 0;
-
-		m_nextCert = new CertPanel("Next Mix Certificate",
-								   "Hint: You will get the public test " +
-								   "certificate from the operator of the " +
-								   "next mix", (JAPCertificate)null);
-		m_nextCert.setName("Certificates/NextMixCertificate");
-		m_nextCert.addChangeListener(this);
-		add(m_nextCert, c);
-
-
+		GridBagLayout Out_Layout = super.getGridBagLayout();
+		GridBagConstraints c = super.getGridBagConstraints();
 
 		int[] columnSizes1 =
 			{
@@ -169,7 +146,6 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 			}
 		};
 
-
 		GridBagConstraints d = new GridBagConstraints();
 		d.anchor = GridBagConstraints.CENTER;
 		d.insets = new Insets(5, 5, 5, 5);
@@ -180,14 +156,23 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 		d.gridheight = 3;
 		d.fill = GridBagConstraints.BOTH;
 
-
 		// Now the outgoing connections
 		c.gridx = 0;
-		c.gridy = 1;
+		c.gridy++;
+		c.gridwidth = 2;
 		panel2 = new JPanel(Out_Layout);
 		panel2.setBorder(new TitledBorder("Outgoing"));
 		panel2.setToolTipText("Connection(s) to next Mix or Proxies.");
 		add(panel2, c);
+		//add layout dummy
+		c.gridy++;
+		c.fill = c.NONE;
+		c.weightx = 1;
+		c.weighty = 1;
+		add(new JLabel(" "), c);
+		c.gridwidth = 1;
+		c.weightx = 0;
+		c.weighty = 0;
 
 		int[] columnSizes2 =
 			{
@@ -397,24 +382,8 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 			}
 		}
 
-
-		// in automatic configuration, certificates do not need to be entered in the configuration;
-        // they may be received from the InfoService instead
-		if (!m_nextCert.isEnabled() && m_nextCert.getCert() != null)
-		{
-			errors.addElement(
-				"Next Mix Certificate is present, but there is no next mix.");
-		}
-		else if (!getConfiguration().isAutoConfigurationAllowed() &&
-				 m_nextCert.isEnabled() && m_nextCert.getCert() == null)
-		{
-			errors.addElement(
-				"Next Mix Certificate is missing.");
-		}
-
 		return errors;
 	}
-
 
 	public void paint(Graphics g)
 	{
@@ -430,18 +399,18 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 			int mixType = getConfiguration().getMixType();
 			if (mixType == MixConfiguration.MIXTYPE_LAST)
 			{
-				m_nextCert.removeCert();
+				getMixCertPanel().removeCert();
 			}
 
-			m_nextCert.setEnabled(mixType != MixConfiguration.MIXTYPE_LAST &&
-								  (!getConfiguration().isAutoConfigurationAllowed() ||
-								   getConfiguration().isFallbackEnabled()));
+			getMixCertPanel().setEnabled(mixType != MixConfiguration.MIXTYPE_LAST &&
+										 (!getConfiguration().isAutoConfigurationAllowed() ||
+										  getConfiguration().isFallbackEnabled()));
 
 			bEnableOutgoing = mixType == MixConfiguration.MIXTYPE_LAST ||
-					   !getConfiguration().isAutoConfigurationAllowed()
-					   || getConfiguration().isFallbackEnabled();
+				!getConfiguration().isAutoConfigurationAllowed()
+				|| getConfiguration().isFallbackEnabled();
 
-				   /** @todo do not save outgoing if it is disabled; edit MixConfigPanel... */
+			/** @todo do not save outgoing if it is disabled; edit MixConfigPanel... */
 			table2.setEnabled(bEnableOutgoing);
 			setEnabled(bEnableOutgoing);
 		}
@@ -463,7 +432,7 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 
 		a_conf.addChangeListener(this);
 
-		setEnabled (getConfiguration().getMixType() != MixConfiguration.MIXTYPE_LAST);
+		setEnabled(getConfiguration().getMixType() != MixConfiguration.MIXTYPE_LAST);
 
 		enableComponents();
 	}
@@ -541,7 +510,9 @@ public final class NextMixProxyPanel extends MixConfigPanel implements TableMode
 		omodel = new OutgoingConnectionTableModel();
 		table2.setModel(omodel);
 		omodel.addTableModelListener(this);
-		int[] columnSizes2 = {15, 35, 55, 195, 40};
+		int[] columnSizes2 =
+			{
+			15, 35, 55, 195, 40};
 
 		for (int Index = 0; Index < columnSizes2.length; Index++)
 		{
