@@ -50,6 +50,7 @@ import gui.JAPHelp;
 import gui.CountryMapper;
 import gui.JAPMessages;
 import java.awt.Graphics;
+import java.awt.Component;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener,
 	ChangeListener
@@ -94,13 +95,12 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
-		c.fill = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 0;
 		c.weighty = 0;
 		c.insets = getDefaultInsets();
-
 
 		m_ownCert = new CertPanel("Own Mix Certificate",
 								  "Hint: You have to sent your public test " +
@@ -110,7 +110,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		m_ownCert.setCertCreationValidator(new OwnCertCreationValidator());
 		m_ownCert.addChangeListener(this);
 		add(m_ownCert, c);
-
 
 		m_operatorCert = new CertPanel("Operator Certificate",
 									   "Hint: You have to sent your public test " +
@@ -135,42 +134,46 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		m_txtCity = new JTextField(MAX_COLUMN_LENGTH);
 		m_txtCity.setName(XMLPATH_LOCATION_CITY);
 		m_txtCity.addFocusListener(this);
-		panelLocation.addRow(new JLabel("City"), m_txtCity, GridBagConstraints.HORIZONTAL);
+		panelLocation.addRow(new Component[]
+							 {new JLabel("City"), m_txtCity}, new int[]
+							 {1, 2});
 
 		Vector ctrVec = CountryMapper.getLocalisedCountries(MAX_COMBO_BOX_LENGTH);
 		ctrVec.insertElementAt(new CountryMapper(MAX_COMBO_BOX_LENGTH), 0);
 		cboxCountry = new JComboBox(ctrVec);
-	    cboxCountry.setName(XMLPATH_LOCATION_COUNTRY);
+		cboxCountry.setName(XMLPATH_LOCATION_COUNTRY);
 		cboxCountry.addFocusListener(this);
 		cboxCountry.addItemListener(this);
 		cboxCountry.setEditable(false);
-		panelLocation.addRow(new JLabel("Country"), cboxCountry, GridBagConstraints.HORIZONTAL);
-
+		panelLocation.addRow(new Component[]
+							 {new JLabel("Country"), cboxCountry}, new int[]
+							 {1, 2});
 
 		m_txtState = new JTextField(MAX_COLUMN_LENGTH);
 		m_txtState.setName(XMLPATH_LOCATION_STATE);
 		m_txtState.addFocusListener(this);
-		panelLocation.addRow(new JLabel("State"), m_txtState, GridBagConstraints.HORIZONTAL);
+		panelLocation.addRow(new Component[]
+							 {new JLabel("State"), m_txtState}, new int[]
+							 {1, 2});
 
-	/**
-		JLabel pos = new JLabel("Geographical Position");
-		pos.setToolTipText(
-				  "Example: University of Technology Dresden, CS Department: Longitude: 13.761, Latitude: 51.053");
-		panelLocation.addRow(pos, null);**/
+		/**
+		 JLabel pos = new JLabel("Geographical Position");
+		 pos.setToolTipText(
+		 "Example: University of Technology Dresden, CS Department: Longitude: 13.761, Latitude: 51.053");
+		 panelLocation.addRow(pos, null);**/
 
 		m_txtLongitude = new JTextField(7);
 		m_txtLongitude.setName(XMLPATH_LOCATION_LONGITUDE);
 		m_txtLongitude.addFocusListener(this);
-		m_txtLongitude.setDocument(new FloatDocument( "-180.000", "180.000"));
-		m_txtLongitude.setToolTipText("Longitude in degrees east from Greenwich. ( -180.000 to 180.000)");
-		panelLocation.addRow(new JLabel("Longitude"), m_txtLongitude);
+		m_txtLongitude.setDocument(new FloatDocument("-180.000", "180.000"));
+		m_txtLongitude.setToolTipText("Longitude in degrees east of Greenwich. ( -180.000 to 180.000)");
 
 		m_txtLatitude = new JTextField(7);
 		m_txtLatitude.setName(XMLPATH_LOCATION_LATITUDE);
 		m_txtLatitude.addFocusListener(this);
 		m_txtLatitude.setDocument(new FloatDocument("-90.000", "90.000"));
-		m_txtLatitude.setToolTipText("Latitude in degrees. (-90.000: South Pole, 0: Equator, 90.000: North Pole)");
-		panelLocation.addRow(new JLabel("Latitude"), m_txtLatitude);
+		m_txtLatitude.setToolTipText(
+			"Latitude in degrees. (-90.000: South Pole, 0: Equator, 90.000: North Pole)");
 
 		map = new JButton("Show on Map");
 		map.setToolTipText("Opens a window with a map from www.MapQuest.com " +
@@ -178,10 +181,13 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		map.addActionListener(this);
 		map.setActionCommand("Map");
 		map.setEnabled(!isApplet);
-		panelLocation.addRow(map, null);
 
-
-
+		panelLocation.addRow(new Component[]
+							 {new JLabel("Longitude"), m_txtLongitude, map}, new int[]
+							 {1, 1, 1});
+		panelLocation.addRow(new Component[]
+							 {new JLabel("Latitude"), m_txtLatitude}, new int[]
+							 {1, 1});
 
 		JTextField operatororg, operatorurl, operatoremail;
 		TitledGridBagPanel panelOperator = new TitledGridBagPanel("Operator");
@@ -190,7 +196,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		c.weightx = 0;
 		c.weighty = 0;
 		add(panelOperator, c);
-
 
 		operatororg = new JTextField(20);
 		operatororg.setName(XMLPATH_OPERATOR_ORGANISATION);
@@ -212,8 +217,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			"An E-Mail address to which a confirmation message will be sent once the cascade is established.");
 		panelOperator.addRow(new JLabel("E-Mail"), operatoremail);
 
-
-        //Keep the panels in place
+		//Keep the panels in place
 		JLabel dummyLabel1 = new JLabel("");
 		c.gridx = 2;
 		c.gridy = 2;
@@ -264,7 +268,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		JAPHelp.getInstance().getContextObj().setContext("index");
 	}
 
-
 	public Vector check()
 	{
 		Vector errors;
@@ -274,15 +277,17 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		String names[] =
 			{
 			XMLPATH_OPERATOR_ORGANISATION,
-		//	XMLPATH_OPERATOR_URL,
+			//	XMLPATH_OPERATOR_URL,
 			XMLPATH_OPERATOR_EMAIL
 		};
 
 		String messages[][] =
 			{
-			{"Operator Organisation", getName()},
+			{
+			"Operator Organisation", getName()},
 			//{"Operator URL", getName()},
-			{"Operator E-Mail", getName()},
+			{
+			"Operator E-Mail", getName()},
 		};
 
 		validator.isValid();
@@ -294,7 +299,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			if (value == null || value.equals(""))
 			{
 				errors.addElement(JAPMessages.getString(
-								"error_blank_field", messages[i]));
+					"error_blank_field", messages[i]));
 			}
 		}
 
@@ -303,8 +308,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			errors.addElement(
 				"Own Mix Certificate is missing in " + getName() + " panel.");
 		}
-
-
 
 		return errors;
 	}
@@ -326,7 +329,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		}
 	}
 
-
 	public void setConfiguration(MixConfiguration a_conf) throws IOException
 	{
 		// first enable all components to make MixConfigPanel load their data
@@ -338,15 +340,10 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		a_conf.removeChangeListener(this);
 		a_conf.addChangeListener(this);
 
-
 		updateDeprecatedMixID();
 
 		enableComponents();
 	}
-
-
-
-
 
 	private class OwnCertCreationValidator implements ICertCreationValidator
 	{
@@ -384,7 +381,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 			strLongitude = conf.getValue(XMLPATH_LOCATION_LONGITUDE);
 			strLatitude = conf.getValue(XMLPATH_LOCATION_LATITUDE);
-			if ((strLongitude != null && strLongitude.length() > 0)
+			if ( (strLongitude != null && strLongitude.length() > 0)
 				|| (strLatitude != null && strLatitude.length() > 0))
 			{
 				try
@@ -395,7 +392,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				catch (NumberFormatException a_e)
 				{
 					m_invalidity.addElement(JAPMessages.getString(
-									   "error_illegal_position", getName()));
+						"error_illegal_position", getName()));
 					valid = false;
 				}
 			}
@@ -458,7 +455,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		if (a_comboBox == cboxCountry)
 		{
 			getConfiguration().setValue(a_comboBox.getName(),
-										((CountryMapper)a_comboBox.
+										( (CountryMapper) a_comboBox.
 										 getSelectedItem()).getISOCountryCode());
 		}
 		else
@@ -501,7 +498,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			super.load(a_comboBox);
 		}
 	}
-
 
 	protected void enableComponents()
 	{
@@ -546,10 +542,10 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				{
 					coordinates = alternativeName.getTags();
 					if (coordinates.elementAt(0).equals(
-									   X509SubjectAlternativeName.TAG_OTHER) &&
+						X509SubjectAlternativeName.TAG_OTHER) &&
 						coordinates.elementAt(1).equals(
-									   X509SubjectAlternativeName.TAG_OTHER))
-			        {
+							X509SubjectAlternativeName.TAG_OTHER))
+					{
 						coordinates = alternativeName.getValues();
 						strLongitude = coordinates.elementAt(0).toString();
 						strLatitude = coordinates.elementAt(1).toString();
@@ -559,8 +555,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		}
 
 		if (certCountryMapper.getISOCountryCode().length() > 0 &&
-			((CountryMapper)cboxCountry.getSelectedItem()).equals(
-			  certCountryMapper))
+			( (CountryMapper) cboxCountry.getSelectedItem()).equals(
+				certCountryMapper))
 		{
 			cboxCountry.setEnabled(false);
 		}
@@ -587,7 +583,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			m_txtState.setEditable(true);
 		}
 		if (strLongitude != null && strLongitude.equals(
-			  m_txtLongitude.getText()))
+			m_txtLongitude.getText()))
 		{
 			m_txtLongitude.setEditable(false);
 		}
@@ -596,7 +592,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			m_txtLongitude.setEditable(true);
 		}
 		if (strLatitude != null && strLatitude.equals(
-			  m_txtLatitude.getText()))
+			m_txtLatitude.getText()))
 		{
 			m_txtLatitude.setEditable(false);
 		}
@@ -618,14 +614,14 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		}
 		else
 		{
-			String cn = ((PKCS12) m_ownCert.getCert()).getSubject().getCommonName();
+			String cn = ( (PKCS12) m_ownCert.getCert()).getSubject().getCommonName();
 			try
 			{
 				String temp = cn.substring( (cn.indexOf("id=") + 3), cn.indexOf("/>"));
 				StringTokenizer tokenizer = new StringTokenizer(temp, "\"");
 				cn = tokenizer.nextToken();
 			}
-			catch(Exception a_e)
+			catch (Exception a_e)
 			{
 			}
 
