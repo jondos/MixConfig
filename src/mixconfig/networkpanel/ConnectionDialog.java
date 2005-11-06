@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000, The JAP-Team
+ Copyright (c) 2000-2005, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -54,10 +54,10 @@ import javax.swing.JComponent;
 
 abstract class ConnectionDialog extends JDialog
 {
-	private JTextField nametext, iptext[];
+	private JTextField nametext, iptext;
 	private ButtonGroup ssl, m_bttngrpType;
 	private JComboBox m_type;
-	private JLabel namelabel, iplabel[];
+	private JLabel namelabel, iplabel;
 	private JComponent m_firstone;
 	private boolean m_bMixOnCD;
 
@@ -77,29 +77,14 @@ abstract class ConnectionDialog extends JDialog
 		}
 		if (m_bttngrpType.getSelection().getActionCommand().equals("TCP"))
 		{
-			int[] ips = new int[4];
-			for (int i = 0; i < 4; i++)
-			{
-				if (iptext[i].getText().length() == 0)
-				{
-					ips = null;
-					break;
-				}
-				else
-				{
-					ips[i] = Integer.parseInt(iptext[i].getText(), 10);
-				}
-			}
-
 			if (!m_bMixOnCD)
 			{
 				return new ConnectionData(getType(),
 										  ssl.getSelection().getActionCommand().equals("SSL") ?
 										  ConnectionData.SSL_TCP : ConnectionData.RAW_TCP,
 										  nametext.getText(),
-										  ips,
-										  (iptext[4].getText().length() == 0) ? 0 :
-										  Integer.parseInt(iptext[4].getText(), 10),
+										  (iptext.getText().length() == 0) ? 0 :
+										  Integer.parseInt(iptext.getText()),
 										  0,
 										  bVirtual,
 										  bHidden);
@@ -109,9 +94,9 @@ abstract class ConnectionDialog extends JDialog
 				return new ConnectionData(getType(),
 										  ssl.getSelection().getActionCommand().equals("SSL") ?
 										  ConnectionData.SSL_TCP : ConnectionData.RAW_TCP,
-										  JAPMessages.getString("configuredByMixOnCD"), ips,
-										  (iptext[4].getText().length() == 0) ? 0 :
-										  Integer.parseInt(iptext[4].getText(), 10),
+										  JAPMessages.getString("configuredByMixOnCD"),
+										  (iptext.getText().length() == 0) ? 0 :
+										  Integer.parseInt(iptext.getText()),
 										  0,
 										  bVirtual,
 										  bHidden);
@@ -159,12 +144,8 @@ abstract class ConnectionDialog extends JDialog
 			{
 				boolean is_tcp = ev.getActionCommand().equals("TCP");
 				namelabel.setText(is_tcp ? "Host name" : "File name");
-				for (int i = 0; i < 5; i++)
-				{
-					iplabel[i].setEnabled(is_tcp);
-					iptext[i].setEnabled(is_tcp);
-				}
-
+				iplabel.setEnabled(is_tcp);
+				iptext.setEnabled(is_tcp);
 			}
 		};
 
@@ -251,91 +232,37 @@ abstract class ConnectionDialog extends JDialog
 
 	}
 
-	protected void addIP(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc,
-						 GridBagConstraints rc)
-	{
-		boolean isHost = m_bttngrpType.getSelection().getActionCommand().equals("TCP");
-		iplabel = new JLabel[5];
-		iptext = new JTextField[5];
-		int[] ips;
-		if (data != null)
-		{
-			ips = data.getIPAddr();
-		}
-		else
-		{
-			ips = null;
-		}
-		GridBagConstraints ic = new GridBagConstraints();
-		ic.anchor = GridBagConstraints.WEST;
-		ic.insets = new Insets(1, 5, 1, 1);
-		ic.gridx = lc.gridx;
-		ic.gridy = lc.gridy;
-		ic.weightx = 0;
-		for (int i = 0; i < 4; i++)
-		{
-			iplabel[i] = new JLabel( (i == 0) ? "IP address" : ".");
-			layout.setConstraints(iplabel[i], (i == 0) ? lc : ic);
-			//getContentPane().add(iplabel[i]);
-			iplabel[i].setEnabled(isHost);
-			ic.gridx++;
-
-			iptext[i] = new JTextField(3);
-			iptext[i].setMinimumSize(iptext[i].getPreferredSize());
-			iptext[i].setDocument(new IntegerDocument(255, iptext[i]));
-			if (ips != null)
-			{
-				iptext[i].setText(Integer.toString(ips[i], 10));
-			}
-			layout.setConstraints(iptext[i], ic);
-			//getContentPane().add(iptext[i]);
-			iptext[i].addActionListener(nextfocusaction);
-			iptext[i].setEnabled(isHost);
-			ic.gridx++;
-			if (i == 0)
-			{
-				ic.insets.left = 1;
-			}
-		}
-		lc.gridy++;
-		rc.gridy++;
-		if (m_firstone == null)
-		{
-			m_firstone = iptext[0];
-		}
-	}
-
 	protected void addPort(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc,
 						   GridBagConstraints rc)
 	{
 		boolean isHost = m_bttngrpType.getSelection().getActionCommand().equals("TCP");
-		iplabel[4] = new JLabel("Port");
-		layout.setConstraints(iplabel[4], lc);
-		getContentPane().add(iplabel[4]);
-		iplabel[4].setEnabled(isHost);
+		iplabel = new JLabel("Port");
+		layout.setConstraints(iplabel, lc);
+		getContentPane().add(iplabel);
+		iplabel.setEnabled(isHost);
 		lc.gridy++;
 
 		rc.gridwidth = 7;
-		iptext[4] = new JTextField(5);
-		iptext[4].setMinimumSize(iptext[4].getPreferredSize());
-		iptext[4].setDocument(new IntegerDocument(65535));
+		iptext = new JTextField(5);
+		iptext.setMinimumSize(iptext.getPreferredSize());
+		iptext.setDocument(new IntegerDocument(65535));
 		if (isHost && data != null)
 		{
-			iptext[4].setText(String.valueOf(data.getPort()));
+			iptext.setText(String.valueOf(data.getPort()));
 		}
 		if (isHost && data == null)
 		{
-			iptext[4].setText("6544");
+			iptext.setText("6544");
 		}
 
-		layout.setConstraints(iptext[4], rc);
-		getContentPane().add(iptext[4]);
-		iptext[4].addActionListener(nextfocusaction);
-		iptext[4].setEnabled(isHost);
+		layout.setConstraints(iptext, rc);
+		getContentPane().add(iptext);
+		iptext.addActionListener(nextfocusaction);
+		iptext.setEnabled(isHost);
 		rc.gridy++;
 		if (m_firstone == null)
 		{
-			m_firstone = iptext[4];
+			m_firstone = iptext;
 		}
 	}
 
@@ -407,7 +334,6 @@ abstract class ConnectionDialog extends JDialog
 		GridBagLayout keylayout = new GridBagLayout();
 		JPanel keys = new JPanel(keylayout);
 		GridBagConstraints kc = new GridBagConstraints();
-		final JDialog parent = this;
 		kc.weightx = 1;
 		kc.gridx = 0;
 		kc.gridy = 0;
@@ -422,23 +348,6 @@ abstract class ConnectionDialog extends JDialog
 			{
 				public void actionPerformed(ActionEvent ev)
 				{
-					if (m_bttngrpType.getSelection().getActionCommand().equals("TCP"))
-					{
-						for (int i = 0; i < 4; i++)
-						{
-							if (iptext[i].getText().length() == 0)
-							{
-								if (i == 0)
-								{
-									break;
-								}
-								javax.swing.JOptionPane.showMessageDialog(parent,
-									"IP address is not complete.",
-									"Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-								return;
-							}
-						}
-					}
 					where.addData(getData());
 					dispose();
 				}
@@ -451,23 +360,6 @@ abstract class ConnectionDialog extends JDialog
 			{
 				public void actionPerformed(ActionEvent ev)
 				{
-					if (m_bttngrpType.getSelection().getActionCommand().equals("TCP"))
-					{
-						for (int i = 0; i < 4; i++)
-						{
-							if (iptext[i].getText().length() == 0)
-							{
-								if (i == 0)
-								{
-									break;
-								}
-								javax.swing.JOptionPane.showMessageDialog(parent,
-									"IP Address is not complete.",
-									"Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-								return;
-							}
-						}
-					}
 					where.changeData(getData(), data);
 					dispose();
 				}

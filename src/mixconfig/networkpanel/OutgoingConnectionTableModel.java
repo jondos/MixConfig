@@ -90,7 +90,7 @@ final public class OutgoingConnectionTableModel extends ConnectionTableModel
 		{
 			if (getData(i).getType().equals("Proxy"))
 			{
-				Element proxy = getData(i).createAsElement(doc);
+				Element proxy = getData(i).toXmlElement(doc);
 				proxies.appendChild(proxy);
 			}
 		}
@@ -110,7 +110,7 @@ final public class OutgoingConnectionTableModel extends ConnectionTableModel
 		{
 			if (getData(i).getType().equals("NextMix"))
 			{
-				Element mix = getData(i).createAsElement(doc);
+				Element mix = getData(i).toXmlElement(doc);
 				return mix;
 			}
 		}

@@ -822,7 +822,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				ConnectionData olddata = m_listenerModel.getData(i);
 				if (olddata.getTransport() != ConnectionData.UNIX && !olddata.isVirtual())
 				{
-					ConnectionData newdata = olddata.deepClone();
+					ConnectionData newdata = (ConnectionData)olddata.clone();
 					newdata.setName(JAPMessages.getString("configuredByMixOnCD"));
 					m_listenerModel.changeData(newdata, olddata);
 				}
@@ -835,7 +835,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				ConnectionData olddata = m_listenerModel.getData(i);
 				if (olddata.getName().equalsIgnoreCase(JAPMessages.getString("configuredByMixOnCD")))
 				{
-					ConnectionData newdata = olddata.deepClone();
+					ConnectionData newdata = (ConnectionData)olddata.clone();
 					newdata.setName(JAPMessages.getString(""));
 					m_listenerModel.changeData(newdata, olddata);
 				}
