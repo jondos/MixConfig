@@ -50,7 +50,6 @@ import gui.JAPHelp;
 import gui.CountryMapper;
 import gui.JAPMessages;
 import java.awt.Graphics;
-import java.awt.Component;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener,
 	ChangeListener
@@ -134,9 +133,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		m_txtCity = new JTextField(MAX_COLUMN_LENGTH);
 		m_txtCity.setName(XMLPATH_LOCATION_CITY);
 		m_txtCity.addFocusListener(this);
-		panelLocation.addRow(new Component[]
-							 {new JLabel("City"), m_txtCity}, new int[]
-							 {1, 2});
+		panelLocation.addRow(new JLabel("City"), m_txtCity, null);
 
 		Vector ctrVec = CountryMapper.getLocalisedCountries(MAX_COMBO_BOX_LENGTH);
 		ctrVec.insertElementAt(new CountryMapper(MAX_COMBO_BOX_LENGTH), 0);
@@ -145,16 +142,12 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		cboxCountry.addFocusListener(this);
 		cboxCountry.addItemListener(this);
 		cboxCountry.setEditable(false);
-		panelLocation.addRow(new Component[]
-							 {new JLabel("Country"), cboxCountry}, new int[]
-							 {1, 2});
+		panelLocation.addRow(new JLabel("Country"), cboxCountry, null);
 
 		m_txtState = new JTextField(MAX_COLUMN_LENGTH);
 		m_txtState.setName(XMLPATH_LOCATION_STATE);
 		m_txtState.addFocusListener(this);
-		panelLocation.addRow(new Component[]
-							 {new JLabel("State"), m_txtState}, new int[]
-							 {1, 2});
+		panelLocation.addRow(new JLabel("State"), m_txtState, null);
 
 		/**
 		 JLabel pos = new JLabel("Geographical Position");
@@ -182,12 +175,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		map.setActionCommand("Map");
 		map.setEnabled(!isApplet);
 
-		panelLocation.addRow(new Component[]
-							 {new JLabel("Longitude"), m_txtLongitude, map}, new int[]
-							 {1, 1, 1});
-		panelLocation.addRow(new Component[]
-							 {new JLabel("Latitude"), m_txtLatitude}, new int[]
-							 {1, 1});
+		panelLocation.addRow(new JLabel("Longitude"), m_txtLongitude, map);
+		panelLocation.addRow(new JLabel("Latitude"), m_txtLatitude, null);
 
 		JTextField operatororg, operatorurl, operatoremail;
 		TitledGridBagPanel panelOperator = new TitledGridBagPanel("Operator");
