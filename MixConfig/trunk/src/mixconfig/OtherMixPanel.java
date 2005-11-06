@@ -285,8 +285,4 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	protected void enableComponents()
 	{
 	}
-
-	public static void main(String[] args)
-	{
-	}
 }
