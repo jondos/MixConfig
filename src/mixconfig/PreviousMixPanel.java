@@ -106,6 +106,7 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 			{
 				save( (CertPanel) e.getSource());
 			}
+			super.stateChanged(e);
 		}
 		catch (Exception ex)
 		{
