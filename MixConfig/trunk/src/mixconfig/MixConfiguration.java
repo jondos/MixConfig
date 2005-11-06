@@ -51,6 +51,7 @@ import logging.LogLevel;
 import logging.LogType;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.OutgoingConnectionTableModel;
+import mixconfig.networkpanel.ConnectionData;
 
 /** This class provides unified access to the Mix configuration. The configuration
  * is stored as a DOM document.
@@ -111,19 +112,20 @@ public class MixConfiguration
 	{
 		String mixConfigXML =
 			"<?xml version=\"1.0\"?>" +
-			"<MixConfiguration version=\"0.5\">" +
-			"   <General><MixType>FirstMix</MixType></General>" +
-			"   <Network/>" +
-			"   <Certificates/>" +
-			"   <Description/>" +
+			"<MixConfiguration version=\"" + VERSION + "\">" +
 			"</MixConfiguration>";
 
 		m_configuration = XMLUtil.toXMLDocument(mixConfigXML);
 
 		//setValue("Network/InfoService/Host", "infoservice.inf.tu-dresden.de");
 		//setValue("Network/InfoService/Port", "80");
+		setValue("General/MixType", "FirstMix");
+		setValue("General/MixName", "AN.ON Mix");
 		setValue("Network/InfoService/Host", "80.237.206.62");
 		setValue("Network/InfoService/Port", "6543");
+		setValue("Network/ListenerInterfaces/ListenerInterface/NetworkProtocol",
+				 "RAW/TCP");
+		setValue("Network/ListenerInterfaces/ListenerInterface/Port","6544");
 		/*
 		   setValue(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK + "/" + MixOnCDPanel.XMLVALUE_NETWORKINTERFACE,
 		   "eth0");*/

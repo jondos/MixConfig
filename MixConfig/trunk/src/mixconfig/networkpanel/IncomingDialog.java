@@ -65,7 +65,6 @@ public class IncomingDialog extends ConnectionDialog
 
 		addTransport(data, layout, lc, rc);
 		addName(data, layout, lc, rc, !a_bMixOnCD);
-		addIP(data, layout, lc, rc);
 		addPort(data, layout, lc, rc);
 		addOptions(data, layout, lc, rc, !a_bMixOnCD);
 		addKeys(data, where, layout, lc, rc);

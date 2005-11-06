@@ -72,7 +72,7 @@ public final class IncomingConnectionTableModel extends ConnectionTableModel
 		Element ifaces = doc.createElement("ListenerInterfaces");
 		for (int i = 0; i < getRowCount(); i++)
 		{
-			ifaces.appendChild(getData(i).createAsElement(doc));
+			ifaces.appendChild(getData(i).toXmlElement(doc));
 		}
 		return ifaces;
 	}

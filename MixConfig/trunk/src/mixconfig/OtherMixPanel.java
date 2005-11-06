@@ -42,6 +42,7 @@ import javax.swing.event.ChangeListener;
 
 import anon.crypto.JAPCertificate;
 import gui.JAPHelp;
+import java.awt.Dimension;
 
 public abstract class OtherMixPanel extends MixConfigPanel implements ChangeListener
 {
@@ -96,7 +97,6 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		m_otherCert.addChangeListener(this);
 		m_gbc.gridx = 0;
 		m_gbc.gridy = 0;
-		m_gbc.fill = m_gbc.HORIZONTAL;
 		this.add(m_otherCert, m_gbc);
 
 		m_otherOpCert = new CertPanel(a_mixType + " Operator Certificate",
@@ -116,19 +116,21 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		}
 		m_otherOpCert.addChangeListener(this);
 		m_gbc.gridx++;
-		m_gbc.fill = m_gbc.HORIZONTAL;
-		m_gbc.weightx = 1;
+		m_gbc.fill = m_gbc.NONE;
 		this.add(m_otherOpCert, m_gbc);
 
 		m_locationPanel = this.createLocationPanel();
 		m_gbc.gridx = 0;
 		m_gbc.gridy++;
+		m_otherCert.getHeight();
 		this.add(m_locationPanel, m_gbc);
+		m_locationPanel.setPreferredSize(new Dimension((int)m_otherCert.getPreferredSize().getWidth(), (int)m_locationPanel.getPreferredSize().getHeight()));
+
 
 		m_operatorPanel = this.createOperatorPanel();
 		m_gbc.gridx++;
-		m_gbc.weighty = 1;
 		this.add(m_operatorPanel, m_gbc);
+		m_operatorPanel.setPreferredSize(new Dimension((int)m_otherOpCert.getPreferredSize().getWidth(), (int)m_operatorPanel.getPreferredSize().getHeight()));
 	}
 
 	private JPanel createLocationPanel()
@@ -137,7 +139,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		m_locCityLabel = new JLabel("N/A");
 		m_locCountryLabel = new JLabel("N/A");
 		m_locStateLabel = new JLabel("N/A");
-		m_locLongLabel = new JLabel("N/A");
+		m_locLongLabel = new JLabel("N/A     ");
 		m_locLatLabel = new JLabel("N/A");
 		m_mapButton = new JButton("Show on map");
 		m_mapButton.setActionCommand("Map");
@@ -187,11 +189,11 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		}
 		);
 
-		panel.addRow(new JLabel("City:"), m_locCityLabel);
-		panel.addRow(new JLabel("Country:"), m_locCountryLabel);
-		panel.addRow(new JLabel("State:"), m_locStateLabel);
+		panel.addRow(new JLabel("City:"), m_locCityLabel, null);
+		panel.addRow(new JLabel("Country:"), m_locCountryLabel, null);
+		panel.addRow(new JLabel("State:"), m_locStateLabel, null);
 		panel.addRow(new JLabel("Longitude:"), m_locLongLabel, m_mapButton);
-		panel.addRow(new JLabel("Longitude:"), m_locLatLabel);
+		panel.addRow(new JLabel("Longitude:"), m_locLatLabel, null);
 
 		return panel;
 	}

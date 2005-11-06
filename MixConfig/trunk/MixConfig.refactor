@@ -11,4 +11,10 @@
     <old-method-name>getInvalidityMessage</old-method-name>
     <new-method-name>getInvalidityMessages</new-method-name>
   </rename-method>
+  <rename-method id="6AP0GY839PFEWKXTC7KYS6Y0" creation-time="Sun Nov 06 12:35:54.944 CET 2005">
+    <declaring-class-name>mixconfig.networkpanel.ConnectionData</declaring-class-name>
+    <declared-method-signature>()Lmixconfig/networkpanel/ConnectionData;</declared-method-signature>
+    <old-method-name>deepClone</old-method-name>
+    <new-method-name>clone</new-method-name>
+  </rename-method>
 </refactor>

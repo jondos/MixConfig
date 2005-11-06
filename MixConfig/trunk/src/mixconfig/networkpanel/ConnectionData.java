@@ -1,3 +1,30 @@
+/*
+ Copyright (c) 2000-2005, The JAP-Team
+ All rights reserved.
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+
+ - Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+
+ - Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation and/or
+  other materials provided with the distribution.
+
+ - Neither the name of the University of Technology Dresden, Germany nor the names of its contributors
+  may be used to endorse or promote products derived from this software without specific
+  prior written permission.
+
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
+ OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS
+ BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+ */
 package mixconfig.networkpanel;
 
 import org.w3c.dom.Document;
@@ -5,8 +32,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import anon.util.XMLUtil;
 import gui.JAPMessages;
+import anon.util.IXMLEncodable;
 
-final public class ConnectionData
+final public class ConnectionData implements IXMLEncodable, Cloneable
 {
 	public static final int TRANSPORT = 1; // Bit mask
 	public static final int TCP = 0;
@@ -26,77 +54,64 @@ final public class ConnectionData
 
 	private int m_iTransport;
 	private String m_strHostname;
-	private int[] m_arIPAddr;
 	private int m_iPort;
 	private String m_strXMLNodeName; // Name of the XML element
 	private int m_iFlags;
 	private boolean m_bIsVirtual = false;
 	private boolean m_bIsHidden = false;
 
-	ConnectionData(String x, int t, String n, int[] addr, int p)
+	public ConnectionData(String a_strXMLNodeName, int a_iTransport,
+						  String a_strHostname, int a_port)
 	{
-		setType(x);
-		setTransport(t);
-		setName(n);
-		setIPAddr(addr);
-		setPort(p);
+		setType(a_strXMLNodeName);
+		setTransport(a_iTransport);
+		setName(a_strHostname);
+		setPort(a_port);
 		setFlags(0);
 		setIsVirtual(false);
 		setIsHidden(false);
 	}
 
-	ConnectionData(String x, int t, String n, String addr, int p, int f, boolean virtual, boolean hidden)
+	public ConnectionData(String a_strXMLNodeName, int a_iTransport,
+						   String a_strHostname, int a_port, int f,
+						   boolean virtual, boolean hidden)
 	{
-		setType(x);
-		setTransport(t);
-		setName(n);
-		setIPAddr(addr);
-		setPort(p);
+		setType(a_strXMLNodeName);
+		setTransport(a_iTransport);
+		setName(a_strHostname);
+		setPort(a_port);
 		setFlags(f);
 		setIsVirtual(virtual);
 		setIsHidden(hidden);
 	}
 
-	ConnectionData(String x, int t, String n, int[] addr, int p, int f, boolean virtual, boolean hidden)
+	public ConnectionData(String a_strXMLNodeName, int a_iTransport, int f,
+						  String a_strHostname)
 	{
-		setType(x);
-		setTransport(t);
-		setName(n);
-		setIPAddr(addr);
-		setPort(p);
-		setFlags(f);
-		setIsVirtual(virtual);
-		setIsHidden(hidden);
-	}
-
-	ConnectionData(String x, int t, String n, int f)
-	{
-		setType(x);
-		setTransport(t);
-		setName(n);
-		m_arIPAddr = null;
+		setType(a_strXMLNodeName);
+		setTransport(a_iTransport);
+		setName(a_strHostname);
 		setPort(0);
 		setFlags(f);
 		setIsVirtual(false);
 		setIsHidden(false);
 	}
 
-	ConnectionData(String x, int t, String n)
+	public ConnectionData(String a_strXMLNodeName, int t, String a_strHostname)
 	{
-		setType(x);
+		setType(a_strXMLNodeName);
 		setTransport(t);
-		setName(n);
-		m_arIPAddr = null;
+		setName(a_strHostname);
 		setPort(0);
 		setFlags(0);
 		setIsVirtual(false);
 		setIsHidden(false);
 	}
 
-	public ConnectionData deepClone()
+	public Object clone()
 	{
-		return new ConnectionData(m_strXMLNodeName, m_iTransport, m_strHostname, m_arIPAddr, m_iPort,
-								  m_iFlags, m_bIsVirtual, m_bIsHidden);
+		return new ConnectionData(m_strXMLNodeName, m_iTransport, m_strHostname,
+								  m_iPort, m_iFlags, m_bIsVirtual, m_bIsHidden);
 	}
 
 	void setFlags(int f)
@@ -139,41 +154,6 @@ final public class ConnectionData
 		return m_strHostname;
 	}
 
-	void setIPAddr(int[] addr)
-	{
-		if (addr == null)
-		{
-			m_arIPAddr = null;
-		}
-		else
-		{
-			m_arIPAddr = (int[]) addr.clone();
-		}
-	}
-
-	void setIPAddr(String addr)
-	{
-		if (addr == null)
-		{
-			m_arIPAddr = null;
-			return;
-		}
-		int idx = 0;
-		int[] myaddr = new int[4];
-
-		for (int i = 0; i < 4; i++)
-		{
-			int newidx = (i == 3) ? addr.length() : addr.indexOf('.', idx);
-			myaddr[i] = Integer.parseInt(addr.substring(idx, newidx), 10);
-			idx = newidx + 1;
-		}
-		m_arIPAddr = myaddr;
-	}
-
-	int[] getIPAddr()
-	{
-		return m_arIPAddr;
-	}
 
 	void setPort(int p)
 	{
@@ -221,7 +201,7 @@ final public class ConnectionData
 		}
 	}
 
-	Element createAsElement(Document docOwner)
+	public Element toXmlElement(Document docOwner)
 	{
 		Element elemRoot = docOwner.createElement(m_strXMLNodeName);
 		Element data;
@@ -254,13 +234,6 @@ final public class ConnectionData
 			}
 
 			elemRoot.appendChild(data);
-			if (m_arIPAddr != null)
-			{
-				data = docOwner.createElement("IP");
-				data.appendChild(docOwner.createTextNode(
-					m_arIPAddr[0] + "." + m_arIPAddr[1] + "." + m_arIPAddr[2] + "." + m_arIPAddr[3]));
-				elemRoot.appendChild(data);
-			}
 			data = docOwner.createElement("Port");
 			data.appendChild(docOwner.createTextNode(String.valueOf(m_iPort)));
 			elemRoot.appendChild(data);
@@ -362,7 +335,7 @@ final public class ConnectionData
 			{
 				p = Integer.parseInt(data);
 			}
-			return new ConnectionData(t, trans, n, ip, p, ptype, virtual, hidden);
+			return new ConnectionData(t, trans, n, p, ptype, virtual, hidden);
 		}
 		else
 		{
@@ -371,7 +344,7 @@ final public class ConnectionData
 			{
 				n = "";
 			}
-			return new ConnectionData(t, trans, n, ptype);
+			return new ConnectionData(t, trans, ptype, n);
 		}
 	}
 

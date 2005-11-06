@@ -107,7 +107,6 @@ public class OutgoingDialog extends ConnectionDialog
 		}
 		addTransport(data, layout, lc, rc);
 		addName(data, layout, lc, rc, true);
-		addIP(data, layout, lc, rc);
 		addPort(data, layout, lc, rc);
 		addKeys(data, where, layout, lc, rc);
 
