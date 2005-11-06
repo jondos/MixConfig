@@ -68,6 +68,8 @@ import mixconfig.GeneralPanel;
 import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
 import mixconfig.OtherMixPanel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /** A panel that provides settings for configuring the Mix's network access:<br>
  * Listeners for incoming connections, and network adresses of outgoing
@@ -89,6 +91,27 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		GridBagLayout Out_Layout = super.getGridBagLayout();
 		GridBagConstraints c = super.getGridBagConstraints();
 
+		int[] columnSizes1 =
+			{
+			15, 15, 15, 60, 195, 40};
+		// table1 = new JTable(data1, columnNames1);
+
+		final TableCellRenderer IPRenderer = new DefaultTableCellRenderer()
+		{
+			protected void setValue(Object v)
+			{
+				if (v == null)
+				{
+					super.setValue("");
+				}
+				else
+				{
+					int[] ips = (int[]) v;
+					super.setValue(ips[0] + "." + ips[1] + "." + ips[2] + "." + ips[3]);
+					setHorizontalAlignment(CENTER);
+				}
+			}
+		};
 		final TableCellRenderer PortRenderer = new DefaultTableCellRenderer()
 		{
 			protected void setValue(Object v)
@@ -189,6 +212,26 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		// Man kann nur eine Zeile selektieren
 		table2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		table2.setPreferredScrollableViewportSize(new Dimension(500, 50));
+		table2.addMouseListener(new MouseAdapter()
+		{
+			public void mouseClicked(MouseEvent e)
+			{
+				if (e.getClickCount() == 2)
+				{
+					String titles[] =
+						{
+						" Next Mix", " Next Mix", " Proxy"
+					};
+					MixConfiguration mixConf = getConfiguration();
+					int mixType = Integer.valueOf(mixConf.getValue("General/MixType")).intValue();
+
+					new OutgoingDialog(MixConfig.getMainWindow(),
+									   "Change" + titles[mixType],
+									   omodel,
+									   omodel.getData(table2.getSelectedRow())).setVisible(true);
+				}
+			}
+		});
 
 		for (int Index = 0; Index < columnSizes2.length; Index++)
 		{
@@ -211,7 +254,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		Out_Layout.setConstraints(scrollPane2, d);
 		panel2.add(scrollPane2);
 
-		for (int Nr = 0; Nr < 3; Nr++)
+		for (int Nr = 0; Nr < 2; Nr++)
 		{
 			JButton OutButton;
 			switch (Nr)
@@ -233,21 +276,21 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 					OutButton.addActionListener(this);
 					m_bttnAddOutgoing = OutButton;
 					break;
+					/*case 1:
+					 final JButton cb = new JButton("Change");
+					 OutButton = cb;
+					 table2.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+					 {
+					  public void valueChanged(ListSelectionEvent e)
+					  {
+					   cb.setEnabled(! ( (ListSelectionModel) e.getSource()).isSelectionEmpty());
+					  }
+					 });
+					 cb.setEnabled(false);
+					 cb.setActionCommand("ChangeOutgoing");
+					 cb.addActionListener(this);
+					 break;*/
 				case 1:
-					final JButton cb = new JButton("Change");
-					OutButton = cb;
-					table2.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-					{
-						public void valueChanged(ListSelectionEvent e)
-						{
-							cb.setEnabled(! ( (ListSelectionModel) e.getSource()).isSelectionEmpty());
-						}
-					});
-					cb.setEnabled(false);
-					cb.setActionCommand("ChangeOutgoing");
-					cb.addActionListener(this);
-					break;
-				case 2:
 					final JButton db = new JButton("Delete");
 					OutButton = db;
 					table2.getSelectionModel().addListSelectionListener(new ListSelectionListener()
@@ -471,13 +514,6 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			new OutgoingDialog(MixConfig.getMainWindow(),
 							   "Add" + titles[mixType],
 							   omodel).setVisible(true);
-		}
-		else if (a.getActionCommand().equals("ChangeOutgoing"))
-		{
-			new OutgoingDialog(MixConfig.getMainWindow(),
-							   "Change" + titles[mixType],
-							   omodel,
-							   omodel.getData(table2.getSelectedRow())).setVisible(true);
 		}
 		else if (a.getActionCommand().equals("DeleteOutgoing"))
 		{
