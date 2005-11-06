@@ -79,8 +79,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	public static final String XMLPATH_OPERATOR_NAME = XMLPATH_OPERATOR +
 		"/CommonName";
 
-	private static final int MAX_COLUMN_LENGTH = 20;
-	private static final int MAX_COMBO_BOX_LENGTH = 32;
 	private CertPanel m_ownCert;
 	private CertPanel m_operatorCert;
 	private JButton map;
@@ -155,13 +153,13 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		 "Example: University of Technology Dresden, CS Department: Longitude: 13.761, Latitude: 51.053");
 		 panelLocation.addRow(pos, null);**/
 
-		m_txtLongitude = new JTextField(7);
+		m_txtLongitude = new JTextField(MAX_COORDINATE_FIELD_LENGTH);
 		m_txtLongitude.setName(XMLPATH_LOCATION_LONGITUDE);
 		m_txtLongitude.addFocusListener(this);
 		m_txtLongitude.setDocument(new FloatDocument("-180.000", "180.000"));
 		m_txtLongitude.setToolTipText("Longitude in degrees east of Greenwich. ( -180.000 to 180.000)");
 
-		m_txtLatitude = new JTextField(7);
+		m_txtLatitude = new JTextField(MAX_COORDINATE_FIELD_LENGTH);
 		m_txtLatitude.setName(XMLPATH_LOCATION_LATITUDE);
 		m_txtLatitude.addFocusListener(this);
 		m_txtLatitude.setDocument(new FloatDocument("-90.000", "90.000"));
@@ -186,20 +184,20 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		c.weighty = 0;
 		add(panelOperator, c);
 
-		operatororg = new JTextField(20);
+		operatororg = new JTextField(MAX_COLUMN_LENGTH);
 		operatororg.setName(XMLPATH_OPERATOR_ORGANISATION);
 		operatororg.addFocusListener(this);
 		operatororg.setToolTipText(
 			"This should contain the operating organisation's or a person's name for private persons.");
 		panelOperator.addRow(new JLabel("Organisation"), operatororg);
 
-		operatorurl = new JTextField(20);
+		operatorurl = new JTextField(MAX_COLUMN_LENGTH);
 		operatorurl.setName(XMLPATH_OPERATOR_URL);
 		operatorurl.addFocusListener(this);
 		operatorurl.setToolTipText("This should contain a URL that will lead to more information about the operator including contact information.");
 		panelOperator.addRow(new JLabel("URL"), operatorurl);
 
-		operatoremail = new JTextField(20);
+		operatoremail = new JTextField(MAX_COLUMN_LENGTH);
 		operatoremail.setName(XMLPATH_OPERATOR_EMAIL);
 		operatoremail.addFocusListener(this);
 		operatoremail.setToolTipText(
@@ -219,10 +217,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	public void actionPerformed(ActionEvent ae)
 	{
-		String lat = getConfiguration().getValue(
-			"Description/Location/Position/Geo/Latitude");
-		String lon = getConfiguration().getValue(
-			"Description/Location/Position/Geo/Longitude");
+		String lat = getConfiguration().getValue(XMLPATH_LOCATION_LATITUDE);
+		String lon = getConfiguration().getValue(XMLPATH_LOCATION_LONGITUDE);
 
 		try
 		{
