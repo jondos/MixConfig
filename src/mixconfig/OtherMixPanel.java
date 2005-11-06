@@ -124,13 +124,13 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		m_gbc.gridy++;
 		m_otherCert.getHeight();
 		this.add(m_locationPanel, m_gbc);
-		m_locationPanel.setPreferredSize(new Dimension((int)m_otherCert.getPreferredSize().getWidth(), (int)m_locationPanel.getPreferredSize().getHeight()));
+		m_locationPanel.setPreferredSize(new Dimension((int)m_otherCert.getPreferredSize().width, (int)m_locationPanel.getPreferredSize().height));
 
 
 		m_operatorPanel = this.createOperatorPanel();
 		m_gbc.gridx++;
 		this.add(m_operatorPanel, m_gbc);
-		m_operatorPanel.setPreferredSize(new Dimension((int)m_otherOpCert.getPreferredSize().getWidth(), (int)m_operatorPanel.getPreferredSize().getHeight()));
+		m_operatorPanel.setPreferredSize(new Dimension((int)m_otherOpCert.getPreferredSize().width, (int)m_operatorPanel.getPreferredSize().height));
 	}
 
 	private JPanel createLocationPanel()
