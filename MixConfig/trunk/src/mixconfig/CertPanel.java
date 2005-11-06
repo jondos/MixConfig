@@ -60,7 +60,6 @@ import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
 import anon.crypto.Validity;
 import anon.util.IMiscPasswordReader;
-import anon.util.Util;
 import gui.GUIUtils;
 import gui.PasswordBox;
 import logging.LogType;
