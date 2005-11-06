@@ -84,6 +84,9 @@ import logging.LogType;
  */
 public abstract class MixConfigPanel extends JPanel implements ItemListener, FocusListener
 {
+	public static final int MAX_COLUMN_LENGTH = 20;
+	public static final int MAX_COMBO_BOX_LENGTH = 32;
+	public static final int MAX_COORDINATE_FIELD_LENGTH = 7;
 	/**
 	 * Indicates whether changes in configuration controls should automatically
 	 * be written to the MixConfiguration object

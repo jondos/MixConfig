@@ -29,6 +29,7 @@ package mixconfig;
 
 import java.util.Vector;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -38,11 +39,11 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 
 import anon.crypto.JAPCertificate;
 import gui.JAPHelp;
-import java.awt.Dimension;
 
 public abstract class OtherMixPanel extends MixConfigPanel implements ChangeListener
 {
@@ -56,14 +57,14 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 
 	private JPanel m_operatorPanel;
 	private JPanel m_locationPanel;
-	private JLabel m_opOrgLabel;
-	private JLabel m_opUrlLabel;
-	private JLabel m_opEmailLabel;
-	private JLabel m_locCityLabel;
-	private JLabel m_locCountryLabel;
-	private JLabel m_locStateLabel;
-	private JLabel m_locLongLabel;
-	private JLabel m_locLatLabel;
+	private JTextField m_opOrgField;
+	private JTextField m_opUrlField;
+	private JTextField m_opEmailField;
+	private JTextField m_locCityField;
+	private JTextField m_locCountryField;
+	private JTextField m_locStateField;
+	private JTextField m_locLongField;
+	private JTextField m_locLatField;
 	private JButton m_mapButton;
 
 	private GridBagLayout m_layout = new GridBagLayout();
@@ -122,25 +123,30 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		m_locationPanel = this.createLocationPanel();
 		m_gbc.gridx = 0;
 		m_gbc.gridy++;
-		m_otherCert.getHeight();
 		this.add(m_locationPanel, m_gbc);
-		m_locationPanel.setPreferredSize(new Dimension((int)m_otherCert.getPreferredSize().width, (int)m_locationPanel.getPreferredSize().height));
-
+		m_otherCert.setPreferredSize(new Dimension( (int) m_locationPanel.getPreferredSize().width,
+			(int) m_otherCert.getPreferredSize().height));
 
 		m_operatorPanel = this.createOperatorPanel();
 		m_gbc.gridx++;
 		this.add(m_operatorPanel, m_gbc);
-		m_operatorPanel.setPreferredSize(new Dimension((int)m_otherOpCert.getPreferredSize().width, (int)m_operatorPanel.getPreferredSize().height));
+		m_otherOpCert.setPreferredSize(new Dimension( (int) m_operatorPanel.getPreferredSize().width,
+			(int) m_otherOpCert.getPreferredSize().height));
 	}
 
 	private JPanel createLocationPanel()
 	{
 		TitledGridBagPanel panel = new TitledGridBagPanel("Location");
-		m_locCityLabel = new JLabel("N/A");
-		m_locCountryLabel = new JLabel("N/A");
-		m_locStateLabel = new JLabel("N/A");
-		m_locLongLabel = new JLabel("N/A     ");
-		m_locLatLabel = new JLabel("N/A");
+		m_locCityField = new JTextField(MAX_COLUMN_LENGTH);
+		m_locCityField.setEditable(false);
+		m_locCountryField = new JTextField(MAX_COLUMN_LENGTH);
+		m_locCountryField.setEditable(false);
+		m_locStateField = new JTextField(MAX_COLUMN_LENGTH);
+		m_locStateField.setEditable(false);
+		m_locLongField = new JTextField(MAX_COORDINATE_FIELD_LENGTH);
+		m_locLongField.setEditable(false);
+		m_locLatField = new JTextField(MAX_COORDINATE_FIELD_LENGTH);
+		m_locLatField.setEditable(false);
 		m_mapButton = new JButton("Show on map");
 		m_mapButton.setActionCommand("Map");
 		m_mapButton.addActionListener(new ActionListener()
@@ -150,7 +156,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 				try
 				{
 					final MapBox mapBox = new MapBox(MixConfig.getMainWindow(),
-						m_locLatLabel.getText(), m_locLongLabel.getText(),
+						m_locLatField.getText(), m_locLongField.getText(),
 						5);
 					mapBox.setVisible(true);
 					m_mapButton.setText("Update Map");
@@ -171,7 +177,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 							{
 								try
 								{
-									mapBox.setGeo(m_locLatLabel.getText(), m_locLongLabel.getText());
+									mapBox.setGeo(m_locLatField.getText(), m_locLongField.getText());
 								}
 								catch (Exception ex2)
 								{
@@ -189,26 +195,29 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		}
 		);
 
-		panel.addRow(new JLabel("City:"), m_locCityLabel, null);
-		panel.addRow(new JLabel("Country:"), m_locCountryLabel, null);
-		panel.addRow(new JLabel("State:"), m_locStateLabel, null);
-		panel.addRow(new JLabel("Longitude:"), m_locLongLabel, m_mapButton);
-		panel.addRow(new JLabel("Longitude:"), m_locLatLabel, null);
+		panel.addRow(new JLabel("City"), m_locCityField, null);
+		panel.addRow(new JLabel("Country"), m_locCountryField, null);
+		panel.addRow(new JLabel("State"), m_locStateField, null);
+		panel.addRow(new JLabel("Longitude"), m_locLongField, m_mapButton);
+		panel.addRow(new JLabel("Longitude"), m_locLatField, null);
 
 		return panel;
 	}
 
 	private JPanel createOperatorPanel()
 	{
-		m_opOrgLabel = new JLabel("N/A");
-		m_opUrlLabel = new JLabel("N/A");
-		m_opEmailLabel = new JLabel("N/A");
+		m_opOrgField = new JTextField(MAX_COLUMN_LENGTH);
+		m_opOrgField.setEditable(false);
+		m_opUrlField = new JTextField(MAX_COLUMN_LENGTH);
+		m_opUrlField.setEditable(false);
+		m_opEmailField = new JTextField(MAX_COLUMN_LENGTH);
+		m_opEmailField.setEditable(false);
 
 		TitledGridBagPanel panel = new TitledGridBagPanel("Operator");
 
-		panel.addRow(new JLabel("Organization:"), m_opOrgLabel);
-		panel.addRow(new JLabel("URL:"), m_opUrlLabel);
-		panel.addRow(new JLabel("E-Mail:"), m_opEmailLabel);
+		panel.addRow(new JLabel("Organisation"), m_opOrgField);
+		panel.addRow(new JLabel("URL"), m_opUrlField);
+		panel.addRow(new JLabel("E-Mail"), m_opEmailField);
 
 		return panel;
 	}
