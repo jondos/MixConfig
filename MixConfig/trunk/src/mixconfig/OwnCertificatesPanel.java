@@ -83,7 +83,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	private CertPanel m_operatorCert;
 	private JButton map;
 	private JTextField m_txtCity, m_txtState, m_txtLongitude, m_txtLatitude;
-	private JComboBox cboxCountry;
+	private JComboBox cboxCountry, m_cbxOperatorCountry;
 	private MapBox box;
 
 	public OwnCertificatesPanel(boolean isApplet)
@@ -133,6 +133,11 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		m_txtCity.addFocusListener(this);
 		panelLocation.addRow(new JLabel("City"), m_txtCity, null);
 
+		m_txtState = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtState.setName(XMLPATH_LOCATION_STATE);
+		m_txtState.addFocusListener(this);
+		panelLocation.addRow(new JLabel("State"), m_txtState, null);
+
 		Vector ctrVec = CountryMapper.getLocalisedCountries(MAX_COMBO_BOX_LENGTH);
 		ctrVec.insertElementAt(new CountryMapper(MAX_COMBO_BOX_LENGTH), 0);
 		cboxCountry = new JComboBox(ctrVec);
@@ -141,11 +146,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		cboxCountry.addItemListener(this);
 		cboxCountry.setEditable(false);
 		panelLocation.addRow(new JLabel("Country"), cboxCountry, null);
-
-		m_txtState = new JTextField(MAX_COLUMN_LENGTH);
-		m_txtState.setName(XMLPATH_LOCATION_STATE);
-		m_txtState.addFocusListener(this);
-		panelLocation.addRow(new JLabel("State"), m_txtState, null);
 
 		/**
 		 JLabel pos = new JLabel("Geographical Position");
@@ -190,6 +190,13 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		operatororg.setToolTipText(
 			"This should contain the operating organisation's or a person's name for private persons.");
 		panelOperator.addRow(new JLabel("Organisation"), operatororg);
+
+		m_cbxOperatorCountry = new JComboBox(ctrVec);
+		m_cbxOperatorCountry.setName(XMLPATH_OPERATOR_COUNTRY);
+		m_cbxOperatorCountry.addFocusListener(this);
+		m_cbxOperatorCountry.addItemListener(this);
+		m_cbxOperatorCountry.setEditable(false);
+		panelOperator.addRow(new JLabel("Country"), m_cbxOperatorCountry);
 
 		operatorurl = new JTextField(MAX_COLUMN_LENGTH);
 		operatorurl.setName(XMLPATH_OPERATOR_URL);
@@ -437,7 +444,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	protected void save(JComboBox a_comboBox)
 	{
-		if (a_comboBox == cboxCountry)
+		if (a_comboBox == cboxCountry || a_comboBox == m_cbxOperatorCountry)
 		{
 			getConfiguration().setValue(a_comboBox.getName(),
 										( (CountryMapper) a_comboBox.
@@ -451,7 +458,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	protected void load(JComboBox a_comboBox)
 	{
-		if (a_comboBox == cboxCountry)
+		if (a_comboBox == cboxCountry || a_comboBox == m_cbxOperatorCountry)
 		{
 			int selectedIndex = 0;
 			CountryMapper cmSelected = null;
