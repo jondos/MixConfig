@@ -211,7 +211,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 
 		// Man kann nur eine Zeile selektieren
 		table2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-		table2.setPreferredScrollableViewportSize(new Dimension(500, 50));
+		table2.setPreferredScrollableViewportSize(new Dimension(500, 40));
 		table2.addMouseListener(new MouseAdapter()
 		{
 			public void mouseClicked(MouseEvent e)
@@ -276,20 +276,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 					OutButton.addActionListener(this);
 					m_bttnAddOutgoing = OutButton;
 					break;
-					/*case 1:
-					 final JButton cb = new JButton("Change");
-					 OutButton = cb;
-					 table2.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-					 {
-					  public void valueChanged(ListSelectionEvent e)
-					  {
-					   cb.setEnabled(! ( (ListSelectionModel) e.getSource()).isSelectionEmpty());
-					  }
-					 });
-					 cb.setEnabled(false);
-					 cb.setActionCommand("ChangeOutgoing");
-					 cb.addActionListener(this);
-					 break;*/
+
 				case 1:
 					final JButton db = new JButton("Delete");
 					OutButton = db;

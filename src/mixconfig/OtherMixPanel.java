@@ -67,6 +67,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	private JPanel m_operatorPanel;
 	private JPanel m_locationPanel;
 	private JTextField m_opOrgField;
+	private JTextField m_opCountryField;
 	private JTextField m_opUrlField;
 	private JTextField m_opEmailField;
 	private JTextField m_locCityField;
@@ -205,8 +206,8 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		);
 
 		panel.addRow(new JLabel("City"), m_locCityField, null);
-		panel.addRow(new JLabel("Country"), m_locCountryField, null);
 		panel.addRow(new JLabel("State"), m_locStateField, null);
+		panel.addRow(new JLabel("Country"), m_locCountryField, null);
 		panel.addRow(new JLabel("Longitude"), m_locLongField, m_mapButton);
 		panel.addRow(new JLabel("Longitude"), m_locLatField, null);
 
@@ -217,6 +218,8 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	{
 		m_opOrgField = new JTextField(MAX_COLUMN_LENGTH);
 		m_opOrgField.setEditable(false);
+		m_opCountryField = new JTextField(MAX_COLUMN_LENGTH);
+		m_opCountryField.setEditable(false);
 		m_opUrlField = new JTextField(MAX_COLUMN_LENGTH);
 		m_opUrlField.setEditable(false);
 		m_opEmailField = new JTextField(MAX_COLUMN_LENGTH);
@@ -225,6 +228,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		TitledGridBagPanel panel = new TitledGridBagPanel("Operator");
 
 		panel.addRow(new JLabel("Organisation"), m_opOrgField);
+		panel.addRow(new JLabel("Country"), m_opCountryField);
 		panel.addRow(new JLabel("URL"), m_opUrlField);
 		panel.addRow(new JLabel("E-Mail"), m_opEmailField);
 
