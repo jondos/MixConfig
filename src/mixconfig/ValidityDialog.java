@@ -49,12 +49,29 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import anon.crypto.Validity;
 
 class ValidityDialog extends JDialog
 {
-	public DateTextField from, to;
+	private DateTextField from, to;
 
-	protected void createValidityDialog()
+	public ValidityDialog(Frame parent, String title)
+	{
+		super(parent, title, true);
+		createValidityDialog();
+		setLocationRelativeTo(parent);
+	}
+
+	public Validity getValidity()
+	{
+		if (from == null || to == null)
+		{
+			return null;
+		}
+		return new Validity(from.getDate(), to.getDate());
+	}
+
+	private void createValidityDialog()
 	{
 		GridBagLayout layout = new GridBagLayout();
 		getContentPane().setLayout(layout);
@@ -123,8 +140,7 @@ class ValidityDialog extends JDialog
 			{
 				if (ev.getActionCommand().equals("1 Year"))
 				{
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(from.getDate());
+					Calendar cal = from.getDate();
 					cal.add(Calendar.YEAR, 1);
 					to.setDate(cal.getTime());
 				}
@@ -177,14 +193,9 @@ class ValidityDialog extends JDialog
 		pack();
 	}
 
-	ValidityDialog(Frame parent, String title)
-	{
-		super(parent, title, true);
-		createValidityDialog();
-		setLocationRelativeTo(parent);
-	}
 
-	class DateTextField extends JPanel
+
+	private class DateTextField extends JPanel
 	{
 		private JTextField day, year;
 		private JComboBox month;
@@ -365,14 +376,14 @@ class ValidityDialog extends JDialog
 			year.setText(Integer.toString(cal.get(Calendar.YEAR)));
 		}
 
-		public Date getDate()
+		public Calendar getDate()
 		{
 			Calendar cal = Calendar.getInstance();
 			cal.set(
 				Integer.parseInt(year.getText()),
 				month.getSelectedIndex(),
 				Integer.parseInt(day.getText()));
-			return cal.getTime();
+			return cal;
 		}
 	}
 }

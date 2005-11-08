@@ -27,33 +27,38 @@
  */
 package mixconfig;
 
+import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Vector;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.JRadioButton;
-import javax.swing.JCheckBox;
+
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import javax.swing.ButtonGroup;
-import javax.swing.JOptionPane;
-import anon.crypto.JAPCertificate;
-import logging.LogType;
-import java.io.IOException;
-import anon.util.Base64;
-import gui.JAPMessages;
+import javax.swing.JCheckBox;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
+import anon.crypto.PKCS12;
+import anon.crypto.X509DistinguishedName;
+import anon.crypto.X509Extensions;
 import gui.JAPHelp;
-import java.awt.Graphics;
+import gui.JAPMessages;
+import anon.crypto.JAPCertificate;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import logging.LogType;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  * The panel for advanced settings
  * @author Tobias Bayer
  */
-public class AdvancedPanel extends MixConfigPanel implements ActionListener
+public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 {
 	private static final String SET_UID = JAPMessages.getString("setUID");
 	private static final String SET_FD = JAPMessages.getString("setFD");
@@ -66,16 +71,12 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 	private static final String COMPRESS_LOG = JAPMessages.getString("compressLog");
 	private static final String LOG_SYSLOG = JAPMessages.getString("logSyslog");
 
-	private byte[] m_certLogEncKey = null;
-
-	private JLabel m_lbEncrypt;
-	private JTextField m_tfID, m_tfNumOfFileDes, m_tfFileName,
-		m_tfLogEncryptKeyName;
-	private JButton  m_bttnImportEncKey;
+	private JTextField m_tfID, m_tfNumOfFileDes, m_tfFileName;
 	private JCheckBox m_cbUserID, m_cbNrOfFileDes, m_cbDaemon, m_cbLogging,
 		m_cbCompressLog;
 	private JRadioButton m_rbConsole, m_rbFile, m_rbSyslog;
 	private ButtonGroup m_loggingButtonGroup;
+	private CertPanel m_certPanel;
 
 	public AdvancedPanel()
 	{
@@ -84,147 +85,100 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(5, 5, 5, 5);
 		c.anchor = c.NORTHWEST;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.fill = c.NONE;
 
-		// User ID JCheckBox
+		TitledGridBagPanel loggingPanel = new TitledGridBagPanel("Logging");
+		this.add(loggingPanel, c);
+
+		m_certPanel = new CertPanel("Encryption certificate",
+									"This is the certificate your Mix will use to encrypt the log file",
+									(JAPCertificate)null);
+		m_certPanel.setName("General/Logging/EncryptedLog/KeyInfo/X509Data/X509Certificate");
+		m_certPanel.addChangeListener(this);
+		m_certPanel.setEnabled(false);
+		c.gridx++;
+		c.weightx = 1;
+		this.add(m_certPanel, c);
+
+		c.gridy++;
+		c.gridx--;
+		c.weighty = 1;
+		c.weightx = 0;
+		c.fill = c.HORIZONTAL;
+		TitledGridBagPanel miscPanel = new TitledGridBagPanel("Miscellaneous");
+		this.add(miscPanel, c);
+		c.fill = c.NONE;
+
+		//User ID
 		m_cbUserID = new JCheckBox(SET_UID);
 		m_cbUserID.addItemListener(this);
-		c.gridy++;
-		c.gridx = 0;
-		this.add(m_cbUserID, c);
-
-		// User ID JTextField
-		m_tfID = new JTextField(20);
+		m_tfID = new JTextField(10);
 		m_tfID.setName("General/UserID");
 		m_tfID.addFocusListener(this);
-		c.weightx = 0.2;
-		c.gridx = 1;
-		c.fill = c.NONE;
-		this.add(m_tfID, c);
+		miscPanel.addRow(m_cbUserID, m_tfID);
 		m_tfID.setEnabled(false);
 
-		// File Descriptors JCheckBox
+		//File Descriptors
 		m_cbNrOfFileDes = new JCheckBox(SET_FD);
 		m_cbNrOfFileDes.addItemListener(this);
-		c.weightx = 0;
-		c.gridx = 0;
-		c.gridy++;
-		c.fill = c.NONE;
-		this.add(m_cbNrOfFileDes, c);
-
-		// File Descriptors JTextField
-		m_tfNumOfFileDes = new JTextField(20);
+		m_tfNumOfFileDes = new JTextField(10);
 		m_tfNumOfFileDes.setName("General/NrOfFileDescriptors");
 		m_tfNumOfFileDes.addFocusListener(this);
-		c.weightx = 0.2;
-		c.gridx = 1;
-		this.add(m_tfNumOfFileDes, c);
+		miscPanel.addRow(m_cbNrOfFileDes, m_tfNumOfFileDes);
 
-		// Daemon JCheckBox
+		// Daemon
 		m_cbDaemon = new JCheckBox(RUN_DAEMON);
 		m_cbDaemon.setName("General/Daemon");
 		m_cbDaemon.addItemListener(this);
-		c.gridy++;
-		c.gridx = 0;
-		c.weightx = 0;
-		c.fill = c.NONE;
-		this.add(m_cbDaemon, c);
+		miscPanel.addRow(m_cbDaemon, null);
 
-		// Logging JCheckBox
+		// Logging
 		m_cbLogging = new JCheckBox(ENABLE_LOGGING);
 		m_cbLogging.addItemListener(this);
-		c.gridy++;
-		c.gridx = 0;
-		c.weightx = 0;
-		this.add(m_cbLogging, c);
+		loggingPanel.addRow(m_cbLogging, null);
 
-		// Console Logging JCheckBox
+		// Console Logging
 		m_rbConsole = new JRadioButton(LOG_CONSOLE);
 		m_rbConsole.setName("General/Logging/Console");
 		m_rbConsole.setModel(new ToggleButtonModel());
 		m_rbConsole.setSelected(true);
 		m_rbConsole.addItemListener(this);
-		c.gridx = 0;
-		c.gridy++;
-		c.weightx = 0;
-		this.add(m_rbConsole, c);
+		loggingPanel.addRow(m_rbConsole, null);
 
 		// Log to Directory JRadioButton
 		m_rbFile = new JRadioButton(LOG_DIR);
 		m_rbFile.setModel(new ToggleButtonModel());
 		m_rbFile.setName("General/Logging/File");
 		m_rbFile.addItemListener(this);
-		c.weightx = 0;
-		c.gridy++;
-		this.add(m_rbFile, c);
 
 		// Log to Directory JTextField
 		m_tfFileName = new JTextField(20);
 		m_tfFileName.setName("General/Logging/File");
 		m_tfFileName.addFocusListener(this);
-		c.gridx = 1;
-		c.weightx = 1;
-		c.gridwidth = 1;
-		c.fill = c.NONE;
-		this.add(m_tfFileName, c);
-
-		// Encrypt Log JLabel
-		m_lbEncrypt = new JLabel(ENC_WITH);
-		m_lbEncrypt.setEnabled(false);
-		c.insets.left += 20;
-		c.gridx = 0;
-		c.gridy++;
-		c.weightx = 0;
-		c.gridwidth = 1;
-		c.fill = c.NONE;
-		this.add(m_lbEncrypt, c);
-
-		// Encrypt Log Key JTextField
-		m_tfLogEncryptKeyName = new JTextField(20);
-		m_tfLogEncryptKeyName.setName("General/Logging/EncryptedLog/" +
-									  "KeyInfo/X509Data/X509Certificate");
-		m_tfLogEncryptKeyName.addFocusListener(this);
-		c.insets.left -= 20;
-		c.weightx = 1;
-		c.gridx = 1;
-		c.fill = c.NONE;
-		this.add(m_tfLogEncryptKeyName, c);
-
-		// Encrypt Log Key JButton
-		m_bttnImportEncKey = new JButton(IMPORT);
-		m_bttnImportEncKey.setEnabled(false);
-		m_bttnImportEncKey.addActionListener(this);
-		c.weightx = 1;
-		c.gridx = 1;
-		c.gridy++;
-		c.fill = c.NONE;
-		this.add(m_bttnImportEncKey, c);
+		loggingPanel.addRow(m_rbFile, m_tfFileName);
 
 		// Compress Log JCheckBox
 		m_cbCompressLog = new JCheckBox(COMPRESS_LOG);
 		m_cbCompressLog.addItemListener(this);
 		m_cbCompressLog.setName("General/Logging/File/compress");
-		c.insets.left += 20;
-		c.gridx = 0;
-		c.gridy++;
-		c.weightx = 0;
-		this.add(m_cbCompressLog, c);
+		loggingPanel.addRow(m_cbCompressLog, null);
 
 		// Syslog JRadioButton
 		m_rbSyslog = new JRadioButton(LOG_SYSLOG);
 		m_rbSyslog.setName("General/Logging/Syslog");
 		m_rbSyslog.setModel(new ToggleButtonModel());
 		m_rbSyslog.addItemListener(this);
-		c.insets.left -= 20;
-		c.gridx = 0;
-		c.gridy++;
-		c.weightx = 0;
-		c.weighty = 1;
-		this.add(m_rbSyslog, c);
+		loggingPanel.addRow(m_rbSyslog, null);
 
 		m_loggingButtonGroup = new ButtonGroup();
 		m_loggingButtonGroup.add(m_rbConsole);
 		m_loggingButtonGroup.add(m_rbFile);
 		m_loggingButtonGroup.add(m_rbSyslog);
+
+		m_certPanel.setPreferredSize(new Dimension( (int) m_certPanel.getPreferredSize().width,
+			(int) loggingPanel.getPreferredSize().height));
 
 		setAutoSaveEnabled(false);
 		itemStateChanged(new ItemEvent(m_cbDaemon, 0, (Object)null, 0));
@@ -234,7 +188,6 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 	/**
 	 *
 	 * @return Possible error and warning messages
-	 * @todo Implement this mixconfig.MixConfigPanel method
 	 */
 	public Vector check()
 	{
@@ -260,10 +213,14 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 	/**
 	 * Enables used and disables unused components.
 	 *
-	 * @todo Implement this mixconfig.MixConfigPanel method
 	 */
 	protected void enableComponents()
 	{
+		if (m_certPanel.getCert() != null)
+		{
+			m_certPanel.setEnabled(true);
+		}
+
 		boolean log = m_cbLogging.isSelected();
 		// FIXME: m_rbFile.isSelected() always returns false here, even if m_rbFile is selected.
 		// Find out why.
@@ -278,9 +235,9 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 		m_rbSyslog.setEnabled(log);
 		m_tfFileName.setEnabled(log && file);
 		m_cbCompressLog.setEnabled(log && file);
-		m_bttnImportEncKey.setEnabled(log && file);
-		m_lbEncrypt.setEnabled(log && file);
-		m_tfLogEncryptKeyName.setEnabled(log && file);
+		/*m_bttnImportEncKey.setEnabled(log && file);
+		   m_lbEncrypt.setEnabled(log && file);
+		   m_tfLogEncryptKeyName.setEnabled(log && file);*/
 		// if mix is run as daemon, we can't log to console so set log output to file.
 		if (log && !file)
 		{
@@ -293,25 +250,6 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 
 		m_tfID.setEnabled(m_cbUserID.isSelected());
 		m_tfNumOfFileDes.setEnabled(m_cbNrOfFileDes.isSelected());
-	}
-
-	protected void save(JTextField a)
-	{
-		if (a == this.m_tfLogEncryptKeyName)
-		{
-			if (a.isEnabled())
-			{
-				getConfiguration().setValue(a.getName(), this.m_certLogEncKey);
-			}
-			else
-			{
-				getConfiguration().removeNode(a.getName());
-			}
-		}
-		else
-		{
-			super.save(a);
-		}
 	}
 
 	protected void save(JCheckBox a)
@@ -339,6 +277,8 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 				mixConf.removeNode(m_rbConsole.getName());
 				mixConf.removeNode(m_tfFileName.getName());
 				mixConf.removeNode("General/Logging/EncryptedLog");
+				m_certPanel.setEnabled(false);
+				m_certPanel.removeCert();
 				return;
 			}
 
@@ -348,18 +288,16 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 			if (m_rbFile.isSelected())
 			{
 				String fn = m_tfFileName.getText();
+				m_certPanel.setEnabled(true);
 				if (fn.equals(""))
 				{
 					fn = null;
 				}
 
-				if (this.m_certLogEncKey != null)
+				if (m_certPanel.getCert() != null)
 				{
 					mixConf.setValue("General/Logging/File", (String)null);
 					mixConf.setValue("General/Logging/EncryptedLog/File", fn);
-					mixConf.setValue("General/Logging/EncryptedLog/" +
-										 "KeyInfo/X509Data/X509Certificate",
-										 m_certLogEncKey);
 				}
 				else
 				{
@@ -368,41 +306,11 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 										 m_cbCompressLog.isSelected());
 				}
 			}
-		}
-	}
-
-	protected void load(JTextField a)
-	{
-		if (a == m_tfLogEncryptKeyName)
-		{
-			String value = getConfiguration().getValue(a.getName());
-			if (value != null)
+			else
 			{
-				byte b[] = Base64.decode(value);
-				if (b != null)
-				{
-					this.setEncKeyForLog(b);
-				}
-				else
-				{
-					JOptionPane.showMessageDialog(MixConfig.getMainWindow(),
-												  "Could not decode MixConfiguration/" +
-												  a.getName(),
-												  "Warning", JOptionPane.ERROR_MESSAGE);
-				}
+				m_certPanel.setEnabled(false);
+				m_certPanel.removeCert();
 			}
-		}
-		else
-		{
-			super.load(a);
-		}
-	}
-
-	public void actionPerformed(ActionEvent a_e)
-	{
-		if (a_e.getSource() == m_bttnImportEncKey)
-		{
-			this.importEncKeyForLog();
 		}
 	}
 
@@ -449,46 +357,19 @@ public class AdvancedPanel extends MixConfigPanel implements ActionListener
 		enableComponents();
 	}
 
-	private void importEncKeyForLog()
-	{
-		byte[] cert;
-		try
-		{
-			cert = MixConfig.openFile(MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
-		}
-		catch (Exception e)
-		{
-			ClipFrame Open =
-				new ClipFrame(
-					"Open of file failed. Paste a certificate to be imported " +
-					"in the area provided.",
-					true);
-			Open.setVisible(true);
-			cert = Open.getText().getBytes();
-		}
-		setEncKeyForLog(cert);
-	}
-
-	public void setEncKeyForLog(byte[] cert)
+	public void stateChanged(ChangeEvent a_e)
 	{
 		try
 		{
-			if (cert != null)
+			if (a_e.getSource() instanceof CertPanel)
 			{
-				JAPCertificate cert1 = JAPCertificate.getInstance(cert);
-				m_tfLogEncryptKeyName.setText(cert1.getSubject().toString());
-				m_certLogEncKey = cert1.toByteArray();
-			}
-			else
-			{
-				m_tfLogEncryptKeyName.setText(null);
-				m_certLogEncKey = null;
+				save( (CertPanel) a_e.getSource());
+				enableComponents();
 			}
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleError(e, "Previous certificate not set.", LogType.MISC);
-			setEncKeyForLog(null);
+			MixConfig.handleError(e, null, LogType.GUI);
 		}
 	}
 

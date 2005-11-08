@@ -121,7 +121,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private JTextPane m_sha1Part2Label;
 
 	/** Indicates whether the certificate object is PKCS12 (<CODE>true</CODE>) or X.509 (<CODE>false</CODE>) */
-	private boolean m_certIsPKCS12;
+	private boolean m_certIsPKCS12 = false;
 
 	/** The certificate */
 	private ICertificate m_cert;
@@ -201,7 +201,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 
 		m_bttnImportCert.addActionListener(this);
-		m_bttnImportCert.setActionCommand("ImportOwnCert");
 		layout.setConstraints(m_bttnImportCert, constraints);
 		add(m_bttnImportCert);
 
@@ -211,7 +210,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		constraints.gridy = 0;
 
 		m_bttnExportCert.addActionListener(this);
-		m_bttnExportCert.setActionCommand("ExportOwnPubCert");
 		layout.setConstraints(m_bttnExportCert, constraints);
 		add(m_bttnExportCert);
 
@@ -221,7 +219,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		constraints.gridy = 0;
 
 		m_bttnRemoveCert.addActionListener(this);
-		m_bttnRemoveCert.setActionCommand("RemoveOwnCert");
 		m_bttnRemoveCert.setEnabled(false);
 		layout.setConstraints(m_bttnRemoveCert, constraints);
 		add(m_bttnRemoveCert);
@@ -233,9 +230,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			constraints.gridy = 1;
 			constraints.fill = GridBagConstraints.HORIZONTAL;
 			m_bttnCreateCert.addActionListener(this);
-			m_bttnCreateCert.setActionCommand("Create");
 			layout.setConstraints(m_bttnCreateCert, constraints);
 			add(m_bttnCreateCert);
+
 
 			m_bttnChangePasswd = new JButton("Change Password");
 			constraints.gridx = 1;
@@ -243,7 +240,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			constraints.gridwidth = 2;
 			constraints.fill = GridBagConstraints.HORIZONTAL;
 			m_bttnChangePasswd.addActionListener(this);
-			m_bttnChangePasswd.setActionCommand("passwd");
 			layout.setConstraints(m_bttnChangePasswd, constraints);
 			add(m_bttnChangePasswd);
 			constraints.fill = GridBagConstraints.NONE;
@@ -257,10 +253,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			{
 				if (m_certLabel.isEnabled())
 				{
-					CertDetailsDialog dialog = new CertDetailsDialog(m_cert.getX509Certificate());
-					GUIUtils.positionWindow(dialog, MixConfig.getMainWindow());
+					CertDetailsDialog dialog = new CertDetailsDialog(getParent(), m_cert.getX509Certificate());
 					dialog.setVisible(true);
-
 				}
 			}
 
@@ -402,14 +396,17 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			if (a_event.getSource() instanceof CertificateGenerator)
 			{
-				setCertificate( ( (CertificateGenerator) a_event.getSource()).getCertificate(),
-							   ( (CertificateGenerator) a_event.getSource()).getPassword());
-
+				CertificateGenerator generator = (CertificateGenerator) a_event.getSource();
+				if (generator.getCertificate() == null)
+				{
+					throw new RuntimeException("Certificate creation failed for some unknown reason!");
+				}
+				setCertificate(generator.getCertificate(), generator.getPassword());
 			}
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleError(ex, null, LogType.GUI);
+			MixConfig.handleError(ex, "Certificate creation failed", LogType.MISC);
 		}
 	}
 
@@ -429,6 +426,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	public ICertificate getCert()
 	{
 		return m_cert;
+	}
+
+	public void setCert(JAPCertificate a_certificate)
+	{
+		setCert(a_certificate.toByteArray());
 	}
 
 	/** Set the certificate. The method decides according to {@link #isPKCS12()} whether to set the
@@ -583,7 +585,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 		if (m_bttnCreateCert != null)
 		{
-			m_bttnCreateCert.setEnabled(enabled && !cert);
+			m_bttnCreateCert.setEnabled((m_validator != null) && (enabled && !cert));
 		}
 		if (m_bttnImportCert != null)
 		{
@@ -720,9 +722,15 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/** Prompts the user to enter a new password for the PKCS12 certificate. */
 	private void changePasswd()
 	{
+		String strMessage = null;
+		if (m_validator != null)
+		{
+			strMessage = m_validator.getPasswordInfoMessage();
+		}
+
 		PasswordBox dialog =
 			new PasswordBox(MixConfig.getMainWindow(), "Change password",
-							PasswordBox.CHANGE_PASSWORD, m_validator.getPasswordInfoMessage());
+							PasswordBox.CHANGE_PASSWORD, strMessage);
 		GUIUtils.positionWindow(dialog, MixConfig.getMainWindow());
 
 		while (true)
@@ -730,6 +738,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			dialog.setVisible(true);
 			char[] passwd = dialog.getPassword();
 			char[] oldpasswd = dialog.getOldPassword();
+
 			if (passwd == null)
 			{
 				break;
@@ -778,7 +787,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		windowSize = vdialog.getSize();
 		windowLocation = vdialog.getLocation();
 
-		if (vdialog.from == null || vdialog.to == null)
+		if (vdialog.getValidity() == null)
 		{
 			return;
 		}
@@ -796,15 +805,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			return;
 		}
 
-		Calendar startDate = Calendar.getInstance();
-		Calendar endDate = Calendar.getInstance();
-		startDate.setTime(vdialog.from.getDate());
-		endDate.setTime(vdialog.to.getDate());
-
 	    //Dialog which shows the progress
 	    CertificateGenerator worker = new CertificateGenerator(
 			  m_validator.getSigName(), m_validator.getExtensions(),
-			  new Validity(startDate, endDate), passwd, dialog);
+			  vdialog.getValidity(), passwd, dialog);
 
 		worker.addChangeListener(this);
 		worker.start();

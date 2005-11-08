@@ -32,6 +32,7 @@ import java.awt.Dimension;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.Frame;
 import java.awt.Component;
 import javax.swing.ImageIcon;
 import javax.swing.JTextPane;
