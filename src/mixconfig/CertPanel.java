@@ -990,12 +990,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			if (m_password == null)
 			{
 				m_password = m_passwordReader.readPassword("").toCharArray();
-				return null;
 			}
-			else
-			{
-				return new String(m_password);
-			}
+
+			return new String(m_password);
 		}
 
 		public char[] getPassword()

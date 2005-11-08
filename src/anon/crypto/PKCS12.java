@@ -381,13 +381,15 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 								dIn.close();
 								if (password.length == 0)
 								{
-									password = new char[]
-										{
-										0};
+									password = new char[] {0};
 									continue;
 								}
 								// throws a NullPointerException if the user canceled input
-								password = a_passwordReader.readPassword(null).toCharArray();
+								do {
+									password = a_passwordReader.readPassword(null).toCharArray();
+								}
+								while (password.length == 0 ||
+									   (password.length == 1 && password[0] == '0'));
 							}
 						}
 						while (!bCorrectPassword);
