@@ -32,6 +32,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.WindowListener;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -130,6 +131,7 @@ public class JAPDialog
 	{
 		/* set the optimal size */
 		m_internalDialog.pack();
+
 		/* center the dialog over the parent component, tricky: for getting the absolut position
 		 * values, we create a new Dialog (is centered over the parent) and use it for calculating
 		 * our own location
@@ -176,11 +178,21 @@ public class JAPDialog
 		m_internalDialog.setDefaultCloseOperation(a_windowAction);
 	}
 
+	public void addWindowsListener(WindowListener a_listener)
+	{
+		m_internalDialog.addWindowListener(a_listener);
+	}
+
+	public void removeWindowListener(WindowListener a_listener)
+	{
+		m_internalDialog.removeWindowListener(a_listener);
+	}
+
 	/**
 	 * Returns the internal used JDialog class.
 	 *
 	 * @return The internal used JDialog class.
-	 * @todo check if this method is needed somewhere; should be set to private as I think
+	 * @deprecated the internal dialog should not be visible or directly modifyable
 	 */
 	public JDialog getInternalDialog()
 	{

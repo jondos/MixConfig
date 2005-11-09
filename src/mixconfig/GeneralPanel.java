@@ -78,6 +78,8 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		"Network/InfoService/AllowAutoConfiguration";
 	public static final String XML_ATTRIBUTE_FALLBACK = "fallback";
 
+	private static final String PSEUDO_CASCADE_NAME = "******Dynamic cascade bug*******";
+
 	private JComboBox m_comboboxMixType, m_combxConfiguration, m_combxCascadeLength;
 	private JCheckBox m_cbxDynamicFallback;
 	private JTextField m_tfMixName;
@@ -241,14 +243,6 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				super.setValue(
 					( ( (t & ConnectionData.SSL) == 0) ? "Raw/" : "SSL/") +
 					( ( (t & ConnectionData.UNIX) == 0) ? "TCP" : "Unix"));
-				setHorizontalAlignment(CENTER);
-			}
-		};
-		final TableCellRenderer centeringRenderer = new DefaultTableCellRenderer()
-		{
-			protected void setValue(Object v)
-			{
-				super.setValue(v);
 				setHorizontalAlignment(CENTER);
 			}
 		};
