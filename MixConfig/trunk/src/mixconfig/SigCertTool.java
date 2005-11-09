@@ -40,9 +40,11 @@ import javax.swing.event.ChangeEvent;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import java.math.BigInteger;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
 import gui.JAPMessages;
+import gui.GUIUtils;
 
 public class SigCertTool extends JDialog implements ActionListener, ChangeListener
 {
@@ -95,7 +97,7 @@ public class SigCertTool extends JDialog implements ActionListener, ChangeListen
 		//enableButton();
 
 		pack();
-		setLocationRelativeTo(parent);
+		GUIUtils.positionWindow(this, parent);
 		setVisible(true);
 	}
 
@@ -103,12 +105,21 @@ public class SigCertTool extends JDialog implements ActionListener, ChangeListen
 	{
 		if (m_publicCertPanel.getCert() != null && m_privateCertPanel.getCert() != null)
 		{
-			JAPCertificate signedCertificate =
-				( (JAPCertificate) m_publicCertPanel.getCert()).sign( ( (PKCS12) m_privateCertPanel.getCert()));
-			m_publicCertPanel.setCert(signedCertificate);
-			MixConfig.info(JAPMessages.getString("Signing_Confirmation_title"),
-						   JAPMessages.getString("Signing_Confirmation_message"));
+			ValidityDialog dialog = new ValidityDialog(this, "Set a new certificate validity.");
+			dialog.setVisible(true);
 
+
+			if (dialog.getValidity() != null)
+			{
+				JAPCertificate signedCertificate =
+					( (JAPCertificate) m_publicCertPanel.getCert()).sign(
+						( (PKCS12) m_privateCertPanel.getCert()),
+						dialog.getValidity(),
+						( (JAPCertificate) m_publicCertPanel.getCert()).getExtensions(), new BigInteger("0"));
+				m_publicCertPanel.setCert(signedCertificate);
+				MixConfig.info(JAPMessages.getString("Signing_Confirmation_title"),
+							   JAPMessages.getString("Signing_Confirmation_message"));
+			}
 		}
 	}
 

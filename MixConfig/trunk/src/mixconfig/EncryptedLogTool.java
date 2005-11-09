@@ -28,6 +28,7 @@
 package mixconfig;
 
 import java.io.ByteArrayInputStream;
+
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -37,18 +38,20 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+
 import org.bouncycastle.asn1.DERInputStream;
-import java.io.*;
-import org.bouncycastle.crypto.engines.*;
-import anon.crypto.*;
-import anon.util.*;
-import gui.*;
+import org.bouncycastle.crypto.engines.RSAEngine;
+import anon.crypto.MyRSAPrivateKey;
+import anon.crypto.PKCS12;
+import anon.util.Base64;
+import gui.PasswordBox;
+import gui.GUIUtils;
+
 public class EncryptedLogTool extends JDialog implements ActionListener
 {
 	private JTextField m_textDecryptWithCertCN, m_textDecryptWithCertValidFrom, m_textDecryptWithCertValidTo;
@@ -210,7 +213,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 		getContentPane().add(panel3);
 
 		pack();
-		setLocationRelativeTo(parent);
+		GUIUtils.positionWindow(this, parent);
 		setVisible(true);
 	}
 

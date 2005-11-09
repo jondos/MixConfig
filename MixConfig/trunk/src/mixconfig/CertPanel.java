@@ -781,7 +781,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 
 		ValidityDialog vdialog = new ValidityDialog(MixConfig.getMainWindow(), "Validity");
-		//GUIUtils.positionWindow(vdialog, MixConfig.getMainWindow());
 		vdialog.setVisible(true);
 		windowSize = vdialog.getSize();
 		windowLocation = vdialog.getLocation();

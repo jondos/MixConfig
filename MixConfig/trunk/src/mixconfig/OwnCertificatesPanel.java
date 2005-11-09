@@ -76,13 +76,13 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		"/Country";
 	public static final String XMLPATH_OPERATOR_CITY = XMLPATH_OPERATOR +
 		"/City";
-	public static final String XMLPATH_OPERATOR_NAME = XMLPATH_OPERATOR +
-		"/CommonName";
+	public static final String XMLPATH_OPERATOR_ORGA_UNIT = XMLPATH_OPERATOR +
+		"/OrganisationalUnit";
 
 	private CertPanel m_ownCert;
 	private CertPanel m_operatorCert;
 	private JButton map;
-	private JTextField m_txtCity, m_txtState, m_txtLongitude, m_txtLatitude;
+	private JTextField m_txtCity, m_txtState, m_txtLongitude, m_txtLatitude, m_txtOperarorOrgaUnit;
 	private JComboBox cboxCountry, m_cbxOperatorCountry;
 	private MapBox box;
 
@@ -156,15 +156,15 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		m_txtLongitude = new JTextField(MAX_COORDINATE_FIELD_LENGTH);
 		m_txtLongitude.setName(XMLPATH_LOCATION_LONGITUDE);
 		m_txtLongitude.addFocusListener(this);
-		m_txtLongitude.setDocument(new FloatDocument("-180.000", "180.000"));
-		m_txtLongitude.setToolTipText("Longitude in degrees east of Greenwich. ( -180.000 to 180.000)");
+		m_txtLongitude.setDocument(new FloatDocument("-180.0000", "180.0000"));
+		m_txtLongitude.setToolTipText("Longitude in degrees east of Greenwich. ( -180.0000 to 180.0000)");
 
 		m_txtLatitude = new JTextField(MAX_COORDINATE_FIELD_LENGTH);
 		m_txtLatitude.setName(XMLPATH_LOCATION_LATITUDE);
 		m_txtLatitude.addFocusListener(this);
-		m_txtLatitude.setDocument(new FloatDocument("-90.000", "90.000"));
+		m_txtLatitude.setDocument(new FloatDocument("-90.0000", "90.0000"));
 		m_txtLatitude.setToolTipText(
-			"Latitude in degrees. (-90.000: South Pole, 0: Equator, 90.000: North Pole)");
+			"Latitude in degrees. (-90.0000: South Pole, 0: Equator, 90.0000: North Pole)");
 
 		map = new JButton("Show on Map");
 		map.setToolTipText("Opens a window with a map from www.MapQuest.com " +
@@ -190,6 +190,13 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		operatororg.setToolTipText(
 			"This should contain the operating organisation's or a person's name for private persons.");
 		panelOperator.addRow(new JLabel("Organisation"), operatororg);
+
+		m_txtOperarorOrgaUnit = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtOperarorOrgaUnit.setName(XMLPATH_OPERATOR_ORGA_UNIT);
+		m_txtOperarorOrgaUnit.addFocusListener(this);
+		m_txtOperarorOrgaUnit.setToolTipText(
+			"The operator's organisational unit.");
+		panelOperator.addRow(new JLabel("Orga. Unit"), m_txtOperarorOrgaUnit);
 
 		m_cbxOperatorCountry = new JComboBox(ctrVec);
 		m_cbxOperatorCountry.setName(XMLPATH_OPERATOR_COUNTRY);

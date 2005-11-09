@@ -166,7 +166,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		getContentPane().add(panel3);
 
 		pack();
-		setLocationRelativeTo(parent);
+		GUIUtils.positionWindow(this, parent);
 		setVisible(true);
 	}
 
