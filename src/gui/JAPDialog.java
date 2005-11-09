@@ -109,9 +109,16 @@ public class JAPDialog
 	 */
 	public void setVisible(boolean a_bVisible)
 	{
-		if (a_bVisible && !m_bIsDisplayable )
+		if (a_bVisible)
 		{
-			throw new RuntimeException("Dialog has been disposed and cannot be made visible!");
+			if (!m_bIsDisplayable)
+			{
+				throw new RuntimeException("Dialog has been disposed and cannot be made visible!");
+			}
+			else
+			{
+				align_internal();
+			}
 		}
 		m_internalDialog.setVisible(a_bVisible);
 	}
@@ -148,25 +155,11 @@ public class JAPDialog
 
 	/**
 	 * Set the dialog to the optimal size and center it over the parent component.
+	 * @deprecated the dialog is automatically aligned when it is made visible
 	 */
 	public void align()
 	{
-		/* set the optimal size */
-		m_internalDialog.pack();
-
-		/* center the dialog over the parent component, tricky: for getting the absolut position
-		 * values, we create a new Dialog (is centered over the parent) and use it for calculating
-		 * our own location
-		 */
-		JOptionPane optionPane = new JOptionPane();
-		JDialog dummyDialog = optionPane.createDialog(m_parentComponent, null);
-		Rectangle dummyBounds = dummyDialog.getBounds();
-		Dimension ownSize = m_internalDialog.getSize();
-		Point ownLocation = new Point( (Math.max(dummyBounds.x +
-												 ((dummyBounds.width - ownSize.width) / 2), 0)),
-									   (Math.max(dummyBounds.y +
-												 ((dummyBounds.height - ownSize.height) / 2), 0)));
-		m_internalDialog.setLocation(ownLocation);
+		align_internal();
 	}
 
 	/**
@@ -235,6 +228,28 @@ public class JAPDialog
 	public JDialog getInternalDialog()
 	{
 		return m_internalDialog;
+	}
+
+	/**
+	 * Set the dialog to the optimal size and center it over the parent component.
+	 */
+	private void align_internal()
+	{
+		/* set the optimal size */
+		m_internalDialog.pack();
+		/* center the dialog over the parent component, tricky: for getting the absolut position
+		 * values, we create a new Dialog (is centered over the parent) and use it for calculating
+		 * our own location
+		 */
+		JOptionPane optionPane = new JOptionPane();
+		JDialog dummyDialog = optionPane.createDialog(m_parentComponent, null);
+		Rectangle dummyBounds = dummyDialog.getBounds();
+		Dimension ownSize = m_internalDialog.getSize();
+		Point ownLocation = new Point( (Math.max(dummyBounds.x +
+												 ( (dummyBounds.width - ownSize.width) / 2), 0)),
+									  (Math.max(dummyBounds.y +
+												( (dummyBounds.height - ownSize.height) / 2), 0)));
+		m_internalDialog.setLocation(ownLocation);
 	}
 
 }
