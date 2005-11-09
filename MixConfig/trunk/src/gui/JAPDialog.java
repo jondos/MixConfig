@@ -32,6 +32,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Container;
 import java.awt.event.WindowListener;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -76,9 +77,12 @@ public class JAPDialog
 		JOptionPane optionPane = new JOptionPane();
 		m_internalDialog = optionPane.createDialog(a_parentComponent, a_strTitle);
 		m_internalDialog.getContentPane().removeAll();
-		m_rootPanel = new JPanel();
-		m_internalDialog.getContentPane().add(m_rootPanel);
 		m_internalDialog.setResizable(true);
+	}
+
+	public Container getContentPane()
+	{
+		return m_internalDialog.getContentPane();
 	}
 
 	/**
@@ -105,9 +109,9 @@ public class JAPDialog
 	 */
 	public void setVisible(boolean a_bVisible)
 	{
-		if (!m_bIsDisplayable )
+		if (a_bVisible && !m_bIsDisplayable )
 		{
-			throw new RuntimeException("Dialog has been disposed!");
+			throw new RuntimeException("Dialog has been disposed and cannot be made visible!");
 		}
 		m_internalDialog.setVisible(a_bVisible);
 	}
@@ -122,6 +126,24 @@ public class JAPDialog
 		m_internalDialog = null;
 		m_rootPanel = null;
 		m_parentComponent = null;
+	}
+
+	/**
+	 * Returns the size of the dialog window.
+	 * @return the size of the dialog window
+	 */
+	public Dimension getSize()
+	{
+		return m_internalDialog.getSize();
+	}
+
+	/**
+	 * Returns the dialog's location on the screen.
+	 * @return the dialog's location on the screen
+	 */
+	public Point getLocation()
+	{
+		return m_internalDialog.getLocation();
 	}
 
 	/**
@@ -152,9 +174,15 @@ public class JAPDialog
 	 * root panel.
 	 *
 	 * @return The root panel of this dialog.
+	 * @deprecated Should not be used any more!
 	 */
 	public JPanel getRootPanel()
 	{
+		if (m_rootPanel == null)
+		{
+			m_rootPanel = new JPanel();
+			m_internalDialog.getContentPane().add(m_rootPanel);
+		}
 		return m_rootPanel;
 	}
 
@@ -178,11 +206,21 @@ public class JAPDialog
 		m_internalDialog.setDefaultCloseOperation(a_windowAction);
 	}
 
-	public void addWindowsListener(WindowListener a_listener)
+	/**
+	 * Adds a WindowListener to the dialog.
+	 * @param a_listener a WindowListener
+	 * @see java.awt.event.WindowListener
+	 */
+	public void addWindowListener(WindowListener a_listener)
 	{
 		m_internalDialog.addWindowListener(a_listener);
 	}
 
+	/**
+	 * Removes a specific WindowListener from the dialog.
+	 * @param a_listener a WindowListener
+	 * @see java.awt.event.WindowListener
+	 */
 	public void removeWindowListener(WindowListener a_listener)
 	{
 		m_internalDialog.removeWindowListener(a_listener);
