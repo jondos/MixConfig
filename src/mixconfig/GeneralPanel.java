@@ -361,7 +361,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		this.add(dummyLabel2, c);
 
 
-		enableComponents();
+		//enableComponents();
 	}
 
 	public void setConfiguration(MixConfiguration a_conf) throws IOException
@@ -412,9 +412,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		{
 			mixType = getConfiguration().getMixType();
 			s = mixConf.getValue("General/CascadeName");
-			if ( (mixType == MixConfiguration.MIXTYPE_FIRST ||
+			if ( ((mixType == MixConfiguration.MIXTYPE_FIRST &&
+				   !m_combxConfiguration.getSelectedItem().equals(CONFIGURATION_DYNAMIC)) ||
 				  (mixType == MixConfiguration.MIXTYPE_LAST &&
-				   isAutoConfigurationAllowed())) &&
+				   getConfiguration().isAutoConfigurationAllowed())) &&
 				(s == null || s.equals("")))
 			{
 				errors.addElement("Cascade Name not entered in General Panel.");
@@ -658,7 +659,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		{
 			int index;
 
-			if (isAutoConfigurationAllowed() && getConfiguration().getMixType() !=
+			if (getConfiguration().isAutoConfigurationAllowed() && getConfiguration().getMixType() !=
 				MixConfiguration.MIXTYPE_LAST)
 			{
 
@@ -752,14 +753,21 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				  m_combxConfiguration.getSelectedItem().equals(CONFIGURATION_STATIC));
 
 
-		m_lblCascadeLength.setEnabled(isAutoConfigurationAllowed());
-		m_combxCascadeLength.setEnabled(isAutoConfigurationAllowed());
+		m_lblCascadeLength.setEnabled(getConfiguration().isAutoConfigurationAllowed());
+		m_combxCascadeLength.setEnabled(getConfiguration().isAutoConfigurationAllowed());
 
-		bEnableCascadeName = m_comboboxMixType.getSelectedItem() == FIRST_MIX ||
-			(m_comboboxMixType.getSelectedItem() == LAST_MIX && isAutoConfigurationAllowed());
+		bEnableCascadeName = !isFirstDynamicMix() ||
+			(m_comboboxMixType.getSelectedItem() == LAST_MIX &&
+			 getConfiguration().isAutoConfigurationAllowed());
 
 		m_tfCascadeName.setEnabled(bEnableCascadeName);
 		m_cascadeNameLabel.setEnabled(bEnableCascadeName);
+
+		//handle the bug in the dynamic mix
+		if (isFirstDynamicMix())
+		{
+			save(m_tfCascadeName);
+		}
 	}
 
 	public void tableChanged(TableModelEvent e)
@@ -794,17 +802,40 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		}
 	}
 
-	private boolean isAutoConfigurationAllowed()
+	/**
+	 * @todo This implementation is only needed because of a bug in the dynamic configuration
+	 * of the mix.
+	 * @param a_textField JTextField
+	 */
+	protected void load(JTextField a_textField)
 	{
-		return m_combxConfiguration.getSelectedItem().equals(CONFIGURATION_DYNAMIC) ||
-			(m_combxConfiguration.getSelectedItem().equals(CONFIGURATION_STATIC) &&
-			 m_cbxDynamicFallback.isSelected());
+		super.load(a_textField);
+
+
+		if (a_textField == m_tfCascadeName && a_textField.getText() != null &&
+			a_textField.getText().equals(PSEUDO_CASCADE_NAME))
+		{
+			a_textField.setText("");
+		}
 	}
 
-	private boolean isFallbackEnabled()
+	/**
+	 * @todo This implementation is only needed because of a bug in the dynamic configuration
+	 * of the mix.
+	 * @param a_textField JTextField
+	 */
+	protected void save(JTextField a_textField)
 	{
-		return isAutoConfigurationAllowed() && getConfiguration().isFallbackEnabled();
+		if (a_textField == m_tfCascadeName && isFirstDynamicMix())
+		{
+			super.save(a_textField.getName(), PSEUDO_CASCADE_NAME);
+		}
+		else
+		{
+			super.save(a_textField);
+		}
 	}
+
 
 	/** Set the information in the "Listener interfaces" according to MixOnCD */
 	private void setMixOnCDInfo(boolean a_configuredByMixOnCD)
@@ -843,6 +874,13 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_listenerModel = new IncomingConnectionTableModel();
 		m_listenerModel.addTableModelListener(this);
 		m_listenerTable.setModel(m_listenerModel);
+	}
+
+	private boolean isFirstDynamicMix()
+	{
+		return (getConfiguration().getMixType() == MixConfiguration.MIXTYPE_FIRST &&
+				getConfiguration().isAutoConfigurationAllowed() &&
+				!getConfiguration().isFallbackEnabled());
 	}
 }
 

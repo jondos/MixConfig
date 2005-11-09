@@ -329,6 +329,7 @@ public class Menu implements ActionListener
 								// Don't care.
 							}
 						});
+
 						/*
 						 JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
 						 "Configuration saved into clipboard.", "Save", JOptionPane.INFORMATION_MESSAGE);
@@ -346,6 +347,7 @@ public class Menu implements ActionListener
 					ClipFrame cf =
 						new ClipFrame("Copy and Save this file in a new Location.", false);
 					cf.setText(xmlString);
+					GUIUtils.positionWindow(cf, MixConfig.getMainWindow());
 					cf.setVisible(true);
 				}
 			}

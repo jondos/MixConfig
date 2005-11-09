@@ -142,6 +142,16 @@ public class JAPDialog
 	}
 
 	/**
+	 * Sets the size of the dialog window.
+	 * @param a_width the new window width
+	 * @param a_height the new window height
+	 */
+	public void setSize(int a_width, int a_height)
+		{
+			m_internalDialog.setSize(a_width, a_height);
+	}
+
+	/**
 	 * Returns the dialog's location on the screen.
 	 * @return the dialog's location on the screen
 	 */
@@ -226,11 +236,6 @@ public class JAPDialog
 	public JDialog getInternalDialog()
 	{
 		return m_internalDialog;
-	}
-
-	public void setSize(int a_width, int a_height)
-	{
-		m_internalDialog.setSize(a_width, a_height);
 	}
 
 	/**

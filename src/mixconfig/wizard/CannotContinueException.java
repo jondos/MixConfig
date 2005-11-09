@@ -56,12 +56,18 @@ public class CannotContinueException extends IndexOutOfBoundsException {
 	 */
 	public CannotContinueException(Object a_messages[])
 	{
-		m_messages = new String[a_messages.length];
-		for (int i = 0; i < m_messages.length; i++)
+		if (a_messages != null)
 		{
-			m_messages[i] = a_messages[i].toString();
+			m_messages = new String[a_messages.length];
+			for (int i = 0; i < m_messages.length; i++)
+			{
+				m_messages[i] = a_messages[i].toString();
+			}
 		}
-
+		else
+		{
+			m_messages = new String[0];
+		}
 	}
 
 	/** Creates a new instance of <CODE>CannotContinueException</CODE>

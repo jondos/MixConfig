@@ -67,6 +67,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	private JPanel m_operatorPanel;
 	private JPanel m_locationPanel;
 	private JTextField m_opOrgField;
+	private JTextField m_opOrgUnitField;
 	private JTextField m_opCountryField;
 	private JTextField m_opUrlField;
 	private JTextField m_opEmailField;
@@ -218,6 +219,8 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	{
 		m_opOrgField = new JTextField(MAX_COLUMN_LENGTH);
 		m_opOrgField.setEditable(false);
+		m_opOrgUnitField = new JTextField(MAX_COLUMN_LENGTH);
+		m_opOrgUnitField.setEditable(false);
 		m_opCountryField = new JTextField(MAX_COLUMN_LENGTH);
 		m_opCountryField.setEditable(false);
 		m_opUrlField = new JTextField(MAX_COLUMN_LENGTH);
@@ -228,6 +231,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		TitledGridBagPanel panel = new TitledGridBagPanel("Operator");
 
 		panel.addRow(new JLabel("Organisation"), m_opOrgField);
+		panel.addRow(new JLabel("Orga. Unit"), m_opOrgUnitField);
 		panel.addRow(new JLabel("Country"), m_opCountryField);
 		panel.addRow(new JLabel("URL"), m_opUrlField);
 		panel.addRow(new JLabel("E-Mail"), m_opEmailField);
