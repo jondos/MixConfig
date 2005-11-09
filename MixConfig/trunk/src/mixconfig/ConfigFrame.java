@@ -51,12 +51,11 @@ public class ConfigFrame extends JPanel
 		m_panels = new MixConfigPanel[8];
 		m_panels[0] = new MixOnCDPanel();
 		m_panels[1] = new GeneralPanel();
-		m_panels[2] = new AdvancedPanel();
-		m_panels[3] = new OwnCertificatesPanel(parent == null);
-		m_panels[4] = new NextMixProxyPanel();
-		m_panels[5] = new PreviousMixPanel();
-		m_panels[6] = new CascadePanel();
-		//m_panels[5] = new OperatorPanel();
+		m_panels[2] = new OwnCertificatesPanel(parent == null);
+		m_panels[3] = new NextMixProxyPanel();
+		m_panels[4] = new PreviousMixPanel();
+		m_panels[5] = new CascadePanel();
+		m_panels[6] = new AdvancedPanel();
 		m_panels[7] = new PaymentPanel();
 
 

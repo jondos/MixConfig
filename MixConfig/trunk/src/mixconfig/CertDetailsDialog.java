@@ -33,20 +33,14 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
 import anon.crypto.IMyPublicKey;
 import anon.crypto.JAPCertificate;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
-import gui.GUIUtils;
 import gui.JAPDialog;
 import anon.crypto.X509UnknownExtension;
 import anon.crypto.AbstractX509Extension;
-import org.bouncycastle.asn1.DERString;
 import java.util.Vector;
 import java.awt.Component;
 
@@ -59,11 +53,11 @@ public class CertDetailsDialog extends JAPDialog
 	{
 		super(a_parent, "Certificate Details");
 
-		JScrollPane scrollPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-												 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setViewportView(getRootPanel());
-
 		/*
+		JScrollPane scrollPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+							JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setViewportView(getRootPanel());*/
+
 		getRootPanel().setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weighty = 1;
@@ -72,7 +66,7 @@ public class CertDetailsDialog extends JAPDialog
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.fill = gbc.BOTH;
-		getRootPanel().add(scrollPane, gbc);
+		//getRootPanel().add(scrollPane, gbc);
 		getRootPanel().setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = c.NONE;
@@ -193,10 +187,14 @@ public class CertDetailsDialog extends JAPDialog
 			}
 		});
 		gbc.gridy++;
-		gbc.anchor = gbc.NORTHEAST;
-		gbc.weighty = 0;
-		gbc.weightx = 0;
+		gbc.gridx = gbc.CENTER;
+		gbc.anchor = gbc.SOUTH;
+		gbc.weighty = 10;
+		gbc.weightx = 10;
 		gbc.fill = gbc.NONE;
-		getRootPanel().add(okButton, gbc); */
+		c.insets = new Insets (10, 10, 10, 10);
+		getRootPanel().add(okButton, gbc);
+
+		getInternalDialog().pack();
 	}
 }

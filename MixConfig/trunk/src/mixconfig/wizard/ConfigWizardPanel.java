@@ -47,6 +47,7 @@ import mixconfig.MixConfig;
 import mixconfig.MixConfigPanel;
 import mixconfig.MixConfiguration;
 import mixconfig.PaymentPanel;
+import mixconfig.AdvancedPanel;
 import mixconfig.CascadePanel;
 import mixconfig.MixOnCDPanel;
 import mixconfig.PreviousMixPanel;
@@ -104,20 +105,16 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 	{
 		setLayout(m_layout);
 		setBorder(new EtchedBorder());
-		m_pages = new MixConfigPanel[7];
+		m_pages = new MixConfigPanel[8];
 		m_pages[0] = new MixOnCDPanel();
 		m_pages[1] = new GeneralPanel();
-		// the next one is skipped when user selects middle or last mix
-		//m_pages[1] = new SimpleNetworkPanel();
-		// the next one is skipped when user selects first mix
 		m_pages[2] = new OwnCertificatesPanel(false);
 		m_pages[3] = new NextMixProxyPanel();
 		m_pages[4] = new PreviousMixPanel();
-		//m_pages[4] = new OperatorPanel();
 		//m_pages[6] = new PaymentPanel(); // only for first mix
 		m_pages[5] = new CascadePanel(); // only last mix and dynamic
-
-		m_pages[6] = makeFinishPanel();
+		m_pages[6] = new AdvancedPanel();
+		m_pages[7] = makeFinishPanel();
 
 		setConfiguration(null);
 
@@ -144,6 +141,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		// skip certain panels
 		if(!m_pages[m_currentPage].isEnabled())
 		{
+
 			forward();
 		}
 
