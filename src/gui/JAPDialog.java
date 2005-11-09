@@ -31,6 +31,7 @@ package gui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.Rectangle;
 import java.awt.Container;
 import java.awt.event.WindowListener;
@@ -128,11 +129,7 @@ public class JAPDialog
 	 */
 	public void dispose()
 	{
-		m_bIsDisplayable = false;
 		m_internalDialog.dispose();
-		m_internalDialog = null;
-		m_rootPanel = null;
-		m_parentComponent = null;
 	}
 
 	/**
@@ -159,6 +156,7 @@ public class JAPDialog
 	 */
 	public void align()
 	{
+		pack();
 		align_internal();
 	}
 
@@ -230,26 +228,50 @@ public class JAPDialog
 		return m_internalDialog;
 	}
 
+	public void setSize(int a_width, int a_height)
+	{
+		m_internalDialog.setSize(a_width, a_height);
+	}
+
 	/**
-	 * Set the dialog to the optimal size and center it over the parent component.
+	 * Sets the dialog to the optimal size.
+	 */
+	public void pack()
+	{
+		m_internalDialog.pack();
+	}
+
+	/**
+	 * Centers the dialog over the parent component.
 	 */
 	private void align_internal()
 	{
-		/* set the optimal size */
-		m_internalDialog.pack();
-		/* center the dialog over the parent component, tricky: for getting the absolut position
-		 * values, we create a new Dialog (is centered over the parent) and use it for calculating
-		 * our own location
-		 */
-		JOptionPane optionPane = new JOptionPane();
-		JDialog dummyDialog = optionPane.createDialog(m_parentComponent, null);
-		Rectangle dummyBounds = dummyDialog.getBounds();
-		Dimension ownSize = m_internalDialog.getSize();
-		Point ownLocation = new Point( (Math.max(dummyBounds.x +
-												 ( (dummyBounds.width - ownSize.width) / 2), 0)),
-									  (Math.max(dummyBounds.y +
-												( (dummyBounds.height - ownSize.height) / 2), 0)));
-		m_internalDialog.setLocation(ownLocation);
+		Component parent = m_parentComponent;
+
+		while (parent != null && !(parent instanceof Window))
+		{
+			parent = parent.getParent();
+		}
+		if (parent != null)
+		{
+			GUIUtils.positionWindow(m_internalDialog, (Window)parent);
+		}
+		else
+		{
+			/* center the dialog over the parent component, tricky: for getting the absolut position
+			 * values, we create a new Dialog (is centered over the parent) and use it for calculating
+			 * our own location
+			 */
+			   JOptionPane optionPane = new JOptionPane();
+			   JDialog dummyDialog = optionPane.createDialog(m_parentComponent, null);
+			   Rectangle dummyBounds = dummyDialog.getBounds();
+			   Dimension ownSize = m_internalDialog.getSize();
+			   Point ownLocation = new Point( (Math.max(dummyBounds.x +
+					   ( (dummyBounds.width - ownSize.width) / 2), 0)),
+					 (Math.max(dummyBounds.y +
+					  ( (dummyBounds.height - ownSize.height) / 2), 0)));
+			m_internalDialog.setLocation(ownLocation);
+		}
 	}
 
 }

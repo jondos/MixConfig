@@ -58,7 +58,6 @@ import javax.swing.filechooser.FileFilter;
 import anon.crypto.ICertificate;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
-import anon.crypto.Validity;
 import anon.util.IMiscPasswordReader;
 import gui.GUIUtils;
 import gui.PasswordBox;
@@ -782,7 +781,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 
 		ValidityDialog vdialog = new ValidityDialog(MixConfig.getMainWindow(), "Validity");
-		GUIUtils.positionWindow(vdialog, MixConfig.getMainWindow());
+		//GUIUtils.positionWindow(vdialog, MixConfig.getMainWindow());
 		vdialog.setVisible(true);
 		windowSize = vdialog.getSize();
 		windowLocation = vdialog.getLocation();

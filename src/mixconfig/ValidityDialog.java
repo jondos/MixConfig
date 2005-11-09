@@ -49,17 +49,18 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import gui.JAPDialog;
 import anon.crypto.Validity;
 
-class ValidityDialog extends JDialog
+class ValidityDialog extends JAPDialog
 {
 	private DateTextField from, to;
 
-	public ValidityDialog(Frame parent, String title)
+	public ValidityDialog(Component parent, String title)
 	{
-		super(parent, title, true);
+		super(parent, title);
 		createValidityDialog();
-		setLocationRelativeTo(parent);
+		//setLocationRelativeTo(parent);
 	}
 
 	public Validity getValidity()
