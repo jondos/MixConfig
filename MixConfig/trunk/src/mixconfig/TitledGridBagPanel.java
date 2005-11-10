@@ -34,7 +34,6 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
-import javax.swing.border.Border;
 import java.util.Vector;
 
 /**
@@ -44,7 +43,6 @@ import java.util.Vector;
 public final class TitledGridBagPanel extends JPanel
 {
 	private GridBagConstraints m_constraints;
-	private Border m_border;
 	private Vector m_rows;
 
 	public TitledGridBagPanel()
@@ -76,30 +74,18 @@ public final class TitledGridBagPanel extends JPanel
 		m_constraints.insets = new Insets(0,0,0,0);
 	}
 
-	/**
-	 * Throws an IllegalStateException as the Border is fixed to a javax.swing.border.TitledBorder.
-	 * @param a_border Border
-	 */
-	public void setBorder(Border a_border)
-	{
-		if (m_border != null && m_border != a_border)
-		{
-			throw new IllegalStateException("You may not change the border of this panel!");
-		}
-		m_border = a_border;
-
-		super.setBorder(a_border);
-	}
-
 	public void setEnabled(boolean a_bEnabled)
 	{
-		/*
-		if (isEnabled() != a_bEnabled && m_border instanceof TitledBorder)
+		TitledBorder border;
+		if (getBorder() instanceof TitledBorder)
 		{
-			TitledBorder border = ((TitledBorder)m_border);
-
-			//border.setTitleColor(java.awt.Color.);
-		}*/
+			border = new TitledBorder( ( (TitledBorder) getBorder()).getTitle());
+			if (!a_bEnabled)
+			{
+				border.setTitleColor(java.awt.Color.GRAY);
+			}
+			setBorder(border);
+		}
 
 		super.setEnabled(a_bEnabled);
 
