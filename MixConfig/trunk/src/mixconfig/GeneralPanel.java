@@ -67,6 +67,12 @@ import mixconfig.networkpanel.IncomingDialog;
 public class GeneralPanel extends MixConfigPanel implements ActionListener, TableModelListener,
 	ChangeListener
 {
+	public static final String XMLPATH_GENERAL_MIXTYPE = "General/MixType";
+	public static final String XMLPATH_GENERAL_CASCADENAME = "General/CascadeName";
+	public static final String XMLPATH_GENERAL_MIN_CASCADELENGTH = "General/MinCascadeLength";
+	public static final String XMLPATH_GENERAL_MIXNAME = "General/MixName";
+
+
 	private static final String FIRST_MIX = JAPMessages.getString("first_mix");
 	private static final String MIDDLE_MIX = JAPMessages.getString("middle_mix");
 	private static final String LAST_MIX = JAPMessages.getString("last_mix");
@@ -113,7 +119,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 
 		// Mix Type JComboBox
 		m_comboboxMixType = new JComboBox();
-		m_comboboxMixType.setName("General/MixType");
+		m_comboboxMixType.setName(this.XMLPATH_GENERAL_MIXTYPE);
 		m_comboboxMixType.addItem(FIRST_MIX);
 		m_comboboxMixType.addItem(MIDDLE_MIX);
 		m_comboboxMixType.addItem(LAST_MIX);
@@ -143,7 +149,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		// Mix Name JTextField
 		m_tfMixName = new JTextField(20);
 		m_tfMixName.setText("");
-		m_tfMixName.setName("General/MixName");
+		m_tfMixName.setName(XMLPATH_GENERAL_MIXNAME);
 		m_tfMixName.addFocusListener(this);
 		m_panelGeneralSettings.addRow(new JLabel("Mix name"), m_tfMixName,
 									  GridBagConstraints.HORIZONTAL);
@@ -152,11 +158,11 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 
 		// Cascade Name JTextField; this field is disabled by selecting a middle mix type
 		m_tfCascadeName = new JTextField(20);
-		m_tfCascadeName.setName("General/CascadeName");
+		m_tfCascadeName.setName(XMLPATH_GENERAL_CASCADENAME);
 		m_tfCascadeName.addFocusListener(this);
 		// Cascade length
 		m_combxCascadeLength = new JComboBox();
-		m_combxCascadeLength.setName("General/MinCascadeLength");
+		m_combxCascadeLength.setName(XMLPATH_GENERAL_MIN_CASCADELENGTH);
 		for (int i = 2; i <= 5; i++)
 		{
 			m_combxCascadeLength.addItem(new Integer(i));
@@ -402,7 +408,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		String s;
 		int mixType;
 
-		s = mixConf.getValue("General/MixName");
+		s = mixConf.getValue(XMLPATH_GENERAL_MIXNAME);
 		if (s == null || s.equals(""))
 		{
 			errors.addElement("Mix Name not entered in General Panel.");
@@ -411,7 +417,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		try
 		{
 			mixType = getConfiguration().getMixType();
-			s = mixConf.getValue("General/CascadeName");
+			s = mixConf.getValue(XMLPATH_GENERAL_CASCADENAME);
 			if ( ((mixType == MixConfiguration.MIXTYPE_FIRST &&
 				   !m_combxConfiguration.getSelectedItem().equals(CONFIGURATION_DYNAMIC)) ||
 				  (mixType == MixConfiguration.MIXTYPE_LAST &&
@@ -424,26 +430,6 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		catch (NumberFormatException nfe)
 		{
 			errors.addElement("Invalid Mix type in configuration.");
-		}
-
-		s = mixConf.getValue("General/UserID");
-		if (s != null && s.equals(""))
-		{
-			errors.addElement("User ID not entered in General Panel.");
-
-		}
-		s = mixConf.getValue("General/NrOfFileDescriptors");
-		if (s != null && !isNumber(s))
-		{
-			errors.addElement(
-				"Number of File Descriptors is not a number in General Panel.");
-
-		}
-		s = mixConf.getValue("General/Logging/File");
-		if (s != null && s.equals(""))
-		{
-			errors.addElement("No directory for logging entered in General Panel.");
-
 		}
 
 		s = getConfiguration().getValue("Network/InfoService/Host");
@@ -560,7 +546,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		}
 
 	//Check if a middle or last mix has only one valid interface
-	mixType = Integer.valueOf(mixConf.getValue("General/MixType")).intValue();
+	mixType = Integer.valueOf(mixConf.getValue(XMLPATH_GENERAL_MIXTYPE)).intValue();
 	if (mixType == MixConfiguration.MIXTYPE_LAST || mixType == MixConfiguration.MIXTYPE_MIDDLE)
 	{
 		if (m_listenerModel.getRowCount() > 2)

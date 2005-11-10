@@ -51,7 +51,6 @@ import logging.LogLevel;
 import logging.LogType;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.OutgoingConnectionTableModel;
-import mixconfig.networkpanel.ConnectionData;
 
 /** This class provides unified access to the Mix configuration. The configuration
  * is stored as a DOM document.
@@ -86,7 +85,7 @@ public class MixConfiguration
 	/** An array containing the Mix types as String values. The indices correspond to
 	 * the MIXTYPE_xxx constants.
 	 */
-	public static final String MIXTYPE_NAME[] =
+	private static final String MIXTYPE_NAME[] =
 		{
 		"FirstMix", "MiddleMix", "LastMix", "FirstOrMiddle"};
 
@@ -163,6 +162,15 @@ public class MixConfiguration
 
 		m_configuration = configuration;
 		return true;
+	}
+
+	public static String getMixTypeAsString(int a_mixType)
+	{
+		if (MIXTYPE_NAME.length <= a_mixType)
+		{
+			return null;
+		}
+		return MIXTYPE_NAME[a_mixType];
 	}
 
 	/** Returns the DOM Document object underlying this configuration.
@@ -296,7 +304,7 @@ public class MixConfiguration
 
 		try
 		{
-			mixtype = Integer.valueOf(getValue("General/MixType")).intValue();
+			mixtype = Integer.valueOf(getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).intValue();
 
 			if (mixtype < MIXTYPE_FIRST)
 			{
