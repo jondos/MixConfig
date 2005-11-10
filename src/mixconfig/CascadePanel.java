@@ -67,6 +67,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 import logging.LogType;
+import gui.JAPHelp;
+import java.awt.Graphics;
 
 /** The <CODE>CascadePanel</CODE> is a panel that lets the user edit settings concerning
  * an entire mix cascade. It should only be made visible when the mix that is being
@@ -323,6 +325,12 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 	public void valueChanged(ListSelectionEvent e)
 	{
 		enableComponents();
+	}
+
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		JAPHelp.getInstance().getContextObj().setContext("index");
 	}
 
 	/** Moves the currently selected entry from one table to another.
