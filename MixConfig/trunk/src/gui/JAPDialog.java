@@ -37,8 +37,6 @@ import java.awt.Container;
 import java.awt.event.WindowListener;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 
 /**
  * This is the generic implementation for a modal, user resizeable dialog. Use the root panel
@@ -52,12 +50,6 @@ public class JAPDialog
 	 * Stores the instance of JDialog for internal use.
 	 */
 	private JDialog m_internalDialog;
-
-	/**
-	 * This stores the root panel of this dialog. All elements of the dialog are placed on this
-	 * panel (or subpanels).
-	 */
-	private JPanel m_rootPanel;
 
 	/**
 	 * This stores the parent component of this dialog.
@@ -87,24 +79,6 @@ public class JAPDialog
 	}
 
 	/**
-	 * Shows the dialog (set it to visible).
-	 * @deprecated this is old-style java
-	 */
-	public void show()
-	{
-		setVisible(true);
-	}
-
-	/**
-	 * Hides the dialog (set it to invisible).
-	 * @deprecated this is old-style java
-	 */
-	public void hide()
-	{
-		setVisible(false);
-	}
-
-	/**
 	 * Shows or hides the dialog.
 	 * @param a_bVisible 'true' shows the dialog; 'false' hides it
 	 */
@@ -118,7 +92,7 @@ public class JAPDialog
 			}
 			else
 			{
-				align_internal();
+				align();
 			}
 		}
 		m_internalDialog.setVisible(a_bVisible);
@@ -161,43 +135,6 @@ public class JAPDialog
 	}
 
 	/**
-	 * Set the dialog to the optimal size and center it over the parent component.
-	 * @deprecated the dialog is automatically aligned when it is made visible
-	 */
-	public void align()
-	{
-		pack();
-		align_internal();
-	}
-
-	/**
-	 * This returns the root panel for this dialog. Use this method for inserting elements on the
-	 * root panel.
-	 *
-	 * @return The root panel of this dialog.
-	 * @deprecated Should not be used any more!
-	 */
-	public JPanel getRootPanel()
-	{
-		if (m_rootPanel == null)
-		{
-			m_rootPanel = new JPanel();
-			m_internalDialog.getContentPane().add(m_rootPanel);
-		}
-		return m_rootPanel;
-	}
-
-	/**
-	 * Disables the possibility of closing the dialog via the close-button in the dialog's
-	 * title bar.
-	 * @deprecated use setDefaultCloseOperation instead
-	 */
-	public void disableManualClosing()
-	{
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-	}
-
-	/**
 	 * Defines the reaction of this dialog on a klick on the close button in the dialog's title bar.
 	 * @param a_windowAction insert an element of javax.swing.WindowConstants
 	 * @see javax.swing.WindowConstants
@@ -228,17 +165,6 @@ public class JAPDialog
 	}
 
 	/**
-	 * Returns the internal used JDialog class.
-	 *
-	 * @return The internal used JDialog class.
-	 * @deprecated the internal dialog should not be visible or directly modifyable
-	 */
-	public JDialog getInternalDialog()
-	{
-		return m_internalDialog;
-	}
-
-	/**
 	 * Sets the dialog to the optimal size.
 	 */
 	public void pack()
@@ -249,7 +175,7 @@ public class JAPDialog
 	/**
 	 * Centers the dialog over the parent component.
 	 */
-	private void align_internal()
+	private void align()
 	{
 		Component parent = m_parentComponent;
 

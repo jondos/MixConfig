@@ -32,7 +32,6 @@ import java.awt.Dimension;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.Window;
-import java.awt.Frame;
 import java.awt.Component;
 import javax.swing.ImageIcon;
 import javax.swing.JTextPane;
@@ -70,6 +69,10 @@ public final class GUIUtils
 		return img;
 	}
 
+	/**
+	 * Centers a window relative to the screen.
+	 * @param a_window a Window
+	 */
 	public static void centerFrame(Window a_window)
 	{
 		Dimension screenSize = a_window.getToolkit().getScreenSize();

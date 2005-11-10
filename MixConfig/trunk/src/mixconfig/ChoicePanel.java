@@ -34,6 +34,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import logging.LogType;
 import mixconfig.wizard.ConfigWizard;
+import java.awt.Graphics;
 
 /**
  * Shows the StartScreen when you run the "Mix Configuration Tool" in a CardLayout.
@@ -44,10 +45,12 @@ import mixconfig.wizard.ConfigWizard;
 
 public class ChoicePanel extends JPanel
 {
+	private static final Dimension DEFAULT_SIZE = new Dimension(785, 600);
 
 	private static final String CARD_WIZ    = "card_mainPanel_wiz";
 	private static final String CARD_EXPERT = "card_mainPanel_expert";
 	private static final String CARD_CHOICE = "card_choicePanel";
+
 
 
 
@@ -166,10 +169,9 @@ public class ChoicePanel extends JPanel
 
 	public void setDefaultSize()
 	{
-		Dimension dimension = new Dimension(785, 600);
-		setSize(dimension);
-		setMinimumSize(dimension);
-		setPreferredSize(dimension);
+		setSize(DEFAULT_SIZE);
+		setMinimumSize(DEFAULT_SIZE);
+		setPreferredSize(DEFAULT_SIZE);
 
 		if (m_Parent != null)
 		{
@@ -177,6 +179,37 @@ public class ChoicePanel extends JPanel
 			m_Parent.pack();
 			m_Parent.setLocation(location);
 		}
+	}
+
+	public void paint(Graphics g)
+	{
+		/*
+		Dimension currentDimension = new Dimension(getSize());
+		boolean bChangeSize = false;
+
+		if (currentDimension.getWidth() < DEFAULT_SIZE.getWidth())
+		{
+			currentDimension.setSize(DEFAULT_SIZE.getWidth(), currentDimension.getHeight());
+			bChangeSize = true;
+		}
+		if (currentDimension.getHeight() < DEFAULT_SIZE.getHeight())
+		{
+			currentDimension.setSize(currentDimension.getWidth(), DEFAULT_SIZE.getHeight());
+			bChangeSize = true;
+		}
+
+		if (bChangeSize)
+		{
+			setSize(currentDimension);
+			setMinimumSize(currentDimension);
+			setPreferredSize(currentDimension);
+		}
+		else */
+		{
+			super.paint(g);
+		}
+
+
 	}
 
 	/**
