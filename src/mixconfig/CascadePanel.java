@@ -276,7 +276,6 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			errors.addElement(new String("Too few mixes in cascade. Please add at " +
 										 "least two mixes in Cascade Panel."));
 		}
-		System.out.println(errors);
 
 		return errors;
 	}
@@ -751,7 +750,6 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			// clear the tables first (this is necessary)
 			m_configuredMixTable.setModel(new MixListTableModel());
 			m_availableMixTable.setModel(new MixListTableModel());
-
 
 			NodeList n = getConfiguration().getDocument().getElementsByTagName("MixCascade");
 			if (n.getLength() > 0)

@@ -96,7 +96,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 	private int m_state = STATE_BEGIN;
 
 	/** An array of strings containing possible error messages */
-	private String[] m_errors = null;
+	private String[] m_errors = new String[0];
 
 	/** Constructs a new instance of <CODE>ConfigWizardPanel</CODE>
 	 * @throws IOException If an I/O exception occurs while setting the configuration object
@@ -265,7 +265,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 
 		int newstate = STATE_GO;
 
-		m_errors = null;
+		m_errors = new String[0];
 
 		if (m_currentPage == 0)
 		{
