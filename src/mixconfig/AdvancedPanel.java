@@ -191,7 +191,30 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 	 */
 	public Vector check()
 	{
-		return new Vector();
+		String s;
+		Vector errors = new Vector();
+
+		s = getConfiguration().getValue("General/UserID");
+		if (s != null && s.equals(""))
+		{
+			errors.addElement("User ID not entered in Advanced Panel.");
+
+		}
+		s = getConfiguration().getValue("General/NrOfFileDescriptors");
+		if (s != null && !isNumber(s))
+		{
+			errors.addElement(
+				"Number of File Descriptors is not a number in Advanced Panel.");
+
+		}
+		s = getConfiguration().getValue("General/Logging/File");
+		if (s != null && s.equals(""))
+		{
+			errors.addElement("No directory for logging entered in Advanced Panel.");
+
+		}
+
+		return errors;
 	}
 
 	public void itemStateChanged(ItemEvent a_event)

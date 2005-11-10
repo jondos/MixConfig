@@ -220,7 +220,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 	{
 		Vector errors = new Vector();
 		MixListTableModel confMix = (MixListTableModel)this.m_configuredMixTable.getModel();
-		Integer t = new Integer(getConfiguration().getValue("General/MixType"));
+		Integer t = new Integer(getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE));
 		if (t.intValue() != MixConfiguration.MIXTYPE_LAST)
 		{
 			return errors;
@@ -252,17 +252,22 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 					errors.addElement(new String(
 									   "One of the mixes in the cascade does not want to be middle mix. " +
 									   "Please re-arrange the cascade."));
+					break;
 				}
 			}
 
 			for (int i = 0; i < confMix.getRowCount() - 2; i++)
 			{
-				Integer cl = new Integer(confMix.getValueAt(i, 4).toString());
-				if (cl.intValue() > confMix.getRowCount())
+				Object cascadeLength = confMix.getValueAt(i, 4);
+				if (cascadeLength != null && cascadeLength.toString().trim().length() > 0)
 				{
-					errors.addElement(new String(
-									   "One or more of the mixes in the cascade require(s) a greater " +
-									   "cascade size. Please add more mixes or remove that mix."));
+					if (new Integer(cascadeLength.toString()).intValue() > confMix.getRowCount())
+					{
+						errors.addElement(new String(
+							"One or more of the mixes in the cascade require(s) a greater " +
+							"cascade size. Please add more mixes or remove that mix."));
+	                    break;
+					}
 				}
 			}
 		}
@@ -271,6 +276,8 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			errors.addElement(new String("Too few mixes in cascade. Please add at " +
 										 "least two mixes in Cascade Panel."));
 		}
+		System.out.println(errors);
+
 		return errors;
 	}
 
@@ -439,8 +446,9 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			NodeList nl = a_mixList.getElementsByTagName("Mix");
 			for (int i = 0; i < nl.getLength(); i++)
 			{
+				String strMixType = getElementData((Element)(nl.item(i)), "MixType");
 				//Do not show LastMixes
-				if (!getElementData((Element)(nl.item(i)), "MixType").equalsIgnoreCase("LastMix"))
+				if (!strMixType.equalsIgnoreCase("LastMix"))
 				{
 					addRow( (Element) nl.item(i));
 				}
@@ -525,16 +533,40 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 				m = (MixListTableModel) m_configuredMixTable.getModel();
 			}
 
-			int i = Math.max(mixList.size(), 1);
-			if (mixList.size() > 0)
+			if (a_mix[3].toString().equalsIgnoreCase("FirstMix"))
 			{
-				mixList.insertElementAt(a_mix, mixList.size() - 1);
+				mixList.insertElementAt(a_mix, 0);
+				fireTableRowsInserted(0, 0);
+			}
+			else if (a_mix[3].toString().equalsIgnoreCase("LastMix"))
+			{
+				mixList.addElement(a_mix);
+				fireTableRowsInserted(mixList.size() -1, mixList.size() -1);
 			}
 			else
 			{
-				mixList.addElement(a_mix);
+				int i;
+				String strMixType;
+				for (i = 0; i < mixList.size(); i++)
+				{
+					strMixType = ((Object[])mixList.elementAt(i))[3].toString();
+
+					if (strMixType.equalsIgnoreCase(
+									   MixConfiguration.getMixTypeAsString(MixConfiguration.MIXTYPE_FIRST)))
+					{
+						continue;
+					}
+					if (strMixType.equalsIgnoreCase(MixConfiguration.getMixTypeAsString(
+									   MixConfiguration.MIXTYPE_MIDDLE)) ||
+						strMixType.equalsIgnoreCase(MixConfiguration.getMixTypeAsString(
+											  MixConfiguration.MIXTYPE_LAST)))
+					{
+						break;
+					}
+				}
+				mixList.insertElementAt(a_mix, i);
+				fireTableRowsInserted(i, i);
 			}
-			fireTableRowsInserted(mixList.size(), mixList.size());
 		}
 
 		/** Adds an entry to the table model. The <code>Element</code> representing the entry must have
@@ -706,13 +738,13 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		{
 			Object myself[] = new Object[5];
 			myself[0] = getConfiguration().getValue("General/MixID");
-			myself[1] = getConfiguration().getValue("General/MixName");
-			myself[2] = getConfiguration().getValue("Description/Location/City");
-			myself[3] = getConfiguration().getValue("General/MixType");
+			myself[1] = getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_MIXNAME);
+			myself[2] = getConfiguration().getValue(OwnCertificatesPanel.XMLPATH_LOCATION_CITY);
+			myself[3] = getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE);
 			if (myself[3] != null)
 			{
 				Integer t = new Integer(myself[3].toString());
-				myself[3] = MixConfiguration.MIXTYPE_NAME[t.intValue()];
+				myself[3] = MixConfiguration.getMixTypeAsString(t.intValue());
 			}
 			myself[4] = new String();
 
@@ -737,7 +769,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		super.setConfiguration(a_mixConf);
 		a_mixConf.removeChangeListener(this);
 		a_mixConf.addChangeListener(this);
-		setEnabled(new Integer(a_mixConf.getValue("General/MixType")).intValue() ==
+		setEnabled(new Integer(a_mixConf.getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).intValue() ==
 				   MixConfiguration.MIXTYPE_LAST &&
 			getConfiguration().isAutoConfigurationAllowed());
 	}
@@ -763,14 +795,15 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			}
 			else if (ce.getChangedAttribute().equals("Network/InfoService/AllowAutoConfiguration"))
 			{
-				setEnabled(new Integer(getConfiguration().getValue("General/MixType")).intValue() ==
+				setEnabled(new Integer(getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).intValue() ==
 						   MixConfiguration.MIXTYPE_LAST &&
 						   getConfiguration().isAutoConfigurationAllowed());
 			}
-			else if (ce.getChangedAttribute().equals("General/MixType"))
+			else if (ce.getChangedAttribute().equals(GeneralPanel.XMLPATH_GENERAL_MIXTYPE))
 			{
 				col = 3;
-				setEnabled(new Integer(getConfiguration().getValue("General/MixType")).intValue() ==
+				setEnabled(new Integer(getConfiguration().getValue(
+								GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).intValue() ==
 						   MixConfiguration.MIXTYPE_LAST &&
 						   getConfiguration().isAutoConfigurationAllowed());
 			}
@@ -795,7 +828,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 				if (col == 3)
 				{
 					Integer t = new Integer(v);
-					v = MixConfiguration.MIXTYPE_NAME[t.intValue()];
+					v = MixConfiguration.getMixTypeAsString(t.intValue());
 				}
 
 				m_configuredMixTable.setValueAt(v, m_configuredMixTable.getRowCount() - 1, col);
