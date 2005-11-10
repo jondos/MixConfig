@@ -209,22 +209,6 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 			{
 			15, 15, 60, 195, 40};
 
-		final TableCellRenderer IPRenderer = new DefaultTableCellRenderer()
-		{
-			protected void setValue(Object v)
-			{
-				if (v == null)
-				{
-					super.setValue("");
-				}
-				else
-				{
-					int[] ips = (int[]) v;
-					super.setValue(ips[0] + "." + ips[1] + "." + ips[2] + "." + ips[3]);
-					setHorizontalAlignment(CENTER);
-				}
-			}
-		};
 		final TableCellRenderer PortRenderer = new DefaultTableCellRenderer()
 		{
 			protected void setValue(Object v)
@@ -739,11 +723,13 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				  m_combxConfiguration.getSelectedItem().equals(CONFIGURATION_STATIC));
 
 
-		m_lblCascadeLength.setEnabled(getConfiguration().isAutoConfigurationAllowed());
-		m_combxCascadeLength.setEnabled(getConfiguration().isAutoConfigurationAllowed());
+		m_lblCascadeLength.setEnabled(getConfiguration().isAutoConfigurationAllowed() &&
+			getConfiguration().getMixType() != MixConfiguration.MIXTYPE_LAST);
+	    m_combxCascadeLength.setEnabled(getConfiguration().isAutoConfigurationAllowed() &&
+			getConfiguration().getMixType() != MixConfiguration.MIXTYPE_LAST);
 
 		bEnableCascadeName = !isFirstDynamicMix() ||
-			(m_comboboxMixType.getSelectedItem() == LAST_MIX &&
+			(getConfiguration().getMixType() != MixConfiguration.MIXTYPE_LAST &&
 			 getConfiguration().isAutoConfigurationAllowed());
 
 		m_tfCascadeName.setEnabled(bEnableCascadeName);
