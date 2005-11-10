@@ -335,6 +335,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	public void setEnabled(boolean enabled)
 	{
 		Component components[] = getComponents();
+		TitledBorder border;
 
 		for (int i = 0; i < components.length; i++)
 		{
@@ -342,6 +343,16 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			{
 				components[i].setEnabled(enabled);
 			}
+		}
+
+		if (getBorder() instanceof TitledBorder)
+		{
+			border = new TitledBorder( ( (TitledBorder) getBorder()).getTitle());
+			if (!enabled)
+			{
+				border.setTitleColor(java.awt.Color.GRAY);
+			}
+			setBorder(border);
 		}
 
 		super.setEnabled(enabled);

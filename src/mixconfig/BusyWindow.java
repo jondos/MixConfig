@@ -43,6 +43,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import gui.AutoScaleImage;
 
 
 class BusyWindow extends JDialog implements ActionListener
@@ -66,15 +67,13 @@ class BusyWindow extends JDialog implements ActionListener
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.gridy = 0;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-		JComponent label = new JLabel(reason);
+		JComponent label = new JLabel("Please wait: " + reason);
 		gbc.gridx = 0;
 		gbc.weightx = 0;
 		layout.setConstraints(label, gbc);
 		p.add(label);
 		gbc.gridy++;
-		label = new JLabel("Please wait.");
-		p.add(label, gbc);
-		gbc.gridy++;
+
 		ImageIcon img = MixConfig.loadImageIcon("busy.gif");
 		MediaTracker mt = new MediaTracker(this);
 		mt.addImage(img.getImage(), 1);
@@ -86,6 +85,7 @@ class BusyWindow extends JDialog implements ActionListener
 		{
 			e.printStackTrace();
 		}
+
 		label = new JLabel(img);
 		p.add(label, gbc);
 		/* Funktioniert nicht. Der Abbruch wird irgendwo abgefangen.

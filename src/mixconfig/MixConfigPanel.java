@@ -151,9 +151,6 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		{
 			Object source = ie.getSource();
 
-			enableComponents();
-			validate();
-
 			if (m_autoSave && ( (Component) source).getName() != null)
 			{
 				if (source instanceof JTextField)
@@ -177,6 +174,9 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 					}
 				}
 			}
+
+			enableComponents();
+			validate();
 		}
 		catch (Exception uee)
 		{

@@ -405,15 +405,19 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		try
 		{
 			boolean bEnableOutgoing;
+			boolean bEnableCerts;
 			int mixType = getConfiguration().getMixType();
 			if (mixType == MixConfiguration.MIXTYPE_LAST)
 			{
 				getMixCertPanel().removeCert();
 			}
 
-			getMixCertPanel().setEnabled(mixType != MixConfiguration.MIXTYPE_LAST &&
+			bEnableCerts = mixType != MixConfiguration.MIXTYPE_LAST &&
 										 (!getConfiguration().isAutoConfigurationAllowed() ||
-										  getConfiguration().isFallbackEnabled()));
+										  getConfiguration().isFallbackEnabled());
+			getMixCertPanel().setEnabled(bEnableCerts);
+			getLocationPanel().setEnabled(bEnableCerts);
+			getOperatorPanel().setEnabled(bEnableCerts);
 
 			bEnableOutgoing = mixType == MixConfiguration.MIXTYPE_LAST ||
 				!getConfiguration().isAutoConfigurationAllowed()
@@ -459,7 +463,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			if (e instanceof ConfigurationEvent)
 			{
 				ConfigurationEvent c = (ConfigurationEvent) e;
-				if (c.getChangedAttribute().equals("General/MixType"))
+				if (c.getChangedAttribute().equals(GeneralPanel.XMLPATH_GENERAL_MIXTYPE))
 				{
 					int i = Integer.valueOf( (String) c.getNewValue()).intValue();
 					m_bttnAddOutgoing.setEnabled(i == MixConfiguration.MIXTYPE_LAST ||
@@ -491,7 +495,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			" Next Mix", " Next Mix", " Proxy"
 		};
 		MixConfiguration mixConf = getConfiguration();
-		int mixType = Integer.valueOf(mixConf.getValue("General/MixType")).intValue();
+		int mixType = Integer.valueOf(mixConf.getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).intValue();
 
 		if (a.getActionCommand().equals("AddOutgoing"))
 		{

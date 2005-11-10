@@ -145,6 +145,16 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 			(int) m_otherOpCert.getPreferredSize().height));
 	}
 
+	protected JPanel getLocationPanel()
+	{
+		return m_locationPanel;
+	}
+
+	public JPanel getOperatorPanel()
+	{
+		return m_operatorPanel;
+	}
+
 	private JPanel createLocationPanel()
 	{
 		TitledGridBagPanel panel = new TitledGridBagPanel("Location");

@@ -349,9 +349,6 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		c.weightx = 1;
 		c.fill = c.HORIZONTAL;
 		this.add(dummyLabel2, c);
-
-
-		//enableComponents();
 	}
 
 	public void setConfiguration(MixConfiguration a_conf) throws IOException
@@ -402,8 +399,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		{
 			mixType = getConfiguration().getMixType();
 			s = mixConf.getValue(XMLPATH_GENERAL_CASCADENAME);
-			if ( ((mixType == MixConfiguration.MIXTYPE_FIRST &&
-				   !m_combxConfiguration.getSelectedItem().equals(CONFIGURATION_DYNAMIC)) ||
+			if ( ((mixType == MixConfiguration.MIXTYPE_FIRST && !isFirstDynamicMix()) ||
 				  (mixType == MixConfiguration.MIXTYPE_LAST &&
 				   getConfiguration().isAutoConfigurationAllowed())) &&
 				(s == null || s.equals("")))
@@ -728,8 +724,9 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	    m_combxCascadeLength.setEnabled(getConfiguration().isAutoConfigurationAllowed() &&
 			getConfiguration().getMixType() != MixConfiguration.MIXTYPE_LAST);
 
-		bEnableCascadeName = !isFirstDynamicMix() ||
-			(getConfiguration().getMixType() != MixConfiguration.MIXTYPE_LAST &&
+		bEnableCascadeName = (getConfiguration().getMixType() == MixConfiguration.MIXTYPE_FIRST &&
+							  !isFirstDynamicMix()) ||
+			(getConfiguration().getMixType() == MixConfiguration.MIXTYPE_LAST &&
 			 getConfiguration().isAutoConfigurationAllowed());
 
 		m_tfCascadeName.setEnabled(bEnableCascadeName);

@@ -28,7 +28,6 @@
 package gui;
 
 import javax.swing.JLabel;
-import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.ImageIcon;
 import java.awt.event.ComponentEvent;
