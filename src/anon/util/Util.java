@@ -198,7 +198,57 @@ public final class Util
 	 */
 	public static Vector sortStrings(Vector a_vector)
 	{
-		return bubbleSortStrings(a_vector);
+		Vector sortedVector = new Vector();
+		String buffer[] = new String[a_vector.size()];
+		int bufferIndices[] = new int[a_vector.size()];
+		String umlauts[] = new String[2];
+		String temp;
+		boolean bUmlauts;
+
+		for (int i = 0; i < buffer.length; i++)
+		{
+			buffer[i] = a_vector.elementAt(i).toString().toLowerCase();
+			bufferIndices[i] = i;
+			// if one of the first letters is an umlaut, convert it
+			bUmlauts = false;
+			for (int j = 0; j < umlauts.length && j < buffer[i].length(); j++)
+			{
+				if (isUmlaut(buffer[i].charAt(j), umlauts, j))
+				{
+					bUmlauts = true;
+				}
+			}
+			if (bUmlauts)
+			{
+				temp = "";
+				int j = 0;
+				for (; j < umlauts.length && j < buffer[i].length(); j++)
+				{
+					if (umlauts[j] == null)
+					{
+						temp += buffer[i].charAt(j);
+					}
+					else
+					{
+						temp += umlauts[j];
+					}
+				}
+				if (j < buffer[i].length())
+				{
+					temp += buffer[i].substring(j, buffer[i].length());
+				}
+				buffer[i] = temp;
+			}
+		}
+
+		// do the sorting operation
+		bubbleSortStrings(a_vector, buffer, bufferIndices);
+
+		for (int i = 0; i < buffer.length; i++)
+		{
+			sortedVector.addElement(a_vector.elementAt(bufferIndices[i]));
+		}
+		return sortedVector;
 	}
 
 	/**
@@ -263,19 +313,10 @@ public final class Util
 	 * @return a sorted Vector
 	 * @todo Umlauts are not sorted correctly
 	 */
-	private static Vector bubbleSortStrings(Vector a_vector)
+	private static void bubbleSortStrings(Vector a_vector, String buffer[], int bufferIndices[])
 	{
-		Vector sortedVector = new Vector();
-		String buffer[] = new String[a_vector.size()];
-		int bufferIndices[] = new int[a_vector.size()];
 		String temp;
 		int tempIndex;
-
-		for (int i = 0; i < buffer.length; i++)
-		{
-			buffer[i] = a_vector.elementAt(i).toString().toLowerCase();
-			bufferIndices[i] = i;
-		}
 
 		for (int i = 1; i <= a_vector.size(); i++)
 		{
@@ -292,11 +333,28 @@ public final class Util
 				}
 			}
 		}
+	}
 
-		for (int i = 0; i < buffer.length; i++)
+	/**
+	 * Tests if a character is an umlaut an, if yes, writes the umlaut in an ASCII form to
+	 * the array of transformed umlauts at the specified position.
+	 * @param a_character a character
+	 * @param a_transformedUmlauts an array of transformed umlauts
+	 * @param a_position the position to write into the array of umlauts; if the character is not an umlaut,
+	 * 'null' is written at this position, otherwise the character transformed into an ASCII form
+	 * @return if the given character is an umlaut; false otherwise
+	 */
+	private static boolean isUmlaut(char a_character, String[] a_transformedUmlauts, int a_position)
+	{
+		switch (a_character)
 		{
-			sortedVector.addElement(a_vector.elementAt(bufferIndices[i]));
+			case 'ä': a_transformedUmlauts[a_position] = "ae"; return true;
+			case 'Ä': a_transformedUmlauts[a_position] = "Ae"; return true;
+			case 'ö': a_transformedUmlauts[a_position] = "oe"; return true;
+			case 'Ö': a_transformedUmlauts[a_position] = "Oe"; return true;
+			case 'ü': a_transformedUmlauts[a_position] = "ue"; return true;
+			case 'Ü': a_transformedUmlauts[a_position] = "Ue"; return true;
+			default: a_transformedUmlauts[a_position] = null; return false;
 		}
-		return sortedVector;
 	}
 }
