@@ -325,7 +325,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 
 	public Vector check()
 	{
-		Vector errors = new Vector();
+		Vector errors = super.check();
 		String s = MixConfig.getMixConfiguration().getValue("General/MixType");
 		int mixType = Integer.valueOf(s).intValue();
 

@@ -61,6 +61,7 @@ import javax.swing.JTabbedPane;
 import anon.crypto.ICertificate;
 import anon.crypto.PKCS12;
 import logging.LogType;
+import anon.util.ClassUtil;
 
 /** This is the abstract superclass of all configuration panels. It saves
  * the data entered by the user to the underlying configuration object, and updates
@@ -111,6 +112,22 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		// this causes a NullPointerException as components of subclasses are not
 		// yet constructed
 		// setConfiguration(MixConfig.getMixConfiguration());
+	}
+
+	/**
+	 * Returns the name of the panel assuming all panel classes are named correctly.
+	 * @return the name of the panel
+	 */
+	public String getPanelName()
+	{
+		String name = ClassUtil.getShortClassName(getClass());
+
+		if (name.toLowerCase().endsWith("panel"))
+		{
+			name = name.substring(0, name.length() - 5);
+		}
+
+		return name;
 	}
 
 	/**
