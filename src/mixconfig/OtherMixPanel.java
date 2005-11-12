@@ -286,13 +286,13 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		if (!m_otherCert.isEnabled() && m_otherCert.getCert() != null)
 		{
 			errors.addElement(
-				m_type + " Certificate is present, but there is no previous mix.");
+				m_type + " Certificate is present, but there is no corresponding mix.");
 		}
 		else if (!getConfiguration().isAutoConfigurationAllowed() &&
 				 m_otherCert.isEnabled() && m_otherCert.getCert() == null)
 		{
 			errors.addElement(
-				m_type + " Certificate is missing in Certificates Panel.");
+				m_type + " Certificate is missing in " + getPanelName() + " panel.");
 		}
 
 		return errors;
