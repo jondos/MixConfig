@@ -91,27 +91,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		GridBagLayout Out_Layout = super.getGridBagLayout();
 		GridBagConstraints c = super.getGridBagConstraints();
 
-		int[] columnSizes1 =
-			{
-			15, 15, 15, 60, 195, 40};
-		// table1 = new JTable(data1, columnNames1);
 
-		final TableCellRenderer IPRenderer = new DefaultTableCellRenderer()
-		{
-			protected void setValue(Object v)
-			{
-				if (v == null)
-				{
-					super.setValue("");
-				}
-				else
-				{
-					int[] ips = (int[]) v;
-					super.setValue(ips[0] + "." + ips[1] + "." + ips[2] + "." + ips[3]);
-					setHorizontalAlignment(CENTER);
-				}
-			}
-		};
 		final TableCellRenderer PortRenderer = new DefaultTableCellRenderer()
 		{
 			protected void setValue(Object v)
@@ -156,12 +136,12 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		d.weightx = 1;
 		d.weighty = 1;
 		d.gridheight = 3;
-		d.fill = GridBagConstraints.BOTH;
+		d.fill = GridBagConstraints.HORIZONTAL;
 
 		// Now the outgoing connections
 		c.gridx = 0;
 		c.gridy++;
-		c.gridwidth = 2;
+		c.gridwidth = 4;
 		panel2 = new JPanel(Out_Layout);
 		panel2.setBorder(new TitledBorder("Outgoing"));
 		panel2.setToolTipText("Connection(s) to next Mix or Proxies.");
