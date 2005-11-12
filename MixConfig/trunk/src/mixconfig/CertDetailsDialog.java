@@ -198,4 +198,6 @@ public class CertDetailsDialog extends JAPDialog
 		gbc.fill = gbc.NONE;
 		this.getContentPane().add(okButton, gbc);
 	}
+
+
 }

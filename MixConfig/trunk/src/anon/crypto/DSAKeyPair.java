@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000 - 2004, The JAP-Team
+ Copyright (c) 2000 - 2005, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -34,7 +34,6 @@ import org.bouncycastle.crypto.generators.DSAKeyPairGenerator;
 import org.bouncycastle.crypto.generators.DSAParametersGenerator;
 import org.bouncycastle.crypto.params.DSAKeyGenerationParameters;
 import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
-import gui.*;
 
 /**
  * This class creates key pairs for the DSA algorithm.
