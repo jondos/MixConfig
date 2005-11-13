@@ -56,6 +56,7 @@ import logging.LogType;
 import gui.JAPHelp;
 import gui.GUIUtils;
 import mixconfig.wizard.ConfigWizard;
+import javax.swing.JRootPane;
 
 public class Menu implements ActionListener
 {
@@ -64,15 +65,14 @@ public class Menu implements ActionListener
 	public static final String CMD_OPEN_FILE_WIZARD = "OpenWizard";
 	public static final String CMD_RESET = "Reset";
 
-
 	private static final String WIZARD = "wizard";
 	private static final String EXPERT = "expert";
-	private static final String START  = "start";
+	private static final String START = "start";
 
 	private JFrame m_mainWin;
 	private JMenuBar m_MenuBar;
 
-	private ConfigFrame  m_configFrame_Panel;
+	private ConfigFrame m_configFrame_Panel;
 	private ConfigWizard m_configWiz_Panel;
 
 	private JMenuItem m_defaultSize;
@@ -90,18 +90,25 @@ public class Menu implements ActionListener
 	private JMenu m_toolsMenu;
 	private JMenu m_fileMenu;
 
-	public Menu(JFrame mainWin, ConfigWizard configWiz_Panel, ConfigFrame configFrame_Panel)
+	public Menu(JFrame mainWin, JRootPane rootPane, ConfigWizard configWiz_Panel,
+				ConfigFrame configFrame_Panel)
 	{
 		m_mainWin = mainWin;
 
 		m_configFrame_Panel = configFrame_Panel;
-		m_configWiz_Panel   = configWiz_Panel;
+		m_configWiz_Panel = configWiz_Panel;
 
 		m_MenuBar = new JMenuBar();
-		m_mainWin.setJMenuBar(m_MenuBar);
-
+		if (m_mainWin != null)
+		{
+			m_mainWin.setJMenuBar(m_MenuBar);
+		}
+		else if (rootPane != null)
+		{
+			rootPane.setJMenuBar(m_MenuBar);
+		}
 		//the main menu
-	    m_fileMenu = new JMenu("File");
+		m_fileMenu = new JMenu("File");
 		m_fileMenu.setMnemonic('F');
 		m_MenuBar.add(m_fileMenu);
 		m_toolsMenu = new JMenu("Tools");
@@ -120,11 +127,11 @@ public class Menu implements ActionListener
 		m_openMenuItem = new JMenuItem("Open...");
 		m_openclipItem = new JMenuItem("Open from clipboard");
 
-     	m_checkItem = new JMenuItem("Check");
+		m_checkItem = new JMenuItem("Check");
 		m_checkItem.setEnabled(false);
 
-	    m_saveMenuItem = new JMenuItem();
-	    String curFileName = MixConfig.getCurrentFileName();
+		m_saveMenuItem = new JMenuItem();
+		String curFileName = MixConfig.getCurrentFileName();
 		if (curFileName == null)
 		{
 			curFileName = "none";
@@ -134,7 +141,7 @@ public class Menu implements ActionListener
 		m_saveclipItem = new JMenuItem("Save to clipboard");
 		m_saveclipItem.setEnabled(false);
 
-	    m_saveAsMenuItem = new JMenuItem("Save as...");
+		m_saveAsMenuItem = new JMenuItem("Save as...");
 		m_saveAsMenuItem.setEnabled(false);
 
 		m_newMenuItem.addActionListener(this);
@@ -197,7 +204,7 @@ public class Menu implements ActionListener
 		m_changeViewToWizMenuItem.setActionCommand("ChangeViewToWiz");
 		m_changeViewToWizMenuItem.addActionListener(this);
 
-	    m_changeViewToExpertMenuItem = new JCheckBoxMenuItem("Expert", false);
+		m_changeViewToExpertMenuItem = new JCheckBoxMenuItem("Expert", false);
 		viewMenu.add(m_changeViewToExpertMenuItem);
 		m_changeViewToExpertMenuItem.setActionCommand("ChangeViewToExpert");
 		m_changeViewToExpertMenuItem.addActionListener(this);
@@ -205,7 +212,6 @@ public class Menu implements ActionListener
 		m_defaultSize = new JMenuItem("Default size");
 		m_defaultSize.addActionListener(this);
 		viewMenu.add(m_defaultSize);
-
 
 		//items for "help"
 		JMenuItem aboutMenuItem = new JMenuItem("About...");
@@ -236,7 +242,7 @@ public class Menu implements ActionListener
 			}
 			else if (evt.getSource() == m_defaultSize)
 			{
-				((ChoicePanel) m_configWiz_Panel.getParent()).setDefaultSize();
+				( (ChoicePanel) m_configWiz_Panel.getParent()).setDefaultSize();
 			}
 			else if (evt.getActionCommand().equals("New") || evt.getActionCommand().equals("New_from_Cancel"))
 			{
@@ -248,17 +254,20 @@ public class Menu implements ActionListener
 					warning = MixConfig.ask("Notice", "You will lose unsaved information. " +
 											"Do you really want to cancel?");
 				}
-                //if you choose "new", when the start-screen is in top, then start the expert-mode
+				//if you choose "new", when the start-screen is in top, then start the expert-mode
 				if (cp.getActiveCard().equals(START))
 				{
 					cp.setExpertVisible();
 					m_changeViewToWizMenuItem.setEnabled(true);
 					m_changeViewToExpertMenuItem.setEnabled(false);
 				}
-                if (warning)
+				if (warning)
 				{
 					reset();
-					if (evt.getActionCommand().equals("New_from_Cancel")) cp.setStartScreenVisible(); //set korrect button lables
+					if (evt.getActionCommand().equals("New_from_Cancel"))
+					{
+						cp.setStartScreenVisible(); //set korrect button lables
+					}
 					m_configWiz_Panel.changeButtonLabelToNext();
 					m_configWiz_Panel.stateChanged(new ChangeEvent(this));
 				}
@@ -266,7 +275,7 @@ public class Menu implements ActionListener
 			}
 			else if (evt.getActionCommand().equals("Exit"))
 			{
-               //dispose();
+				//dispose();
 				System.exit(0);
 			}
 			else if (evt.getActionCommand().equals("Check"))
@@ -441,7 +450,7 @@ public class Menu implements ActionListener
 			else if (evt.getActionCommand().equals("ChangeViewToExpert"))
 			{
 				LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Set Expert Visible");
-				ChoicePanel cp = (ChoicePanel)m_configFrame_Panel.getParent();
+				ChoicePanel cp = (ChoicePanel) m_configFrame_Panel.getParent();
 				cp.setExpertVisible();
 				m_configFrame_Panel.load();
 				m_configFrame_Panel.setActivePanel(m_configWiz_Panel.getCurrentPageClass());
@@ -453,10 +462,9 @@ public class Menu implements ActionListener
 			MixConfig.handleError(e, null, LogType.GUI);
 		}
 
-	    //set MessageTitle
-		((ChoicePanel)m_configWiz_Panel.getParent()).setMessageTitle();
+		//set MessageTitle
+		( (ChoicePanel) m_configWiz_Panel.getParent()).setMessageTitle();
 	}
-
 
 	/** Clears all data in the panels and restarts with a new configuration object.
 	 * @throws IOException If a communication error occurs
@@ -468,21 +476,20 @@ public class Menu implements ActionListener
 		m_saveMenuItem.setEnabled(false);
 		MixConfig.setCurrentFilename(null);
 		//create a new empty MixConfiguration Instace
-	    MixConfiguration mixconfig = new MixConfiguration();
-	    m_configFrame_Panel.setConfiguration(mixconfig);
+		MixConfiguration mixconfig = new MixConfiguration();
+		m_configFrame_Panel.setConfiguration(mixconfig);
 		m_configWiz_Panel.setConfiguration(mixconfig);
 		m_configFrame_Panel.reset(); //show the first leaf
 		m_configWiz_Panel.reset(); //show the first leaf
 
-       //if you choose "new", when the start-screen is in top, then start the wizard-mode
-	   ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
-	   if (cp.getActiveCard().equals(START))
-	   {
-		   cp.setWizardVisible();
-	   }
+		//if you choose "new", when the start-screen is in top, then start the wizard-mode
+		ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
+		if (cp.getActiveCard().equals(START))
+		{
+			cp.setWizardVisible();
+		}
 
 	}
-
 
 	private Clipboard getClipboard()
 	{
@@ -517,7 +524,7 @@ public class Menu implements ActionListener
 	protected void checkUnuseableMenuItem()
 	{
 		ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
-        //grey the unusable Menuitem in "view"
+		//grey the unusable Menuitem in "view"
 		if (cp.getActiveCard().equals(WIZARD))
 		{
 			m_changeViewToWizMenuItem.setEnabled(false);
@@ -562,11 +569,10 @@ public class Menu implements ActionListener
 			m_openclipItem.setEnabled(true);
 
 			m_saveAsMenuItem.setEnabled(false);
-		    m_saveclipItem.setEnabled(false);
+			m_saveclipItem.setEnabled(false);
 			m_checkItem.setEnabled(false);
 
 		}
-
 
 	}
 
@@ -584,15 +590,14 @@ public class Menu implements ActionListener
 		if (m_configFrame_Panel.check().length > 0)
 		{
 			bIgnore = MixConfig.ask("Inconsistencies found",
-								  "The configuration is not consistent! " +
-								  "The mix will not run properly if you do not " +
-								  "correct the remaining errors." +
-								  "Please choose '" + "" + "' for details. \n" +
-								  "Do you really want to save this configuration?");
+									"The configuration is not consistent! " +
+									"The mix will not run properly if you do not " +
+									"correct the remaining errors." +
+									"Please choose '" + "" + "' for details. \n" +
+									"Do you really want to save this configuration?");
 		}
 
 		return bIgnore;
 	}
 
 }
-

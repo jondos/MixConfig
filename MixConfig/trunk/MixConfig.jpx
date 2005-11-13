@@ -132,7 +132,7 @@
   <property category="optimize.3" name="oicc.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
   <property category="optimize.3" name="oipr.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
   <property category="personality" name="personality" value=""/>
-  <property category="runtime" name="ConfigurationCount" value="3"/>
+  <property category="runtime" name="ConfigurationCount" value="4"/>
   <property category="runtime.0" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
   <property category="runtime.0" name="ConfigurationName" value="MixConfig"/>
   <property category="runtime.0" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
@@ -172,6 +172,10 @@
   <property category="runtime.3" name="application.parameters" value="--loglevel Debug --logdetail 4 --createConf"/>
   <property category="runtime.3" name="jsprunner.launchuri" value="/"/>
   <property category="runtime.3" name="test.harness" value="junit.textui.TestRunner"/>
+  <property category="runtime.4" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.4" name="ConfigurationName" value="Applet"/>
+  <property category="runtime.4" name="RunnableType" value="com.borland.jbuilder.runtime.AppletRunner"/>
+  <property category="runtime.4" name="applet.class" value="mixconfig.MixConfig"/>
   <property category="serverservices" name="disabled.services" value=""/>
   <property category="sys" name="AuthorLabel" value="@author"/>
   <property category="sys" name="Autorefresh" value="1"/>

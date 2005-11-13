@@ -178,7 +178,7 @@ public class MixConfig extends JApplet
 				m_mixConfiguration = new MixConfiguration();
 			}
 
-			m_startPanel = new ChoicePanel((JFrame)m_MainWindow);
+			m_startPanel = new ChoicePanel((JFrame)m_MainWindow,null);
 			((JFrame)m_MainWindow).setContentPane(m_startPanel);
 			m_MainWindow.pack();
 			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -261,12 +261,14 @@ public class MixConfig extends JApplet
 				;
 			}
 			m_MainWindow = (Frame) comp;
+			m_mixConfiguration = new MixConfiguration();
 			JAPHelp.init(m_MainWindow);
 
 			m_mainPanel = new ConfigFrame(null);
+			m_startPanel = new ChoicePanel(null,getRootPane());
 			//myFrame.pack();//setBounds(10,10,600,650);
 
-			setContentPane(m_mainPanel);
+			setContentPane(m_startPanel);
 		}
 		catch (Exception e)
 		{

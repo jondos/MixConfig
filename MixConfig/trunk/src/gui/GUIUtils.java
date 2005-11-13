@@ -77,7 +77,7 @@ public final class GUIUtils
 	{
 		Dimension screenSize = a_window.getToolkit().getScreenSize();
 		Dimension ownSize = a_window.getSize();
-		a_window.setLocation((screenSize.width - ownSize.width) / 2,
+		a_window.setLocation( (screenSize.width - ownSize.width) / 2,
 							 (screenSize.height - ownSize.height) / 2);
 	}
 
@@ -88,12 +88,16 @@ public final class GUIUtils
 	 */
 	public static void positionWindow(Window a_window, Window a_parent)
 	{
+		if (a_window == null || a_parent == null)
+		{
+			return;
+		}
 		Dimension parentSize = a_parent.getSize();
 		Dimension ownSize = a_window.getSize();
 		Point parentLocation = a_parent.getLocationOnScreen();
-		a_window.setLocation(parentLocation.x + (parentSize.width / 2) - (ownSize.width / 2 ),
+		a_window.setLocation(parentLocation.x + (parentSize.width / 2) - (ownSize.width / 2),
 							 parentLocation.y + 40);
-    }
+	}
 
 	/**
 	 * Creates a JTextPane that may be used to simulate a selectable and resizeable JLabel.
