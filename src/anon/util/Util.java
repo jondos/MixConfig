@@ -336,7 +336,7 @@ public final class Util
 	}
 
 	/**
-	 * Tests if a character is an umlaut an, if yes, writes the umlaut in an ASCII form to
+	 * Tests if a character is an umlaut and, if yes, writes the umlaut in an ASCII form to
 	 * the array of transformed umlauts at the specified position.
 	 * @param a_character a character; must be lower case !
 	 * @param a_transformedUmlauts an array of transformed umlauts
@@ -348,11 +348,11 @@ public final class Util
 	{
 		switch (a_character)
 		{
-			case 'ä': a_transformedUmlauts[a_position] = "ae"; return true;
+			case '\u00e4': a_transformedUmlauts[a_position] = "ae"; return true;
 			//case 'Ä': a_transformedUmlauts[a_position] = "Ae"; return true;
-			case 'ö': a_transformedUmlauts[a_position] = "oe"; return true;
+			case '\u00f6': a_transformedUmlauts[a_position] = "oe"; return true;
 			//case 'Ö': a_transformedUmlauts[a_position] = "Oe"; return true;
-			case 'ü': a_transformedUmlauts[a_position] = "ue"; return true;
+			case '\u00fc': a_transformedUmlauts[a_position] = "ue"; return true;
 			//case 'Ü': a_transformedUmlauts[a_position] = "Ue"; return true;
 			default: a_transformedUmlauts[a_position] = null; return false;
 		}
