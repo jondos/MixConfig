@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import logging.LogType;
 import mixconfig.wizard.ConfigWizard;
 import java.awt.Graphics;
+import javax.swing.JRootPane;
 
 /**
  * Shows the StartScreen when you run the "Mix Configuration Tool" in a CardLayout.
@@ -47,16 +48,13 @@ public class ChoicePanel extends JPanel
 {
 	private static final Dimension DEFAULT_SIZE = new Dimension(785, 600);
 
-	private static final String CARD_WIZ    = "card_mainPanel_wiz";
+	private static final String CARD_WIZ = "card_mainPanel_wiz";
 	private static final String CARD_EXPERT = "card_mainPanel_expert";
 	private static final String CARD_CHOICE = "card_choicePanel";
 
-
-
-
 	private static final String WIZARD = "wizard";
 	private static final String EXPERT = "expert";
-	private static final String START  = "start";
+	private static final String START = "start";
 	private String activeCard = START;
 
 	/** Panel, which contains the Start-Screen where you make your choice.
@@ -75,13 +73,16 @@ public class ChoicePanel extends JPanel
 	private JFrame m_Parent;
 	private CardLayout m_cardLayout;
 
-	public ChoicePanel(JFrame parent)
+	public ChoicePanel(JFrame parent, JRootPane rootPane)
 	{
 		//set size
-	    setDefaultSize();
+		setDefaultSize();
 
-	    m_Parent = parent;
-		m_Parent.setResizable(true);
+		m_Parent = parent;
+		if (m_Parent != null)
+		{
+			m_Parent.setResizable(true);
+		}
 
 		m_cardLayout = new CardLayout();
 		this.setLayout(m_cardLayout);
@@ -92,7 +93,7 @@ public class ChoicePanel extends JPanel
 			   - Create new Configuration
 			   - Load existing Configuration
 			   - Configure Casade
-			*/
+			 */
 
 
 			//add Panels to the 3 Cards
@@ -103,11 +104,11 @@ public class ChoicePanel extends JPanel
 			this.add(m_mainPanel_wiz, CARD_WIZ);
 			this.add(m_mainPanel_expert, CARD_EXPERT);
 
-           //show the StartScreen
+			//show the StartScreen
 			m_cardLayout.show(this, CARD_CHOICE);
 
-	        //show the Menu
-	        m_menu = new Menu(parent, m_mainPanel_wiz, m_mainPanel_expert);
+			//show the Menu
+			m_menu = new Menu(parent, rootPane, m_mainPanel_wiz, m_mainPanel_expert);
 
 		}
 		catch (Exception e)
@@ -124,14 +125,16 @@ public class ChoicePanel extends JPanel
 	 * 2.) CARD_EXPERT
 	 * @return the card which is on TOP
 	 */
-	protected String getActiveCard() {
+	protected String getActiveCard()
+	{
 		return activeCard;
-    }
+	}
 
 	/**
 	 * Set the Wizard-Card visible
 	 */
-	protected void setWizardVisible() {
+	protected void setWizardVisible()
+	{
 		m_cardLayout.show(this, CARD_WIZ);
 		activeCard = WIZARD;
 		m_menu.checkUnuseableMenuItem();
@@ -139,16 +142,17 @@ public class ChoicePanel extends JPanel
 	}
 
 	/**
-	* Set the Expert-Card visible
-	*/
-	protected void setExpertVisible() {
+	 * Set the Expert-Card visible
+	 */
+	protected void setExpertVisible()
+	{
 		m_cardLayout.show(this, CARD_EXPERT);
 		activeCard = EXPERT;
 		m_menu.checkUnuseableMenuItem();
 		this.setMessageTitle();
 	}
 
-/**
+	/**
 	 * Set the Start Screen visible
 	 */
 	public void setStartScreenVisible()
@@ -159,7 +163,7 @@ public class ChoicePanel extends JPanel
 		this.setMessageTitle();
 	}
 
-    /**
+	/**
 	 * @return a reference to the mneu
 	 */
 	public Menu getMenu()
@@ -184,31 +188,30 @@ public class ChoicePanel extends JPanel
 	public void paint(Graphics g)
 	{
 		/*
-		Dimension currentDimension = new Dimension(getSize());
-		boolean bChangeSize = false;
+		   Dimension currentDimension = new Dimension(getSize());
+		   boolean bChangeSize = false;
 
-		if (currentDimension.getWidth() < DEFAULT_SIZE.getWidth())
-		{
-			currentDimension.setSize(DEFAULT_SIZE.getWidth(), currentDimension.getHeight());
-			bChangeSize = true;
-		}
-		if (currentDimension.getHeight() < DEFAULT_SIZE.getHeight())
-		{
-			currentDimension.setSize(currentDimension.getWidth(), DEFAULT_SIZE.getHeight());
-			bChangeSize = true;
-		}
+		   if (currentDimension.getWidth() < DEFAULT_SIZE.getWidth())
+		   {
+		 currentDimension.setSize(DEFAULT_SIZE.getWidth(), currentDimension.getHeight());
+		 bChangeSize = true;
+		   }
+		   if (currentDimension.getHeight() < DEFAULT_SIZE.getHeight())
+		   {
+		 currentDimension.setSize(currentDimension.getWidth(), DEFAULT_SIZE.getHeight());
+		 bChangeSize = true;
+		   }
 
-		if (bChangeSize)
-		{
-			setSize(currentDimension);
-			setMinimumSize(currentDimension);
-			setPreferredSize(currentDimension);
-		}
-		else */
+		   if (bChangeSize)
+		   {
+		 setSize(currentDimension);
+		 setMinimumSize(currentDimension);
+		 setPreferredSize(currentDimension);
+		   }
+		   else */
 		{
 			super.paint(g);
 		}
-
 
 	}
 
@@ -218,35 +221,38 @@ public class ChoicePanel extends JPanel
 	 */
 	public void setMessageTitle()
 	{
-		JFrame parentFrame = (JFrame)m_mainPanel_wiz.getRootPane().getParent();
-		//String title = parentFrame.getTitle();
-		int max = m_mainPanel_wiz.getPageCount();
-		int current = m_mainPanel_wiz.getCurrentPageNr() + 1;
+		try
+		{
+			JFrame parentFrame = (JFrame) m_mainPanel_wiz.getRootPane().getParent();
+			//String title = parentFrame.getTitle();
+			int max = m_mainPanel_wiz.getPageCount();
+			int current = m_mainPanel_wiz.getCurrentPageNr() + 1;
 
+			if (this.getActiveCard().equals(WIZARD))
+			{
+				String newTitle = "(" + String.valueOf(current) + "/" + String.valueOf(max) + ")";
+				newTitle = "Mix Configuration Tool Wizard " + newTitle;
+				parentFrame.setTitle(newTitle);
+			}
+			else if (this.getActiveCard().equals(EXPERT))
+			{
+				parentFrame.setTitle("Mix Configuration Tool");
+			}
+			else if (this.getActiveCard().equals(START))
+			{
+				parentFrame.setTitle("Mix Configuration Tool");
+			}
 
-		if (this.getActiveCard().equals(WIZARD))
-		{
-			String newTitle = "(" + String.valueOf(current) + "/" + String.valueOf(max) + ")";
-			newTitle = "Mix Configuration Tool Wizard " + newTitle;
-			parentFrame.setTitle(newTitle);
+			//Set file name, if it is given
+			if (MixConfig.getCurrentFileName() != null)
+			{
+				String currentTitle = parentFrame.getTitle();
+				parentFrame.setTitle(currentTitle + " - " + MixConfig.getCurrentFileName());
+			}
 		}
-		else if (this.getActiveCard().equals(EXPERT))
+		catch (Throwable t)
 		{
-			parentFrame.setTitle("Mix Configuration Tool");
-		}
-		else if (this.getActiveCard().equals(START))
-		{
-			parentFrame.setTitle("Mix Configuration Tool");
-		}
-
-		//Set file name, if it is given
-		if (MixConfig.getCurrentFileName() != null)
-		{
-			String currentTitle = parentFrame.getTitle();
-			parentFrame.setTitle(currentTitle + " - " + MixConfig.getCurrentFileName());
 		}
 	}
-
-
 
 }
