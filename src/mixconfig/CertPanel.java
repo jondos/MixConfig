@@ -64,6 +64,7 @@ import gui.PasswordBox;
 import logging.LogType;
 import javax.swing.JTextPane;
 import mixconfig.wizard.CannotContinueException;
+import java.awt.Color;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -350,7 +351,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			border = new TitledBorder( ( (TitledBorder) getBorder()).getTitle());
 			if (!enabled)
 			{
-				border.setTitleColor(java.awt.Color.GRAY);
+				border.setTitleColor(Color.gray);
 			}
 			setBorder(border);
 		}
@@ -630,7 +631,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		else
 		{
-			m_textCertValidity.setForeground(java.awt.Color.red);
+			m_textCertValidity.setForeground(Color.red);
 			m_textCertValidity.setToolTipText("The certificate has expired.");
 		}
 

@@ -35,6 +35,7 @@ import java.awt.LayoutManager;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import java.util.Vector;
+import java.awt.Color;
 
 /**
  * This is a JPanel that uses a GridBaglayout to show vertical lists of two components.
@@ -82,7 +83,7 @@ public final class TitledGridBagPanel extends JPanel
 			border = new TitledBorder( ( (TitledBorder) getBorder()).getTitle());
 			if (!a_bEnabled)
 			{
-				border.setTitleColor(java.awt.Color.GRAY);
+				border.setTitleColor(Color.gray);
 			}
 			setBorder(border);
 		}
