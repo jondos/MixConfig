@@ -133,8 +133,17 @@ public class JAPDialog
 	 * @param a_height the new window height
 	 */
 	public final void setSize(int a_width, int a_height)
-		{
+	{
 			m_internalDialog.setSize(a_width, a_height);
+	}
+
+	/**
+	 * Allows to set the dialog resizable or fixed-sized.
+	 * @param a_bResizable true if the dialog should become resizable; false otherwise
+	 */
+	public void setResizable(boolean a_bResizable)
+	{
+		m_internalDialog.setResizable(a_bResizable);
 	}
 
 	/**
