@@ -59,6 +59,7 @@ class ValidityDialog extends JAPDialog
 	public ValidityDialog(Component parent, String title)
 	{
 		super(parent, title);
+		setResizable(false);
 		createValidityDialog();
 		//setLocationRelativeTo(parent);
 	}
