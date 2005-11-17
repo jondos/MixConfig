@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000, The JAP-Team
+ Copyright (c) 2000-2005, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -49,6 +49,7 @@ import gui.CountryMapper;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectAlternativeName;
+import logging.LogType;
 
 /**
  * This class is an abstract superclass for NextMixProxyPanel and PreviousMixPanel
@@ -63,6 +64,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 
 	private CertPanel m_otherCert;
 	private CertPanel m_otherOpCert;
+	private MixCertificatePanelView m_otherCertView;
 
 	private JPanel m_operatorPanel;
 	private JPanel m_locationPanel;
@@ -106,6 +108,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		{
 			m_otherCert.setName("Certificates/NextMixCertificate");
 		}
+		m_otherCertView = new MixCertificatePanelView();
 		m_otherCert.addChangeListener(this);
 		m_gbc.gridx = 0;
 		m_gbc.gridy = 0;
@@ -180,37 +183,11 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 						m_locLatField.getText(), m_locLongField.getText(),
 						5);
 					mapBox.setVisible(true);
-					m_mapButton.setText("Update Map");
-					m_mapButton.setActionCommand("Update");
 
-					mapBox.addActionListener(new ActionListener()
-					{
-						public void actionPerformed(ActionEvent e2)
-						{
-							if (e2.getActionCommand().equals("CloseMapBox"))
-							{
-								mapBox.dispose();
-								m_mapButton.setText("Show on Map");
-								m_mapButton.setActionCommand("Map");
-
-							}
-							else if (e2.getActionCommand().equals("Update"))
-							{
-								try
-								{
-									mapBox.setGeo(m_locLatField.getText(), m_locLongField.getText());
-								}
-								catch (Exception ex2)
-								{
-								}
-							}
-						}
-					}
-					);
 				}
 				catch (Exception ex)
 				{
-
+					MixConfig.handleError(ex, "Could not show map", LogType.GUI);
 				}
 			}
 		}
@@ -319,84 +296,19 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	 */
 	private void loadLocationInfo()
 	{
-		X509DistinguishedName dn;
-		X509Extensions extensions;
-		X509SubjectAlternativeName alternativeName;
-		CountryMapper mapper;
-		String strCity;
-		String strState;
-		String strCountry = null;
-		Vector coordinates;
-		String strLongitude = "";
-		String strLatitude = "";
-
-		if (m_otherCert.getCert() != null)
-		{
-			dn = m_otherCert.getCert().getX509Certificate().getDistinguishedName();
-			extensions = m_otherCert.getCert().getX509Certificate().getExtensions();
-			try
-			{
-				mapper = new CountryMapper(dn.getCountryCode());
-				if (mapper.getISOCountryCode().length() > 0)
-				{
-					strCountry = mapper.toString();
-				}
-			}
-			catch (IllegalArgumentException a_e)
-			{
-				strCountry = dn.getCountryCode();
-			}
-			if (strCountry == null)
-			{
-				strCountry = "";
-			}
-
-			strCity = dn.getLocalityName();
-			if (strCity == null)
-			{
-				strCity = "";
-			}
-
-			strState = dn.getStateOrProvince();
-			if (strState == null)
-			{
-				strState = "";
-			}
-
-			alternativeName = (X509SubjectAlternativeName)
-				extensions.getExtension(X509SubjectAlternativeName.IDENTIFIER);
-
-			if (alternativeName != null)
-			{
-
-				if (alternativeName.getTags().size() == 2 &&
-					alternativeName.getValues().size() == 2)
-				{
-					coordinates = alternativeName.getTags();
-					if (coordinates.elementAt(0).equals(
-						X509SubjectAlternativeName.TAG_OTHER) &&
-						coordinates.elementAt(1).equals(
-							X509SubjectAlternativeName.TAG_OTHER))
-					{
-						coordinates = alternativeName.getValues();
-						strLongitude = coordinates.elementAt(0).toString();
-						strLatitude = coordinates.elementAt(1).toString();
-					}
-				}
-			}
-			m_locCityField.setText(strCity);
-			m_locCountryField.setText(strCountry);
-			m_locStateField.setText(strState);
-			m_locLongField.setText(strLongitude);
-			m_locLatField.setText(strLatitude);
-		}
+		m_locCityField.setText(m_otherCertView.getLocalityName());
+		m_locCountryField.setText(m_otherCertView.getCountry());
+		m_locStateField.setText(m_otherCertView.getStateOrProvince());
+		m_locLongField.setText(m_otherCertView.getLongitude());
+		m_locLatField.setText(m_otherCertView.getLatitude());
 	}
 
 	public void stateChanged(ChangeEvent a_e)
 	{
 		if (a_e.getSource() == m_otherCert)
 		{
-			this.loadLocationInfo();
+			m_otherCertView.update(m_otherCert.getCert());
+			loadLocationInfo();
 		}
 	}
 }

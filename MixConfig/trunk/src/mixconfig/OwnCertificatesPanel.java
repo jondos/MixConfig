@@ -239,25 +239,12 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			if (ae.getActionCommand().equals("Map"))
 			{
 				box = new MapBox(MixConfig.getMainWindow(), lat, lon, 5);
-				box.addActionListener(this);
 				box.setVisible(true);
-				map.setText("Update Map");
-				map.setActionCommand("Update");
-			}
-			else if (ae.getActionCommand().equals("Update"))
-			{
-				box.setGeo(lat, lon);
-			}
-			else if (ae.getActionCommand().equals("CloseMapBox"))
-			{
-				box.dispose();
-				map.setText("Show on Map");
-				map.setActionCommand("Map");
 			}
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleError(e, null, LogType.GUI);
+			MixConfig.handleError(e, "Could not show map", LogType.GUI);
 		}
 	}
 
@@ -313,12 +300,19 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	public void stateChanged(ChangeEvent e)
 	{
+		X509DistinguishedName dn;
+		X509Extensions extensions;
+
 		try
 		{
 			if (e.getSource() instanceof CertPanel)
 			{
 				save( (CertPanel) e.getSource());
-				updateDeprecatedMixID();
+				if (e.getSource() == m_ownCert)
+				{
+					updateDeprecatedMixID();
+
+				}
 				enableComponents();
 			}
 		}

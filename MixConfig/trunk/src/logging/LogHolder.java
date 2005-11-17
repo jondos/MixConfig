@@ -145,11 +145,12 @@ public final class LogHolder
 	 * @param logLevel The log level (see constants in class LogLevel).
 	 * @param logType The log type (see constants in class LogType).
 	 * @param message The message to log.
-	 * @param a_bSkipCallingMethod true if not the name of the calling method should be logged but
-	 *                             the name of the method that has called the caller;
-	 *                             false if the name of the calling method should be logged (default)
+	 * @param a_bSkipCallingClass true if not only the name and method of the calling class should be logged
+	 *                            but also the name of the method that has called the method in the calling
+	 *                            class; false if the name of the calling method should be logged (default)
 	 */
-	public static synchronized void log(int logLevel, int logType, String message, boolean a_bSkipCallingMethod)
+	public static synchronized void log(int logLevel, int logType, String message,
+										boolean a_bSkipCallingClass)
 	{
 		if (isLogged(logLevel, logType))
 		{
@@ -161,13 +162,13 @@ public final class LogHolder
 			{
 				getInstance().getLogInstance().log(logLevel, logType,
 				Util.normaliseString(
-								getCallingClassFile(a_bSkipCallingMethod) + ": ", 40) + message);
+								getCallingClassFile(a_bSkipCallingClass) + ": ", 40) + message);
 			}
 			else
 			{
 				getInstance().getLogInstance().log(logLevel, logType,
 					Util.normaliseString(
-							   getCallingMethod(a_bSkipCallingMethod) + ": ", 80) + message);
+							   getCallingMethod(a_bSkipCallingClass) + ": ", 80) + message);
 			}
 		}
 	}

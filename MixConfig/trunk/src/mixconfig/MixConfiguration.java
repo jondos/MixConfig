@@ -380,7 +380,7 @@ public class MixConfiguration
 	 */
 	public void setValue(String a_xmlPath, String value)
 	{
-		LogHolder.log(LogLevel.DEBUG, LogType.MISC, a_xmlPath + ":" + value);
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, a_xmlPath + ":" + value, true);
 
 		//if (a_xmlPath != null) we should keep this for debgging
 		{

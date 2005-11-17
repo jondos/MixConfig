@@ -38,7 +38,6 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -84,14 +83,10 @@ class MapBox extends JDialog implements ChangeListener
          */
 	public MapBox(Frame parent, String lat, String lon, int level) throws Exception
 	{
-		super(parent, "", false);
+		super(parent, "", true);
 		setBackground(Color.white);
 		m_longitude = lon;
 		m_latitude = lat;
-
-// will not work on JDK < 1.2
-//		this.setLocation(MixConfig.getMainWindow().getX() + 15,
-//						 MixConfig.getMainWindow().getY() + 15);
 
 		this.setLocation(MixConfig.getMainWindow().getLocation().x + 15,
 						 MixConfig.getMainWindow().getLocation().y + 15);
@@ -147,22 +142,14 @@ class MapBox extends JDialog implements ChangeListener
 		layout.setConstraints(site, c);
 		getContentPane().add(site);
 
-		try
-		{
-			//String logo = "http://art.mapquest.com/mqsite_english/logo";
-			//URL MapLogo = new URL(logo);
-			ImageIcon maplogo = MixConfig.loadImageIcon("mapquest-logo.gif");
-			JLabel logolabel = new JLabel(maplogo);
-			c.gridx = 1;
-			c.gridy = 2;
-			layout.setConstraints(logolabel, c);
-			getContentPane().add(logolabel);
-		}
-		catch (Exception e)
-		{
-			// FIXME: Dumping exception instead of throwing is a Bad Thing
-			e.printStackTrace();
-		}
+		//String logo = "http://art.mapquest.com/mqsite_english/logo";
+		//URL MapLogo = new URL(logo);
+		ImageIcon maplogo = MixConfig.loadImageIcon("mapquest-logo.gif");
+		JLabel logolabel = new JLabel(maplogo);
+		c.gridx = 1;
+		c.gridy = 2;
+		layout.setConstraints(logolabel, c);
+		getContentPane().add(logolabel);
 
 		b = new JButton("Close");
 		c.gridx = 2;
@@ -183,12 +170,6 @@ class MapBox extends JDialog implements ChangeListener
 		m_longitude = a_longitude;
 		m_latitude = a_latitude;
 		refresh();
-	}
-
-	public void addActionListener(ActionListener a_al)
-	{
-		b.addActionListener(a_al);
-		b.setActionCommand("CloseMapBox");
 	}
 
 	public void stateChanged(ChangeEvent e)

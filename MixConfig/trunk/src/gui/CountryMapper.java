@@ -242,7 +242,8 @@ public class CountryMapper
 	}
 
 	/**
-	 * Returns the ISO country code stored in this CountryMapper object.
+	 * Returns the ISO country code stored in this CountryMapper object. The country code may be an empty
+	 * String of the length zero or a valid two-letter country code.
 	 * @return the ISO country code stored in this CountryMapper object
 	 */
 	public String getISOCountryCode()
@@ -314,14 +315,5 @@ public class CountryMapper
 		}
 
 		return strCName;
-	}
-
-	/**
-	 * Returns an array with all usable ISO country codes.
-	 * @return a String array with all usable ISO country codes
-	 */
-	private static String[] getISOCountries()
-	{
-		return ms_ctrArr;
 	}
 }
