@@ -54,6 +54,7 @@ class BusyWindow extends JDialog implements ActionListener
 	public BusyWindow(Frame parent, String reason)
 	{
 		super(parent,reason,true);
+		setResizable(false);
 		JPanel p = new JPanel();
 		p.setBorder(BorderFactory.createRaisedBevelBorder());
 		getContentPane().add(p);
