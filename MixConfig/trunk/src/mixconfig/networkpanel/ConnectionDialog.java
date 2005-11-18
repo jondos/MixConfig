@@ -48,13 +48,15 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import anon.infoservice.ListenerInterface;
 import gui.JAPMessages;
-import mixconfig.IntegerDocument;
+import gui.JAPJIntField;
 import javax.swing.JComponent;
 
 abstract class ConnectionDialog extends JDialog
 {
-	private JTextField nametext, iptext;
+	private JTextField nametext;
+	private JAPJIntField iptext;
 	private ButtonGroup ssl, m_bttngrpType;
 	private JComboBox m_type;
 	private JLabel namelabel, iplabel;
@@ -243,16 +245,15 @@ abstract class ConnectionDialog extends JDialog
 		lc.gridy++;
 
 		rc.gridwidth = 7;
-		iptext = new JTextField(5);
+		iptext = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE, true);
 		iptext.setMinimumSize(iptext.getPreferredSize());
-		iptext.setDocument(new IntegerDocument(65535));
 		if (isHost && data != null)
 		{
-			iptext.setText(String.valueOf(data.getPort()));
+			iptext.setInt(data.getPort());
 		}
 		if (isHost && data == null)
 		{
-			iptext.setText("6544");
+			iptext.setInt(6544);
 		}
 
 		layout.setConstraints(iptext, rc);

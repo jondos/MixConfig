@@ -36,6 +36,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
@@ -43,20 +44,24 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JRootPane;
 import javax.swing.event.ChangeEvent;
+
 import anon.util.XMLParseException;
+import gui.ClipFrame;
+import gui.GUIUtils;
+import gui.JAPHelp;
+import gui.JAPMessages;
+
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
-import gui.JAPHelp;
-import gui.GUIUtils;
 import mixconfig.wizard.ConfigWizard;
-import javax.swing.JRootPane;
 
 public class Menu implements ActionListener
 {
@@ -68,6 +73,17 @@ public class Menu implements ActionListener
 	private static final String WIZARD = "wizard";
 	private static final String EXPERT = "expert";
 	private static final String START = "start";
+
+	private static final String PROP_FILE = "menu_file";
+	private static final String PROP_FILE_MNEMONIC = "menu_fileMnemonic";
+	private static final String PROP_TOOLS = "menu_tools";
+	private static final String PROP_TOOLS_MNEMONIC = "menu_toolsMnemonic";
+	private static final String PROP_VIEW = "menu_view";
+	private static final String PROP_VIEW_MNEMONIC = "menu_viewMnemonic";
+	private static final String PROP_HELP = "menu_help";
+	private static final String PROP_HELP_MNEMONIC = "menu_helpMnemonic";
+
+
 
 	private JFrame m_mainWin;
 	private JMenuBar m_MenuBar;
@@ -108,17 +124,17 @@ public class Menu implements ActionListener
 			rootPane.setJMenuBar(m_MenuBar);
 		}
 		//the main menu
-		m_fileMenu = new JMenu("File");
-		m_fileMenu.setMnemonic('F');
+		m_fileMenu = new JMenu(JAPMessages.getString(PROP_FILE));
+		m_fileMenu.setMnemonic(JAPMessages.getString(PROP_FILE_MNEMONIC).charAt(0));
 		m_MenuBar.add(m_fileMenu);
-		m_toolsMenu = new JMenu("Tools");
-		m_toolsMenu.setMnemonic('T');
+		m_toolsMenu = new JMenu(JAPMessages.getString(PROP_TOOLS));
+		m_toolsMenu.setMnemonic(JAPMessages.getString(PROP_TOOLS_MNEMONIC).charAt(0));
 		m_MenuBar.add(m_toolsMenu);
-		JMenu viewMenu = new JMenu("View");
-		viewMenu.setMnemonic('V');
+		JMenu viewMenu = new JMenu(JAPMessages.getString(PROP_VIEW));
+		viewMenu.setMnemonic(JAPMessages.getString(PROP_VIEW_MNEMONIC).charAt(0));
 		m_MenuBar.add(viewMenu);
-		JMenu helpMenu = new JMenu("Help");
-		helpMenu.setMnemonic('H');
+		JMenu helpMenu = new JMenu(JAPMessages.getString(PROP_HELP));
+		helpMenu.setMnemonic(JAPMessages.getString(PROP_HELP_MNEMONIC).charAt(0));
 		m_MenuBar.add(helpMenu);
 
 		//items for "file"
@@ -354,10 +370,9 @@ public class Menu implements ActionListener
 					// clipboard, so after the try to copy it, we
 					// still offer the ClipFrame.
 					ClipFrame cf =
-						new ClipFrame("Copy and Save this file in a new Location.", false);
+						new ClipFrame(m_MenuBar, "Copy and Save this file in a new Location.", false);
 					cf.setText(xmlString);
-					GUIUtils.positionWindow(cf, MixConfig.getMainWindow());
-					cf.setVisible(true);
+					cf.setVisible(true, false);
 				}
 			}
 			else if (evt.getActionCommand().equals("OpenClip"))
@@ -372,8 +387,9 @@ public class Menu implements ActionListener
 				}
 				else
 				{
-					ClipFrame cf = new ClipFrame("Paste a file to be opened in the area provided.", true);
-					cf.setVisible(true);
+					ClipFrame cf =
+						new ClipFrame(m_MenuBar, "Paste a file to be opened in the area provided.", true);
+					cf.setVisible(true, false);
 					xmlString = cf.getText();
 				}
 				//m_configFrame_Panel.setConfiguration(new MixConfiguration(new StringReader(xmlString)));

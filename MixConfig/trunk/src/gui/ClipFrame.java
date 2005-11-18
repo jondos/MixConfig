@@ -25,12 +25,12 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-package mixconfig;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Choice;
-import java.awt.Dialog;
+import java.awt.Component;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,13 +40,26 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
 
-class ClipFrame extends Dialog implements ActionListener, ItemListener
+public class ClipFrame extends JAPDialog implements ActionListener, ItemListener
 {
 	private TextArea m_TextArea;
 	private Choice chooser;
 	private ClipChoice[] choices;
 
-	static public class ClipChoice
+	public ClipFrame(Component a_owner, String title, boolean open, ClipChoice[] choices)
+	{
+		super(a_owner, title);
+		init(open, choices);
+	}
+
+	public ClipFrame(Component a_owner, String title, boolean open)
+	{
+		super(a_owner, title);
+		init(open, null);
+	}
+
+
+	public static class ClipChoice
 	{
 		public String name;
 		public String text;
@@ -72,20 +85,20 @@ class ClipFrame extends Dialog implements ActionListener, ItemListener
 			{
 				chooser.add(choices[i].name);
 			}
-			add(chooser, BorderLayout.NORTH);
+			getContentPane().add(chooser, BorderLayout.NORTH);
 			chooser.addItemListener(this);
 		}
 
 		m_TextArea = new TextArea(30, 80);
 		m_TextArea.setText("");
-		add(m_TextArea, BorderLayout.CENTER);
+		getContentPane().add(m_TextArea, BorderLayout.CENTER);
 
 		if (open == true)
 		{
 			Button b = new Button("Open");
 			b.addActionListener(this);
 			b.setActionCommand("open");
-			add(b, BorderLayout.SOUTH);
+			getContentPane().add(b, BorderLayout.SOUTH);
 		}
 
 		addWindowListener(new WindowAdapter()
@@ -99,17 +112,7 @@ class ClipFrame extends Dialog implements ActionListener, ItemListener
 		pack();
 	}
 
-	public ClipFrame(String title, boolean open, ClipChoice[] choices)
-	{
-		super(MixConfig.getMainWindow(), title, true);
-		init(open, choices);
-	}
 
-	public ClipFrame(String title, boolean open)
-	{
-		super(MixConfig.getMainWindow(), title, true);
-		init(open, null);
-	}
 
 	public void setText(String data)
 	{
@@ -127,7 +130,7 @@ class ClipFrame extends Dialog implements ActionListener, ItemListener
 		{
 			if (m_TextArea.getText().equals(""))
 			{
-				JOptionPane.showMessageDialog(MixConfig.getMainWindow(), "The Text Area is empty!",
+				JOptionPane.showMessageDialog(getOwner(), "The Text Area is empty!",
 											  "Error!", JOptionPane.ERROR_MESSAGE);
 
 			}

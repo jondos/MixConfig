@@ -30,7 +30,8 @@ package mixconfig;
 import java.io.File;
 import javax.swing.filechooser.FileFilter;
 
-class SimpleFileFilter extends javax.swing.filechooser.FileFilter
+
+public class SimpleFileFilter extends javax.swing.filechooser.FileFilter
 {
 	private String m_strDesc;
 	private String m_strExtension;

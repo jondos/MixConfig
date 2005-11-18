@@ -28,23 +28,24 @@
 package mixconfig;
 
 
+import java.math.BigInteger;
+
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
-
+import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import java.math.BigInteger;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
-import gui.JAPMessages;
 import gui.GUIUtils;
+import gui.JAPMessages;
+import gui.ValidityDialog;
 
 public class SigCertTool extends JDialog implements ActionListener, ChangeListener
 {

@@ -46,6 +46,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.FocusEvent;
 import anon.util.Base64;
+import gui.*;
 
 /**
  * The panel for advanced settings

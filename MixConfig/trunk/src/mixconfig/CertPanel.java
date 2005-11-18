@@ -34,6 +34,7 @@ import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -50,6 +51,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -59,12 +61,12 @@ import anon.crypto.ICertificate;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
 import anon.util.IMiscPasswordReader;
+import gui.ClipFrame;
 import gui.GUIUtils;
 import gui.PasswordBox;
+import gui.ValidityDialog;
 import logging.LogType;
-import javax.swing.JTextPane;
 import mixconfig.wizard.CannotContinueException;
-import java.awt.Color;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -679,7 +681,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (RuntimeException a_ex)
 		{
-			ClipFrame open = new ClipFrame("Paste a certificate to be imported in " +
+			ClipFrame open = new ClipFrame(this, "Paste a certificate to be imported in " +
 										   "the area provided.", true);
 			open.setVisible(true);
 			cert = open.getText().getBytes();
@@ -936,12 +938,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			MixConfig.handleError(a_e, null, LogType.MISC);
 			ClipFrame save =
-				new ClipFrame(
+				new ClipFrame(this,
 					"I/O error while saving, try clipboard. " +
 					"Copy and Save this file in a new Location.",
 					false);
 			save.setText(new String(m_cert.getX509Certificate().toByteArray(true)));
-			GUIUtils.positionWindow(save, MixConfig.getMainWindow());
 			save.setVisible(true);
 		}
 	}
