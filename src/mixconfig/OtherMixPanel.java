@@ -46,6 +46,7 @@ import anon.crypto.JAPCertificate;
 import gui.JAPHelp;
 import javax.swing.event.ChangeEvent;
 import logging.LogType;
+import gui.*;
 
 /**
  * This class is an abstract superclass for NextMixProxyPanel and PreviousMixPanel
@@ -182,7 +183,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 				}
 				catch (Exception ex)
 				{
-					MixConfig.handleError(ex, "Could not show map", LogType.GUI);
+					MixConfig.handleError(ex, null, LogType.GUI);
 				}
 			}
 		}

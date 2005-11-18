@@ -52,6 +52,7 @@ import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import gui.JAPHelp;
 import logging.LogType;
+import gui.*;
 
 /**
  * The PaymentPanel is one page in the MixConfig TabbedPane and allows the user to specify

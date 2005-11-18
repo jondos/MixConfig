@@ -53,7 +53,7 @@ import anon.util.XMLUtil;
 import gui.ImageIconLoader;
 import gui.JAPHelp;
 import gui.JAPMessages;
-import gui.GUIUtils;
+
 import jcui.common.TextFormatUtil;
 import logging.LogHolder;
 import logging.LogLevel;

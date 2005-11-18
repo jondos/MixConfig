@@ -25,4 +25,48 @@
     <old-class-name>mixconfig.MixCertificatePanelView</old-class-name>
     <new-class-name>mixconfig.MixCertificateView</new-class-name>
   </rename-class>
+  <rename-class id="2AP0WBYXB6GEPJXZ6ULFK8Z" creation-time="Fri Nov 18 14:42:05.110 CET 2005">
+    <old-class-name>mixconfig.ValidityDialog</old-class-name>
+    <new-class-name>gui.ValidityDialog</new-class-name>
+  </rename-class>
+  <rename-class id="0AP0WBYXB6GEPJXZ6ULFK8Z" creation-time="Fri Nov 18 14:42:47.795 CET 2005">
+    <old-class-name>mixconfig.IntegerDocument</old-class-name>
+    <new-class-name>gui.IntegerDocument</new-class-name>
+  </rename-class>
+  <rename-class id="Y9P0WBYXB6GEPJXZ6ULFK8Z" creation-time="Fri Nov 18 14:43:34.539 CET 2005">
+    <old-class-name>mixconfig.SigCertTool</old-class-name>
+    <new-class-name>gui.SigCertTool</new-class-name>
+  </rename-class>
+  <rename-class id="W9P0WBYXB6GEPJXZ6ULFK8Z" creation-time="Fri Nov 18 14:44:28.602 CET 2005">
+    <old-class-name>mixconfig.CertPanel</old-class-name>
+    <new-class-name>gui.CertPanel</new-class-name>
+  </rename-class>
+  <rename-class id="U9P0WBYXB6GEPJXZ6ULFK8Z" creation-time="Fri Nov 18 14:45:53.349 CET 2005">
+    <old-class-name>gui.CertPanel</old-class-name>
+    <new-class-name>mixconfig.CertPanel</new-class-name>
+  </rename-class>
+  <rename-class id="6AP0NSC3J6GER19LJULFK8Z" creation-time="Fri Nov 18 14:48:01.063 CET 2005">
+    <old-class-name>mixconfig.ClipFrame</old-class-name>
+    <new-class-name>gui.ClipFrame</new-class-name>
+  </rename-class>
+  <rename-class id="4AP0NSC3J6GER19LJULFK8Z" creation-time="Fri Nov 18 15:20:13.929 CET 2005">
+    <old-class-name>mixconfig.SimpleFileFilter</old-class-name>
+    <new-class-name>mixconfig.CertificateFileFilter</new-class-name>
+  </rename-class>
+  <rename-class id="2AP0NSC3J6GER19LJULFK8Z" creation-time="Fri Nov 18 15:20:45.416 CET 2005">
+    <old-class-name>mixconfig.CertificateFileFilter</old-class-name>
+    <new-class-name>gui.CertificateFileFilter</new-class-name>
+  </rename-class>
+  <rename-class id="0AP0NSC3J6GER19LJULFK8Z" creation-time="Fri Nov 18 15:31:28.337 CET 2005">
+    <old-class-name>gui.CertificateFileFilter</old-class-name>
+    <new-class-name>gui.SimpleFileFilter</new-class-name>
+  </rename-class>
+  <rename-class id="Y9P0NSC3J6GER19LJULFK8Z" creation-time="Fri Nov 18 15:46:55.051 CET 2005">
+    <old-class-name>gui.SimpleFileFilter</old-class-name>
+    <new-class-name>mixconfig.SimpleFileFilter</new-class-name>
+  </rename-class>
+  <rename-class id="W9P0NSC3J6GER19LJULFK8Z" creation-time="Fri Nov 18 15:47:09.504 CET 2005">
+    <old-class-name>gui.SigCertTool</old-class-name>
+    <new-class-name>mixconfig.SigCertTool</new-class-name>
+  </rename-class>
 </refactor>

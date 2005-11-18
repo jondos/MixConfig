@@ -57,8 +57,12 @@ public class JAPDialog
 	private Component m_parentComponent;
 
 	/**
-	 * Creates a new instance of JAPDialog. It is user resizable and modal.
-	 *
+	 * This stores the parent window of this dialog.
+	 */
+	private Window m_parentWindow;
+
+	/**
+	 * Creates a new instance of JAPDialog. It is user-resizable and modal.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
@@ -71,11 +75,53 @@ public class JAPDialog
 		m_internalDialog = optionPane.createDialog(a_parentComponent, a_strTitle);
 		m_internalDialog.getContentPane().removeAll();
 		m_internalDialog.setResizable(true);
+
+		// find the first parent that is a window
+		while (a_parentComponent != null && ! (a_parentComponent instanceof Window))
+		{
+			a_parentComponent = a_parentComponent.getParent();
+		}
+		m_parentWindow = (Window)a_parentComponent;
 	}
 
+	/**
+	 * Creates a new instance of JAPDialog. It is user-resizable and modal.
+	 * @param a_parentDialog The parent component for this dialog. If it is null or the parent
+	 *                       component is not within a frame, the dialog's parent frame is the
+	 *                       default frame.
+	 * @param a_strTitle The title String for this dialog.
+	 */
+	public JAPDialog(JAPDialog a_parentDialog, String a_strTitle)
+	{
+		this((a_parentDialog == null ? null : a_parentDialog.m_internalDialog), a_strTitle);
+	}
+
+	/**
+	 * Returns the content pane that can be used to place elements on the dialog.
+	 * @return the dialog's content pane
+	 */
 	public final Container getContentPane()
 	{
 		return m_internalDialog.getContentPane();
+	}
+
+	/**
+	 * Returns the parent Component.
+	 * @return the parent Component
+	 */
+	public final Component getParentComponent()
+	{
+		return m_parentComponent;
+	}
+
+	/**
+	 * Returns the parent Window. The parent Window may be but does not need to be the same than the
+	 * parent Component.
+	 * @return the parent Window
+	 */
+	public final Window getOwner()
+	{
+		return m_parentWindow;
 	}
 
 	/**
@@ -235,13 +281,7 @@ public class JAPDialog
 	 */
 	private void alignOnWindow()
 	{
-		Component parent = m_parentComponent;
-		// find the first parent that is a window
-		while (parent != null && ! (parent instanceof Window))
-		{
-			parent = parent.getParent();
-		}
-		GUIUtils.positionWindow(m_internalDialog, (Window) parent);
+		GUIUtils.positionWindow(m_internalDialog, getOwner());
 	}
 
 }

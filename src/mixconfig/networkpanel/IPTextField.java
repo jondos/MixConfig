@@ -12,10 +12,10 @@ import java.awt.event.ActionListener;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import mixconfig.IntegerDocument;
 import java.awt.event.FocusListener;
 import java.net.InetAddress;
 import java.net.*;
+import gui.JAPJIntField;
 
 final public class IPTextField extends JPanel implements FocusListener
 {
@@ -79,9 +79,8 @@ final public class IPTextField extends JPanel implements FocusListener
 				add(punkt);
 				ic.gridx++;
 			}
-			iptext[i] = new JTextField(3);
+			iptext[i] = new JAPJIntField(255, true);
 			iptext[i].setMinimumSize(iptext[i].getPreferredSize());
-			iptext[i].setDocument(new IntegerDocument(255, iptext[i]));
 			iptext[i].setText(str);
 			ic.weightx = 1;
 			layout.setConstraints(iptext[i], ic);

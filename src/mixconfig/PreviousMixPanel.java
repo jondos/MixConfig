@@ -35,6 +35,7 @@ import javax.swing.event.ChangeListener;
 import logging.LogType;
 import javax.swing.JLabel;
 import java.awt.GridBagConstraints;
+import gui.*;
 
 /** This panel displays information about the previous mix if the current mix is
  * a middle or last mix.

@@ -31,6 +31,7 @@ import java.util.Vector;
 import anon.crypto.JAPCertificate;
 import anon.crypto.ICertificate;
 import gui.CountryMapper;
+import anon.util.Util;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectAlternativeName;
@@ -83,12 +84,16 @@ public class MixCertificateView implements ICertificateView
 		{
 			m_strLocalityName = "";
 		}
+		m_strLocalityName = m_strLocalityName.trim();
+
 
 		m_strStateOrProvince = dn.getStateOrProvince();
 		if (m_strStateOrProvince == null)
 		{
 			m_strStateOrProvince = "";
 		}
+		m_strStateOrProvince = m_strStateOrProvince.trim();
+
 		alternativeName = (X509SubjectAlternativeName)
 			extensions.getExtension(X509SubjectAlternativeName.IDENTIFIER);
 		if (alternativeName != null)
@@ -103,8 +108,26 @@ public class MixCertificateView implements ICertificateView
 						X509SubjectAlternativeName.TAG_OTHER))
 				{
 					coordinates = alternativeName.getValues();
-					m_strLongitude = coordinates.elementAt(0).toString();
-					m_strLatitude = coordinates.elementAt(1).toString();
+					try
+					{
+						m_strLongitude = coordinates.elementAt(0).toString();
+						Util.parseFloat(m_strLongitude);
+						m_strLongitude = m_strLongitude.trim();
+					}
+					catch (NumberFormatException a_e)
+					{
+						m_strLongitude = "";
+					}
+					try
+					{
+						m_strLatitude = coordinates.elementAt(1).toString();
+						Util.parseFloat(m_strLongitude);
+						m_strLatitude = m_strLatitude.trim();
+					}
+					catch (NumberFormatException a_e)
+					{
+						m_strLatitude = "";
+					}
 				}
 			}
 		}

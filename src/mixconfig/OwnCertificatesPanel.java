@@ -50,6 +50,8 @@ import gui.JAPHelp;
 import gui.CountryMapper;
 import gui.JAPMessages;
 import java.awt.Graphics;
+import java.awt.event.FocusEvent;
+import gui.*;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener,
 	ChangeListener
@@ -83,7 +85,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	private CertPanel m_operatorCert;
 	private JButton map;
 	private JTextField m_txtCity, m_txtState, m_txtLongitude, m_txtLatitude, m_txtOperarorOrgaUnit;
-	private JComboBox cboxCountry, m_cbxOperatorCountry;
+	private JComboBox m_cboxCountry, m_cbxOperatorCountry;
 	private MapBox box;
 
 	public OwnCertificatesPanel(boolean isApplet)
@@ -105,6 +107,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 								  "adjacent mixes", (PKCS12)null);
 		m_ownCert.setName("Certificates/OwnCertificate");
 		m_ownCert.setCertCreationValidator(new OwnCertCreationValidator());
+		m_ownCert.setCertificateView(new MixCertificateView());
 		m_ownCert.addChangeListener(this);
 		add(m_ownCert, c);
 
@@ -140,12 +143,12 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 		Vector ctrVec = CountryMapper.getLocalisedCountries(MAX_COMBO_BOX_LENGTH);
 		ctrVec.insertElementAt(new CountryMapper(MAX_COMBO_BOX_LENGTH), 0);
-		cboxCountry = new JComboBox(ctrVec);
-		cboxCountry.setName(XMLPATH_LOCATION_COUNTRY);
-		cboxCountry.addFocusListener(this);
-		cboxCountry.addItemListener(this);
-		cboxCountry.setEditable(false);
-		panelLocation.addRow(new JLabel("Country"), cboxCountry, null);
+		m_cboxCountry = new JComboBox(ctrVec);
+		m_cboxCountry.setName(XMLPATH_LOCATION_COUNTRY);
+		m_cboxCountry.addFocusListener(this);
+		m_cboxCountry.addItemListener(this);
+		m_cboxCountry.setEditable(false);
+		panelLocation.addRow(new JLabel("Country"), m_cboxCountry, null);
 
 		/**
 		 JLabel pos = new JLabel("Geographical Position");
@@ -244,7 +247,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleError(e, "Could not show map", LogType.GUI);
+			MixConfig.handleError(e, null, LogType.GUI);
 		}
 	}
 
@@ -298,11 +301,18 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		return errors;
 	}
 
+	public void focusLost(FocusEvent a_event)
+	{
+		super.focusLost(a_event);
+		if (a_event.getSource() instanceof JTextField)
+		{
+			enableComponents();
+		}
+
+	}
+
 	public void stateChanged(ChangeEvent e)
 	{
-		X509DistinguishedName dn;
-		X509Extensions extensions;
-
 		try
 		{
 			if (e.getSource() instanceof CertPanel)
@@ -310,8 +320,32 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				save( (CertPanel) e.getSource());
 				if (e.getSource() == m_ownCert)
 				{
+					if (m_ownCert.getCert() != null)
+					{
+						MixCertificateView certView = (MixCertificateView) m_ownCert.getCertificateView();
+						if (certView.getCountry().length() > 0)
+						{
+							m_cboxCountry.setSelectedItem(certView.getCountryMapper());
+						}
+						if (certView.getLocalityName().length() > 0)
+						{
+							m_txtCity.setText(certView.getLocalityName());
+						}
+						if (certView.getStateOrProvince().length() > 0)
+						{
+							m_txtState.setText(certView.getStateOrProvince());
+						}
+						if (certView.getLongitude().length() > 0)
+						{
+							m_txtLongitude.setText(certView.getLongitude());
+						}
+						if (certView.getLatitude().length() > 0)
+						{
+							m_txtLatitude.setText(certView.getLatitude());
+						}
+						save(this);
+					}
 					updateDeprecatedMixID();
-
 				}
 				enableComponents();
 			}
@@ -401,7 +435,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			attributes.put(X509DistinguishedName.L_IDENTIFIER,
 						   m_txtCity.getText());
 			attributes.put(X509DistinguishedName.C_IDENTIFIER,
-						   ( (CountryMapper) cboxCountry.getSelectedItem()).
+						   ( (CountryMapper) m_cboxCountry.getSelectedItem()).
 						   getISOCountryCode());
 
 			return new X509DistinguishedName(attributes);
@@ -445,7 +479,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	protected void save(JComboBox a_comboBox)
 	{
-		if (a_comboBox == cboxCountry || a_comboBox == m_cbxOperatorCountry)
+		if (a_comboBox == m_cboxCountry || a_comboBox == m_cbxOperatorCountry)
 		{
 			getConfiguration().setValue(a_comboBox.getName(),
 										( (CountryMapper) a_comboBox.
@@ -459,7 +493,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	protected void load(JComboBox a_comboBox)
 	{
-		if (a_comboBox == cboxCountry || a_comboBox == m_cbxOperatorCountry)
+		if (a_comboBox == m_cboxCountry || a_comboBox == m_cbxOperatorCountry)
 		{
 			int selectedIndex = 0;
 			CountryMapper cmSelected = null;
@@ -494,72 +528,20 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	protected void enableComponents()
 	{
-		X509DistinguishedName dn;
-		X509Extensions extensions;
-		CountryMapper certCountryMapper = new CountryMapper();
-		String strCity = "";
-		String strState = null;
-		Vector coordinates;
-		String strLongitude = null;
-		String strLatitude = null;
+		MixCertificateView certView = (MixCertificateView)m_ownCert.getCertificateView();
 
-		X509SubjectAlternativeName alternativeName;
-
-		if (m_ownCert.getCert() != null)
+		if (certView.getCountry().length() > 0 &&
+			((CountryMapper)m_cboxCountry.getSelectedItem()).equals(certView.getCountryMapper()))
 		{
-			dn = m_ownCert.getCert().getX509Certificate().getDistinguishedName();
-			extensions = m_ownCert.getCert().getX509Certificate().getExtensions();
-			try
-			{
-				certCountryMapper = new CountryMapper(dn.getCountryCode());
-			}
-			catch (IllegalArgumentException a_e)
-			{
-			}
-
-			strCity = dn.getLocalityName();
-			strState = dn.getStateOrProvince();
-			if (strState == null)
-			{
-				strState = "";
-			}
-
-			alternativeName = (X509SubjectAlternativeName)
-				extensions.getExtension(X509SubjectAlternativeName.IDENTIFIER);
-
-			if (alternativeName != null)
-			{
-
-				if (alternativeName.getTags().size() == 2 &&
-					alternativeName.getValues().size() == 2)
-				{
-					coordinates = alternativeName.getTags();
-					if (coordinates.elementAt(0).equals(
-						X509SubjectAlternativeName.TAG_OTHER) &&
-						coordinates.elementAt(1).equals(
-							X509SubjectAlternativeName.TAG_OTHER))
-					{
-						coordinates = alternativeName.getValues();
-						strLongitude = coordinates.elementAt(0).toString();
-						strLatitude = coordinates.elementAt(1).toString();
-					}
-				}
-			}
-		}
-
-		if (certCountryMapper.getISOCountryCode().length() > 0 &&
-			( (CountryMapper) cboxCountry.getSelectedItem()).equals(
-				certCountryMapper))
-		{
-			cboxCountry.setEnabled(false);
+			m_cboxCountry.setEnabled(false);
 		}
 		else
 		{
-			cboxCountry.setEnabled(true);
+			m_cboxCountry.setEnabled(true);
 		}
 
-		if (strCity != null && strCity.trim().length() > 0 &&
-			strCity.equals(m_txtCity.getText()))
+		if (certView.getLocalityName().length() > 0 &&
+			certView.getLocalityName().equals(m_txtCity.getText().trim()))
 		{
 			m_txtCity.setEditable(false);
 		}
@@ -567,7 +549,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		{
 			m_txtCity.setEditable(true);
 		}
-		if (strState != null && strState.equals(m_txtState.getText()))
+		if (m_ownCert.getCert() != null && certView.getStateOrProvince().equals(m_txtState.getText().trim()))
 		{
 			m_txtState.setEditable(false);
 		}
@@ -575,8 +557,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		{
 			m_txtState.setEditable(true);
 		}
-		if (strLongitude != null && strLongitude.equals(
-			m_txtLongitude.getText()))
+		if (m_ownCert.getCert() != null && certView.getLongitude().equals(m_txtLongitude.getText()))
 		{
 			m_txtLongitude.setEditable(false);
 		}
@@ -584,8 +565,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		{
 			m_txtLongitude.setEditable(true);
 		}
-		if (strLatitude != null && strLatitude.equals(
-			m_txtLatitude.getText()))
+		if (m_ownCert.getCert() != null && certView.getLatitude().equals(m_txtLatitude.getText()))
 		{
 			m_txtLatitude.setEditable(false);
 		}

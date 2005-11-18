@@ -26,51 +26,57 @@
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
 
-package mixconfig;
+package gui;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.awt.Component;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
 
-import gui.JAPDialog;
 import anon.crypto.Validity;
+import gui.JAPJIntField;
 
-class ValidityDialog extends JAPDialog
+public class ValidityDialog extends JAPDialog
 {
-	private DateTextField from, to;
+	private DateTextField m_dateFrom, m_dateTo;
+
+	public ValidityDialog(JAPDialog a_parent, String a_title)
+	{
+		super(a_parent, a_title);
+		init();
+	}
 
 	public ValidityDialog(Component parent, String title)
 	{
 		super(parent, title);
+		init();
+	}
+
+	private void init()
+	{
 		setResizable(false);
 		createValidityDialog();
-		//setLocationRelativeTo(parent);
 	}
 
 	public Validity getValidity()
 	{
-		if (from == null || to == null)
+		if (m_dateFrom == null || m_dateTo == null)
 		{
 			return null;
 		}
-		return new Validity(from.getDate(), to.getDate());
+		return new Validity(m_dateFrom.getDate(), m_dateTo.getDate());
 	}
 
 	private void createValidityDialog()
@@ -87,7 +93,7 @@ class ValidityDialog extends JAPDialog
 		JLabel label;
 
 		addWindowListener(new WindowAdapter(){
-			public void windowClosing(WindowEvent e){from = null; to = null; dispose();}});
+			public void windowClosing(WindowEvent e){m_dateFrom = null; m_dateTo = null; dispose();}});
 
 		label = new JLabel("Valid from:");
 		gbc.gridx = 0;
@@ -97,9 +103,9 @@ class ValidityDialog extends JAPDialog
 		gbc.gridx = 1;
 		gbc.weightx = 5;
 		Date now = new Date(System.currentTimeMillis());
-		from = new DateTextField(now);
-		layout.setConstraints(from, gbc);
-		getContentPane().add(from);
+		m_dateFrom = new DateTextField(now);
+		layout.setConstraints(m_dateFrom, gbc);
+		getContentPane().add(m_dateFrom);
 		gbc.gridx = 2;
 		gbc.weightx = 1;
 		JButton nowButton = new JButton("Now");
@@ -110,7 +116,7 @@ class ValidityDialog extends JAPDialog
 			{
 				if (ev.getActionCommand().equals("Now"))
 				{
-					from.setDate(new Date(System.currentTimeMillis()));
+					m_dateFrom.setDate(new Date(System.currentTimeMillis()));
 				}
 			}
 		});
@@ -129,9 +135,9 @@ class ValidityDialog extends JAPDialog
 		Calendar cal2 = Calendar.getInstance();
 		cal2.setTime(now);
 		cal2.add(Calendar.YEAR, 1);
-		to = new DateTextField(cal2.getTime());
-		layout.setConstraints(to, gbc);
-		getContentPane().add(to);
+		m_dateTo = new DateTextField(cal2.getTime());
+		layout.setConstraints(m_dateTo, gbc);
+		getContentPane().add(m_dateTo);
 		gbc.gridx = 2;
 		gbc.weightx = 1;
 		JButton y1Button = new JButton("1 Year");
@@ -142,9 +148,9 @@ class ValidityDialog extends JAPDialog
 			{
 				if (ev.getActionCommand().equals("1 Year"))
 				{
-					Calendar cal = from.getDate();
+					Calendar cal = m_dateFrom.getDate();
 					cal.add(Calendar.YEAR, 1);
-					to.setDate(cal.getTime());
+					m_dateTo.setDate(cal.getTime());
 				}
 			}
 		});
@@ -166,7 +172,15 @@ class ValidityDialog extends JAPDialog
 		{
 			public void actionPerformed(ActionEvent ev)
 			{
-				dispose();
+				try
+				{
+					getValidity();
+					dispose();
+				}
+				catch (NumberFormatException a_e)
+				{
+					// there should be an error dialog here saying that one or more date fields are empty
+				}
 			}
 		});
 		keylayout.setConstraints(key, kc);
@@ -177,8 +191,8 @@ class ValidityDialog extends JAPDialog
 		{
 			public void actionPerformed(ActionEvent ev)
 			{
-				from = null;
-				to = null;
+				m_dateFrom = null;
+				m_dateTo = null;
 				dispose();
 			}
 		});
@@ -197,37 +211,28 @@ class ValidityDialog extends JAPDialog
 
 
 
-	private class DateTextField extends JPanel
+	private class DateTextField extends JPanel implements ItemListener
 	{
-		private JTextField day, year;
+		private JAPJIntField day, year;
 		private JComboBox month;
 
-		class DayDocument extends PlainDocument
+		public void itemStateChanged(ItemEvent a_event)
 		{
-			Component which;
+			day.updateBounds();
+		}
 
+		class DayBounds implements JAPJIntField.IntFieldBounds
+		{
 			private final int daysPerMonth[] =
 				{
 				31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-			DayDocument(Component comp)
+			public boolean isZeroAllowed()
 			{
-				super();
-				which = comp;
+				return false;
 			}
 
-			DayDocument()
+			public int getMaximum()
 			{
-				super();
-				which = null;
-			}
-
-			public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException
-			{
-				String p1 = getText(0, offset);
-				String p2 = getText(offset, getLength() - offset);
-				String res = "";
-
 				int max = (month == null) ? 0 : (month.getSelectedIndex());
 				if (max == 1)
 				{
@@ -244,38 +249,11 @@ class ValidityDialog extends JAPDialog
 				else
 				{
 					max = daysPerMonth[max];
-
 				}
-				for (int i = 0; i < str.length(); i++)
-				{
-					if (!Character.isDigit(str.charAt(i)))
-					{
-						java.awt.Toolkit.getDefaultToolkit().beep();
-					}
-					else
-					{
-						String sstr = str.substring(i, i + 1);
-						int val = Integer.parseInt(p1 + res + sstr + p2, 10);
-						if (max > 0 && val > max)
-						{
-							java.awt.Toolkit.getDefaultToolkit().beep();
-						}
-						else
-						{
-							res += sstr;
-						}
-					}
-				}
-				super.insertString(offset, res, attr);
-				if (which != null
-					&& max > 0
-					&& getLength() > 0
-					&& 10 * Integer.parseInt(getText(0, getLength()), 10) > max)
-				{
-					which.transferFocus();
-				}
+				return max;
 			}
 		}
+
 
 		private void initDateTextField(Date date)
 		{
@@ -293,10 +271,9 @@ class ValidityDialog extends JAPDialog
 			gbc.gridx = 0;
 			gbc.gridy = 0;
 
-			day = new JTextField(2);
+			day = new JAPJIntField(new DayBounds(), true);
 			day.setMinimumSize(day.getPreferredSize());
-			day.setDocument(new DayDocument(day));
-			day.setText(Integer.toString(cal.get(Calendar.DAY_OF_MONTH)));
+			day.setInt(cal.get(Calendar.DAY_OF_MONTH));
 			gbc.weightx = 1;
 			gbc.insets.right = 1;
 			layout.setConstraints(day, gbc);
@@ -347,16 +324,15 @@ class ValidityDialog extends JAPDialog
 					return nr - 1;
 				}
 			});
+			month.addItemListener(this);
 			month.setSelectedIndex(cal.get(Calendar.MONTH));
 			gbc.weightx = 1;
 			layout.setConstraints(month, gbc);
 			add(month);
 			gbc.gridx++;
 
-			year = new JTextField(4);
-			year.setMinimumSize(year.getPreferredSize());
-			year.setDocument(new IntegerDocument(year));
-			year.setText(Integer.toString(cal.get(Calendar.YEAR)));
+			year = new JAPJIntField(3000, true);
+			year.setInt(cal.get(Calendar.YEAR));
 			gbc.weightx = 1;
 			layout.setConstraints(year, gbc);
 			add(year);
@@ -373,18 +349,15 @@ class ValidityDialog extends JAPDialog
 		{
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(date);
-			day.setText(Integer.toString(cal.get(Calendar.DAY_OF_MONTH)));
+			day.setInt(cal.get(Calendar.DAY_OF_MONTH));
 			month.setSelectedIndex(cal.get(Calendar.MONTH));
-			year.setText(Integer.toString(cal.get(Calendar.YEAR)));
+			year.setInt(cal.get(Calendar.YEAR));
 		}
 
-		public Calendar getDate()
+		public Calendar getDate() throws NumberFormatException
 		{
 			Calendar cal = Calendar.getInstance();
-			cal.set(
-				Integer.parseInt(year.getText()),
-				month.getSelectedIndex(),
-				Integer.parseInt(day.getText()));
+			cal.set(year.getInt(), month.getSelectedIndex(), day.getInt());
 			return cal;
 		}
 	}

@@ -29,6 +29,7 @@ package mixconfig;
 
 import java.io.IOException;
 import java.util.Vector;
+
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -36,8 +37,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JButton;
@@ -51,6 +50,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -58,7 +59,10 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+
+import anon.infoservice.ListenerInterface;
 import gui.JAPHelp;
+import gui.JAPJIntField;
 import gui.JAPMessages;
 import mixconfig.networkpanel.ConnectionData;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
@@ -186,10 +190,9 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_txtISHost.setName("Network/InfoService/Host");
 		m_txtISHost.addFocusListener(this);
 
-		m_txtISPort = new JTextField(5);
+		m_txtISPort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE);
 		m_txtISPort.setName("Network/InfoService/Port");
 		m_txtISPort.setText("");
-		m_txtISPort.setDocument(new IntegerDocument(65535));
 		m_txtISPort.setMinimumSize(m_txtISPort.getPreferredSize());
 		m_txtISPort.addFocusListener(this);
 
