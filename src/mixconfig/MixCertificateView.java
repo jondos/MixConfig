@@ -39,7 +39,7 @@ import anon.crypto.X509SubjectAlternativeName;
  * Stores the information that should be present in a mix certificate.
  * @author Rolf Wendolsky
  */
-public class MixCertificatePanelView
+public class MixCertificateView implements ICertificateView
 {
 	private CountryMapper m_CountryMapper;
 	private String m_strLocalityName;
@@ -47,7 +47,7 @@ public class MixCertificatePanelView
 	private String m_strLongitude;
 	private String m_strLatitude;
 
-	public MixCertificatePanelView()
+	public MixCertificateView()
 	{
 		update(null);
 	}

@@ -35,6 +35,9 @@ import java.text.MessageFormat;
 import java.awt.Frame;
 
 import anon.util.Util;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
 
 
 public final class JAPMessages
@@ -91,6 +94,7 @@ public final class JAPMessages
 		}
 		catch (Exception e)
 		{
+			LogHolder.log(LogLevel.INFO, LogType.GUI, "Could not load messsage string: " + a_key, true);
 			return a_key;
 		}
 	}

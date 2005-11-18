@@ -28,11 +28,8 @@
 package mixconfig;
 
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Vector;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -42,17 +39,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import anon.crypto.PKCS12;
-import anon.crypto.X509DistinguishedName;
-import anon.crypto.X509Extensions;
-import gui.JAPHelp;
 import gui.JAPMessages;
 import anon.crypto.JAPCertificate;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import logging.LogType;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.event.FocusEvent;
+import anon.util.Base64;
 
 /**
  * The panel for advanced settings
@@ -66,21 +59,21 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 	private static final String ENABLE_LOGGING = JAPMessages.getString("enableLogging");
 	private static final String LOG_CONSOLE = JAPMessages.getString("logConsole");
 	private static final String LOG_DIR = JAPMessages.getString("logDir");
-	private static final String ENC_WITH = JAPMessages.getString("encWith");
-	private static final String IMPORT = JAPMessages.getString("import");
 	private static final String COMPRESS_LOG = JAPMessages.getString("compressLog");
 	private static final String LOG_SYSLOG = JAPMessages.getString("logSyslog");
 
 	private JTextField m_tfID, m_tfNumOfFileDes, m_tfFileName;
-	private JCheckBox m_cbUserID, m_cbNrOfFileDes, m_cbDaemon, m_cbLogging,
-		m_cbCompressLog;
-	private JRadioButton m_rbConsole, m_rbFile, m_rbSyslog;
+	private JCheckBox m_cbUserID, m_cbNrOfFileDes, m_cbDaemon, m_cbCompressLog;
+	private JRadioButton m_rbConsole, m_rbFile, m_rbSyslog, m_rbNoLog;
 	private ButtonGroup m_loggingButtonGroup;
 	private CertPanel m_certPanel;
+
+	private String m_logFilePath = "General/Logging/File";
 
 	public AdvancedPanel()
 	{
 		super("Advanced");
+		setAutoSaveEnabled(false);
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(5, 5, 5, 5);
@@ -88,21 +81,22 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		c.gridx = 0;
 		c.gridy = 0;
 		c.fill = c.NONE;
-
+		c.gridheight = 2;
 		TitledGridBagPanel loggingPanel = new TitledGridBagPanel("Logging");
 		this.add(loggingPanel, c);
 
-		m_certPanel = new CertPanel("Encryption certificate",
+		m_certPanel = new CertPanel("Encrypted log certificate",
 									"This is the certificate your Mix will use to encrypt the log file",
 									(JAPCertificate)null);
-		m_certPanel.setName("General/Logging/EncryptedLog/KeyInfo/X509Data/X509Certificate");
+		//m_certPanel.setName("General/Logging/EncryptedLog/KeyInfo/X509Data/X509Certificate");
 		m_certPanel.addChangeListener(this);
 		m_certPanel.setEnabled(false);
 		c.gridx++;
 		c.weightx = 1;
+		c.gridheight = 1;
 		this.add(m_certPanel, c);
 
-		c.gridy++;
+		c.gridy += 2;
 		c.gridx--;
 		c.weighty = 1;
 		c.weightx = 0;
@@ -126,6 +120,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		m_tfNumOfFileDes = new JTextField(10);
 		m_tfNumOfFileDes.setName("General/NrOfFileDescriptors");
 		m_tfNumOfFileDes.addFocusListener(this);
+		m_tfNumOfFileDes.setEnabled(false);
 		miscPanel.addRow(m_cbNrOfFileDes, m_tfNumOfFileDes);
 
 		// Daemon
@@ -135,265 +130,232 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		miscPanel.addRow(m_cbDaemon, null);
 
 		// Logging
-		m_cbLogging = new JCheckBox(ENABLE_LOGGING);
-		m_cbLogging.addItemListener(this);
-		loggingPanel.addRow(m_cbLogging, null);
+		m_rbNoLog = new JRadioButton(ENABLE_LOGGING);
+		m_rbNoLog.setSelected(true);
+		m_rbNoLog.setModel(new ToggleButtonModel());
+		m_rbNoLog.addItemListener(this);
+		loggingPanel.addRow(m_rbNoLog, null);
 
 		// Console Logging
 		m_rbConsole = new JRadioButton(LOG_CONSOLE);
-		m_rbConsole.setName("General/Logging/Console");
 		m_rbConsole.setModel(new ToggleButtonModel());
-		m_rbConsole.setSelected(true);
 		m_rbConsole.addItemListener(this);
 		loggingPanel.addRow(m_rbConsole, null);
 
 		// Log to Directory JRadioButton
 		m_rbFile = new JRadioButton(LOG_DIR);
 		m_rbFile.setModel(new ToggleButtonModel());
-		m_rbFile.setName("General/Logging/File");
 		m_rbFile.addItemListener(this);
 
 		// Log to Directory JTextField
-		m_tfFileName = new JTextField(20);
-		m_tfFileName.setName("General/Logging/File");
+		m_tfFileName = new JTextField(15);
 		m_tfFileName.addFocusListener(this);
+		m_tfFileName.setEnabled(false);
 		loggingPanel.addRow(m_rbFile, m_tfFileName);
 
 		// Compress Log JCheckBox
 		m_cbCompressLog = new JCheckBox(COMPRESS_LOG);
 		m_cbCompressLog.addItemListener(this);
-		m_cbCompressLog.setName("General/Logging/File/compress");
-		loggingPanel.addRow(m_cbCompressLog, null);
+		m_cbCompressLog.setEnabled(false);
+		loggingPanel.addRow(null, m_cbCompressLog);
 
 		// Syslog JRadioButton
 		m_rbSyslog = new JRadioButton(LOG_SYSLOG);
-		m_rbSyslog.setName("General/Logging/Syslog");
 		m_rbSyslog.setModel(new ToggleButtonModel());
 		m_rbSyslog.addItemListener(this);
 		loggingPanel.addRow(m_rbSyslog, null);
 
 		m_loggingButtonGroup = new ButtonGroup();
+		m_loggingButtonGroup.add(m_rbNoLog);
 		m_loggingButtonGroup.add(m_rbConsole);
 		m_loggingButtonGroup.add(m_rbFile);
 		m_loggingButtonGroup.add(m_rbSyslog);
 
-		m_certPanel.setPreferredSize(new Dimension( (int) m_certPanel.getPreferredSize().width,
-			(int) loggingPanel.getPreferredSize().height));
-
-		setAutoSaveEnabled(false);
-		itemStateChanged(new ItemEvent(m_cbDaemon, 0, (Object)null, 0));
 		setAutoSaveEnabled(true);
-	}
-
-	/**
-	 *
-	 * @return Possible error and warning messages
-	 */
-	public Vector check()
-	{
-		String s;
-		Vector errors = new Vector();
-
-		s = getConfiguration().getValue("General/UserID");
-		if (s != null && s.equals(""))
-		{
-			errors.addElement("User ID not entered in Advanced Panel.");
-
-		}
-		s = getConfiguration().getValue("General/NrOfFileDescriptors");
-		if (s != null && !isNumber(s))
-		{
-			errors.addElement(
-				"Number of File Descriptors is not a number in Advanced Panel.");
-
-		}
-		s = getConfiguration().getValue("General/Logging/File");
-		if (s != null && s.equals(""))
-		{
-			errors.addElement("No directory for logging entered in Advanced Panel.");
-
-		}
-
-		return errors;
 	}
 
 	public void itemStateChanged(ItemEvent a_event)
 	{
-		if (a_event.getSource() == m_cbLogging && isAutoSaveEnabled())
+		Object s = a_event.getSource();
+		MixConfiguration c = getConfiguration();
+		if (s == m_rbConsole && m_rbConsole.isSelected() && isAutoSaveEnabled())
 		{
-			save(m_loggingButtonGroup);
+			c.setValue("General/Logging/Console", true);
+			c.removeNode("General/Logging/Syslog");
+			c.removeNode("General/Logging/File");
+			c.removeNode("General/Logging/EncryptedLog");
 		}
-
-		super.itemStateChanged(a_event);
-	}
-
-	public void paint(Graphics g)
-	{
-		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("index");
-	}
-
-	/**
-	 * Enables used and disables unused components.
-	 *
-	 */
-	protected void enableComponents()
-	{
-		if (m_certPanel.getCert() != null)
+		else if (s == m_rbSyslog && m_rbSyslog.isSelected() && isAutoSaveEnabled())
 		{
-			m_certPanel.setEnabled(true);
+			c.setValue("General/Logging/Syslog", true);
+			c.removeNode("General/Logging/Console");
+			c.removeNode("General/Logging/File");
+			c.removeNode("General/Logging/EncryptedLog");
 		}
-
-		boolean log = m_cbLogging.isSelected();
-		// FIXME: m_rbFile.isSelected() always returns false here, even if m_rbFile is selected.
-		// Find out why.
-		boolean file = m_rbFile.isSelected();
-		// Workaround: Assume m_rbFile is selected when no radio button returns selected == true
-		file = file || (!file && !m_rbSyslog.isSelected() && !m_rbConsole.isSelected());
-		boolean daemon = m_cbDaemon.isSelected();
-
-		// enable/disable some controls
-		m_rbConsole.setEnabled(log && !daemon);
-		m_rbFile.setEnabled(log);
-		m_rbSyslog.setEnabled(log);
-		m_tfFileName.setEnabled(log && file);
-		m_cbCompressLog.setEnabled(log && file);
-		/*m_bttnImportEncKey.setEnabled(log && file);
-		   m_lbEncrypt.setEnabled(log && file);
-		   m_tfLogEncryptKeyName.setEnabled(log && file);*/
-		// if mix is run as daemon, we can't log to console so set log output to file.
-		if (log && !file)
+		else if (s == m_rbNoLog && m_rbNoLog.isSelected() && isAutoSaveEnabled())
 		{
-			// A bug in JDK 1.1.8 causes an infinite event loop here, therefore
-			// event casting must be disabled
-			m_rbFile.removeItemListener(this);
-			m_rbFile.setSelected(m_rbConsole.isSelected() && !m_rbConsole.isEnabled());
-			m_rbFile.addItemListener(this);
+			c.removeNode("General/Logging/Syslog");
+			c.removeNode("General/Logging/Console");
+			c.removeNode("General/Logging/File");
+			c.removeNode("General/Logging/EncryptedLog");
+			c.removeNode("General/Logging");
 		}
-
-		m_tfID.setEnabled(m_cbUserID.isSelected());
-		m_tfNumOfFileDes.setEnabled(m_cbNrOfFileDes.isSelected());
-	}
-
-	protected void save(JCheckBox a)
-	{
-		if (a == this.m_cbLogging || a == this.m_cbCompressLog)
+		else if (s == m_rbFile)
 		{
-			save(m_loggingButtonGroup);
-		}
-		else
-		{
-			super.save(a);
-		}
-	}
-
-	protected void save(ButtonGroup a)
-	{
-		if (a == m_loggingButtonGroup)
-		{
-			MixConfiguration mixConf = getConfiguration();
-			boolean log = this.m_cbLogging.isSelected();
-
-			if (!log)
+			m_tfFileName.setEnabled(m_rbFile.isSelected());
+			m_cbCompressLog.setEnabled(m_rbFile.isSelected());
+			m_certPanel.setEnabled(m_rbFile.isSelected());
+			if (!m_rbFile.isSelected())
 			{
-				mixConf.removeNode(m_rbSyslog.getName());
-				mixConf.removeNode(m_rbConsole.getName());
-				mixConf.removeNode(m_tfFileName.getName());
-				mixConf.removeNode("General/Logging/EncryptedLog");
-				m_certPanel.setEnabled(false);
 				m_certPanel.removeCert();
-				return;
 			}
-
-			mixConf.setValue("General/Logging/Console", m_rbConsole.isSelected());
-			mixConf.setValue("General/Logging/Syslog", m_rbSyslog.isSelected());
-
-			if (m_rbFile.isSelected())
+			if (isAutoSaveEnabled())
 			{
-				String fn = m_tfFileName.getText();
-				m_certPanel.setEnabled(true);
-				if (fn.equals(""))
+				focusLost(new FocusEvent(m_tfFileName, 0));
+				c.removeNode("General/Logging/Syslog");
+				c.removeNode("General/Logging/Console");
+			}
+		}
+		else if (s == m_cbCompressLog)
+		{
+			focusLost(new FocusEvent(m_tfFileName, 0));
+		}
+		else if (s == m_cbDaemon)
+		{
+			if (m_cbDaemon.isSelected())
+			{
+				if (m_rbConsole.isSelected())
 				{
-					fn = null;
+					m_rbFile.setSelected(true);
 				}
-
-				if (m_certPanel.getCert() != null)
-				{
-					mixConf.setValue("General/Logging/File", (String)null);
-					mixConf.setValue("General/Logging/EncryptedLog/File", fn);
-				}
-				else
-				{
-					mixConf.setValue("General/Logging/File", fn);
-					mixConf.setAttribute("General/Logging/File", "compressed",
-										 m_cbCompressLog.isSelected());
-				}
+				m_rbConsole.setEnabled(false);
 			}
 			else
 			{
-				m_certPanel.setEnabled(false);
-				m_certPanel.removeCert();
+				m_rbConsole.setEnabled(true);
 			}
+			save(m_cbDaemon);
+		}
+		else if (s == m_cbNrOfFileDes)
+		{
+			m_tfNumOfFileDes.setEnabled(m_cbNrOfFileDes.isSelected());
+		}
+		else if (s == m_cbUserID)
+		{
+			m_tfID.setEnabled(m_cbUserID.isSelected());
+		}
+		else
+		{
+			super.itemStateChanged(a_event);
 		}
 	}
 
-	/** Loads all values from the MixConfiguration object. This method overrides
-	 * mixconfig.MixConfigPanel.load() to take care of the dependencies between
-	 * attributes that are specific for this part of the configuration.
-	 * @throws IOException If loading an attribute fails
-	 */
+	public void focusLost(FocusEvent a_event)
+	{
+		if (a_event.getSource() == m_tfFileName)
+		{
+			MixConfiguration c = getConfiguration();
+			c.removeNode("General/Logging/EncryptedLog/File");
+			//c.removeNode("General/Logging/EncryptedLog");
+			c.removeNode("General/Logging/File");
+			c.setAttribute(m_logFilePath, "compressed", m_cbCompressLog.isSelected());
+			c.setValue(m_logFilePath, m_tfFileName.getText());
+		}
+		else
+		{
+			super.focusLost(a_event);
+		}
+	}
+
 	public void load() throws IOException
 	{
 		super.load();
-
-		// disable automatic saving of values to the MixConfiguration
-		// to prevent infinite event loops
 		setAutoSaveEnabled(false);
+		MixConfiguration c = getConfiguration();
 
-		boolean b;
-		String s;
+		String s = c.getValue("General/Logging/Console");
+		if (s != null)
+		{
+			m_rbConsole.setSelected( (new Boolean(s)).booleanValue());
+		}
+		s = c.getValue("General/Logging/Syslog");
+		if (s != null)
+		{
+			m_rbSyslog.setSelected( (new Boolean(s)).booleanValue());
+		}
+		s = c.getValue("General/Logging/EncryptedLog/File");
+		if (s != null)
+		{
+			m_tfFileName.setText(s);
+			s = c.getValue(m_logFilePath + "/compressed");
+			m_cbCompressLog.setSelected( (new Boolean(s)).booleanValue());
+			m_rbFile.setSelected(true);
+			m_certPanel.setEnabled(true);
+			String cert = c.getValue(
+				"General/Logging/EncryptedLog/KeyInfo/X509Data/X509Certificate/X509Certificate");
 
-		b = m_tfNumOfFileDes.getText().equals("");
-		this.m_cbNrOfFileDes.setSelected(!b);
+			byte b[] = null;
 
-		b = this.m_tfID.getText().equals("");
-		this.m_cbUserID.setSelected(!b);
+			if (cert != null && !cert.equals(""))
+			{
+				b = Base64.decode(cert);
+			}
 
-		b = this.m_tfFileName.getText().equals("");
-		this.m_rbFile.setSelected(!b);
+			m_certPanel.setCert(b);
 
-		b = false;
+		}
+		s = c.getValue("General/Logging/File");
+		if (s != null)
+		{
+			m_tfFileName.setText(s);
+			s = c.getValue(m_logFilePath + "/compressed");
+			m_cbCompressLog.setSelected( (new Boolean(s)).booleanValue());
+			m_rbFile.setSelected(true);
+		}
 
-		s = getConfiguration().getValue("General/Logging/File");
-		b = b || (s != null);
-
-		s = getConfiguration().getValue("General/Logging/Console");
-		b = b || new Boolean(s).booleanValue();
-
-		s = getConfiguration().getValue("General/Logging/Syslog");
-		b = b || new Boolean(s).booleanValue();
-
-		m_cbLogging.setSelected(b);
-
-		// turn on auto saving again
+		if (!m_rbConsole.isSelected() && !m_rbSyslog.isSelected() && !m_rbFile.isSelected())
+		{
+			m_rbNoLog.setSelected(true);
+		}
 		setAutoSaveEnabled(true);
-		enableComponents();
 	}
 
-	public void stateChanged(ChangeEvent a_e)
+	public Vector check()
 	{
-		try
+		return new Vector();
+	}
+
+	public void stateChanged(ChangeEvent a_event)
+	{
+		if (a_event.getSource() == m_certPanel)
 		{
-			if (a_e.getSource() instanceof CertPanel)
+			if (m_certPanel.getCert() != null)
 			{
-				save( (CertPanel) a_e.getSource());
-				enableComponents();
+				m_logFilePath = "General/Logging/EncryptedLog/File";
+
+if (isAutoSaveEnabled())
+				{
+					getConfiguration().setValue(
+						"General/Logging/EncryptedLog/KeyInfo/X509Data/X509Certificate/X509Certificate",
+						m_certPanel.getCert().getX509Certificate().toByteArray());
+				}
+
 			}
+			else
+			{
+				m_logFilePath = "General/Logging/File";
+			}
+			if (isAutoSaveEnabled())
+			{
+				focusLost(new FocusEvent(m_tfFileName, 0));
+
+			}
+
 		}
-		catch (Exception e)
-		{
-			MixConfig.handleError(e, null, LogType.GUI);
-		}
+	}
+
+	protected void enableComponents()
+	{
 	}
 
 }

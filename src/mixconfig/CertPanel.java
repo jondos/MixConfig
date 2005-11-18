@@ -136,6 +136,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 */
 	private ICertCreationValidator m_validator;
 
+	/**
+	 * Optional component, may be null; stores the current view of the stored certificate.
+	 */
+	private ICertificateView m_certView;
+
 	/** The list of objects that listen to <CODE>ChangeEvent</CODE>s from this object */
 	private Vector m_changeListeners = new Vector();
 
@@ -444,6 +449,24 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		setCert(a_certificate.toByteArray());
 	}
 
+	/**
+	 * Returns the current certificate view.
+	 * @return the current certificate view or null if no view is registered
+	 */
+	public ICertificateView getCertificateView()
+	{
+		return m_certView;
+	}
+
+	/**
+	 * Sets a view for the certificate stored in this panel.
+	 * @param a_certificateView a certificate view
+	 */
+	public void setCertificateView(ICertificateView a_certificateView)
+	{
+		m_certView = a_certificateView;
+	}
+
 	/** Set the certificate. The method decides according to {@link #isPKCS12()} whether to set the
 	 * PKCS12 or X.509 certificate.
 	 * @param cert A certificate, which must be of the appropriate type for this object.
@@ -498,6 +521,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/** Sends a <CODE>ChangeEvent</CODE> to all of this object's <CODE>ChangeListener</CODE>s */
 	private void fireStateChanged()
 	{
+		if (m_certView != null)
+		{
+			m_certView.update(getCert());
+		}
+
 		ChangeEvent event = new ChangeEvent(this);
 		for (int i = 0; i < m_changeListeners.size(); i++)
 		{
