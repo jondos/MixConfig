@@ -45,10 +45,6 @@ import javax.swing.event.ChangeListener;
 import anon.crypto.JAPCertificate;
 import gui.JAPHelp;
 import javax.swing.event.ChangeEvent;
-import gui.CountryMapper;
-import anon.crypto.X509Extensions;
-import anon.crypto.X509DistinguishedName;
-import anon.crypto.X509SubjectAlternativeName;
 import logging.LogType;
 
 /**
@@ -64,7 +60,6 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 
 	private CertPanel m_otherCert;
 	private CertPanel m_otherOpCert;
-	private MixCertificatePanelView m_otherCertView;
 
 	private JPanel m_operatorPanel;
 	private JPanel m_locationPanel;
@@ -108,7 +103,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		{
 			m_otherCert.setName("Certificates/NextMixCertificate");
 		}
-		m_otherCertView = new MixCertificatePanelView();
+		m_otherCert.setCertificateView(new MixCertificateView());
 		m_otherCert.addChangeListener(this);
 		m_gbc.gridx = 0;
 		m_gbc.gridy = 0;
@@ -296,18 +291,18 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	 */
 	private void loadLocationInfo()
 	{
-		m_locCityField.setText(m_otherCertView.getLocalityName());
-		m_locCountryField.setText(m_otherCertView.getCountry());
-		m_locStateField.setText(m_otherCertView.getStateOrProvince());
-		m_locLongField.setText(m_otherCertView.getLongitude());
-		m_locLatField.setText(m_otherCertView.getLatitude());
+		MixCertificateView certView = (MixCertificateView)m_otherCert.getCertificateView();
+		m_locCityField.setText(certView.getLocalityName());
+		m_locCountryField.setText(certView.getCountry());
+		m_locStateField.setText(certView.getStateOrProvince());
+		m_locLongField.setText(certView.getLongitude());
+		m_locLatField.setText(certView.getLatitude());
 	}
 
 	public void stateChanged(ChangeEvent a_e)
 	{
 		if (a_e.getSource() == m_otherCert)
 		{
-			m_otherCertView.update(m_otherCert.getCert());
 			loadLocationInfo();
 		}
 	}

@@ -17,4 +17,12 @@
     <old-method-name>deepClone</old-method-name>
     <new-method-name>clone</new-method-name>
   </rename-method>
+  <rename-class id="6AP0WBYXB6GEPJXZ6ULFK8Z" creation-time="Fri Nov 18 11:27:51.797 CET 2005">
+    <old-class-name>mixconfig.ICertificatePanelView</old-class-name>
+    <new-class-name>mixconfig.ICertificateView</new-class-name>
+  </rename-class>
+  <rename-class id="4AP0WBYXB6GEPJXZ6ULFK8Z" creation-time="Fri Nov 18 11:28:37.244 CET 2005">
+    <old-class-name>mixconfig.MixCertificatePanelView</old-class-name>
+    <new-class-name>mixconfig.MixCertificateView</new-class-name>
+  </rename-class>
 </refactor>
