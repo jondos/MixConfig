@@ -51,13 +51,21 @@ import anon.crypto.PKCS12;
 import anon.util.Base64;
 import gui.PasswordBox;
 import gui.GUIUtils;
+import anon.crypto.X509Extensions;
+import gui.JAPMessages;
+import anon.crypto.X509DistinguishedName;
+import java.util.Vector;
 
 public class EncryptedLogTool extends JDialog implements ActionListener
 {
+	private static final String PROP_PASSWD_INFO_MSG = "EncryptedLog_password_info_message";
+	private static final String PROP_CERT_HEADLINE = "EncryptedLog_certificate_headline";
+
 	private JTextField m_textDecryptWithCertCN, m_textDecryptWithCertValidFrom, m_textDecryptWithCertValidTo;
 	private JTextArea m_textLogFile;
 	private byte[] m_arLog;
 	private MyRSAPrivateKey m_keyDecryptWith;
+	private CertPanel m_privateCertPanel;
 
 	public EncryptedLogTool(Frame parent)
 	{
@@ -404,4 +412,40 @@ public class EncryptedLogTool extends JDialog implements ActionListener
 		m_textLogFile.setText(new String(dec));
 	}
 
+
+	private class LogCertCreationValidator implements ICertCreationValidator
+	{
+		/**
+		 * The certificate data is always valid.
+		 * @return an empty Vector
+		 */
+		public Vector getInvalidityMessages()
+		{
+			return new Vector();
+		}
+
+		/**
+		 * The certificate data is always valid.
+		 * @return true
+		 */
+		public boolean isValid()
+		{
+			return true;
+		}
+
+		public String getPasswordInfoMessage()
+		{
+			return JAPMessages.getString(PROP_PASSWD_INFO_MSG);
+		}
+
+		public X509Extensions getExtensions()
+		{
+			return new X509Extensions(new Vector());
+		}
+		public X509DistinguishedName getSigName()
+		{
+			return new X509DistinguishedName("CN=Mixlog Encryption Certificate");
+		}
+
+	}
 }

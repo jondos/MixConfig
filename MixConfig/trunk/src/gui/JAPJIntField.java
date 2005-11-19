@@ -154,7 +154,7 @@ public final class JAPJIntField extends JTextField
 	/**
 	 * This bound does not allow zeros.
 	 */
-	public final class IntFieldWithoutZeroBounds implements IntFieldBounds
+	public static final class IntFieldWithoutZeroBounds implements IntFieldBounds
 	{
 		private int m_maxValue;
 

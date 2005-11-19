@@ -41,8 +41,8 @@ import gui.JAPMessages;
 
 public class RSACertCreatorPanel extends JAPDialog
 {
-	private static final String PROP_PASSWD_INFO_MSG = "RSACertCreatorPanel_password_info_message";
-	private static final String PROP_CERT_HEADLINE = "RSACertCreatorPanel_certificate_headline";
+	private static final String PROP_PASSWD_INFO_MSG = "EncryptedLog_password_info_message";
+	private static final String PROP_CERT_HEADLINE = "EncryptedLog_certificate_headline";
 
 	private CertPanel m_privateCertPanel;
 
