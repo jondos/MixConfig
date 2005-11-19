@@ -250,7 +250,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		jpiLayout.setConstraints(label, d);
 		m_jpiPanel.add(label);
 
-		m_textJPIPort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE, true);
+		m_textJPIPort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE);
 		m_textJPIPort.setName("Accounting/PaymentInstance/Network/ListenerInterfaces/ListenerInterface/Port");
 		m_textJPIPort.addFocusListener(this);
 		d.gridx = 1;
@@ -312,7 +312,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		databaseLayout.setConstraints(label, d);
 		m_databasePanel.add(label);
 
-		m_textDatabasePort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE, true);
+		m_textDatabasePort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE);
 		m_textDatabasePort.setName("Accounting/Database/Port");
 		m_textDatabasePort.addFocusListener(this);
 		d.gridx = 1;

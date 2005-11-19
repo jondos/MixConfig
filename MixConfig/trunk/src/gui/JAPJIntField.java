@@ -33,6 +33,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 
+import anon.util.ClassUtil;
+
 /**
  * This text field only accepts positive integers as input.
  * @author Rolf Wendolsky
@@ -41,6 +43,8 @@ public final class JAPJIntField extends JTextField
 {
 	/** choose this value if the integer text field should have no upper bound */
 	public static final int NO_MAXIMUM_BOUND = -1;
+
+	private static final String PROP_NO_VALID_INTEGER = "JAPJIntField_no_valid_integer";
 
 	private IntFieldBounds m_bounds;
 	private boolean b_bAutoTransferFocus;
@@ -112,7 +116,34 @@ public final class JAPJIntField extends JTextField
 	 */
 	public int getInt() throws NumberFormatException
 	{
-		return Integer.parseInt(getText());
+		int integer;
+		Object[] arguments = new Object[2];
+
+		if (getName() == null || getName().trim().length() == 0)
+		{
+			arguments[1] = ClassUtil.getShortClassName(getClass());
+		}
+		else
+		{
+			arguments[1] = getName();
+		}
+
+		try
+		{
+			integer = Integer.parseInt(getText());
+			if (integer < 0 || (!m_bounds.isZeroAllowed() && integer == 0) ||
+				(m_bounds.getMaximum() >= 0 && integer > m_bounds.getMaximum()))
+			{
+				arguments[0] = new Integer(integer);
+			}
+			return integer;
+		}
+		catch (NumberFormatException a_e)
+		{
+			arguments[0] = getText();
+		}
+
+		throw new NumberFormatException(JAPMessages.getString(PROP_NO_VALID_INTEGER, arguments));
 	}
 
 	/**
@@ -121,13 +152,27 @@ public final class JAPJIntField extends JTextField
 	 */
 	public void updateBounds()
 	{
-		if (getInt() > m_bounds.getMaximum())
+		try
 		{
-			setInt(m_bounds.getMaximum());
+			if (getInt() > m_bounds.getMaximum())
+			{
+				setInt(m_bounds.getMaximum());
+			}
+			if (!m_bounds.isZeroAllowed() && getInt() == 0)
+			{
+				setInt(1);
+			}
 		}
-		if (!m_bounds.isZeroAllowed() && getInt() == 0)
+		catch (NumberFormatException a_e)
 		{
-			setInt(1);
+			if (m_bounds.isZeroAllowed())
+			{
+				setInt(0);
+			}
+			else
+			{
+				setInt(1);
+			}
 		}
 	}
 
