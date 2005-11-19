@@ -89,6 +89,12 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	public static final int MAX_COLUMN_LENGTH = 20;
 	public static final int MAX_COMBO_BOX_LENGTH = 27;
 	public static final int MAX_COORDINATE_FIELD_LENGTH = 7;
+
+	public static final String CN_ANON_OPERATOR_CERTIFICATE = "AN.ON Operator Certificate";
+
+	public static final String MSG_WARNING_NO_MIX_CERT = "MixConfigPanel_warning_no_mix_cert";
+	public static final String MSG_ERROR_BLANK_FIELD = "MixConfigPanel_error_blank_field";
+
 	/**
 	 * Indicates whether changes in configuration controls should automatically
 	 * be written to the MixConfiguration object

@@ -56,11 +56,11 @@ import logging.LogType;
 
 public class EncryptedLogTool extends JDialog implements ActionListener, ChangeListener
 {
-	private static final String PROP_PASSWD_INFO_MSG = "EncryptedLog_password_info_message";
-	private static final String PROP_CERT_HEADLINE = "EncryptedLog_certificate_headline";
-	private static final String PROP_CANNOT_DECRYPT = "EncryptedLog_cannot_decrypt";
-	private static final String PROP_NO_CERT = "EncryptedLog_no_cert";
-	private static final String PROP_NO_LOG = "EncryptedLog_no_log";
+	private static final String MSG_PASSWD_INFO_MSG = "EncryptedLog_password_info_message";
+	private static final String MSG_CERT_HEADLINE = "EncryptedLog_certificate_headline";
+	private static final String MSG_CANNOT_DECRYPT = "EncryptedLog_cannot_decrypt";
+	private static final String MSG_NO_CERT = "EncryptedLog_no_cert";
+	private static final String MSG_NO_LOG = "EncryptedLog_no_log";
 
 	private JTextArea m_textLogFile;
 	private byte[] m_arLog;
@@ -125,7 +125,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		m_privateCertPanel = new CertPanel("Private certificate",
 										   "Hint: Private Certificate to sign a Public Certificate",
 										   (PKCS12)null, CertPanel.CERT_ALGORITHM_RSA);
-		m_privateCertPanel.setName(JAPMessages.getString(PROP_CERT_HEADLINE));
+		m_privateCertPanel.setName(JAPMessages.getString(MSG_CERT_HEADLINE));
 		m_privateCertPanel.setCertCreationValidator(new LogCertCreationValidator());
 		m_privateCertPanel.addChangeListener(this);
 		layout.setConstraints(m_privateCertPanel, c);
@@ -151,11 +151,11 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		{
 			if (m_arLog == null || m_arLog.length == 0)
 			{
-				MixConfig.handleError(null, JAPMessages.getString(PROP_NO_LOG), LogType.GUI);
+				MixConfig.handleError(null, JAPMessages.getString(MSG_NO_LOG), LogType.GUI);
 			}
 			else if (m_privateCertPanel.getCert() == null)
 			{
-				MixConfig.handleError(null, JAPMessages.getString(PROP_NO_CERT), LogType.GUI);
+				MixConfig.handleError(null, JAPMessages.getString(MSG_NO_CERT), LogType.GUI);
 			}
 			else
 			{
@@ -165,7 +165,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 				}
 				catch (Throwable a_e)
 				{
-					MixConfig.handleError(a_e, JAPMessages.getString(PROP_CANNOT_DECRYPT), LogType.MISC);
+					MixConfig.handleError(a_e, JAPMessages.getString(MSG_CANNOT_DECRYPT), LogType.MISC);
 				}
 			}
 		}
@@ -292,7 +292,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 
 		public String getPasswordInfoMessage()
 		{
-			return JAPMessages.getString(PROP_PASSWD_INFO_MSG);
+			return JAPMessages.getString(MSG_PASSWD_INFO_MSG);
 		}
 
 		public X509Extensions getExtensions()

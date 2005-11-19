@@ -69,4 +69,22 @@
     <old-class-name>gui.SigCertTool</old-class-name>
     <new-class-name>mixconfig.SigCertTool</new-class-name>
   </rename-class>
+  <rename-method id="6AP082YA48GE6JFB1ULFK8Z" creation-time="Sat Nov 19 17:29:33.338 CET 2005">
+    <declaring-class-name>mixconfig.OperatorCertificateView</declaring-class-name>
+    <declared-method-signature>()Ljava/lang/String;</declared-method-signature>
+    <old-method-name>getStateOrProvince</old-method-name>
+    <new-method-name>getOrganisationalUnit</new-method-name>
+  </rename-method>
+  <rename-method id="4AP082YA48GE6JFB1ULFK8Z" creation-time="Sat Nov 19 17:31:41.977 CET 2005">
+    <declaring-class-name>mixconfig.OperatorCertificateView</declaring-class-name>
+    <declared-method-signature>()Ljava/lang/String;</declared-method-signature>
+    <old-method-name>getLongitude</old-method-name>
+    <new-method-name>getEMail</new-method-name>
+  </rename-method>
+  <rename-method id="2AP082YA48GE6JFB1ULFK8Z" creation-time="Sat Nov 19 17:33:28.719 CET 2005">
+    <declaring-class-name>mixconfig.OperatorCertificateView</declaring-class-name>
+    <declared-method-signature>()Ljava/lang/String;</declared-method-signature>
+    <old-method-name>getLatitude</old-method-name>
+    <new-method-name>getURL</new-method-name>
+  </rename-method>
 </refactor>

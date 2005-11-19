@@ -114,7 +114,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 									  "Hint: You will get the public test " +
 									  "certificate from the operator of the " +
 									  "other mix", (JAPCertificate)null, CertPanel.CERT_ALGORITHM_DSA);
-		m_otherOpCert.setEnabled(false); // not used and therefore disabled at the moment
+		//m_otherOpCert.setEnabled(false); // not used and therefore disabled at the moment
 		/** @todo Specify correct name for operator cert*/
 		if (a_mixType == MIX_TYPE_PREVIOUS)
 		{
@@ -125,6 +125,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 			m_otherOpCert.setName("Certificates/NextOperatorCertificate");
 
 		}
+		m_otherOpCert.setCertificateView(new OperatorCertificateView());
 		m_otherOpCert.addChangeListener(this);
 		m_gbc.gridx++;
 		m_gbc.fill = m_gbc.NONE;
@@ -286,25 +287,35 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	{
 	}
 
-	/**
-	 * Retrieves infomration about location from the certificate and puts it
-	 * into the right text fields
-	 */
-	private void loadLocationInfo()
-	{
-		MixCertificateView certView = (MixCertificateView)m_otherCert.getCertificateView();
-		m_locCityField.setText(certView.getLocalityName());
-		m_locCountryField.setText(certView.getCountry());
-		m_locStateField.setText(certView.getStateOrProvince());
-		m_locLongField.setText(certView.getLongitude());
-		m_locLatField.setText(certView.getLatitude());
-	}
 
 	public void stateChanged(ChangeEvent a_e)
 	{
 		if (a_e.getSource() == m_otherCert)
 		{
-			loadLocationInfo();
+			/**
+			 * Retrieves infomration about location from the certificate and puts it
+			 * into the right text fields
+			 */
+			MixCertificateView certView = (MixCertificateView) m_otherCert.getCertificateView();
+			m_locCityField.setText(certView.getLocalityName());
+			m_locCountryField.setText(certView.getCountry());
+			m_locStateField.setText(certView.getStateOrProvince());
+			m_locLongField.setText(certView.getLongitude());
+			m_locLatField.setText(certView.getLatitude());
+			if (!certView.isMixCertificate())
+			{
+				MixConfig.info(JAPMessages.getString(MixConfig.MSG_WARNING),
+							   JAPMessages.getString(MSG_WARNING_NO_MIX_CERT));
+			}
+		}
+		else if (a_e.getSource() == m_otherOpCert)
+		{
+			OperatorCertificateView certView = (OperatorCertificateView) m_otherOpCert.getCertificateView();
+			m_opOrgField.setText(certView.getOrganisation());
+			m_opOrgUnitField.setText(certView.getOrganisationalUnit());
+			m_opCountryField.setText(certView.getCountry());
+			m_opUrlField.setText(certView.getURL());
+			m_opEmailField.setText(certView.getEMail());
 		}
 	}
 }
