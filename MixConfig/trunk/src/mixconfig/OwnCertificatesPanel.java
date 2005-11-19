@@ -28,30 +28,31 @@
 package mixconfig;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import java.util.Hashtable;
+
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.JComboBox;
+
 import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509SubjectAlternativeName;
 import anon.util.Util;
-import logging.LogType;
-import gui.JAPHelp;
 import gui.CountryMapper;
+import gui.JAPHelp;
 import gui.JAPMessages;
-import java.awt.Graphics;
-import java.awt.event.FocusEvent;
-import gui.*;
+import logging.LogType;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener,
 	ChangeListener
@@ -343,7 +344,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 						{
 							m_txtLatitude.setText(certView.getLatitude());
 						}
-						save(this);
+						//save(this);
 					}
 					updateDeprecatedMixID();
 				}
