@@ -67,7 +67,8 @@ public class SigCertTool extends JDialog implements ActionListener, ChangeListen
 		publicConstraint.gridy = 0;
 		publicConstraint.insets = new Insets(5, 5, 5, 5);
 		m_publicCertPanel = new CertPanel("Public certificate",
-										  "Hint: Public Certificate to be signed ", (JAPCertificate)null);
+										  "Hint: Public Certificate to be signed ", (JAPCertificate)null,
+										  CertPanel.CERT_ALGORITHM_BOTH);
 		m_publicCertPanel.setName("Public Certificate");
 		m_publicCertPanel.addChangeListener(this);
 		this.getContentPane().add(m_publicCertPanel, publicConstraint);
@@ -80,7 +81,7 @@ public class SigCertTool extends JDialog implements ActionListener, ChangeListen
 		privateConstraint.insets = new Insets(5, 5, 5, 5);
 		m_privateCertPanel = new CertPanel("Private certificate",
 										   "Hint: Private Certificate to sign a Public Certificate",
-										   (PKCS12)null);
+										   (PKCS12)null, CertPanel.CERT_ALGORITHM_BOTH);
 		m_privateCertPanel.setName("Private Certificate");
 		m_privateCertPanel.addChangeListener(this);
 		this.getContentPane().add(m_privateCertPanel, privateConstraint);

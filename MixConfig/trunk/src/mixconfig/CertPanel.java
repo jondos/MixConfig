@@ -60,11 +60,15 @@ import javax.swing.filechooser.FileFilter;
 import anon.crypto.ICertificate;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
+import anon.crypto.IMyPublicKey;
+import anon.crypto.MyDSAPublicKey;
+import anon.crypto.MyRSAPublicKey;
 import anon.util.IMiscPasswordReader;
 import gui.ClipFrame;
 import gui.GUIUtils;
 import gui.PasswordBox;
 import gui.ValidityDialog;
+import gui.JAPMessages;
 import logging.LogType;
 import mixconfig.wizard.CannotContinueException;
 
@@ -78,6 +82,10 @@ import mixconfig.wizard.CannotContinueException;
  */
 public class CertPanel extends JPanel implements ActionListener, ChangeListener
 {
+	public static final int CERT_ALGORITHM_RSA = 1;
+	public static final int CERT_ALGORITHM_DSA = 2;
+	public static final int CERT_ALGORITHM_BOTH = 3;
+
 	/** A <code>String</code> that contains a single char with value 0 */
 	private static final String STRING_ZERO = new String(new char[]
 		{0});
@@ -91,6 +99,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private static final String CERT_VALID_INACTIVE = "../certinactive.gif";
 	private static final String CERT_INVALID_INACTIVE = "../certinvalidinactive.gif";
 	private static final String CERT_DISABLED = "../certdisabled.gif";
+
+	private static final String PROP_MANDATORY_ALGO = "CertPanel_mandatory_algorithm";
+	private static final String PROP_CERT_TYPE_UNKNOWN = "CertPanel_cert_type_unknown";
 
 	// holds a Vector with all instanciated CertPanels
 	private static Vector ms_certpanels = new Vector();
@@ -125,6 +136,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/** Indicates whether the certificate object is PKCS12 (<CODE>true</CODE>) or X.509 (<CODE>false</CODE>) */
 	private boolean m_certIsPKCS12 = false;
 
+	private int m_certAlgorithm;
+
+	private boolean m_bCreateDSACerts;
+
 	/** The certificate */
 	private ICertificate m_cert;
 
@@ -153,10 +168,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 * @param a_toolTip A text that will be displayed as a tool tip when the user moves the
 	 * mouse over the panel.
 	 * @param a_certificate the certificate (X.509)
+	 * @param a_certAlgorithm the certificate algorithm that is supported by this panel
 	 */
-	public CertPanel(String a_name, String a_toolTip, JAPCertificate a_certificate)
+	public CertPanel(String a_name, String a_toolTip, JAPCertificate a_certificate, int a_certAlgorithm)
 	{
-		this(a_name, a_toolTip, (ICertificate) a_certificate, false);
+		this(a_name, a_toolTip, (ICertificate) a_certificate, false, a_certAlgorithm);
 	}
 
 	/**
@@ -166,10 +182,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 * @param a_toolTip A text that will be displayed as a tool tip when the user moves the
 	 * mouse over the panel.
 	 * @param a_certificate the certificate (PKCS12)
+	 * @param a_certAlgorithm the certificate algorithm that is supported by this panel
 	 */
-	public CertPanel(String a_name, String a_toolTip, PKCS12 a_certificate)
+	public CertPanel(String a_name, String a_toolTip, PKCS12 a_certificate, int a_certAlgorithm)
 	{
-		this(a_name, a_toolTip, (ICertificate) a_certificate, true);
+		this(a_name, a_toolTip, (ICertificate) a_certificate, true, a_certAlgorithm);
 	}
 
 	/**
@@ -180,11 +197,28 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 * mouse over the panel.
 	 * @param a_certificate the certificate (PKCS12 or X.509)
 	 * @param a_pkcs12 true if the certificate is PKCS12; false otherwise
+	 * @param a_certAlgorithm the certificate algorithm that is supported by this panel
 	 */
-	private CertPanel(String a_name, String a_toolTip, ICertificate a_certificate,
-					  boolean a_pkcs12)
+	private CertPanel(String a_name, String a_toolTip, ICertificate a_certificate, boolean a_pkcs12,
+					  int a_certAlgorithm)
 	{
 		ms_certpanels.addElement(this);
+		m_bCreateDSACerts = true;
+
+		if (a_certAlgorithm == CERT_ALGORITHM_DSA)
+		{
+			m_certAlgorithm = CERT_ALGORITHM_DSA;
+
+		}
+		else if (a_certAlgorithm == CERT_ALGORITHM_RSA)
+		{
+			m_certAlgorithm = CERT_ALGORITHM_RSA;
+			m_bCreateDSACerts = false;
+		}
+		else
+		{
+			m_certAlgorithm = CERT_ALGORITHM_BOTH;
+		}
 
 		m_certIsPKCS12 = a_pkcs12;
 		GridBagLayout layout = new GridBagLayout();
@@ -338,6 +372,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	public void setCertCreationValidator(ICertCreationValidator a_cg)
 	{
 		this.m_validator = a_cg;
+		enableButtons();
 	}
 
 	public void setEnabled(boolean enabled)
@@ -492,7 +527,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			}
 			else
 			{
-				PasswordBox pb = new PasswordBox(MixConfig.getMainWindow(), "Enter the password",
+				PasswordBox pb = new PasswordBox(MixConfig.getMainWindow(), "Enter the certificate password",
 												 PasswordBox.ENTER_PASSWORD, null);
 				CertPanelPasswordReader pwReader = new CertPanelPasswordReader(pb);
 				PKCS12 privateCertificate = PKCS12.getInstance(cert, pwReader);
@@ -501,14 +536,23 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		else if (x509cert != null)
 		{
+			checkPublicKeyAlgorithm(x509cert.getPublicKey());
 			setCertInfo(x509cert);
 			m_cert = x509cert;
 		}
 		else
 		{
-			throw new IllegalArgumentException("Unknown certificate type!");
+			throw new IllegalArgumentException(PROP_CERT_TYPE_UNKNOWN);
 		}
 		enableButtons();
+		fireStateChanged();
+	}
+
+	/** Removes the certficate from the panel */
+	public void removeCert()
+	{
+		this.m_cert = null;
+		clearCertInfo();
 		fireStateChanged();
 	}
 
@@ -518,6 +562,31 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	public void addChangeListener(ChangeListener a_cl)
 	{
 		m_changeListeners.addElement(a_cl);
+	}
+
+	/**
+	 * Checks if this panel accepts a public key of this type and throws an IllegalArgumentException if not.
+	 * @param a_publicKey a public key
+	 * @throws IllegalArgumentException if this panel does not accept a public key of the given type
+	 */
+	private void checkPublicKeyAlgorithm(IMyPublicKey a_publicKey)
+		throws IllegalArgumentException
+	{
+		if (m_certAlgorithm == CERT_ALGORITHM_BOTH ||
+			(m_certAlgorithm == CERT_ALGORITHM_DSA && a_publicKey instanceof MyDSAPublicKey) ||
+			(m_certAlgorithm == CERT_ALGORITHM_RSA && a_publicKey instanceof MyRSAPublicKey))
+		{
+			return;
+		}
+
+		if (m_certAlgorithm == CERT_ALGORITHM_DSA)
+		{
+			throw new IllegalArgumentException(JAPMessages.getString(PROP_MANDATORY_ALGO, "DSA"));
+		}
+		else
+		{
+			throw new IllegalArgumentException(JAPMessages.getString(PROP_MANDATORY_ALGO, "RSA"));
+		}
 	}
 
 	/** Sends a <CODE>ChangeEvent</CODE> to all of this object's <CODE>ChangeListener</CODE>s */
@@ -538,8 +607,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/** Sets the PKCS12 certificate and the password.
 	 * @param pkcs12 The new PKCS12 certificate.
 	 * @param strPrivCertPasswd The new password for the certificate.
+	 * @throws IllegalArgumentException if this panel does not accept a public key of the given type
 	 */
 	private void setCertificate(PKCS12 pkcs12, char[] strPrivCertPasswd)
+		throws IllegalArgumentException
 	{
 		if (pkcs12 == null)
 		{
@@ -547,6 +618,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 
 		JAPCertificate x509cs = pkcs12.getX509Certificate();
+
+		checkPublicKeyAlgorithm(x509cs.getPublicKey());
+
 		setCertInfo(x509cs);
 		m_cert = pkcs12;
 		if (strPrivCertPasswd != null)
@@ -822,7 +896,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				 m_validator.getInvalidityMessages());
 		}
 
-		ValidityDialog vdialog = new ValidityDialog(this, "Validity");
+		ValidityDialog vdialog = new ValidityDialog(this, "Certificate validity");
 		vdialog.setVisible(true);
 		windowSize = vdialog.getSize();
 		windowLocation = vdialog.getLocation();
@@ -847,8 +921,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 	    //Dialog which shows the progress
 	    CertificateGenerator worker = new CertificateGenerator(
-			  m_validator.getSigName(), m_validator.getExtensions(),
-			  vdialog.getValidity(), passwd, dialog);
+		   m_validator.getSigName(), m_validator.getExtensions(),
+		   vdialog.getValidity(), passwd, dialog, m_bCreateDSACerts);
 
 		worker.addChangeListener(this);
 		worker.start();
@@ -984,14 +1058,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		m_textCertValidity.setText("");
 		m_sha1Part1Label.setText("");
 		m_sha1Part2Label.setText("");
-	}
-
-	/** Removes the certficate from the panel */
-	public void removeCert()
-	{
-		this.m_cert = null;
-		clearCertInfo();
-		fireStateChanged();
 	}
 
 	private class CertPanelPasswordReader implements IMiscPasswordReader

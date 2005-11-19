@@ -35,6 +35,8 @@ import java.util.Vector;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import anon.crypto.DSAKeyPair;
+import anon.crypto.RSAKeyPair;
+import anon.crypto.AsymmetricCryptoKeyPair;
 import anon.crypto.PKCS12;
 import anon.crypto.Validity;
 import anon.crypto.X509DistinguishedName;
@@ -70,6 +72,8 @@ public class CertificateGenerator extends SwingWorker
 	 */
 	private Vector m_changeListeners = new Vector();
 
+	private boolean m_bDSA;
+
 	/** The newly generated certificate. */
 	private PKCS12 m_cert;
 
@@ -78,16 +82,19 @@ public class CertificateGenerator extends SwingWorker
 	 * @param a_extensions the extensions for the certificate (optional, may be null)
 	 * @param a_validity the certificate's validity
 	 * @param a_passwd The password for the certificate
-	 * @param a_bVisible if a BusyWindow is shown or not
+	 * @param a_parent the BusyWindow is shown if this is not null
+	 * @param a_bDSA if true, DSA ist used; otherwise an RSA certificate is created
 	 */
 	public CertificateGenerator(X509DistinguishedName a_name, X509Extensions a_extensions,
-								Validity a_validity, char[] a_passwd, Component a_parent)
+								Validity a_validity, char[] a_passwd, Component a_parent,
+		boolean a_bDSA)
 	{
 		m_name = a_name;
 		m_extensions = a_extensions;
 		m_validity = a_validity;
 		m_passwd = a_passwd;
 		m_parent = a_parent;
+		m_bDSA = a_bDSA;
 	}
 
 	/** Adds the specified <CODE>ChangeListener</CODE> to this object's listeners list.
@@ -120,13 +127,20 @@ public class CertificateGenerator extends SwingWorker
 	 */
 	public Object construct()
 	{
-		DSAKeyPair keyPair;
+		AsymmetricCryptoKeyPair keyPair;
 		Vector extensions = new Vector();
 		X509SubjectKeyIdentifier ski;
 
 		try
 		{
-			keyPair = DSAKeyPair.getInstance(new SecureRandom(), 1024, 80);
+			if (m_bDSA)
+			{
+				keyPair = DSAKeyPair.getInstance(new SecureRandom(), 1024, 80);
+			}
+			else
+			{
+				keyPair = RSAKeyPair.getInstance(new SecureRandom(), 1024, 80);
+			}
 
 			/**
 			 * Add the SubjectPublicKeyIdentifier extension to the certificate.

@@ -556,7 +556,8 @@ public class MixConfig extends JApplet
 		// create mix certificate
 		X509DistinguishedName dn = new X509DistinguishedName("CN=");
 		CertificateGenerator certificateGenerator =
-			new CertificateGenerator(dn, null, new Validity(Calendar.getInstance(), 1), new char[0], null);
+			new CertificateGenerator(dn, null, new Validity(Calendar.getInstance(), 1), new char[0], null,
+			true);
 		PKCS12 privateCert = (PKCS12)certificateGenerator.construct();
 		configuration.setValue("Certificates/OwnCertificate/X509PKCS12", privateCert.toByteArray());
 		configuration.setValue("Certificates/OwnCertificate/X509Certificate",

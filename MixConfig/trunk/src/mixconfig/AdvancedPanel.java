@@ -46,7 +46,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.FocusEvent;
 import anon.util.Base64;
-import gui.*;
+import javax.swing.JLabel;
 
 /**
  * The panel for advanced settings
@@ -64,7 +64,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 	private static final String LOG_SYSLOG = JAPMessages.getString("logSyslog");
 
 	private JTextField m_tfID, m_tfNumOfFileDes, m_tfFileName;
-	private JCheckBox m_cbUserID, m_cbNrOfFileDes, m_cbDaemon, m_cbCompressLog;
+	private JCheckBox m_cbDaemon, m_cbCompressLog;
 	private JRadioButton m_rbConsole, m_rbFile, m_rbSyslog, m_rbNoLog;
 	private ButtonGroup m_loggingButtonGroup;
 	private CertPanel m_certPanel;
@@ -88,7 +88,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 
 		m_certPanel = new CertPanel("Encrypted log certificate",
 									"This is the certificate your Mix will use to encrypt the log file",
-									(JAPCertificate)null);
+									(JAPCertificate)null, CertPanel.CERT_ALGORITHM_RSA);
 		//m_certPanel.setName("General/Logging/EncryptedLog/KeyInfo/X509Data/X509Certificate");
 		m_certPanel.addChangeListener(this);
 		m_certPanel.setEnabled(false);
@@ -107,22 +107,18 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		c.fill = c.NONE;
 
 		//User ID
-		m_cbUserID = new JCheckBox(SET_UID);
-		m_cbUserID.addItemListener(this);
+		JLabel label = new JLabel(SET_UID);
 		m_tfID = new JTextField(10);
 		m_tfID.setName("General/UserID");
 		m_tfID.addFocusListener(this);
-		miscPanel.addRow(m_cbUserID, m_tfID);
-		m_tfID.setEnabled(false);
+		miscPanel.addRow(label, m_tfID);
 
 		//File Descriptors
-		m_cbNrOfFileDes = new JCheckBox(SET_FD);
-		m_cbNrOfFileDes.addItemListener(this);
+		label = new JLabel(SET_FD);
 		m_tfNumOfFileDes = new JTextField(10);
 		m_tfNumOfFileDes.setName("General/NrOfFileDescriptors");
 		m_tfNumOfFileDes.addFocusListener(this);
-		m_tfNumOfFileDes.setEnabled(false);
-		miscPanel.addRow(m_cbNrOfFileDes, m_tfNumOfFileDes);
+		miscPanel.addRow(label, m_tfNumOfFileDes);
 
 		// Daemon
 		m_cbDaemon = new JCheckBox(RUN_DAEMON);
@@ -210,6 +206,13 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 			{
 				m_certPanel.removeCert();
 			}
+			else
+			{
+				if (c.isMixOnCDEnabled() && m_tfFileName.getText().equals(""))
+				{
+					m_tfFileName.setText("/usbstick");
+				}
+			}
 			if (isAutoSaveEnabled())
 			{
 				focusLost(new FocusEvent(m_tfFileName, 0));
@@ -237,17 +240,25 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 			}
 			save(m_cbDaemon);
 		}
-		else if (s == m_cbNrOfFileDes)
-		{
-			m_tfNumOfFileDes.setEnabled(m_cbNrOfFileDes.isSelected());
-		}
-		else if (s == m_cbUserID)
-		{
-			m_tfID.setEnabled(m_cbUserID.isSelected());
-		}
 		else
 		{
 			super.itemStateChanged(a_event);
+		}
+	}
+
+	public void focusGained(FocusEvent a_event)
+	{
+		if (a_event.getSource() == m_tfFileName)
+		{
+			MixConfiguration c = getConfiguration();
+			if (c.isMixOnCDEnabled() && m_tfFileName.getText().equals(""))
+			{
+				m_tfFileName.setText("/usbstick");
+			}
+		}
+		else
+		{
+			super.focusGained(a_event);
 		}
 	}
 
@@ -323,7 +334,27 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 
 	public Vector check()
 	{
-		return new Vector();
+		Vector errors = new Vector();
+		//Check if entry in path field is valid
+		if (m_rbFile.isSelected())
+		{
+			String path = m_tfFileName.getText().trim();
+			if (path.equals("") || path.indexOf(" ") != -1)
+			{
+				errors.addElement("Path to logging directory is invalid in " + getName() + " panel.");
+			}
+		}
+		//Check if entry in user id field is valid
+		if (!m_tfID.getText().equals(""))
+		{
+			String path = m_tfID.getText().trim();
+			if (path.indexOf(" ") != -1)
+			{
+				errors.addElement("User ID is invalid in " + getName() + " panel.");
+			}
+		}
+
+		return errors;
 	}
 
 	public void stateChanged(ChangeEvent a_event)
@@ -334,7 +365,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 			{
 				m_logFilePath = "General/Logging/EncryptedLog/File";
 
-if (isAutoSaveEnabled())
+				if (isAutoSaveEnabled())
 				{
 					getConfiguration().setValue(
 						"General/Logging/EncryptedLog/KeyInfo/X509Data/X509Certificate/X509Certificate",

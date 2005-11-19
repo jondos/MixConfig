@@ -60,7 +60,7 @@ public class RSACertCreatorPanel extends JAPDialog
 		privateConstraint.insets = new Insets(5, 5, 5, 5);
 		m_privateCertPanel = new CertPanel("Private certificate",
 										   "Hint: Private Certificate to sign a Public Certificate",
-										   (PKCS12)null);
+										   (PKCS12)null, CertPanel.CERT_ALGORITHM_RSA);
 		m_privateCertPanel.setName(JAPMessages.getString(PROP_CERT_HEADLINE));
 		m_privateCertPanel.setCertCreationValidator(new LogCertCreationValidator());
 		getContentPane().add(m_privateCertPanel, privateConstraint);
