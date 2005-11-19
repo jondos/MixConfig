@@ -83,6 +83,8 @@ public class Menu implements ActionListener
 	private static final String PROP_HELP = "menu_help";
 	private static final String PROP_HELP_MNEMONIC = "menu_helpMnemonic";
 
+	private static final String PROP_ITEM_RSA_CERT = "menu_itemRSACert";
+
 
 
 	private JFrame m_mainWin;
@@ -102,6 +104,7 @@ public class Menu implements ActionListener
 	private JMenuItem m_openMenuItem;
 	private JMenuItem m_openclipItem;
 	private JMenuItem m_helpTopics;
+	private JMenuItem m_itmCreateRSACert;
 
 	private JMenu m_toolsMenu;
 	private JMenu m_fileMenu;
@@ -197,22 +200,26 @@ public class Menu implements ActionListener
 		m_fileMenu.add(exitMenuItem);
 
 		//items for "tools"
-		JMenuItem toolCertSigMenuItem = new JMenuItem(
-			"Sign X.509 certificate ...");
+		JMenuItem toolCertSigMenuItem = new JMenuItem("Sign X.509 certificate ...");
 		m_toolsMenu.add(toolCertSigMenuItem);
 		toolCertSigMenuItem.setActionCommand("toolCertSigMenuItem");
 		toolCertSigMenuItem.addActionListener(this);
-		JMenuItem toolPGPMenuItem = new JMenuItem(
-			"Convert PGP to X.509 ...");
+
+		JMenuItem toolPGPMenuItem = new JMenuItem("Convert PGP to X.509 ...");
 		m_toolsMenu.add(toolPGPMenuItem);
 		toolPGPMenuItem.setActionCommand("toolPGPMenuItem");
 		toolPGPMenuItem.addActionListener(this);
 
-		JMenuItem toolEncLogMenuItem = new JMenuItem(
-			"Display encrypted mix log ...");
+		m_itmCreateRSACert = new JMenuItem(JAPMessages.getString(PROP_ITEM_RSA_CERT));
+		m_toolsMenu.add(m_itmCreateRSACert);
+		m_itmCreateRSACert.addActionListener(this);
+
+		JMenuItem toolEncLogMenuItem = new JMenuItem("Display encrypted mix log ...");
 		m_toolsMenu.add(toolEncLogMenuItem);
 		toolEncLogMenuItem.setActionCommand("toolEncLogMenuItem");
 		toolEncLogMenuItem.addActionListener(this);
+
+
 
 		//items for "view"
 		m_changeViewToWizMenuItem = new JCheckBoxMenuItem("Wizard", false);
@@ -255,6 +262,10 @@ public class Menu implements ActionListener
 				JAPHelp.getInstance().getContextObj().setContext("index");
 				GUIUtils.positionWindow(JAPHelp.getInstance(), MixConfig.getMainWindow());
 				JAPHelp.getInstance().setVisible(true);
+			}
+			else if (evt.getSource() == m_itmCreateRSACert)
+			{
+				new RSACertCreatorPanel(MixConfig.getMainWindow());
 			}
 			else if (evt.getSource() == m_defaultSize)
 			{

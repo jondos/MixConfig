@@ -104,7 +104,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		m_ownCert = new CertPanel("Own Mix Certificate",
 								  "Hint: You have to sent your public test " +
 								  "certificate to the operators of your " +
-								  "adjacent mixes", (PKCS12)null);
+								  "adjacent mixes", (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_ownCert.setName("Certificates/OwnCertificate");
 		m_ownCert.setCertCreationValidator(new OwnCertCreationValidator());
 		m_ownCert.setCertificateView(new MixCertificateView());
@@ -115,7 +115,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 									   "Hint: You have to sent your public test " +
 									   "certificate to the operators of your " +
 									   "adjacent mixes",
-									   (PKCS12)null);
+									   (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_operatorCert.setName("Certificates/OperatorCertificate");
 		m_operatorCert.setCertCreationValidator(new OwnCertCreationValidator());
 		m_operatorCert.addChangeListener(this);

@@ -95,7 +95,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		m_otherCert = new CertPanel(a_mixType + " Certificate",
 									"Hint: You will get the public test " +
 									"certificate from the operator of the " +
-									"other mix", (JAPCertificate)null);
+									"other mix", (JAPCertificate)null, CertPanel.CERT_ALGORITHM_DSA);
 		if (a_mixType == MIX_TYPE_PREVIOUS)
 		{
 			m_otherCert.setName("Certificates/PrevMixCertificate");
@@ -113,7 +113,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		m_otherOpCert = new CertPanel(a_mixType + " Operator Certificate",
 									  "Hint: You will get the public test " +
 									  "certificate from the operator of the " +
-									  "other mix", (JAPCertificate)null);
+									  "other mix", (JAPCertificate)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_otherOpCert.setEnabled(false); // not used and therefore disabled at the moment
 		/** @todo Specify correct name for operator cert*/
 		if (a_mixType == MIX_TYPE_PREVIOUS)

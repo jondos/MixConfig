@@ -263,7 +263,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		m_jpiCertPanel = new CertPanel("JPI Certificate",
 									   "If you have the Public Certificate of a " +
 									   "running JPI, you can import it here.",
-									   (JAPCertificate)null);
+									   (JAPCertificate)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_jpiCertPanel.setName("Accounting/PaymentInstance/Certificate");
 		m_jpiCertPanel.setCertCreationValidator(this);
 		m_jpiCertPanel.addChangeListener(this);
