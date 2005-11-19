@@ -90,7 +90,6 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		m_certPanel = new CertPanel("Encrypted log certificate",
 									"This is the certificate your Mix will use to encrypt the log file",
 									(JAPCertificate)null, CertPanel.CERT_ALGORITHM_RSA);
-		//m_certPanel.setName("General/Logging/EncryptedLog/KeyInfo/X509Data/X509Certificate");
 		m_certPanel.addChangeListener(this);
 		m_certPanel.setEnabled(false);
 		c.gridx++;
@@ -117,7 +116,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		//File Descriptors
 		label = new JLabel(SET_FD);
 		m_tfNumOfFileDes = new JAPJIntField(
-			  new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
+			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
 		m_tfNumOfFileDes.setColumns(10);
 		m_tfNumOfFileDes.setName("General/NrOfFileDescriptors");
 		m_tfNumOfFileDes.addFocusListener(this);
@@ -267,15 +266,38 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 
 	public void focusLost(FocusEvent a_event)
 	{
+		MixConfiguration c = getConfiguration();
+
 		if (a_event.getSource() == m_tfFileName)
 		{
-			MixConfiguration c = getConfiguration();
 			c.removeNode("General/Logging/EncryptedLog/File");
-			//c.removeNode("General/Logging/EncryptedLog");
 			c.removeNode("General/Logging/File");
 			c.setAttribute(m_logFilePath, "compressed", m_cbCompressLog.isSelected());
 			c.setValue(m_logFilePath, m_tfFileName.getText());
 		}
+		else if (a_event.getSource() == m_tfNumOfFileDes)
+		{
+			if (m_tfNumOfFileDes.getText().equals(""))
+			{
+				c.removeNode("General/NrOfFileDescriptors");
+			}
+			else
+			{
+				save(m_tfNumOfFileDes);
+			}
+		}
+		else if (a_event.getSource() == m_tfID)
+		{
+			if (m_tfID.getText().equals(""))
+			{
+				c.removeNode("General/UserID");
+			}
+			else
+			{
+				save(m_tfID);
+			}
+		}
+
 		else
 		{
 			super.focusLost(a_event);
@@ -341,17 +363,17 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		//Check if entry in path field is valid
 		if (m_rbFile.isSelected())
 		{
-			String path = m_tfFileName.getText().trim();
-			if (path.equals("") || path.indexOf(" ") != -1)
+			String path = getConfiguration().getValue(m_logFilePath);
+			if (path == null ||  path.equals("") || path.indexOf(" ") != -1)
 			{
 				errors.addElement("Path to logging directory is invalid in " + getName() + " panel.");
 			}
 		}
 		//Check if entry in user id field is valid
-		if (!m_tfID.getText().equals(""))
+		String userId = getConfiguration().getValue("General/UserID");
+		if (userId != null && !userId.equals(""))
 		{
-			String path = m_tfID.getText().trim();
-			if (path.indexOf(" ") != -1)
+			if (userId.indexOf(" ") != -1)
 			{
 				errors.addElement("User ID is invalid in " + getName() + " panel.");
 			}
