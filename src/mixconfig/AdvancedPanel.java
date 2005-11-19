@@ -47,6 +47,7 @@ import javax.swing.event.ChangeListener;
 import java.awt.event.FocusEvent;
 import anon.util.Base64;
 import javax.swing.JLabel;
+import gui.JAPJIntField;
 
 /**
  * The panel for advanced settings
@@ -115,7 +116,9 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 
 		//File Descriptors
 		label = new JLabel(SET_FD);
-		m_tfNumOfFileDes = new JTextField(10);
+		m_tfNumOfFileDes = new JAPJIntField(
+			  new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
+		m_tfNumOfFileDes.setColumns(10);
 		m_tfNumOfFileDes.setName("General/NrOfFileDescriptors");
 		m_tfNumOfFileDes.addFocusListener(this);
 		miscPanel.addRow(label, m_tfNumOfFileDes);
