@@ -82,10 +82,15 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	public static final String XMLPATH_OPERATOR_ORGA_UNIT = XMLPATH_OPERATOR +
 		"/OrganisationalUnit";
 
+	public static final String MSG_ERROR_ILLEGAL_POSITION = "OwnCertificatesPanel_error_illegal_position";
+	public static final String MSG_INVALID_EMAIL = "OwnCertificatesPanel_invalid_email";
+	public static final String MSG_INVALID_URL = "OwnCertificatesPanel_invalid_url";
+
 	private CertPanel m_ownCert;
 	private CertPanel m_operatorCert;
 	private JButton map;
-	private JTextField m_txtCity, m_txtState, m_txtLongitude, m_txtLatitude, m_txtOperarorOrgaUnit;
+	private JTextField m_txtCity, m_txtState, m_txtLongitude, m_txtLatitude, m_txtOperatorOrgaUnit;
+	private JTextField m_txtOperatorOrg, m_txtOperatorUrl, m_txtOperatorEmail;
 	private JComboBox m_cboxCountry, m_cbxOperatorCountry;
 	private MapBox box;
 
@@ -117,12 +122,13 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 									   "certificate to the operators of your " +
 									   "adjacent mixes",
 									   (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
-		m_operatorCert.setName("Certificates/OperatorCertificate");
-		m_operatorCert.setCertCreationValidator(new OwnCertCreationValidator());
+		m_operatorCert.setName("Certificates/OperatorOwnCertificate");
+		m_operatorCert.setCertCreationValidator(new OperatorCertCreationValidator());
+		m_operatorCert.setCertificateView(new OperatorCertificateView());
 		m_operatorCert.addChangeListener(this);
 		c.gridx = 1;
 		add(m_operatorCert, c);
-		m_operatorCert.setEnabled(false); // disabled at the moment
+		//m_operatorCert.setEnabled(false); // disabled at the moment
 
 		TitledGridBagPanel panelLocation = new TitledGridBagPanel("Mix Location");
 		c.gridx = 0;
@@ -180,7 +186,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		panelLocation.addRow(new JLabel("Longitude"), m_txtLongitude, map);
 		panelLocation.addRow(new JLabel("Latitude"), m_txtLatitude, null);
 
-		JTextField operatororg, operatorurl, operatoremail;
 		TitledGridBagPanel panelOperator = new TitledGridBagPanel("Operator");
 		c.gridx = 1;
 		c.gridy = 1;
@@ -188,19 +193,19 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		c.weighty = 0;
 		add(panelOperator, c);
 
-		operatororg = new JTextField(MAX_COLUMN_LENGTH);
-		operatororg.setName(XMLPATH_OPERATOR_ORGANISATION);
-		operatororg.addFocusListener(this);
-		operatororg.setToolTipText(
+		m_txtOperatorOrg = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtOperatorOrg.setName(XMLPATH_OPERATOR_ORGANISATION);
+		m_txtOperatorOrg.addFocusListener(this);
+		m_txtOperatorOrg.setToolTipText(
 			"This should contain the operating organisation's or a person's name for private persons.");
-		panelOperator.addRow(new JLabel("Organisation"), operatororg);
+		panelOperator.addRow(new JLabel("Organisation"), m_txtOperatorOrg);
 
-		m_txtOperarorOrgaUnit = new JTextField(MAX_COLUMN_LENGTH);
-		m_txtOperarorOrgaUnit.setName(XMLPATH_OPERATOR_ORGA_UNIT);
-		m_txtOperarorOrgaUnit.addFocusListener(this);
-		m_txtOperarorOrgaUnit.setToolTipText(
+		m_txtOperatorOrgaUnit = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtOperatorOrgaUnit.setName(XMLPATH_OPERATOR_ORGA_UNIT);
+		m_txtOperatorOrgaUnit.addFocusListener(this);
+		m_txtOperatorOrgaUnit.setToolTipText(
 			"The operator's organisational unit.");
-		panelOperator.addRow(new JLabel("Orga. Unit"), m_txtOperarorOrgaUnit);
+		panelOperator.addRow(new JLabel("Orga. Unit"), m_txtOperatorOrgaUnit);
 
 		m_cbxOperatorCountry = new JComboBox(ctrVec);
 		m_cbxOperatorCountry.setName(XMLPATH_OPERATOR_COUNTRY);
@@ -209,18 +214,18 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		m_cbxOperatorCountry.setEditable(false);
 		panelOperator.addRow(new JLabel("Country"), m_cbxOperatorCountry);
 
-		operatorurl = new JTextField(MAX_COLUMN_LENGTH);
-		operatorurl.setName(XMLPATH_OPERATOR_URL);
-		operatorurl.addFocusListener(this);
-		operatorurl.setToolTipText("This should contain a URL that will lead to more information about the operator including contact information.");
-		panelOperator.addRow(new JLabel("URL"), operatorurl);
+		m_txtOperatorUrl = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtOperatorUrl.setName(XMLPATH_OPERATOR_URL);
+		m_txtOperatorUrl.addFocusListener(this);
+		m_txtOperatorUrl.setToolTipText("This should contain a URL that will lead to more information about the operator including contact information.");
+		panelOperator.addRow(new JLabel("URL"), m_txtOperatorUrl);
 
-		operatoremail = new JTextField(MAX_COLUMN_LENGTH);
-		operatoremail.setName(XMLPATH_OPERATOR_EMAIL);
-		operatoremail.addFocusListener(this);
-		operatoremail.setToolTipText(
+		m_txtOperatorEmail = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtOperatorEmail.setName(XMLPATH_OPERATOR_EMAIL);
+		m_txtOperatorEmail.addFocusListener(this);
+		m_txtOperatorEmail.setToolTipText(
 			"An E-Mail address to which a confirmation message will be sent once the cascade is established.");
-		panelOperator.addRow(new JLabel("E-Mail"), operatoremail);
+		panelOperator.addRow(new JLabel("E-Mail"), m_txtOperatorEmail);
 
 		//Keep the panels in place
 		JLabel dummyLabel1 = new JLabel("");
@@ -260,43 +265,37 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	public Vector check()
 	{
-		Vector errors;
+		Vector errors, tempErrors;
 		MixConfiguration mixConf = getConfiguration();
-		OwnCertCreationValidator validator = new OwnCertCreationValidator();
+		ICertCreationValidator validator;
 
-		String names[] =
-			{
-			XMLPATH_OPERATOR_ORGANISATION,
-			//	XMLPATH_OPERATOR_URL,
-			XMLPATH_OPERATOR_EMAIL
-		};
 
-		String messages[][] =
-			{
-			{
-			"Operator Organisation", getName()},
-			//{"Operator URL", getName()},
-			{
-			"Operator E-Mail", getName()},
-		};
-
+		validator = new OwnCertCreationValidator();
 		validator.isValid();
 		errors = validator.getInvalidityMessages();
 
-		for (int i = 0; i < names.length; i++)
+		validator = new OperatorCertCreationValidator();
+		validator.isValid();
+		tempErrors = validator.getInvalidityMessages();
+		if (tempErrors.size() != 0)
 		{
-			String value = mixConf.getValue(names[i]);
-			if (value == null || value.equals(""))
+			if (errors.size() == 0)
 			{
-				errors.addElement(JAPMessages.getString(
-					"error_blank_field", messages[i]));
+				errors = tempErrors;
+			}
+			else
+			{
+				for (int i = 0; i < tempErrors.size(); i++)
+				{
+					errors.addElement(tempErrors.elementAt(i));
+				}
 			}
 		}
 
+
 		if (this.m_ownCert.getCert() == null)
 		{
-			errors.addElement(
-				"Own Mix Certificate is missing in " + getName() + " panel.");
+			errors.addElement("Own Mix Certificate is missing in " + getName() + " panel.");
 		}
 
 		return errors;
@@ -347,6 +346,39 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 						//save(this);
 					}
 					updateDeprecatedMixID();
+					if (! ((MixCertificateView) m_ownCert.getCertificateView()).isMixCertificate())
+					{
+						MixConfig.info(JAPMessages.getString(MixConfig.MSG_WARNING),
+									   JAPMessages.getString(MSG_WARNING_NO_MIX_CERT));
+					}
+				}
+				else if (e.getSource() == m_operatorCert)
+				{
+					if (m_operatorCert.getCert() != null)
+					{
+						OperatorCertificateView certView =
+							(OperatorCertificateView) m_operatorCert.getCertificateView();
+						if (certView.getCountry().length() > 0)
+						{
+							m_cbxOperatorCountry.setSelectedItem(certView.getCountryMapper());
+						}
+						if (certView.getEMail().length() > 0)
+						{
+							m_txtOperatorEmail.setText(certView.getEMail());
+						}
+						if (certView.getOrganisation().length() > 0)
+						{
+							m_txtOperatorOrg.setText(certView.getOrganisation());
+						}
+						if (certView.getOrganisationalUnit().length() > 0)
+						{
+							m_txtOperatorOrgaUnit.setText(certView.getOrganisationalUnit());
+						}
+						if (certView.getURL().length() > 0)
+						{
+							m_txtOperatorUrl.setText(certView.getURL());
+						}
+					}
 				}
 				enableComponents();
 			}
@@ -380,7 +412,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		public boolean isValid()
 		{
 			boolean valid = true;
-			String strValue;
 			String strLongitude;
 			String strLatitude;
 			MixConfiguration conf = getConfiguration();
@@ -389,23 +420,10 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 			m_invalidity = new Vector();
 
-			strValue = conf.getValue(XMLPATH_LOCATION_CITY);
-			if (strValue == null || strValue.trim().equals(""))
-			{
-				message[0] = "city";
-				m_invalidity.addElement(
-					JAPMessages.getString("error_blank_field", message));
-				valid = false;
-			}
-
-			strValue = conf.getValue(XMLPATH_LOCATION_COUNTRY);
-			if (strValue == null || strValue.trim().equals(""))
-			{
-				message[0] = "country";
-				m_invalidity.addElement(
-					JAPMessages.getString("error_blank_field", message));
-				valid = false;
-			}
+			message[0] = "city";
+			valid = valid && checkCertificateField(XMLPATH_LOCATION_CITY, m_invalidity, message);
+			message[0] = "country";
+			valid = valid && checkCertificateField(XMLPATH_LOCATION_COUNTRY, m_invalidity, message);
 
 			strLongitude = conf.getValue(XMLPATH_LOCATION_LONGITUDE);
 			strLatitude = conf.getValue(XMLPATH_LOCATION_LATITUDE);
@@ -419,8 +437,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				}
 				catch (NumberFormatException a_e)
 				{
-					m_invalidity.addElement(JAPMessages.getString(
-						"error_illegal_position", getName()));
+					m_invalidity.addElement(JAPMessages.getString(MSG_ERROR_ILLEGAL_POSITION, getName()));
 					valid = false;
 				}
 			}
@@ -478,6 +495,88 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		}
 	}
 
+	private class OperatorCertCreationValidator implements ICertCreationValidator
+	{
+		private Vector m_invalidity = new Vector();
+
+		/**
+		 * @todo check if it is really a valid url
+		 * @return boolean
+		 */
+		public boolean isValid()
+		{
+			boolean valid = true;
+			String strValue;
+			String[] message = new String[2];
+			message[1] = getName();
+
+			m_invalidity = new Vector();
+
+			message[0] = "organisation";
+			valid = valid && checkCertificateField(XMLPATH_OPERATOR_ORGANISATION, m_invalidity, message);
+			message[0] = "email";
+			valid = valid && checkCertificateField(XMLPATH_OPERATOR_EMAIL, m_invalidity, message);
+			if (!X509SubjectAlternativeName.isValidEMail(getConfiguration().getValue(XMLPATH_OPERATOR_EMAIL)))
+			{
+				m_invalidity.addElement(JAPMessages.getString(MSG_INVALID_EMAIL, getName()));
+			}
+			message[0] = "country";
+			valid = valid && checkCertificateField(XMLPATH_OPERATOR_COUNTRY, m_invalidity, message);
+
+			strValue = getConfiguration().getValue(XMLPATH_OPERATOR_URL);
+			if (strValue != null && strValue.trim().length() > 0)
+			{
+				if (new StringTokenizer(strValue).countTokens() > 1)
+				{
+					m_invalidity.addElement(JAPMessages.getString(MSG_INVALID_URL, getName()));
+				}
+			}
+
+			return valid;
+		}
+
+		public X509DistinguishedName getSigName()
+		{
+			Hashtable attributes = new Hashtable();
+			attributes.put(X509DistinguishedName.CN_IDENTIFIER, CN_ANON_OPERATOR_CERTIFICATE);
+			attributes.put(X509DistinguishedName.OU_IDENTIFIER, m_txtOperatorOrgaUnit.getText());
+			attributes.put(X509DistinguishedName.O_IDENTIFIER, m_txtOperatorOrg.getText());
+			attributes.put(X509DistinguishedName.E_IDENTIFIER, m_txtOperatorEmail.getText());
+			attributes.put(X509DistinguishedName.C_IDENTIFIER,
+						   ( (CountryMapper) m_cbxOperatorCountry.getSelectedItem()).getISOCountryCode());
+			return new X509DistinguishedName(attributes);
+		}
+
+
+		public X509Extensions getExtensions()
+		{
+			Vector vecValues = new Vector();
+			Vector vecTags = new Vector();
+			String strUrl = getConfiguration().getValue(XMLPATH_OPERATOR_URL);
+
+			if (strUrl != null && strUrl.trim().length() > 0)
+			{
+				vecValues.addElement(strUrl);
+				vecTags.addElement(X509SubjectAlternativeName.TAG_URL);
+			}
+			vecValues.addElement(getConfiguration().getValue(XMLPATH_OPERATOR_EMAIL));
+			vecTags.addElement(X509SubjectAlternativeName.TAG_EMAIL);
+
+			return new X509Extensions(new X509SubjectAlternativeName(vecValues, vecTags));
+		}
+
+		public String getPasswordInfoMessage()
+		{
+			return "Your operator certificate should be protected by a good password.";
+		}
+
+		public Vector getInvalidityMessages()
+		{
+			return m_invalidity;
+		}
+	}
+
+
 	protected void save(JComboBox a_comboBox)
 	{
 		if (a_comboBox == m_cboxCountry || a_comboBox == m_cbxOperatorCountry)
@@ -529,10 +628,65 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	protected void enableComponents()
 	{
-		MixCertificateView certView = (MixCertificateView)m_ownCert.getCertificateView();
+		enableMixCertificateFields();
+		enableOperatorCertificateFields();
+	}
 
+	private void enableOperatorCertificateFields()
+	{
+		OperatorCertificateView certView = (OperatorCertificateView) m_operatorCert.getCertificateView();
 		if (certView.getCountry().length() > 0 &&
-			((CountryMapper)m_cboxCountry.getSelectedItem()).equals(certView.getCountryMapper()))
+			( (CountryMapper) m_cbxOperatorCountry.getSelectedItem()).equals(certView.getCountryMapper()))
+		{
+			m_cbxOperatorCountry.setEnabled(false);
+		}
+		else
+		{
+			m_cbxOperatorCountry.setEnabled(true);
+		}
+		if (certView.getEMail().length() > 0 &&
+			certView.getEMail().equals(m_txtOperatorEmail.getText().trim()))
+		{
+			m_txtOperatorEmail.setEditable(false);
+		}
+		else
+		{
+			m_txtOperatorEmail.setEditable(true);
+		}
+		if (certView.getOrganisation().length() > 0 &&
+			certView.getOrganisation().equals(m_txtOperatorOrg.getText().trim()))
+		{
+			m_txtOperatorOrg.setEditable(false);
+		}
+		else
+		{
+			m_txtOperatorOrg.setEditable(true);
+		}
+
+		if (m_operatorCert.getCert() != null &&
+			certView.getOrganisationalUnit().equals(m_txtOperatorOrgaUnit.getText().trim()))
+		{
+			m_txtOperatorOrgaUnit.setEditable(false);
+		}
+		else
+		{
+			m_txtOperatorOrgaUnit.setEditable(true);
+		}
+		if (m_operatorCert.getCert() != null && certView.getURL().equals(m_txtOperatorUrl.getText()))
+		{
+			m_txtOperatorUrl.setEditable(false);
+		}
+		else
+		{
+			m_txtOperatorUrl.setEditable(true);
+		}
+	}
+
+	private void enableMixCertificateFields()
+	{
+		MixCertificateView certView = (MixCertificateView) m_ownCert.getCertificateView();
+		if (certView.getCountry().length() > 0 &&
+			( (CountryMapper) m_cboxCountry.getSelectedItem()).equals(certView.getCountryMapper()))
 		{
 			m_cboxCountry.setEnabled(false);
 		}
@@ -540,7 +694,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		{
 			m_cboxCountry.setEnabled(true);
 		}
-
 		if (certView.getLocalityName().length() > 0 &&
 			certView.getLocalityName().equals(m_txtCity.getText().trim()))
 		{
@@ -601,5 +754,18 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 			save("General/MixID", cn);
 		}
+	}
+
+
+	private boolean checkCertificateField(String a_xmlPath, Vector a_vecInvalidityMsg, Object[] msgArgs)
+	{
+		String strValue = getConfiguration().getValue(a_xmlPath);
+
+		if (strValue == null || strValue.trim().equals(""))
+		{
+			a_vecInvalidityMsg.addElement(JAPMessages.getString(MSG_ERROR_BLANK_FIELD, msgArgs));
+			return false;
+		}
+		return true;
 	}
 }

@@ -31,25 +31,24 @@ import java.util.Vector;
 import anon.crypto.JAPCertificate;
 import anon.crypto.ICertificate;
 import gui.CountryMapper;
-import anon.util.Util;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectAlternativeName;
+import anon.crypto.AbstractX509AlternativeName;
 
 /**
- * Stores the information that should be present in a mix certificate.
+ * Stores the information that should be present in an operator certificate.
  * @author Rolf Wendolsky
  */
-public class MixCertificateView implements ICertificateView
+public class OperatorCertificateView implements ICertificateView
 {
-	private boolean m_bMixCertificate;
 	private CountryMapper m_CountryMapper;
-	private String m_strLocalityName;
-	private String m_strStateOrProvince;
-	private String m_strLongitude;
-	private String m_strLatitude;
+	private String m_strOrganisation;
+	private String m_strOrgaUnit;
+	private String m_strEMail;
+	private String m_strURL;
 
-	public MixCertificateView()
+	public OperatorCertificateView()
 	{
 		update(null);
 	}
@@ -58,23 +57,20 @@ public class MixCertificateView implements ICertificateView
 	{
 		if (a_certificate == null)
 		{
-			m_bMixCertificate = true;
 			m_CountryMapper = new CountryMapper();
-			m_strLocalityName = "";
-			m_strStateOrProvince = "";
-			m_strLongitude = "";
-			m_strLatitude = "";
+			m_strOrganisation = "";
+			m_strOrgaUnit = "";
+			m_strEMail = "";
+			m_strURL = "";
 			return;
 		}
-		JAPCertificate certificate = a_certificate.getX509Certificate();
-		X509DistinguishedName dn;
+
+		Vector vecTags, vecValues;
 		X509Extensions extensions;
 		X509SubjectAlternativeName alternativeName;
-		Vector coordinates;
-		String strCommonName;
+		JAPCertificate certificate = a_certificate.getX509Certificate();
+		X509DistinguishedName dn = certificate.getDistinguishedName();
 
-		dn = certificate.getDistinguishedName();
-		extensions = certificate.getExtensions();
 		try
 		{
 			m_CountryMapper = new CountryMapper(dn.getCountryCode());
@@ -83,58 +79,54 @@ public class MixCertificateView implements ICertificateView
 		{
 		}
 
-		m_strLocalityName = formatDNField(dn.getLocalityName());
-		m_strStateOrProvince = formatDNField(dn.getStateOrProvince());
-		strCommonName = formatDNField(dn.getCommonName());
-		m_bMixCertificate = (strCommonName != null && strCommonName.toLowerCase().indexOf("mix") >= 0);
+		m_strOrganisation = formatDNField(dn.getOrganisation());
+		m_strOrgaUnit = formatDNField(dn.getOrganisationalUnit());
 
-		alternativeName = (X509SubjectAlternativeName)
-			extensions.getExtension(X509SubjectAlternativeName.IDENTIFIER);
-		if (alternativeName != null)
+		extensions = a_certificate.getX509Certificate().getExtensions();
+		m_strURL = "";
+		m_strEMail = "";
+		for (int i = 0; i < extensions.getSize(); i++)
 		{
-			if (alternativeName.getTags().size() == 2 &&
-				alternativeName.getValues().size() == 2)
+			if (extensions.getExtension(i) instanceof X509SubjectAlternativeName)
 			{
-				coordinates = alternativeName.getTags();
-				if (coordinates.elementAt(0).equals(
-					X509SubjectAlternativeName.TAG_OTHER) &&
-					coordinates.elementAt(1).equals(
-						X509SubjectAlternativeName.TAG_OTHER))
+				vecTags = ( (X509SubjectAlternativeName) extensions.getExtension(i)).getTags();
+				vecValues = extensions.getExtension(i).getValues();
+				for (int j = 0; j < vecTags.size() && j < vecValues.size() &&
+					 (m_strEMail.length() == 0 || m_strURL.length() == 0); j++)
 				{
-					coordinates = alternativeName.getValues();
-					try
+					if (m_strEMail.length() == 0 &&
+						vecTags.elementAt(j).equals(AbstractX509AlternativeName.TAG_EMAIL))
 					{
-						m_strLongitude = coordinates.elementAt(0).toString();
-						Util.parseFloat(m_strLongitude);
-						m_strLongitude = m_strLongitude.trim();
+						m_strEMail = formatDNField(vecValues.elementAt(j).toString());
 					}
-					catch (NumberFormatException a_e)
+					if (m_strURL.length() == 0 &&
+						vecTags.elementAt(j).equals(AbstractX509AlternativeName.TAG_URL))
 					{
-						m_strLongitude = "";
-					}
-					try
-					{
-						m_strLatitude = coordinates.elementAt(1).toString();
-						Util.parseFloat(m_strLongitude);
-						m_strLatitude = m_strLatitude.trim();
-					}
-					catch (NumberFormatException a_e)
-					{
-						m_strLatitude = "";
+						m_strURL = formatDNField(vecValues.elementAt(j).toString());
 					}
 				}
 			}
 		}
+
+		// try alternatives to get the e-mail address
+		if (m_strEMail.length() == 0)
+		{
+			m_strEMail = formatDNField(dn.getE_EmailAddress());
+			if (m_strEMail.length() == 0)
+			{
+				m_strEMail = formatDNField(dn.getEmailAddress());
+			}
+		}
 	}
 
-	public String getLocalityName()
+	public String getOrganisation()
 	{
-		return m_strLocalityName;
+		return m_strOrganisation;
 	}
 
-	public String getStateOrProvince()
+	public String getOrganisationalUnit()
 	{
-		return m_strStateOrProvince;
+		return m_strOrgaUnit;
 	}
 
 	public CountryMapper getCountryMapper()
@@ -152,19 +144,14 @@ public class MixCertificateView implements ICertificateView
 		return 	m_CountryMapper.toString();
 	}
 
-	public String getLongitude()
+	public String getEMail()
 	{
-		return m_strLongitude;
+		return m_strEMail;
 	}
 
-	public String getLatitude()
+	public String getURL()
 	{
-		return m_strLatitude;
-	}
-
-	public boolean isMixCertificate()
-	{
-		return m_bMixCertificate;
+		return m_strURL;
 	}
 
 	private String formatDNField(String a_strDNField)
@@ -175,5 +162,4 @@ public class MixCertificateView implements ICertificateView
 		}
 		return a_strDNField.trim();
 	}
-
 }
