@@ -36,6 +36,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusListener;
+import java.awt.event.FocusEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
@@ -211,10 +213,26 @@ public class ValidityDialog extends JAPDialog
 
 
 
-	private class DateTextField extends JPanel implements ItemListener
+	private class DateTextField extends JPanel implements ItemListener, FocusListener
 	{
 		private JAPJIntField day, year;
 		private JComboBox month;
+
+		public void focusLost(FocusEvent a_event)
+		{
+			if (a_event.getSource() == day)
+			{
+				day.updateBounds();
+			}
+			else if (a_event.getSource() == year)
+			{
+				year.updateBounds();
+			}
+		}
+
+		public void focusGained(FocusEvent a_event)
+		{
+		}
 
 		public void itemStateChanged(ItemEvent a_event)
 		{
@@ -273,6 +291,7 @@ public class ValidityDialog extends JAPDialog
 
 			day = new JAPJIntField(new DayBounds(), true);
 			day.setMinimumSize(day.getPreferredSize());
+			day.addFocusListener(this);
 			day.setInt(cal.get(Calendar.DAY_OF_MONTH));
 			gbc.weightx = 1;
 			gbc.insets.right = 1;
@@ -332,6 +351,7 @@ public class ValidityDialog extends JAPDialog
 			gbc.gridx++;
 
 			year = new JAPJIntField(3000, true);
+			year.addFocusListener(this);
 			year.setInt(cal.get(Calendar.YEAR));
 			gbc.weightx = 1;
 			layout.setConstraints(year, gbc);
@@ -341,7 +361,6 @@ public class ValidityDialog extends JAPDialog
 
 		public DateTextField(Date date)
 		{
-			super();
 			initDateTextField(date);
 		}
 
