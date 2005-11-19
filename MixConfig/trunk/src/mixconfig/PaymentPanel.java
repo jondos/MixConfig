@@ -50,9 +50,10 @@ import javax.swing.event.ChangeListener;
 import anon.crypto.JAPCertificate;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
+import anon.infoservice.ListenerInterface;
 import gui.JAPHelp;
+import gui.JAPJIntField;
 import logging.LogType;
-import gui.*;
 
 /**
  * The PaymentPanel is one page in the MixConfig TabbedPane and allows the user to specify
@@ -142,7 +143,9 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		d.weightx = 0;
 		generalLayout.setConstraints(label, d);
 		m_generalPanel.add(label);
-		m_textSoftLimit = new JTextField(10);
+		m_textSoftLimit = new JAPJIntField(
+			  new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
+		m_textSoftLimit.setColumns(10);
 		m_textSoftLimit.setName("Accounting/SoftLimit");
 		m_textSoftLimit.addFocusListener(this);
 		d.gridy = 0;
@@ -162,7 +165,9 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		d.weightx = 0;
 		generalLayout.setConstraints(label, d);
 		m_generalPanel.add(label);
-		m_textHardLimit = new JTextField(10);
+		m_textHardLimit = new JAPJIntField(
+			  new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
+		m_textHardLimit.setColumns(10);
 		m_textHardLimit.setName("Accounting/HardLimit");
 		m_textHardLimit.addFocusListener(this);
 		d.gridy = 1;
@@ -181,7 +186,9 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		d.weightx = 0;
 		generalLayout.setConstraints(label, d);
 		m_generalPanel.add(label);
-		m_textSettleInterval = new JTextField(10);
+		m_textSettleInterval = new JAPJIntField(
+			  new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
+		m_textSettleInterval.setColumns(10);
 		m_textSettleInterval.setName("Accounting/SettleInterval");
 		m_textSettleInterval.addFocusListener(this);
 		d.gridy = 2;
@@ -243,7 +250,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		jpiLayout.setConstraints(label, d);
 		m_jpiPanel.add(label);
 
-		m_textJPIPort = new JTextField(14);
+		m_textJPIPort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE, true);
 		m_textJPIPort.setName("Accounting/PaymentInstance/Network/ListenerInterfaces/ListenerInterface/Port");
 		m_textJPIPort.addFocusListener(this);
 		d.gridx = 1;
@@ -305,7 +312,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		databaseLayout.setConstraints(label, d);
 		m_databasePanel.add(label);
 
-		m_textDatabasePort = new JTextField(10);
+		m_textDatabasePort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE, true);
 		m_textDatabasePort.setName("Accounting/Database/Port");
 		m_textDatabasePort.addFocusListener(this);
 		d.gridx = 1;
