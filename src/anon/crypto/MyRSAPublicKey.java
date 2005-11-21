@@ -157,7 +157,7 @@ final public class MyRSAPublicKey extends AbstractPublicKey implements IMyPublic
 
 	public int getKeyLength()
 	{
-		return getPublicExponent().bitLength();
+		return getModulus().bitLength();
 	}
 
 	public SubjectPublicKeyInfo getAsSubjectPublicKeyInfo()
