@@ -398,6 +398,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			getMixCertPanel().setEnabled(bEnableCerts);
 			getLocationPanel().setEnabled(bEnableCerts);
 			getOperatorPanel().setEnabled(bEnableCerts);
+			getMixOperatorCertPanel().setEnabled(bEnableCerts);
 
 			bEnableOutgoing = mixType == MixConfiguration.MIXTYPE_LAST ||
 				!getConfiguration().isAutoConfigurationAllowed()
