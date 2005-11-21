@@ -143,7 +143,7 @@ public final class X509DistinguishedName
 	 * Constructs a distinguished name from a BouncyCastle X509Name object. For internal use only.
 	 * @param a_bcX509Name a BouncyCastle X509Name object.
 	 */
-	X509DistinguishedName(X509Name a_bcX509Name)
+	public X509DistinguishedName(X509Name a_bcX509Name)
 	{
 		m_bcX509Name = a_bcX509Name;
 	}
