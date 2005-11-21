@@ -57,7 +57,6 @@ final public class MyDSAPublicKey extends AbstractPublicKey implements DSAPublic
 	private BigInteger m_Y;
 	private DSAParams m_params;
 	private long m_hashValue = 0;
-	private int m_keyLength = 0;
 
 	public MyDSAPublicKey(DSAPublicKeyParameters params)
 	{
@@ -122,7 +121,7 @@ final public class MyDSAPublicKey extends AbstractPublicKey implements DSAPublic
 
 	public int getKeyLength()
 	{
-		return m_keyLength;
+		return getParams().getP().bitLength();
 	}
 
 	public SubjectPublicKeyInfo getAsSubjectPublicKeyInfo()
