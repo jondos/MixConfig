@@ -95,6 +95,12 @@ public class DummyPublicKey extends DummySignatureKey implements IMyPublicKey
 										new DERInteger(BigInteger.valueOf(getKeyValue())));
 	}
 
+	public int getKeyLength()
+	{
+		return 1;
+	}
+
+
 	public byte[] getEncoded()
 	{
 		ByteArrayOutputStream bOut = new ByteArrayOutputStream();

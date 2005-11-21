@@ -32,7 +32,6 @@ import java.security.PublicKey;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 
 import anon.util.IXMLEncodable;
-import gui.*;
 
 /**
  * Represents the public part of an asymmetric cryptographic key pair.
@@ -52,6 +51,12 @@ public interface IMyPublicKey extends PublicKey, IXMLEncodable
 	 * @return the key as a SubjectPublicKeyInfo object
 	 */
 	public SubjectPublicKeyInfo getAsSubjectPublicKeyInfo();
+
+	/**
+	 * Returns the length of the key. The length of the key often corresponds with the security it provides.
+	 * @return the length of the key
+	 */
+	public int getKeyLength();
 
 	/**
 	 * This method returns if two public keys have the same public key parameters.

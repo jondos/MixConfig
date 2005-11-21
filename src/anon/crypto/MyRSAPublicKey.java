@@ -50,7 +50,6 @@ import org.w3c.dom.Element;
 
 import anon.util.Base64;
 import anon.util.XMLUtil;
-import gui.*;
 
 final public class MyRSAPublicKey extends AbstractPublicKey implements IMyPublicKey
 {
@@ -58,6 +57,7 @@ final public class MyRSAPublicKey extends AbstractPublicKey implements IMyPublic
 	private BigInteger m_n;
 	private BigInteger m_e;
 	private long m_hashValue = 0;
+	private int m_keyLength = 0;
 
 	public MyRSAPublicKey(BigInteger modulus, BigInteger exponent)
 	{
@@ -153,6 +153,11 @@ final public class MyRSAPublicKey extends AbstractPublicKey implements IMyPublic
 	public String getFormat()
 	{
 		return "X.509";
+	}
+
+	public int getKeyLength()
+	{
+		return m_keyLength;
 	}
 
 	public SubjectPublicKeyInfo getAsSubjectPublicKeyInfo()
