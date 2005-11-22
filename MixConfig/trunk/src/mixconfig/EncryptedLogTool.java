@@ -52,12 +52,13 @@ import anon.crypto.X509Extensions;
 import anon.util.Base64;
 import gui.GUIUtils;
 import gui.JAPMessages;
+import anon.util.ClassUtil;
 import logging.LogType;
 
 public class EncryptedLogTool extends JDialog implements ActionListener, ChangeListener
 {
 	private static final String MSG_PASSWD_INFO_MSG = "EncryptedLog_password_info_message";
-	private static final String MSG_CERT_HEADLINE = "EncryptedLog_certificate_headline";
+	private static final String MSG_CERT_HEADLINE = ClassUtil.getClassNameStatic() + "_certificate_headline";
 	private static final String MSG_CANNOT_DECRYPT = "EncryptedLog_cannot_decrypt";
 	private static final String MSG_NO_CERT = "EncryptedLog_no_cert";
 	private static final String MSG_NO_LOG = "EncryptedLog_no_log";
@@ -85,6 +86,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		d.anchor = GridBagConstraints.NORTHWEST;
 		d.insets = new Insets(5, 5, 5, 5);
 		panel1.setBorder(new TitledBorder("Log File to decrypt"));
+
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 1;
@@ -122,10 +124,9 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		c.gridx = 0;
 		c.gridy = 1;
 		c.fill = GridBagConstraints.NONE;
-		m_privateCertPanel = new CertPanel("Private certificate",
+		m_privateCertPanel = new CertPanel(JAPMessages.getString(MSG_CERT_HEADLINE),
 										   "Hint: Private Certificate to sign a Public Certificate",
 										   (PKCS12)null, CertPanel.CERT_ALGORITHM_RSA);
-		m_privateCertPanel.setName(JAPMessages.getString(MSG_CERT_HEADLINE));
 		m_privateCertPanel.setCertCreationValidator(new LogCertCreationValidator());
 		m_privateCertPanel.addChangeListener(this);
 		layout.setConstraints(m_privateCertPanel, c);

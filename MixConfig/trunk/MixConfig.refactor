@@ -87,4 +87,8 @@
     <old-method-name>getLatitude</old-method-name>
     <new-method-name>getURL</new-method-name>
   </rename-method>
+  <rename-class id="6AP05PGVYBGEL9MDFULFK8Z" creation-time="Tue Nov 22 10:08:37.619 CET 2005">
+    <old-class-name>anon.util.ResourceInstantiator</old-class-name>
+    <new-class-name>anon.util.IResourceInstantiator</new-class-name>
+  </rename-class>
 </refactor>

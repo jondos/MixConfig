@@ -81,7 +81,7 @@ import org.w3c.dom.Node;
 import anon.util.Base64;
 import anon.util.IXMLEncodable;
 import anon.util.XMLUtil;
-import anon.util.ResourceInstantiator;
+import anon.util.IResourceInstantiator;
 import anon.util.ResourceLoader;
 import logging.LogHolder;
 import logging.LogLevel;
@@ -922,7 +922,7 @@ public final class JAPCertificate extends X509CertificateStructure
 		}
 	}
 
-	private static final class X509CertificateInstantiator implements ResourceInstantiator
+	private static final class X509CertificateInstantiator implements IResourceInstantiator
 	{
 		public Object getInstance(File a_file, File a_topDirectory) throws Exception
 		{
