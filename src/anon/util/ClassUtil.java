@@ -36,6 +36,7 @@ import java.util.Vector;
 import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.StringTokenizer;
 import java.net.URL;
 
 /**
@@ -93,6 +94,23 @@ public final class ClassUtil
 	public static Class getClassStatic()
 	{
 		return new ClassGetter().getCurrentClassStatic();
+	}
+
+	/**
+	 * Returns the name, including the package, of the calling method's class.
+	 * @return the name, including the package, of the calling method's class
+	 */
+	public static String getClassNameStatic()
+	{
+		StringTokenizer tokenizer = new StringTokenizer(getCallingClassStatic().toString());
+		String strClassName = null;
+
+		while (tokenizer.hasMoreTokens())
+		{
+			strClassName = tokenizer.nextToken();
+		}
+
+		return strClassName;
 	}
 
 	/**
@@ -403,7 +421,7 @@ public final class ClassUtil
 	}
 
 
-	private static class ClassInstantiator implements ResourceInstantiator
+	private static class ClassInstantiator implements IResourceInstantiator
 	{
 		private int m_invalidAfterFailure;
 		private int m_currentFailure;
@@ -421,7 +439,7 @@ public final class ClassUtil
 		}
 
 		public Object getInstance(File a_file, File a_topDirectory)
-			throws ResourceInstantiator.ResourceInstantiationException
+			throws IResourceInstantiator.ResourceInstantiationException
 
 		{
 			Class loadedClass = toClass(a_file, a_topDirectory);
@@ -435,7 +453,7 @@ public final class ClassUtil
 		}
 
 		public Object getInstance(ZipEntry a_entry, ZipFile a_file)
-			throws ResourceInstantiator.ResourceInstantiationException
+			throws IResourceInstantiator.ResourceInstantiationException
 		{
 			Class loadedClass = toClass(new File( (a_entry).toString()), (File)null);
 
@@ -448,7 +466,7 @@ public final class ClassUtil
 		}
 
 		private void checkValidity(Class a_loadedClass, String a_filename)
-			throws ResourceInstantiator.ResourceInstantiationException
+			throws IResourceInstantiator.ResourceInstantiationException
 		{
 			if (a_loadedClass == null && a_filename.endsWith(".class"))
 			{
@@ -456,7 +474,7 @@ public final class ClassUtil
 			}
 			if (m_currentFailure >= m_invalidAfterFailure)
 			{
-				throw new ResourceInstantiator.ResourceInstantiationException();
+				throw new IResourceInstantiator.ResourceInstantiationException();
 			}
 		}
 	}

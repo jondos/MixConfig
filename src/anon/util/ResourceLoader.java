@@ -314,7 +314,7 @@ public final class ResourceLoader
 	 *         could be loaded
 	 */
 	public static Hashtable loadResources(String a_strResourceSearchPath,
-										  ResourceInstantiator a_instantiator,
+										  IResourceInstantiator a_instantiator,
 										  boolean a_bRecursive)
 	{
 		Hashtable resources = new Hashtable();
@@ -382,7 +382,7 @@ public final class ResourceLoader
 	 */
 	public static Hashtable loadResources(String a_strResourceSearchPath,
 										  File a_directory,
-										  ResourceInstantiator a_instantiator,
+										  IResourceInstantiator a_instantiator,
 										  boolean a_bRecursive)
 	{
 		Hashtable resources = new Hashtable();
@@ -496,7 +496,7 @@ public final class ResourceLoader
 	 */
 	protected static void loadResources(String a_strResourceSearchPath,
 										File a_Directory,
-										ResourceInstantiator a_instantiator,
+										IResourceInstantiator a_instantiator,
 										boolean a_bRecursive,
 										boolean a_bStopAtFirstResource,
 										Hashtable a_loadedResources)
@@ -559,7 +559,7 @@ public final class ResourceLoader
 					object = a_instantiator.getInstance(zipentry, zipfile);
 
 				}
-				catch (ResourceInstantiator.ResourceInstantiationException a_e)
+				catch (IResourceInstantiator.ResourceInstantiationException a_e)
 				{
 					return;
 				}
@@ -590,7 +590,7 @@ public final class ResourceLoader
 									  a_instantiator, a_loadedResources,
 									  a_bRecursive, a_bStopAtFirstResource);
 			}
-			catch (ResourceInstantiator.ResourceInstantiationException a_ex)
+			catch (IResourceInstantiator.ResourceInstantiationException a_ex)
 			{
 				return;
 			}
@@ -613,10 +613,10 @@ public final class ResourceLoader
 	 */
 	private static void loadResourcesFromFile(String a_strResourceSearchPath,
 											  File a_file, File a_topDirectory,
-											  ResourceInstantiator a_instantiator,
+											  IResourceInstantiator a_instantiator,
 											  Hashtable a_loadedResources,
 											  boolean a_bRecursive,
-											  boolean a_bStopAtFirstResource) throws ResourceInstantiator.
+											  boolean a_bStopAtFirstResource) throws IResourceInstantiator.
 		ResourceInstantiationException
 	{
 		String[] filesArray;
@@ -661,7 +661,7 @@ public final class ResourceLoader
 					object = a_instantiator.getInstance(a_file, a_topDirectory);
 
 				}
-				catch (ResourceInstantiator.ResourceInstantiationException a_e)
+				catch (IResourceInstantiator.ResourceInstantiationException a_e)
 				{
 					throw a_e;
 				}
@@ -1128,7 +1128,7 @@ public final class ResourceLoader
 	/**
 	 * This class is used to get resources as byte arrays.
 	 */
-	private final class ByteArrayInstantiator implements ResourceInstantiator
+	private final class ByteArrayInstantiator implements IResourceInstantiator
 	{
 		public Object getInstance(File a_file, File a_topDirectory) throws Exception
 		{
@@ -1145,7 +1145,7 @@ public final class ResourceLoader
 	 * Does not load or instantiate resources but returns the file type of resources. The file
 	 * type may either be SYSTEM_RESOURCE_TYPE_ZIP or SYSTEM_RESOURCE_TYPE_FILE.
 	 */
-	private final class FileTypeInstantiator implements ResourceInstantiator
+	private final class FileTypeInstantiator implements IResourceInstantiator
 	{
 		public Object getInstance(File a_file, File a_topDirectory)
 		{
