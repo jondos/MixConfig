@@ -933,6 +933,5 @@ public final class JAPCertificate extends X509CertificateStructure
 		{
 			return JAPCertificate.getInstance(a_file.getInputStream(a_entry));
 		}
-
 	}
 }
