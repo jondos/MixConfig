@@ -326,24 +326,28 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 						if (certView.getCountry().length() > 0)
 						{
 							m_cboxCountry.setSelectedItem(certView.getCountryMapper());
+							save(m_cboxCountry);
 						}
 						if (certView.getLocalityName().length() > 0)
 						{
 							m_txtCity.setText(certView.getLocalityName());
+							save(m_txtCity);
 						}
 						if (certView.getStateOrProvince().length() > 0)
 						{
 							m_txtState.setText(certView.getStateOrProvince());
+							save(m_txtState);
 						}
 						if (certView.getLongitude().length() > 0)
 						{
 							m_txtLongitude.setText(certView.getLongitude());
+							save(m_txtLongitude);
 						}
 						if (certView.getLatitude().length() > 0)
 						{
 							m_txtLatitude.setText(certView.getLatitude());
+							save(m_txtLatitude);
 						}
-						//save(this);
 					}
 					updateDeprecatedMixID();
 					if (! ((MixCertificateView) m_ownCert.getCertificateView()).isMixCertificate())
@@ -361,22 +365,27 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 						if (certView.getCountry().length() > 0)
 						{
 							m_cbxOperatorCountry.setSelectedItem(certView.getCountryMapper());
+							save(m_cbxOperatorCountry);
 						}
 						if (certView.getEMail().length() > 0)
 						{
 							m_txtOperatorEmail.setText(certView.getEMail());
+							save(m_txtOperatorEmail);
 						}
 						if (certView.getOrganisation().length() > 0)
 						{
 							m_txtOperatorOrg.setText(certView.getOrganisation());
+							save(m_txtOperatorOrg);
 						}
 						if (certView.getOrganisationalUnit().length() > 0)
 						{
 							m_txtOperatorOrgaUnit.setText(certView.getOrganisationalUnit());
+							save(m_txtOperatorOrgaUnit);
 						}
 						if (certView.getURL().length() > 0)
 						{
 							m_txtOperatorUrl.setText(certView.getURL());
+							save(m_txtOperatorUrl);
 						}
 					}
 				}
