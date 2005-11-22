@@ -102,15 +102,7 @@ public final class ClassUtil
 	 */
 	public static String getClassNameStatic()
 	{
-		StringTokenizer tokenizer = new StringTokenizer(getCallingClassStatic().toString());
-		String strClassName = null;
-
-		while (tokenizer.hasMoreTokens())
-		{
-			strClassName = tokenizer.nextToken();
-		}
-
-		return strClassName;
+		return getCallingClassStatic().getName();
 	}
 
 	/**
