@@ -77,7 +77,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.007"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.008"; //NEVER change the layout of this line!!
 
 	public static final String MSG_WARNING = "MixConfig_warning";
 
@@ -321,12 +321,7 @@ public class MixConfig extends JApplet
 	 */
 	public static boolean ask(String a_title, String a_message)
 	{
-		int i = JOptionPane.showConfirmDialog(getMainWindow(),
-											  TextFormatUtil.wrapWordsOfTextLine(
-											 a_message, OPTION_PANE_WIDTH),
-											  a_title,
-											  JOptionPane.YES_NO_OPTION);
-		return (i == JOptionPane.YES_OPTION);
+		return JAPDialog.showYesNoConfirmMessage(MixConfig.getMainWindow(), a_title, a_message);
 	}
 
 	/** Displays an info message dialog
