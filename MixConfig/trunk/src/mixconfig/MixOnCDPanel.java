@@ -100,7 +100,9 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 							 MixOnCDPanel.XMLATTRIBUTE_DHCP);
 		m_cbxMixOnCD.addActionListener(this);
 		m_cbxMixOnCD.addItemListener(this);
+		constraints.gridwidth = 2;
 		add(m_cbxMixOnCD, constraints);
+		constraints.gridwidth = 1;
 
 		/*
 		 * network settings

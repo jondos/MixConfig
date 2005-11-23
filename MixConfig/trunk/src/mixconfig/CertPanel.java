@@ -102,7 +102,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 	private static final String MSG_MANDATORY_ALGO = CertPanel.class.getName() + "_mandatory_algorithm";
 	private static final String MSG_CERT_TYPE_UNKNOWN = CertPanel.class.getName() + "_cert_type_unknown";
-	private static final String MSG_OVERWRITE_FILE = CertPanel.class.getName() + "_confirm_overwriting";
+	private static final String MSG_CONFIRM_OVERWRITE = CertPanel.class.getName() + "_confirm_overwriting";
+	private static final String MSG_CONFIRM_DELETION = CertPanel.class.getName() + "_confirm_deletion";
 
 
 	// holds a Vector with all instanciated CertPanels
@@ -447,7 +448,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			}
 			else if (source == this.m_bttnRemoveCert)
 			{
-				removeCert();
+				if (JAPDialog.showYesNoConfirmMessage(this, JAPMessages.getString(MSG_CONFIRM_DELETION)))
+				{
+					removeCert();
+				}
 			}
 			else if (source == this.m_bttnImportCert)
 			{
@@ -1035,7 +1039,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 					}
 				}
 			} while (file != null && file.exists() &&
-					 !JAPDialog.showYesNoConfirmMessage(this, JAPMessages.getString(MSG_OVERWRITE_FILE)));
+					 !JAPDialog.showYesNoConfirmMessage(this, JAPMessages.getString(MSG_CONFIRM_OVERWRITE)));
 
 			if (file != null)
 			{
