@@ -6,20 +6,22 @@
 <!--#include virtual="/header_en.html"-->
 
 <H2>Own Certificates Panel</H2>
+      <P>   This panel contains your private mix certificates. These certificates are used to sign information sent by your mix. Without them, no one will trust your mix' messages and no one will be able to connect to your mix. To prove that you are trustworthy, you will also have to let an accepted certificate authority, like the <em>JAP Team</em> (jap@inf.tu-dresden.de), sign your certificates. </P>
 
+	<P>If you want to connect to other mixes in a cascade, and other mixes in the cascade should be able to connect to you, you will have to send your public certificates to those neighbour mixes. If you do this, please verify if the other mixes have received the right certificates by comparing your certificates' hash values with the hash values of the certificates your communication partners have received.</P>
 
-<B>Certificate options</B>
+<P>It is recommended to protect your private certificates with a password.</P>
+
+<B>General Certificate Options</B>
 <UL>
-  <LI><B>Mix type</B><BR>
-       The mix type defines in which place in the cascade your mix will be located. A cascade consists of at least a first and a last mix, but may contain additional middle mixes. <em>If you choose your mix to become a last mix, please be aware of the fact that you are the first one to be contacted by law encforcement in case of misuse done by users of the service</em>. As a last mix you will also have to install a <A href="#">cache proxy</A> if you do not use <A  href="livecd_en.html">MixOnCD</A> where such a proxy is already integrated.
+  <LI><B>Import</B><BR>
+	This option allows you to import private certificates that contain both your private key for signing and the corresponding public key for verifying your signatures, or a public certificate that fits to your private one and may be signed by yourself or by a certificate authority, from a file. To import a public certificate (which contains your public key and some information about your mix or organisation and the signer) you always need the corresponding private certificate.
  </LI>
-  <LI><B>Mix configuration</B><BR>
-      You may choose between two configuration types: static and dynamic. In a <em>static</em> configuration, you have to send your certificates and IP address to and receive the same information from your neighbour mixes before you can start your mix. If you choose <em>dynamic</em>, this information is automatically transfered by the Info Service network to each mix in the cascade and you have very little communication effort. The disadvantage of this concept is, that, except for a last mix, you also have very little influence which cascade your mix is assigned to (only minimum length of cascade and position in the cascade).
-      <em>Please note that this is an experimental feature that won't work in most cases!</em>
+  <LI><B>Export</B><BR>
+      The export button is used to save either the public (.cer) oder both the private and the public part (.pfx) of a certificate. If you want to give a certificate to a certificate authority for signing or to another mix for building a connection, you always have to export the public certificate only. But remind this: NEVER give your private certificates away!
    </LI>
-  <LI><B>Allow dynamic fallback</B><BR>
-      This is only available in static configurations and allows for a temporary dynamic configuration if one or more mixes in the statically defined cascade are not available for some time.
-      <em>Please note that this is an experimental feature that won't work in most cases!</em>
+  <LI><B>Remove</B><BR>
+      Deletes the certificate that you have chosen to remove. Please make sure you either have a backup of the certificate of you really don't need it any more.
   </LI>
   <LI><B>Mix name</B><BR>
       Please give your mix a human-readable name.

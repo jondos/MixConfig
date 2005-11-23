@@ -49,6 +49,7 @@ import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509SubjectAlternativeName;
 import anon.util.Util;
+import anon.util.ClassUtil;
 import gui.CountryMapper;
 import gui.JAPHelp;
 import gui.JAPMessages;
@@ -264,7 +265,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	public void paint(Graphics g)
 	{
 		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("index");
+		JAPHelp.getInstance().getContextObj().setContext(
+			  ClassUtil.getShortClassName(OwnCertificatesPanel.class));
 	}
 
 	public Vector check()
