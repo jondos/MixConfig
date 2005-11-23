@@ -408,7 +408,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		{
 			MixConfig.info("MixOnCD download hint",
 						   "You will have to download the MixOnCD iso-image " +
-						   "from http://anon.inf.tu-dresden.de/develop/MixOnCD.iso " +
+						   "from http://anon.inf.tu-dresden.de/develop/MixOnCD.iso.bz2 " +
 						   "to create a bootable mix CD.");
 		}
 	}
