@@ -69,6 +69,7 @@ import gui.GUIUtils;
 import gui.PasswordBox;
 import gui.ValidityDialog;
 import gui.JAPMessages;
+import gui.JAPDialog;
 import logging.LogType;
 import mixconfig.wizard.CannotContinueException;
 
@@ -87,8 +88,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	public static final int CERT_ALGORITHM_BOTH = 3;
 
 	/** A <code>String</code> that contains a single char with value 0 */
-	private static final String STRING_ZERO = new String(new char[]
-		{0});
+	private static final String STRING_ZERO = new String(new char[]{0});
 
 	// the trusted CSs against those all certificates are tested
 	private static final Hashtable TRUSTED_CERTIFICATES =
@@ -100,11 +100,13 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private static final String CERT_INVALID_INACTIVE = "../certinvalidinactive.gif";
 	private static final String CERT_DISABLED = "../certdisabled.gif";
 
-	private static final String PROP_MANDATORY_ALGO = "CertPanel_mandatory_algorithm";
-	private static final String PROP_CERT_TYPE_UNKNOWN = "CertPanel_cert_type_unknown";
+	private static final String MSG_MANDATORY_ALGO = CertPanel.class.getName() + "_mandatory_algorithm";
+	private static final String MSG_CERT_TYPE_UNKNOWN = CertPanel.class.getName() + "_cert_type_unknown";
 
 	// holds a Vector with all instanciated CertPanels
 	private static Vector ms_certpanels = new Vector();
+
+	private String m_strChangedCertNotVerifyable;
 
 	/** The 'create new certificate' button */
 	private JButton m_bttnCreateCert;
@@ -134,7 +136,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private JTextPane m_sha1Part2Label;
 
 	/** Indicates whether the certificate object is PKCS12 (<CODE>true</CODE>) or X.509 (<CODE>false</CODE>) */
-	private boolean m_certIsPKCS12 = false;
+	private boolean m_bCertIsPKCS12 = false;
 
 	private int m_certAlgorithm;
 
@@ -220,7 +222,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			m_certAlgorithm = CERT_ALGORITHM_BOTH;
 		}
 
-		m_certIsPKCS12 = a_pkcs12;
+		m_bCertIsPKCS12 = a_pkcs12;
 		GridBagLayout layout = new GridBagLayout();
 		setLayout(layout);
 
@@ -264,7 +266,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		layout.setConstraints(m_bttnRemoveCert, constraints);
 		add(m_bttnRemoveCert);
 
-		if (m_certIsPKCS12)
+		if (m_bCertIsPKCS12)
 		{
 			m_bttnCreateCert = new JButton("Create");
 			constraints.gridx = 0;
@@ -375,6 +377,25 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		enableButtons();
 	}
 
+	/**
+	 * Returns if the certificate can be verified agaist the trusted certificates.
+	 * @return boolean
+	 */
+	public boolean isCertificateVerifyable()
+	{
+		return m_cert.getX509Certificate().verify(TRUSTED_CERTIFICATES.elements());
+	}
+
+	/**
+	 * Sets the message that is displayed when the user creates or imports an certificate that cannot be
+	 * verified against one of the trusted certificates.
+	 * @param a_strChangedCertNotVerifyable String
+	 */
+	public void setChangedCertNotVerifyableMessage(String a_strChangedCertNotVerifyable)
+	{
+		m_strChangedCertNotVerifyable = a_strChangedCertNotVerifyable;
+	}
+
 	public void setEnabled(boolean enabled)
 	{
 		Component components[] = getComponents();
@@ -408,13 +429,15 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		Object source = a_event.getSource();
 		try
 		{
+			boolean bCertChanged = false;
+
 			if (source == this.m_bttnChangePasswd)
 			{
 				changePasswd();
 			}
 			else if (source == this.m_bttnCreateCert)
 			{
-				generateNewCert();
+				bCertChanged = generateNewCert();
 			}
 			else if (source == this.m_bttnExportCert)
 			{
@@ -426,16 +449,23 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			}
 			else if (source == this.m_bttnImportCert)
 			{
-				if (this.m_certIsPKCS12)
+
+				if (m_bCertIsPKCS12)
 				{
-					importPrivCert();
+					bCertChanged = importPrivCert();
 				}
 				else
 				{
-					importPubCert();
+					bCertChanged = importPubCert();
 				}
 			}
 			enableButtons();
+
+			if (bCertChanged && !isCertificateVerifyable() && m_strChangedCertNotVerifyable != null)
+			{
+				JAPDialog.showInfoMessage(this, m_strChangedCertNotVerifyable,
+										  MixConfig.loadImageIcon(CERT_INVALID));
+			}
 		}
 		catch (Exception ex)
 		{
@@ -507,23 +537,26 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/** Set the certificate. The method decides according to {@link #isPKCS12()} whether to set the
 	 * PKCS12 or X.509 certificate.
 	 * @param cert A certificate, which must be of the appropriate type for this object.
+	 * @return true if the certificate has been changed; false otherwise
 	 * @throws IOException If an error occurs while converting the certificate
 	 * @throws IllegalArgumentException If the certificate is not of the required type
 	 */
-	public void setCert(byte[] cert) throws IllegalArgumentException
+	public boolean setCert(byte[] cert) throws IllegalArgumentException
 	{
 		JAPCertificate x509cert = JAPCertificate.getInstance(cert);
+		boolean bChanged;
 
 		if (cert == null)
 		{
+			bChanged = m_cert != null;
 			m_cert = null;
 			clearCertInfo();
 		}
-		else if (m_certIsPKCS12)
+		else if (m_bCertIsPKCS12)
 		{
 			if (x509cert != null)
 			{
-				( (PKCS12) m_cert).setX509Certificate(x509cert);
+				bChanged = ( (PKCS12) m_cert).setX509Certificate(x509cert);
 			}
 			else
 			{
@@ -531,7 +564,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 												 PasswordBox.ENTER_PASSWORD, null);
 				CertPanelPasswordReader pwReader = new CertPanelPasswordReader(pb);
 				PKCS12 privateCertificate = PKCS12.getInstance(cert, pwReader);
-				setCertificate(privateCertificate, pwReader.getPassword());
+				bChanged = setCertificate(privateCertificate, pwReader.getPassword());
 			}
 		}
 		else if (x509cert != null)
@@ -539,13 +572,16 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			checkPublicKeyAlgorithm(x509cert.getPublicKey());
 			setCertInfo(x509cert);
 			m_cert = x509cert;
+			bChanged = true;
 		}
 		else
 		{
-			throw new IllegalArgumentException(PROP_CERT_TYPE_UNKNOWN);
+			throw new IllegalArgumentException(MSG_CERT_TYPE_UNKNOWN);
 		}
 		enableButtons();
 		fireStateChanged();
+
+		return bChanged;
 	}
 
 	/** Removes the certficate from the panel */
@@ -581,11 +617,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 		if (m_certAlgorithm == CERT_ALGORITHM_DSA)
 		{
-			throw new IllegalArgumentException(JAPMessages.getString(PROP_MANDATORY_ALGO, "DSA"));
+			throw new IllegalArgumentException(JAPMessages.getString(MSG_MANDATORY_ALGO, "DSA"));
 		}
 		else
 		{
-			throw new IllegalArgumentException(JAPMessages.getString(PROP_MANDATORY_ALGO, "RSA"));
+			throw new IllegalArgumentException(JAPMessages.getString(MSG_MANDATORY_ALGO, "RSA"));
 		}
 	}
 
@@ -607,14 +643,15 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/** Sets the PKCS12 certificate and the password.
 	 * @param pkcs12 The new PKCS12 certificate.
 	 * @param strPrivCertPasswd The new password for the certificate.
+	 * @return true if the certificate has changed; false otherwise
 	 * @throws IllegalArgumentException if this panel does not accept a public key of the given type
 	 */
-	private void setCertificate(PKCS12 pkcs12, char[] strPrivCertPasswd)
+	private boolean setCertificate(PKCS12 pkcs12, char[] strPrivCertPasswd)
 		throws IllegalArgumentException
 	{
 		if (pkcs12 == null)
 		{
-			return;
+			return false;
 		}
 
 		JAPCertificate x509cs = pkcs12.getX509Certificate();
@@ -639,13 +676,14 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		enableButtons();
 		fireStateChanged();
+		return true;
 	}
 
 	private void updateCertificateIcon(boolean a_bActive)
 	{
 		if (m_cert != null)
 		{
-			boolean bValid = m_cert.getX509Certificate().verify(TRUSTED_CERTIFICATES.elements());
+			boolean bValid = isCertificateVerifyable();
 
 			if (a_bActive)
 			{
@@ -744,9 +782,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/** Imports an X.509 public certificate. The user is prompted to give the name of a
 	 * file from which to import. If that fails, the user is prompted to paste a
 	 * certificate from the system clipboard.
+	 * @return true if the certificate has changed; false otherwise
 	 * @throws IOException If an error occurs while reading the certificate.
 	 */
-	private void importPubCert() throws IOException
+	private boolean importPubCert() throws IOException
 	{
 		byte[] cert = null;
 		try
@@ -762,18 +801,19 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		if (cert == null)
 		{
-			return;
+			return false;
 		}
 
-		setCert(cert);
+		return setCert(cert);
 	}
 
 	/** Imports a PKCS12 certificate. The user is prompted to give the name of a
 	 * file from which to import. If that fails, the user is prompted to paste a
 	 * certificate from the system clipboard.
+	 * @return true if an certificate has been imported; false otherwise
 	 * @throws IOException If an error occurs while reading the certificate.
 	 */
-	private void importPrivCert() throws IOException
+	private boolean importPrivCert() throws IOException
 	{
 		byte[] buff;
 		PKCS12 pkcs12;
@@ -797,25 +837,24 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				"Not supported!",
 				JOptionPane.ERROR_MESSAGE);
 			m_bttnImportCert.setEnabled(false);
-			return;
+			return false;
 		}
 
 		if (buff == null)
 		{
-			return;
+			return false;
 		}
 
 		//if own key is already set, then maybe only an other certificate for this key is imported...
-		boolean bIsPubCert = false;
 		if (pkcs12 != null)
 		{
 			JAPCertificate cert1 = JAPCertificate.getInstance(buff);
 			if (cert1 != null)
 			{
-				bIsPubCert = true;
 				if (pkcs12.setX509Certificate(cert1))
 				{
 					setCertificate(pkcs12, m_privCertPasswd.toCharArray());
+					return true;
 				}
 				else
 				{
@@ -825,13 +864,12 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 						"belong to your private key!",
 						"Wrong certificate!",
 						JOptionPane.ERROR_MESSAGE);
+					return false;
 				}
 			}
 		}
-		if (!bIsPubCert)
-		{
-			setCert(buff);
-		}
+
+		return setCert(buff);
 	}
 
 	/** Prompts the user to enter a new password for the PKCS12 certificate. */
@@ -881,10 +919,12 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 	/** Generates a new certificate. For this purpose, a new thread is started that
 	 * works in the background.
+	 * @return true if a new certificate has been created; false otherwise
 	 * @throws NullPointerException If this object's certificate generation validator is <CODE>null</CODE>.
+	 * @throws CannotContinueException if this object's certificate generation validator is not valid or null
 	 * @see #CertCreationValidator
 	 */
-	private void generateNewCert() throws NullPointerException
+	private boolean generateNewCert() throws NullPointerException, CannotContinueException
 	{
 		Dimension windowSize;
 		Point windowLocation;
@@ -892,8 +932,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 		if (!m_validator.isValid())
 		{
-			throw new CannotContinueException(
-				 m_validator.getInvalidityMessages());
+			throw new CannotContinueException(m_validator.getInvalidityMessages());
 		}
 
 		ValidityDialog vdialog = new ValidityDialog(this, "Certificate validity");
@@ -903,7 +942,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 		if (vdialog.getValidity() == null)
 		{
-			return;
+			return false;
 		}
 
 
@@ -916,7 +955,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		passwd = dialog.getPassword();
 		if (passwd == null)
 		{
-			return;
+			return false;
 		}
 
 	    //Dialog which shows the progress
@@ -927,7 +966,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		worker.addChangeListener(this);
 		worker.start();
 		worker.showBussyWin();
-
+		return true;
 	}
 
 	/** Exports the certificate to a file.

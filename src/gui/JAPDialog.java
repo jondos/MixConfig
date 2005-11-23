@@ -36,7 +36,9 @@ import java.awt.Rectangle;
 import java.awt.Container;
 import java.awt.event.WindowListener;
 import javax.swing.JDialog;
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
+import jcui.common.TextFormatUtil;
 
 /**
  * This is the generic implementation for a modal, user resizeable dialog. Use the root panel
@@ -44,6 +46,11 @@ import javax.swing.JOptionPane;
  */
 public class JAPDialog
 {
+	/** The maximum width of an option pane. */
+	public static final int MAX_TEXT_WIDTH = 70;
+
+	private static final String MSG_INFO_MESSAGE = JAPDialog.class.getName() + "_info_message";
+
 	private boolean m_bIsDisplayable = true;
 
 	/**
@@ -94,6 +101,62 @@ public class JAPDialog
 	public JAPDialog(JAPDialog a_parentDialog, String a_strTitle)
 	{
 		this((a_parentDialog == null ? null : a_parentDialog.m_internalDialog), a_strTitle);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 */
+	public static void showInfoMessage(Component a_parentComponent, String a_message)
+	{
+		showInfoMessage(a_parentComponent, JAPMessages.getString(MSG_INFO_MESSAGE), a_message, null);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 */
+	public static void showInfoMessage(Component a_parentComponent, String a_title, String a_message)
+	{
+		showInfoMessage(a_parentComponent, a_title, a_message, null);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_message The message to be displayed
+	 * @param a_icon an icon that will be displayed on the dialog
+	 */
+	public static void showInfoMessage(Component a_parentComponent, String a_message, Icon a_icon)
+	{
+		showInfoMessage(a_parentComponent, JAPMessages.getString(MSG_INFO_MESSAGE), a_message, a_icon);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_icon an icon that will be displayed on the dialog
+	 */
+	public static void showInfoMessage(Component a_parentComponent, String a_title, String a_message,
+									   Icon a_icon)
+	{
+		JOptionPane.showMessageDialog(a_parentComponent,
+									  TextFormatUtil.wrapWordsOfTextLine(a_message, MAX_TEXT_WIDTH),
+									  a_title, JOptionPane.INFORMATION_MESSAGE, a_icon);
 	}
 
 	/**

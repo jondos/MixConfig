@@ -53,6 +53,7 @@ import anon.util.XMLUtil;
 import gui.ImageIconLoader;
 import gui.JAPHelp;
 import gui.JAPMessages;
+import gui.JAPDialog;
 
 import jcui.common.TextFormatUtil;
 import logging.LogHolder;
@@ -76,7 +77,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.005"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.006"; //NEVER change the layout of this line!!
 
 	public static final String MSG_WARNING = "MixConfig_warning";
 
@@ -350,11 +351,9 @@ public class MixConfig extends JApplet
 		{
 			for (int i = 0; i < a_message.length; i++)
 			{
-				message += TextFormatUtil.formatDescription(a_message[i], "* ", 2, OPTION_PANE_WIDTH);
+				message += TextFormatUtil.formatDescription(a_message[i], "* ", 2, JAPDialog.MAX_TEXT_WIDTH);
 			}
-
-			JOptionPane.showMessageDialog(getMainWindow(), message,
-										  a_title, JOptionPane.INFORMATION_MESSAGE);
+			JAPDialog.showInfoMessage(getMainWindow(), a_title, message);
 		}
 	}
 
@@ -364,10 +363,7 @@ public class MixConfig extends JApplet
 	 */
 	public static void info(String a_title, String a_message)
 	{
-		JOptionPane.showMessageDialog(getMainWindow(),
-									  TextFormatUtil.wrapWordsOfTextLine(
-									   a_message, OPTION_PANE_WIDTH),
-									  a_title, JOptionPane.INFORMATION_MESSAGE);
+		JAPDialog.showInfoMessage(getMainWindow(), a_title, a_message);
 	}
 
 	public static void about()

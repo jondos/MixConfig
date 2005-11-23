@@ -85,6 +85,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	public static final String MSG_ERROR_ILLEGAL_POSITION = "OwnCertificatesPanel_error_illegal_position";
 	public static final String MSG_INVALID_EMAIL = "OwnCertificatesPanel_invalid_email";
 	public static final String MSG_INVALID_URL = "OwnCertificatesPanel_invalid_url";
+	private static final String MSG_CERT_NOT_VERIFYABLE =
+		OwnCertificatesPanel.class.getName() + "_cert_not_verifyable";
 
 	private CertPanel m_ownCert;
 	private CertPanel m_operatorCert;
@@ -112,6 +114,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 								  "certificate to the operators of your " +
 								  "adjacent mixes", (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_ownCert.setName("Certificates/OwnCertificate");
+		m_ownCert.setChangedCertNotVerifyableMessage(JAPMessages.getString(MSG_CERT_NOT_VERIFYABLE));
 		m_ownCert.setCertCreationValidator(new OwnCertCreationValidator());
 		m_ownCert.setCertificateView(new MixCertificateView());
 		m_ownCert.addChangeListener(this);
@@ -123,6 +126,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 									   "adjacent mixes",
 									   (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_operatorCert.setName("Certificates/OperatorOwnCertificate");
+		m_operatorCert.setChangedCertNotVerifyableMessage(JAPMessages.getString(MSG_CERT_NOT_VERIFYABLE));
 		m_operatorCert.setCertCreationValidator(new OperatorCertCreationValidator());
 		m_operatorCert.setCertificateView(new OperatorCertificateView());
 		m_operatorCert.addChangeListener(this);
@@ -584,7 +588,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			return m_invalidity;
 		}
 	}
-
 
 	protected void save(JComboBox a_comboBox)
 	{

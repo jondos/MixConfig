@@ -53,6 +53,7 @@ import anon.util.Base64;
 import gui.GUIUtils;
 import gui.JAPMessages;
 import logging.LogType;
+import javax.swing.ImageIcon;
 
 public class EncryptedLogTool extends JDialog implements ActionListener, ChangeListener
 {
@@ -303,6 +304,5 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		{
 			return new X509DistinguishedName("CN=Mixlog Encryption Certificate");
 		}
-
 	}
 }

@@ -213,7 +213,8 @@ public class CertificateGenerator extends SwingWorker
 		}
 	}
 
-	protected void showBussyWin() {
+	protected void showBussyWin()
+	{
 		if (m_parent != null)
 		{
 			m_notification = new BusyWindow(MixConfig.getMainWindow(), "Generating Key Pair.");
