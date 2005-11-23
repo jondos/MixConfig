@@ -49,7 +49,8 @@ public class JAPDialog
 	/** The maximum width of an option pane. */
 	public static final int MAX_TEXT_WIDTH = 70;
 
-	private static final String MSG_INFO_MESSAGE = JAPDialog.class.getName() + "_info_message";
+	private static final String MSG_INFO = JAPDialog.class.getName() + "_info";
+	private static final String MSG_CONFIRMATION = JAPDialog.class.getName() + "_confirmation";
 
 	private boolean m_bIsDisplayable = true;
 
@@ -108,12 +109,11 @@ public class JAPDialog
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_title The title of the message dialog
 	 * @param a_message The message to be displayed
 	 */
 	public static void showInfoMessage(Component a_parentComponent, String a_message)
 	{
-		showInfoMessage(a_parentComponent, JAPMessages.getString(MSG_INFO_MESSAGE), a_message, null);
+		showInfoMessage(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, null);
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class JAPDialog
 	 */
 	public static void showInfoMessage(Component a_parentComponent, String a_message, Icon a_icon)
 	{
-		showInfoMessage(a_parentComponent, JAPMessages.getString(MSG_INFO_MESSAGE), a_message, a_icon);
+		showInfoMessage(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, a_icon);
 	}
 
 	/**
@@ -158,6 +158,46 @@ public class JAPDialog
 									  TextFormatUtil.wrapWordsOfTextLine(a_message, MAX_TEXT_WIDTH),
 									  a_title, JOptionPane.INFORMATION_MESSAGE, a_icon);
 	}
+
+	/**
+	 * Displays a message dialog that asks the user for a confirmation.
+	 * Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_message The message to be displayed
+	 * @return true if the answer was 'yes'; fale otherwise
+	 */
+	public static boolean showYesNoConfirmMessage(Component a_parentComponent, String a_message)
+	{
+		int i = JOptionPane.showConfirmDialog(a_parentComponent,
+											  TextFormatUtil.wrapWordsOfTextLine(a_message, MAX_TEXT_WIDTH),
+											  JAPMessages.getString(MSG_CONFIRMATION),
+											  JOptionPane.YES_NO_OPTION);
+		return (i == JOptionPane.YES_OPTION);
+	}
+
+
+	/**
+	 * Displays a message dialog that asks the user for a confirmation.
+	 * Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @return true if the answer was 'yes'; fale otherwise
+	 */
+	public static boolean showYesNoConfirmMessage(Component a_parentComponent, String a_title,
+												  String a_message)
+	{
+		int i = JOptionPane.showConfirmDialog(a_parentComponent,
+											  TextFormatUtil.wrapWordsOfTextLine(a_message, MAX_TEXT_WIDTH),
+											  a_title,
+											  JOptionPane.YES_NO_OPTION);
+		return (i == JOptionPane.YES_OPTION);
+	}
+
 
 	/**
 	 * Returns the content pane that can be used to place elements on the dialog.

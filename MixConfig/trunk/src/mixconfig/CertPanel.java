@@ -102,6 +102,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 	private static final String MSG_MANDATORY_ALGO = CertPanel.class.getName() + "_mandatory_algorithm";
 	private static final String MSG_CERT_TYPE_UNKNOWN = CertPanel.class.getName() + "_cert_type_unknown";
+	private static final String MSG_OVERWRITE_FILE = CertPanel.class.getName() + "_confirm_overwriting";
+
 
 	// holds a Vector with all instanciated CertPanels
 	private static Vector ms_certpanels = new Vector();
@@ -986,49 +988,57 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				filter = filter | MixConfig.FILTER_PFX;
 			}
 
-			JFileChooser fd = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG, filter);
-			FileFilter ff = fd.getFileFilter();
-
+			JFileChooser fd;
+			FileFilter ff;
+			File file;
 			int type;
-			if (ff instanceof SimpleFileFilter)
-			{
-				type = ( (SimpleFileFilter) ff).getFilterType();
-			}
-			else
-			{
-				type = MixConfig.FILTER_B64_CER;
-			}
 
-			File file = fd.getSelectedFile();
+			do
+			{
+				fd = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG, filter);
+				ff = fd.getFileFilter();
+				if (ff instanceof SimpleFileFilter)
+				{
+					type = ( (SimpleFileFilter) ff).getFilterType();
+				}
+				else
+				{
+					type = MixConfig.FILTER_B64_CER;
+				}
+				file = fd.getSelectedFile();
+				if (file != null)
+				{
+					String fname = file.getName();
+					if (fname.indexOf('.') < 0)
+					{
+						String extensions[] =
+							{
+							".pfx", ".der.cer", ".b64.cer"};
+						int ext = 0;
+						// we can't use the MixConfig constants as array indices
+						// because we can't rely that their values don't change
+						// in future versions
+						switch (type)
+						{
+							case MixConfig.FILTER_PFX:
+								ext = 0;
+								break;
+							case MixConfig.FILTER_CER:
+								ext = 1;
+								break;
+							case MixConfig.FILTER_B64_CER:
+								ext = 2;
+								break;
+							default:
+						}
+						file = new File(file.getParent(), fname + extensions[ext]);
+					}
+				}
+			} while (file != null && file.exists() &&
+					 !JAPDialog.showYesNoConfirmMessage(this, JAPMessages.getString(MSG_OVERWRITE_FILE)));
+
 			if (file != null)
 			{
-				String fname = file.getName();
-
-				if (fname.indexOf('.') < 0)
-				{
-					String extensions[] =
-						{
-						".pfx", ".der.cer", ".b64.cer"};
-					int ext = 0;
-					// we can't use the MixConfig constants as array indices
-					// because we can't rely that their values don't change
-					// in future versions
-					switch (type)
-					{
-						case MixConfig.FILTER_PFX:
-							ext = 0;
-							break;
-						case MixConfig.FILTER_CER:
-							ext = 1;
-							break;
-						case MixConfig.FILTER_B64_CER:
-							ext = 2;
-							break;
-						default:
-					}
-					file = new File(file.getParent(), fname + extensions[ext]);
-				}
-
 				FileOutputStream fout = new FileOutputStream(file);
 				switch (type)
 				{
@@ -1045,6 +1055,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				}
 				fout.close();
 			}
+
 			return;
 		}
 		catch (IOException a_e)
