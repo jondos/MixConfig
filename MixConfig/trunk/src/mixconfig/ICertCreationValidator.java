@@ -28,6 +28,7 @@
 package mixconfig;
 
 import java.util.Vector;
+import javax.swing.ImageIcon;
 
 import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;

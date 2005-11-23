@@ -57,6 +57,9 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	public static final String MIX_TYPE_PREVIOUS = "Previous Mix";
 	public static final String MIX_TYPE_NEXT = "Next Mix";
 
+	private static final String MSG_CERT_NOT_VERIFYABLE =
+		OtherMixPanel.class.getName() + "_cert_not_verifyable";
+
 	private String m_type;
 
 	private CertPanel m_otherCert;
@@ -104,6 +107,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		{
 			m_otherCert.setName("Certificates/NextMixCertificate");
 		}
+		m_otherCert.setChangedCertNotVerifyableMessage(JAPMessages.getString(MSG_CERT_NOT_VERIFYABLE));
 		m_otherCert.setCertificateView(new MixCertificateView());
 		m_otherCert.addChangeListener(this);
 		m_gbc.gridx = 0;
@@ -125,6 +129,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 			m_otherOpCert.setName("Certificates/NextOperatorCertificate");
 
 		}
+		m_otherOpCert.setChangedCertNotVerifyableMessage(JAPMessages.getString(MSG_CERT_NOT_VERIFYABLE));
 		m_otherOpCert.setCertificateView(new OperatorCertificateView());
 		m_otherOpCert.addChangeListener(this);
 		m_gbc.gridx++;

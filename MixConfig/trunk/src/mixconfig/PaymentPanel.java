@@ -48,8 +48,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import anon.crypto.JAPCertificate;
-import anon.crypto.X509DistinguishedName;
-import anon.crypto.X509Extensions;
 import anon.infoservice.ListenerInterface;
 import gui.JAPHelp;
 import gui.JAPJIntField;
@@ -60,14 +58,11 @@ import logging.LogType;
  * the data which is needed for the mix to successfully use payment, namely the JPI Host/Port,
  * and the Postgresql Database Host/Port/DBName/Username.
  *
- * @todo Save JPI private certificate somehow; XML structure provides no element for this
- * @todo Importing certificates is not implemented
  * @author Bastian Voigt
  * @author ronin &lt;ronin2@web.de&gt;
  * @author Tobias Bayer
  */
-public class PaymentPanel extends MixConfigPanel implements ActionListener, ChangeListener,
-	ICertCreationValidator
+public class PaymentPanel extends MixConfigPanel implements ActionListener, ChangeListener
 {
 	private JPanel m_miscPanel;
 	private JCheckBox m_chkPaymentEnabled;
@@ -272,7 +267,6 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 									   "running JPI, you can import it here.",
 									   (JAPCertificate)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_jpiCertPanel.setName("Accounting/PaymentInstance/Certificate");
-		m_jpiCertPanel.setCertCreationValidator(this);
 		m_jpiCertPanel.addChangeListener(this);
 		c.gridy++;
 		layout.setConstraints(m_jpiCertPanel, c);
@@ -435,34 +429,11 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		return new Vector(); /* nothing to check on this panel */
 	}
 
-	public boolean isValid()
-	{
-		String name = getConfiguration().getValue(m_textJPIName.getName());
-		return name != null && !name.equals("");
-	}
 
-	public X509DistinguishedName getSigName()
-	{
-		return new X509DistinguishedName("CN=" +
-										 getConfiguration().getValue(m_textJPIName.getName()));
-	}
 
-	public X509Extensions getExtensions()
-	{
-		return null;
-	}
 
-	public String getPasswordInfoMessage()
-	{
-		return "This password has to be entered every time the JPI " +
-			"server starts.\nIf you want the JPI to start without user " +
-			"interaction, you should leave this\npassworld field blank.\n";
-	}
 
-	public Vector getInvalidityMessages()
-	{
-		return anon.util.Util.toVector("Please enter JPI Name first!");
-	}
+
 
 	protected void enableComponents()
 	{

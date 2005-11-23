@@ -91,4 +91,16 @@
     <old-class-name>anon.util.ResourceInstantiator</old-class-name>
     <new-class-name>anon.util.IResourceInstantiator</new-class-name>
   </rename-class>
+  <rename-method id="6AP061U1RDGE8XSIJULFK8Z" creation-time="Wed Nov 23 16:05:10.255 CET 2005">
+    <declaring-class-name>mixconfig.CertPanel</declaring-class-name>
+    <declared-method-signature>()Z</declared-method-signature>
+    <old-method-name>isVerifyable</old-method-name>
+    <new-method-name>isCertificateVerifyable</new-method-name>
+  </rename-method>
+  <rename-field id="4AP061U1RDGE8XSIJULFK8Z" creation-time="Wed Nov 23 17:17:39.436 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <old-field-name>OPTION_PANE_TEXT_WIDTH</old-field-name>
+    <declared-field-type>I</declared-field-type>
+    <new-field-name>MAX_TEXT_WIDTH</new-field-name>
+  </rename-field>
 </refactor>
