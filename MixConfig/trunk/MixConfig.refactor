@@ -103,4 +103,10 @@
     <declared-field-type>I</declared-field-type>
     <new-field-name>MAX_TEXT_WIDTH</new-field-name>
   </rename-field>
+  <rename-field id="6AP09H4LFFGERZCO5ULFK8Z" creation-time="Thu Nov 24 20:19:47.248 CET 2005">
+    <declaring-class-name>mixconfig.OwnCertificatesPanel</declaring-class-name>
+    <old-field-name>MSG_ERROR_ILLEGAL_POSITION</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>MSG_INVALID_POSITION</new-field-name>
+  </rename-field>
 </refactor>

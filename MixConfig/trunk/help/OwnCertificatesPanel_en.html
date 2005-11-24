@@ -21,7 +21,7 @@
       The export button is used to save either the public (.cer) oder both the private and the public part (.pfx) of a certificate. If you want to give a certificate to a certificate authority for signing or to another mix for building a connection, you always have to export the public certificate only. But remind this: NEVER give your private certificates away!
    </LI>
   <LI><B>Remove</B><BR>
-      Deletes the certificate that you have chosen to remove. Please make sure you either have a backup of the certificate of you really don't need it any more.
+      Deletes the certificate. Please make sure you either have a backup of the certificate of you really don't need it any more.
   </LI>
   <LI><B>Create</B><BR>
       Creates a new DSA certificate. You may enter a validity and a password. Please note that the validity might be changed by the signer of your certificate at his will. The creation process itself may take some seconds.
@@ -31,11 +31,15 @@
   </LI>
 </UL>
 
-<B>Mix Location</B>
-<P>In these text fields, you should enter information about the location of your mix server.</P>
+<B>Mix Location and Own Mix Certificate</B>
+<P>In the text fields, you should enter information about the location of your mix server. By creating
+the mix certificate, you proof that this information is correct.</P>
 
-<P><B>Operator</B></P>
-<P>These fields contain information about the mix operator, that means you or your organisation.</P>
+<P><B>Operator and Operator Certificate</B></P>
+<P>These fields contain information about the mix operator, that means you or your organisation. 
+The operator certificate containing this information must be signed by a certificate 
+authority to proof that it is correct. You can use your operator certificate for different mixes, just export and import it into an other configuration.
+</P>
 
 
 
