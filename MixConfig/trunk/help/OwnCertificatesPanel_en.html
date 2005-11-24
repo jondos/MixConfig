@@ -12,7 +12,7 @@
 
 <P>It is recommended to protect your private certificates with a password.</P>
 
-<B>General Certificate Options</B>
+<P><B>General Certificate Options</B></P>
 <UL>
   <LI><B>Import</B><BR>
 	This option allows you to import private certificates that contain both your private key for signing and the corresponding public key for verifying your signatures, or a public certificate that fits to your private one and may be signed by yourself or by a certificate authority, from a file. To import a public certificate (which contains your public key and some information about your mix or organisation and the signer) you always need the corresponding private certificate.
@@ -23,46 +23,22 @@
   <LI><B>Remove</B><BR>
       Deletes the certificate that you have chosen to remove. Please make sure you either have a backup of the certificate of you really don't need it any more.
   </LI>
-  <LI><B>Mix name</B><BR>
-      Please give your mix a human-readable name.
+  <LI><B>Create</B><BR>
+      Creates a new DSA certificate. You may enter a validity and a password. Please note that the validity might be changed by the signer of your certificate at his will. The creation process itself may take some seconds.
   </LI>
-  <LI><B>Cascade name</B><BR>
-      Dependend on the type of configuration, the first or the last mix has to define a human-readable name of the whole cascade.
-  </LI>
- <LI><B>Minimum cascade length</B><BR>
-      In case of a dynamic configuration, this option defines the minimum length of the cascade the mix may be assigned to.
-      <em>Please note that this is an experimental feature that won't work in most cases!</em>
+  <LI><B>Change Password</B><BR>
+      Creates, deletes or changes the password as you like.
   </LI>
 </UL>
 
-<B>Info Service</B>
-<P>These fields contain the connection information that is needed to reach an InfoSerivce. The Info Service is not important to set up the cascade, but it tells the JAP users that this cascade exists and gives them additional information about it (length, number of users, mix organisations, mix locations). If no Info Service reachable, it is not possible to use a dynamic mix configuration as the needed information cannot be sent or received to/from the mixes.</P>
-<UL>
-  <LI><B>Host name</B><BR>
-      Either an IP address or a DNS name.
-  </LI>
- <LI><B>Port</B><BR>
-      The port on which the Info Service is reachable.
-  </LI>
-</UL>
+<B>Mix Location</B>
+<P>In these text fields, you should enter information about the location of your mix server.</P>
 
-<B>Listener Interfaces</B>
-<P>The listener interfaces are needed to tell the mix on which ports it should listen to connection requests from JAP users or a previous mix. For each listener interface you may specify the transport protocol, host name, port and visibility. You may specify as many listeners as you want.</P>
-<UL>
-  <LI><B>Transport protocol</B><BR>
-      In almost all cases, TCP + RAW should do the thing. If you really need to use the UNIX domain sockets, you should know what you are doing...
-  </LI>
- <LI><B>Host name</B><BR>
-      If you have chosen to use <A  href="livecd_en.html">MixOnCD</A>, you won't need to insert anything here. Otherwise, you must enter the IP address of your mix.
-  </LI>
-  <LI><B>Port</B><BR>
-      The port on which your mix is listening. We suggest you to create listeners on the ports 80, 443 and 6544. Please note that in UNIX/Linux systems, you must start the mix as <I>root</I> user to bind it to ports lower that 1024.
- </LI>
-  <LI><B>Visibility</B><BR>
-                 If your mix is not connected directly to the internet but is behind a router in a local area network (LAN), the internal IP address of the LAN differs from the external IP address your mix is visible from the internet. In this case, you will have to specify two listener interfaces for each port you are listening to: one virtual interface, that contains the host name visible from the internet, and one hidden interface, that contains the internal host name. The virtual host name will be transfered to the JAP users by the Info Service.<BR>
-                 If your mix is behind a NAT gateway, you may also need to define port forwarding for the mix listener ports on your router. Please consult the router manual for further details.
-            </LI>
-</UL>
+<P><B>Operator</B></P>
+<P>These fields contain information about the mix operator, that means you or your organisation.</P>
+
+
+
 
 
 <!--#include virtual="/footer_en.html"-->

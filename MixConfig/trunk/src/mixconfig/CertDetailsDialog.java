@@ -27,177 +27,374 @@
  */
 package mixconfig;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.util.Vector;
+
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.*;
+import java.util.Enumeration;
+import jcui.common.TextFormatUtil;
+import gui.CountryMapper;
+import gui.JAPMessages;
+import java.util.Date;
+import anon.crypto.AbstractX509Extension;
 import anon.crypto.IMyPublicKey;
 import anon.crypto.JAPCertificate;
 import anon.crypto.X509DistinguishedName;
+import anon.crypto.Validity;
 import anon.crypto.X509Extensions;
-import gui.GUIUtils;
-import anon.crypto.X509UnknownExtension;
 import anon.crypto.AbstractX509Extension;
-import org.bouncycastle.asn1.DERString;
-import java.util.Vector;
+import anon.crypto.X509UnknownExtension;
+import org.bouncycastle.asn1.x509.X509Name;
+import javax.swing.JLabel;
+import java.awt.GridLayout;
+
 import gui.JAPDialog;
 
-/** This dialog shows the details of a certificate from the CertPanel.
- * @author Tobias Bayer
+/**
+ *
+ * <p>CertDetails Dialog </p>
+ * <p>Beschreibung: </p>
+ * <p>Copyright: Copyright (c) 2005</p>
+ * <p>Organisation: </p>
+ * @author Kuno G. Gruen
+ * @version 0.5
  */
 public class CertDetailsDialog extends JAPDialog
 {
+	private static final String MSG_CERTVALID = CertDetailsDialog.class.getName() + "_CERT_VALID";
+	private static final String MSG_CERTNOTVALID = CertDetailsDialog.class.getName() + "_CERT_NOTVALID";
+
+	private int maxKeyLen = 0;
+
 	public CertDetailsDialog(Component a_parent, JAPCertificate a_cert)
 	{
 		super(a_parent, "Certificate Details");
-		this.setSize(500, 400);
-		JPanel root = new JPanel();
-		JScrollPane scrollPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-												 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setViewportView(root);
-		this.getContentPane().setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.weighty = 1;
-		gbc.weightx = 1;
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.fill = gbc.BOTH;
-		this.getContentPane().add(scrollPane, gbc);
-		root.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = c.NONE;
-		c.anchor = c.NORTHWEST;
-		c.insets = new Insets(5, 5, 5, 5);
-		c.gridx = 0;
-		c.gridy = 0;
+		JPanel jp_root = new JPanel();
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
+		Vector lengthVector = new Vector();
 
-		//Subject
-		root.add(new JLabel("Subject"), c);
+	// Distinguished Name
+		X509DistinguishedName dName = a_cert.getDistinguishedName();
+		Vector dNameKeys = idsToNames(dName.getAttributeIdentifiers());
+		Vector dNameVals = dName.getAttributes();
+		lengthVector.addElement(dNameKeys);
 
-		c.insets = new Insets(5, 15, 5, 5);
+	// Issuer
+		X509DistinguishedName issuer = new X509DistinguishedName(a_cert.getIssuer());
+		Vector issuerKeys = idsToNames(issuer.getAttributeIdentifiers());
+		Vector issuerVals = issuer.getAttributes();
+		lengthVector.addElement(issuerKeys);
 
-		X509DistinguishedName dname = new X509DistinguishedName(a_cert.getSubject().toString());
+	// Extension
+		X509Extensions extensionsVect = a_cert.getExtensions();
+		Vector extKeys = new Vector(extensionsVect.getSize());
+		Vector extVals = new Vector(extensionsVect.getSize());
 
-		c.gridy++;
-		root.add(new JLabel("Country:"), c);
-		c.gridx++;
-		root.add(new JLabel(dname.getCountryCode()), c);
-		c.gridx = 0;
-		c.gridy++;
-		root.add(new JLabel("City:"), c);
-		c.gridx++;
-		root.add(new JLabel(dname.getLocalityName()), c);
-		c.gridx = 0;
-		c.gridy++;
-		root.add(new JLabel("Organisation:"), c);
-		c.gridx++;
-		root.add(new JLabel(dname.getOrganisation()), c);
-		c.gridx = 0;
-		c.gridy++;
-		root.add(new JLabel("Organisational Unit:"), c);
-		c.gridx++;
-		root.add(new JLabel(dname.getOrganisationalUnit()), c);
-		c.gridx = 0;
-		c.gridy++;
-		root.add(new JLabel("Common Name:"), c);
-		c.gridx++;
-		root.add(new JLabel(dname.getCommonName()), c);
-		c.gridx = 0;
-
-		//Issuer
-		dname = new X509DistinguishedName(a_cert.getIssuer().toString());
-
-		c.gridy++;
-		c.insets = new Insets(5, 5, 5, 5);
-		root.add(new JLabel("Issuer"), c);
-
-		c.insets = new Insets(5, 15, 5, 5);
-
-		c.gridy++;
-		root.add(new JLabel("Organisational Unit:"), c);
-		c.gridx++;
-		root.add(new JLabel(dname.getOrganisationalUnit()), c);
-		c.gridx = 0;
-		c.gridy++;
-		root.add(new JLabel("Organisation:"), c);
-		c.gridx++;
-		root.add(new JLabel(dname.getOrganisation()), c);
-
-		//Public  Key
-		IMyPublicKey pkey = a_cert.getPublicKey();
-		c.gridx = 0;
-		c.gridy++;
-		c.insets = new Insets(5, 5, 5, 5);
-		root.add(new JLabel("Public Key"), c);
-		c.insets = new Insets(5, 15, 5, 5);
-
-		c.gridy++;
-		root.add(new JLabel("Algorithm:"), c);
-		c.gridx++;
-		root.add(new JLabel(pkey.getAlgorithm()), c);
-
-		//Extensions
-		c.gridx = 0;
-		c.gridy++;
-		c.insets = new Insets(5, 5, 5, 5);
-		root.add(new JLabel("Extensions"), c);
-		c.insets = new Insets(5, 15, 5, 5);
-
-		X509Extensions extensions = a_cert.getExtensions();
-
-		for (int i = 0; i < extensions.getSize(); i++)
+		for (int i = 0; i < extensionsVect.getSize(); i++)
 		{
-			c.gridx = 0;
-			c.gridy++;
-			AbstractX509Extension extension = extensions.getExtension(i);
-			root.add(new JLabel(extension.getName()), c);
-			Vector v = extension.getValues();
-			c.gridx++;
-			for (int j = 0; j < v.size(); j++)
+			if (extensionsVect.getExtension(i) instanceof X509UnknownExtension)
 			{
-				if (v.elementAt(j) instanceof String)
+				extKeys.addElement("Unknown Extension");
+				AbstractX509Extension val = (AbstractX509Extension) extensionsVect.getExtension(i);
+				StringBuffer tmpValBuf = new StringBuffer();
+
+				if (val.getValues() != null && ! (val.getValues().isEmpty()))
 				{
-					String extValue = (String) v.elementAt(j);
-					root.add(new JLabel(extValue), c);
-					c.gridy++;
+					for (int j = 0; j < val.getValues().size(); j++)
+					{
+						tmpValBuf.append(val.getValues().elementAt(j).toString());
+						tmpValBuf.append(" - ");
+					}
+					extVals.addElement(tmpValBuf.toString());
+				}
+			}
+
+			else
+			{
+				AbstractX509Extension key = extensionsVect.getExtension(i);
+				extKeys.addElement(key.getName());
+				AbstractX509Extension val = (AbstractX509Extension) extensionsVect.getExtension(i);
+				StringBuffer tmpValBuf = new StringBuffer();
+
+				if (val.getValues() != null && ! (val.getValues().isEmpty()))
+				{
+					for (int j = 0; j < val.getValues().size(); j++)
+					{
+						Object o = val.getValues().elementAt(j);
+						if (o != val.getValues().lastElement())
+						{
+							tmpValBuf.append(val.getValues().elementAt(j).toString());
+							tmpValBuf.append(" - ");
+						}
+						else
+						{
+							tmpValBuf.append(val.getValues().elementAt(j).toString());
+						}
+					}
+					extVals.addElement(tmpValBuf.toString());
 				}
 			}
 		}
+		lengthVector.addElement(extKeys);
 
-		c.gridx = 0;
-		c.gridy++;
-		root.add(new JLabel("..."), c);
-		c.gridx++;
-		c.weightx = 1;
-		c.weighty = 1;
-		root.add(new JLabel("..."), c);
-		c.gridx = 0;
+	// Validity
+		Validity validity = a_cert.getValidity();
+		Vector validityKeys = new Vector();
+		validityKeys.addElement(new String("Is valid"));
+		validityKeys.addElement(new String("Valid from"));
+		validityKeys.addElement(new String("Valid until"));
+		//lengthVector.addElement(validityKeys);
+		Vector validityValues = new Vector();
 
-		//Ok Button
-		JButton okButton = new JButton("Ok");
-		okButton.addActionListener(new ActionListener()
+		if (validity.isValid(new Date()))
 		{
-			public void actionPerformed(ActionEvent e)
-			{
-				dispose();
-			}
-		});
-		gbc.gridy++;
-		gbc.anchor = gbc.NORTHEAST;
-		gbc.weighty = 0;
-		gbc.weightx = 0;
-		gbc.fill = gbc.NONE;
-		this.getContentPane().add(okButton, gbc);
+			validityValues.addElement(JAPMessages.getString(MSG_CERTVALID));
+		}
+		else
+		{
+			validityValues.addElement(JAPMessages.getString(MSG_CERTNOTVALID));
+		}
+		validityValues.addElement(validity.getValidFrom().toString());
+		validityValues.addElement(validity.getValidTo().toString());
+
+	// Fingerprints
+	   Vector fpKeys = new Vector();
+	   fpKeys.addElement(new String("SHA1 Fingerprint"));
+	   fpKeys.addElement(new String("MD5 Fingerprint"));
+		   //lengthVector.addElement(fpKeys);
+	   Vector fpValues = new Vector();
+	   fpValues.addElement(a_cert.getSHA1Fingerprint());
+	   fpValues.addElement(a_cert.getMD5Fingerprint());
+
+	// Key Algorithm and Key length
+		Vector keyKeys = new Vector();
+		keyKeys.addElement(new String("Key Algorithm"));
+		keyKeys.addElement(new String("Key Length"));
+		// lengthVector.addElement(keyKeys);
+		Vector keyValues = new Vector();
+		keyValues.addElement(new String(a_cert.getPublicKey().getAlgorithm()));
+		int kLength = ( (IMyPublicKey) a_cert.getPublicKey()).getKeyLength();
+		keyValues.addElement(new Integer(kLength).toString());
+
+
+		// calculateAbsoluteMaxLen(lengthVector);
+
+		// Construction of the Branches
+		// needs to be done after all
+		// Key-Vectors have been added to lengthVector
+		// and after calculateAbsoluteMaxLen() has been done
+
+		root.add(constructBranch(dNameKeys, dNameVals, "DistinguishedName"));
+		root.add(constructBranch(issuerKeys, issuerVals, "Issuer"));
+		root.add(constructBranch(extKeys, extVals, "Extensions"));
+		root.add(constructBranch(validityKeys, validityValues, "Valditiy"));
+		root.add(constructBranch(fpKeys, fpValues, "Fingerprints"));
+		root.add(constructBranch(keyKeys, keyValues, "Key Information"));
+
+
+
+
+		JTree tree = new JTree(root);
+		tree.setCellRenderer(new MyCellRenderer());
+		tree.setRootVisible(false);
+		this.getContentPane().add(tree);
+		this.setSize(550, 600);
 	}
 
+/**
+	 * Constructs a Branch of a JTree from two the Vectors keys and values
+	 * @param keyVect Vector with the Keys
+	 * @param valVect Vector with the corresponding Values
+	 * @param title String which is the title of the branch
+	 * @return DefaultMutableTreeNode
+	 */
+	private DefaultMutableTreeNode constructBranch(Vector keyVect, Vector valVect, String title)
+	{
+		DefaultMutableTreeNode res = new DefaultMutableTreeNode(title);
+		DetailsNode resNode;
+		Enumeration keys = keyVect.elements();
+		Enumeration values = valVect.elements();
+
+		if ( (keys != null && values != null) && (keys.hasMoreElements() && values.hasMoreElements()) )
+		{
+
+			while (keys.hasMoreElements())
+			{
+				String keyTmp = keys.nextElement().toString();
+				String valTmp = values.nextElement().toString();
+
+				resNode = new DetailsNode(keyTmp, valTmp, maxKeyLen);
+				res.add(resNode);
+			}
+		}
+			return res;
+	}
+
+/**
+	 * Returns the maximum length of Strings in a Vector
+	 * @param a_vector Vector with Strings
+	 * @return int which is the maximal length
+	 */
+	private int getMaxLength(Vector a_vector)
+	{
+		int tmpMaxLen = 0;
+		if (a_vector != null && a_vector.size() > 0)
+		{
+			for (int i = 0; i < a_vector.size(); i++)
+			{
+				tmpMaxLen = a_vector.elementAt(i).toString().length();
+				if (tmpMaxLen > maxKeyLen)
+				{
+					maxKeyLen = tmpMaxLen;
+				}
+			}
+		}
+		return tmpMaxLen;
+	}
+
+/**
+	 * Sets the maximum String lengths from all Elements from a Vector
+	 * yet are implemented as allowed Elements: Vector
+	 * @param a_vector Vector
+	 *
+	 * @todo implement also handling for Validity objects
+	 */
+	private void calculateAbsoluteMaxLen(Vector a_meta_vector)
+	{
+		for (int i = 0; i < a_meta_vector.size(); i++)
+		{
+			Object o = a_meta_vector.elementAt(i);
+
+			if (o instanceof Vector)
+			{
+				int tmpMaxValLen = getMaxLength( (Vector) o);
+				if (tmpMaxValLen > maxKeyLen)
+				{
+					maxKeyLen = tmpMaxValLen;
+				}
+			}
+		}
+	}
+
+/**
+	 * Translates a Vector of numerical identifiers into human readable names
+	 * see also anon.crypto.X509DistinguishedName.getAttributeNameFromAttributeIdentifier
+	 * @param a_vector Vector with numerical identifiers
+	 * @return a Vector with human readable Strings
+	 */
+	private Vector idsToNames(Vector a_vector)
+	{
+		Vector res = new Vector(a_vector.size());
+
+		if (a_vector != null && a_vector.size() > 0)
+		{
+
+			for (int i = 0; i < a_vector.size(); i++)
+			{
+				res.addElement(anon.crypto.X509DistinguishedName.getAttributeNameFromAttributeIdentifier( (String)
+					a_vector.elementAt(i)));
+			}
+		}
+		return res;
+	}
+
+/**
+	 * Encapsulates a key / value pair of Strings
+	 *
+	 * @author Kuno G. Gruen
+	 * @version 1.0
+	 * date: 21.11.05
+	 */
+	private class DetailsNode extends DefaultMutableTreeNode
+	{
+		private String key;
+		private String value;
+		private int keyLength;
+
+		public DetailsNode(String a_key, String a_value, int a_length)
+		{
+			key = a_key;
+			value = a_value;
+			keyLength = a_length;
+		}
+
+		public String getKey()
+		{
+			return this.key;
+		}
+
+		public String getValue()
+		{
+			return this.value;
+		}
+
+		public String toString()
+		{
+			StringBuffer sb = new StringBuffer();
+			sb.append(key);
+			sb.append(": ");
+			sb.append(value);
+			return sb.toString();
+		}
+
+		/**
+		 * Bloats a String to a given length
+		 * The String is filled with " "
+		 * @param a_string String
+		 * @param a_length int
+		 * @return String
+		 */
+		private String normaliseString(String a_string, int a_length)
+		{
+			StringBuffer buf = new StringBuffer();
+			if (a_string != null && (a_string.trim().length()) != 0)
+			{
+				a_string = a_string.trim();
+				int counter = a_length - a_string.length();
+				buf = new StringBuffer(a_string);
+				for (int i = 0; i <= counter; i++)
+				{
+					buf.append("_");
+				}
+			}
+			return buf.toString();
+		}
+
+	}
+
+	private class MyCellRenderer implements TreeCellRenderer
+	{
+		public Component getTreeCellRendererComponent(
+			JTree tree,
+			Object value,
+			boolean selected,
+			boolean expanded,
+			boolean leaf,
+			int row,
+			boolean hasFocus)
+		{
+			JPanel panel = new JPanel();
+
+			if (value instanceof DefaultMutableTreeNode)
+			{
+				panel.add(new JLabel(value.toString()));
+			}
+
+			if (value instanceof DetailsNode)
+			{
+			//	panel.add(new JLabel(((DetailsNode) value).getValue()));
+			}
+
+			return panel;
+
+
+		}
+
+	}
 
 }
+
