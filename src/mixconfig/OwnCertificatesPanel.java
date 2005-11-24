@@ -83,9 +83,10 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	public static final String XMLPATH_OPERATOR_ORGA_UNIT = XMLPATH_OPERATOR +
 		"/OrganisationalUnit";
 
-	public static final String MSG_ERROR_ILLEGAL_POSITION = "OwnCertificatesPanel_error_illegal_position";
-	public static final String MSG_INVALID_EMAIL = "OwnCertificatesPanel_invalid_email";
-	public static final String MSG_INVALID_URL = "OwnCertificatesPanel_invalid_url";
+	public static final String MSG_INVALID_POSITION = OwnCertificatesPanel.class.getName() +
+		"_invalid_position";
+	public static final String MSG_INVALID_EMAIL = OwnCertificatesPanel.class.getName() + "_invalid_email";
+	public static final String MSG_INVALID_URL = OwnCertificatesPanel.class.getName() + "_invalid_url";
 	private static final String MSG_CERT_NOT_VERIFYABLE =
 		OwnCertificatesPanel.class.getName() + "_cert_not_verifyable";
 
@@ -272,7 +273,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	public Vector check()
 	{
 		Vector errors, tempErrors;
-		MixConfiguration mixConf = getConfiguration();
 		ICertCreationValidator validator;
 
 
@@ -452,7 +452,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				}
 				catch (NumberFormatException a_e)
 				{
-					m_invalidity.addElement(JAPMessages.getString(MSG_ERROR_ILLEGAL_POSITION, getName()));
+					m_invalidity.addElement(JAPMessages.getString(MSG_INVALID_POSITION, getName()));
 					valid = false;
 				}
 			}
@@ -520,7 +520,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		 */
 		public boolean isValid()
 		{
-			boolean valid = true;
 			String strValue;
 			String[] message = new String[2];
 			message[1] = getName();
@@ -528,15 +527,17 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			m_invalidity = new Vector();
 
 			message[0] = "organisation";
-			valid = valid && checkCertificateField(XMLPATH_OPERATOR_ORGANISATION, m_invalidity, message);
+			checkCertificateField(XMLPATH_OPERATOR_ORGANISATION, m_invalidity, message);
 			message[0] = "email";
-			valid = valid && checkCertificateField(XMLPATH_OPERATOR_EMAIL, m_invalidity, message);
-			if (!X509SubjectAlternativeName.isValidEMail(getConfiguration().getValue(XMLPATH_OPERATOR_EMAIL)))
+
+			if (!X509SubjectAlternativeName.isValidEMail(getConfiguration().getValue(
+				 XMLPATH_OPERATOR_EMAIL)))
 			{
 				m_invalidity.addElement(JAPMessages.getString(MSG_INVALID_EMAIL, getName()));
 			}
+
 			message[0] = "country";
-			valid = valid && checkCertificateField(XMLPATH_OPERATOR_COUNTRY, m_invalidity, message);
+			checkCertificateField(XMLPATH_OPERATOR_COUNTRY, m_invalidity, message);
 
 			strValue = getConfiguration().getValue(XMLPATH_OPERATOR_URL);
 			if (strValue != null && strValue.trim().length() > 0)
@@ -547,7 +548,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				}
 			}
 
-			return valid;
+			return m_invalidity.size() == 0;
 		}
 
 		public X509DistinguishedName getSigName()
