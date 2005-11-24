@@ -53,15 +53,16 @@ import anon.util.Base64;
 import gui.GUIUtils;
 import gui.JAPMessages;
 import logging.LogType;
-import javax.swing.ImageIcon;
 
 public class EncryptedLogTool extends JDialog implements ActionListener, ChangeListener
 {
-	private static final String MSG_PASSWD_INFO_MSG = "EncryptedLog_password_info_message";
-	private static final String MSG_CERT_HEADLINE = EncryptedLogTool.class.getName() + "_certificate_headline";
-	private static final String MSG_CANNOT_DECRYPT = "EncryptedLog_cannot_decrypt";
-	private static final String MSG_NO_CERT = "EncryptedLog_no_cert";
-	private static final String MSG_NO_LOG = "EncryptedLog_no_log";
+	private static final String MSG_PASSWD_INFO_MSG = EncryptedLogTool.class.getName() +
+		"_password_info_message";
+	private static final String MSG_CERT_HEADLINE = EncryptedLogTool.class.getName() +
+		"_certificate_headline";
+	private static final String MSG_CANNOT_DECRYPT = EncryptedLogTool.class.getName() + "_cannot_decrypt";
+	private static final String MSG_NO_CERT = EncryptedLogTool.class.getName() + "_no_cert";
+	private static final String MSG_NO_LOG = EncryptedLogTool.class.getName() + "_no_log";
 
 	private JTextArea m_textLogFile;
 	private byte[] m_arLog;

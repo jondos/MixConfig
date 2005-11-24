@@ -95,7 +95,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		constraints.insets = getDefaultInsets();
 		constraints.fill = GridBagConstraints.NONE;
 
-		m_cbxMixOnCD = new JCheckBox("Use bootable MixOnCD to create and install the mix (Recommended!!)");
+		m_cbxMixOnCD = new JCheckBox("Use bootable MixOnCD to create and install the mix");
 		m_cbxMixOnCD.setName(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK + "/" +
 							 MixOnCDPanel.XMLATTRIBUTE_DHCP);
 		m_cbxMixOnCD.addActionListener(this);

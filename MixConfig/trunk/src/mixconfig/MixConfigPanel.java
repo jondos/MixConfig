@@ -62,7 +62,6 @@ import anon.crypto.ICertificate;
 import anon.crypto.PKCS12;
 import logging.LogType;
 import anon.util.ClassUtil;
-import gui.*;
 
 /** This is the abstract superclass of all configuration panels. It saves
  * the data entered by the user to the underlying configuration object, and updates
@@ -92,8 +91,9 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 
 	public static final String CN_ANON_OPERATOR_CERTIFICATE = "AN.ON Operator Certificate";
 
-	public static final String MSG_WARNING_NO_MIX_CERT = "MixConfigPanel_warning_no_mix_cert";
-	public static final String MSG_ERROR_BLANK_FIELD = "MixConfigPanel_error_blank_field";
+	public static final String MSG_WARNING_NO_MIX_CERT = MixConfigPanel.class.getName() +
+		"_warning_no_mix_cert";
+	public static final String MSG_ERROR_BLANK_FIELD = MixConfigPanel.class.getName() + "_error_blank_field";
 
 	/**
 	 * Indicates whether changes in configuration controls should automatically
