@@ -46,9 +46,13 @@ import anon.crypto.PKCS12;
 import gui.GUIUtils;
 import gui.JAPMessages;
 import gui.ValidityDialog;
+import gui.JAPDialog;
 
 public class SigCertTool extends JDialog implements ActionListener, ChangeListener
 {
+	private static final String MSG_CONFIRMATION_TITLE = SigCertTool.class.getName() + "_Confirmation_title";
+	private static final String MSG_CONFIRMATION = SigCertTool.class.getName() + "_Confirmation_message";
+
 	private CertPanel m_publicCertPanel;
 	private CertPanel m_privateCertPanel;
 	private JButton m_btnSign;
@@ -119,8 +123,8 @@ public class SigCertTool extends JDialog implements ActionListener, ChangeListen
 						dialog.getValidity(),
 						( (JAPCertificate) m_publicCertPanel.getCert()).getExtensions(), new BigInteger("0"));
 				m_publicCertPanel.setCert(signedCertificate);
-				MixConfig.info(JAPMessages.getString("Signing_Confirmation_title"),
-							   JAPMessages.getString("Signing_Confirmation_message"));
+				JAPDialog.showInfoMessage(this,JAPMessages.getString(MSG_CONFIRMATION_TITLE),
+										  JAPMessages.getString(MSG_CONFIRMATION));
 			}
 		}
 	}

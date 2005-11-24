@@ -79,6 +79,8 @@ public class CountryMapper
 		 */
 	};
 
+	private static final String MSG_CHOOSE_COUNTRY = CountryMapper.class.getName() + "_ChooseCountry";
+
 	private final int MAX_LENGTH;
 	private boolean m_bUseDefaultLocale;
 	private String m_iso2;
@@ -285,11 +287,12 @@ public class CountryMapper
 	public String toString()
 	{
 		String strCName;
+		String temp;
 		Locale locale;
 
 		if (m_iso2.length() == 0)
 		{
-			strCName = JAPMessages.getString("CountryMapper_ChooseCountry");
+			strCName = JAPMessages.getString(MSG_CHOOSE_COUNTRY);
 		}
 		else
 		{
@@ -305,7 +308,13 @@ public class CountryMapper
 			strCName = new Locale(locale.getLanguage(), m_iso2).getDisplayCountry();
 			if (strCName == null || strCName.equals(m_iso2))
 			{
-				strCName = JAPMessages.getString(m_iso2);
+				temp = CountryMapper.class.getName() + "_" + m_iso2;
+				strCName = JAPMessages.getString(temp);
+				if (strCName.equals(temp))
+				{
+					// the country could not be translated
+					strCName = m_iso2;
+				}
 			}
 		}
 
