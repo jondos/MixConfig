@@ -62,6 +62,7 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import mixconfig.wizard.ConfigWizard;
+import gui.JAPDialog;
 
 public class Menu implements ActionListener
 {
@@ -475,7 +476,7 @@ public class Menu implements ActionListener
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleError(e, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), e, null, LogType.GUI);
 		}
 
 		//set MessageTitle

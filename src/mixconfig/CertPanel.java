@@ -475,7 +475,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleError(ex, null, LogType.GUI);
+			JAPDialog.showErrorMessage(this, ex, null, LogType.GUI);
 		}
 	}
 
@@ -495,7 +495,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleError(ex, "Certificate creation failed", LogType.MISC);
+			JAPDialog.showErrorMessage(this, ex, "Certificate creation failed", LogType.MISC);
 		}
 	}
 
@@ -1064,7 +1064,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (IOException a_e)
 		{
-			MixConfig.handleError(a_e, null, LogType.MISC);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), a_e, null, LogType.MISC);
 			ClipFrame save =
 				new ClipFrame(this,
 					"I/O error while saving, try clipboard. " +

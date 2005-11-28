@@ -53,6 +53,7 @@ import mixconfig.MixOnCDPanel;
 import mixconfig.PreviousMixPanel;
 import mixconfig.TitledGridBagPanel;
 import mixconfig.networkpanel.NextMixProxyPanel;
+import gui.JAPDialog;
 
 /**
  * A class that represents a wizard.
@@ -321,7 +322,8 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		}
 		catch (Exception io)
 		{
-			MixConfig.handleError(io, "Error on loading the MixConfiguration", LogType.MISC);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), io,
+									   "Error on loading the MixConfiguration", LogType.MISC);
 		}
 		while (!m_pages[getCurrentPageNr()].isEnabled())
 		{

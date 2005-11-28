@@ -36,6 +36,7 @@ import logging.LogType;
 import mixconfig.wizard.ConfigWizard;
 import java.awt.Graphics;
 import javax.swing.JRootPane;
+import gui.JAPDialog;
 
 /**
  * Shows the StartScreen when you run the "Mix Configuration Tool" in a CardLayout.
@@ -113,7 +114,7 @@ public class ChoicePanel extends JPanel
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleException(e, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), e, null, LogType.GUI);
 
 		}
 

@@ -42,6 +42,7 @@ import logging.LogType;
 import mixconfig.wizard.WizardLayout;
 import gui.JAPHelp;
 import java.awt.Graphics;
+import gui.JAPDialog;
 
 public class StartScreenPanel  extends WizardLayout implements ActionListener
 {
@@ -168,7 +169,7 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleError(e, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), e, null, LogType.GUI);
 		}
 
 	}

@@ -70,6 +70,7 @@ import mixconfig.MixConfiguration;
 import mixconfig.OtherMixPanel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import gui.JAPDialog;
 
 /** A panel that provides settings for configuring the Mix's network access:<br>
  * Listeners for incoming connections, and network adresses of outgoing
@@ -318,7 +319,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleError(ex, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 		enableComponents();
 	}
@@ -465,7 +466,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleError(ex, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 	}
 

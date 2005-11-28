@@ -69,6 +69,7 @@ import org.xml.sax.SAXException;
 import logging.LogType;
 import gui.JAPHelp;
 import java.awt.Graphics;
+import gui.JAPDialog;
 
 /** The <CODE>CascadePanel</CODE> is a panel that lets the user edit settings concerning
  * an entire mix cascade. It should only be made visible when the mix that is being
@@ -324,7 +325,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		catch (Exception ex)
 		{
 
-			MixConfig.handleError(ex, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 	}
 

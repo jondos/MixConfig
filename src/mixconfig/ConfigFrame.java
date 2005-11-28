@@ -37,6 +37,7 @@ import javax.swing.border.EmptyBorder;
 
 import mixconfig.networkpanel.NextMixProxyPanel;
 import logging.LogType;
+import gui.JAPDialog;
 
 /**
  * The Frame of the MixConfig Application.
@@ -87,7 +88,8 @@ public class ConfigFrame extends JPanel
 		}
 		catch (Exception io)
 		{
-			MixConfig.handleError(io, "Error on loading the MixConfiguration", LogType.MISC);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), io,
+									   "Error on loading the MixConfiguration", LogType.MISC);
 		}
 		if (!m_tabbedPane.getSelectedComponent().isEnabled())
 		{

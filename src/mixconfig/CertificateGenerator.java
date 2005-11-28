@@ -43,6 +43,7 @@ import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509SubjectKeyIdentifier;
 import logging.LogType;
+import gui.JAPDialog;
 
 
 /** A subclass of <CODE>SwingWorker</CODE> that starts a new thread that generates the new
@@ -174,7 +175,7 @@ public class CertificateGenerator extends SwingWorker
 		{
 			if (!Thread.interrupted())
 			{
-				MixConfig.handleError(e, null, LogType.THREAD);
+				JAPDialog.showErrorMessage(MixConfig.getMainWindow(), e, null, LogType.THREAD);
 			}
 		}
 		return null;
