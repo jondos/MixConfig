@@ -39,6 +39,9 @@ import javax.swing.JDialog;
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import jcui.common.TextFormatUtil;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
 
 /**
  * This is the generic implementation for a modal, user resizeable dialog. Use the root panel
@@ -51,6 +54,9 @@ public class JAPDialog
 
 	private static final String MSG_INFO = JAPDialog.class.getName() + "_info";
 	private static final String MSG_CONFIRMATION = JAPDialog.class.getName() + "_confirmation";
+	private static final String MSG_ERROR_TITLE = JAPDialog.class.getName() + "_error_title";
+	private static final String MSG_ERROR_UNKNOWN = JAPDialog.class.getName() + "_error_unknown";
+	private static final String MSG_ERROR_UNDISPLAYABLE = JAPDialog.class.getName() + "error_undisplayable";
 
 	private boolean m_bIsDisplayable = true;
 
@@ -101,7 +107,7 @@ public class JAPDialog
 	 */
 	public JAPDialog(JAPDialog a_parentDialog, String a_strTitle)
 	{
-		this((a_parentDialog == null ? null : a_parentDialog.m_internalDialog), a_strTitle);
+		this(getInternalDialog(a_parentDialog), a_strTitle);
 	}
 
 	/**
@@ -177,7 +183,6 @@ public class JAPDialog
 		return (i == JOptionPane.YES_OPTION);
 	}
 
-
 	/**
 	 * Displays a message dialog that asks the user for a confirmation.
 	 * Words are wrapped automatically if a message line is too long.
@@ -196,6 +201,106 @@ public class JAPDialog
 											  a_title,
 											  JOptionPane.YES_NO_OPTION);
 		return (i == JOptionPane.YES_OPTION);
+	}
+
+	/**
+	 * Displays a dialog showing an error message to the user and logs the error message
+	 * to the currently used Log.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null or the parent
+	 *                       dialog is not within a frame, the dialog's parent frame is the
+	 *                       default frame.
+	 * @param a_throwable a Throwable that has been caught (may be null)
+	 * @param a_message a message that is shown to the user (may be null)
+	 * @param a_logType the log type for this error
+	 * @see logging.LogHolder
+	 * @see logging.LogType
+	 * @see logging.Log
+	 */
+	public static void showErrorMessage(JAPDialog a_parentDialog, Throwable a_throwable,
+										String a_message, int a_logType)
+	{
+		showErrorMessage(getInternalDialog(a_parentDialog), a_throwable, a_message, a_logType);
+	}
+
+	/**
+	 * Displays a dialog showing an error message to the user and logs the error message
+	 * to the currently used Log.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null or the parent
+	 *                       dialog is not within a frame, the dialog's parent frame is the
+	 *                       default frame.
+	 * @param a_throwable a Throwable that has been caught (may be null)
+	 * @param a_title a title for the error message (may be null)
+	 * @param a_message a message that is shown to the user (may be null)
+	 * @param a_logType the log type for this error
+	 * @see logging.LogHolder
+	 * @see logging.LogType
+	 * @see logging.Log
+	 */
+	public static void showErrorMessage(JAPDialog a_parentDialog, Throwable a_throwable, String a_title,
+										String a_message, int a_logType)
+	{
+		showErrorMessage(getInternalDialog(a_parentDialog), a_throwable, a_title, a_message, a_logType);
+	}
+
+	/**
+	 * Displays a dialog showing an error message to the user and logs the error message
+	 * to the currently used Log.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_throwable a Throwable that has been caught (may be null)
+	 * @param a_message a message that is shown to the user (may be null)
+	 * @param a_logType the log type for this error
+	 * @see logging.LogHolder
+	 * @see logging.LogType
+	 * @see logging.Log
+	 */
+	public static void showErrorMessage(Component a_parentComponent, Throwable a_throwable,
+										String a_message, int a_logType)
+	{
+		showErrorMessage(a_parentComponent, a_throwable, null, a_message, a_logType);
+	}
+
+	/**
+	 * Displays a dialog showing an error message to the user and logs the error message
+	 * to the currently used Log.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_throwable a Throwable that has been caught (may be null)
+	 * @param a_title a title for the error message (may be null)
+	 * @param a_message a message that is shown to the user (may be null)
+	 * @param a_logType the log type for this error
+	 * @see logging.LogHolder
+	 * @see logging.LogType
+	 * @see logging.Log
+	 */
+	public static void showErrorMessage(Component a_parentComponent, Throwable a_throwable, String a_title,
+										String a_message, int a_logType)
+	{
+		a_message = retrieveErrorMessage(a_throwable, a_message);
+		LogHolder.log(LogLevel.ERR, a_logType, a_message, true);
+		if (a_throwable != null)
+		{
+			// the exception is only shown in debug mode
+			LogHolder.log(LogLevel.DEBUG, a_logType, a_throwable);
+		}
+
+		try
+		{
+			if (a_title == null || a_title.trim().length() == 0)
+			{
+				a_title = JAPMessages.getString(MSG_ERROR_TITLE);
+			}
+			JOptionPane.showMessageDialog(a_parentComponent,
+										  TextFormatUtil.wrapWordsOfTextLine(a_message, MAX_TEXT_WIDTH),
+										  a_title, JOptionPane.ERROR_MESSAGE);
+		}
+		catch (Exception e)
+		{
+			LogHolder.log(LogLevel.EXCEPTION, LogType.GUI, JAPMessages.getString(MSG_ERROR_UNDISPLAYABLE));
+			LogHolder.log(LogLevel.EXCEPTION, LogType.GUI, e);
+		}
 	}
 
 
@@ -343,6 +448,46 @@ public class JAPDialog
 	}
 
 	/**
+	 * Returns the internal dialog of a JAPDialog or null if there is none.
+	 * @param a_dialog a JAPDialog
+	 * @return the internal dialog of a JAPDialog or null if there is none
+	 */
+	private static Component getInternalDialog(JAPDialog a_dialog)
+	{
+		if (a_dialog == null)
+		{
+			return null;
+		}
+
+		return a_dialog.m_internalDialog;
+	}
+
+	/**
+	 * Retrieves an error message from a Throwable and a message String that may be shown to the
+	 * user. By default, this is the given message. If no message is given, it is tried to get the error
+	 * message from the Throwable.
+	 * @param a_e a Throwable (may be null)
+	 * @param a_message an error message (may be null)
+	 * @return the retrieved error message
+	 */
+	private static String retrieveErrorMessage(Throwable a_e, String a_message)
+	{
+		if (a_message == null)
+		{
+			if (a_e == null || a_e.getMessage() == null)
+			{
+				a_message = JAPMessages.getString(MSG_ERROR_UNKNOWN);
+			}
+			else
+			{
+				a_message = a_e.getMessage();
+			}
+		}
+
+		return a_message;
+	}
+
+	/**
 	 * Centers the dialog over the parent component or the parent window.
 	 * @param a_bCenterOnParentComponent if true, the dialog is centered on the parent component;
 	 * otherwise, it is centered on the parent window
@@ -386,5 +531,4 @@ public class JAPDialog
 	{
 		GUIUtils.positionWindow(m_internalDialog, getOwner());
 	}
-
 }

@@ -53,6 +53,7 @@ import anon.util.Base64;
 import gui.GUIUtils;
 import gui.JAPMessages;
 import logging.LogType;
+import gui.JAPDialog;
 
 public class EncryptedLogTool extends JDialog implements ActionListener, ChangeListener
 {
@@ -153,11 +154,13 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		{
 			if (m_arLog == null || m_arLog.length == 0)
 			{
-				MixConfig.handleError(null, JAPMessages.getString(MSG_NO_LOG), LogType.GUI);
+				JAPDialog.showErrorMessage(this, null,
+										   JAPMessages.getString(MSG_NO_LOG), LogType.GUI);
 			}
 			else if (m_privateCertPanel.getCert() == null)
 			{
-				MixConfig.handleError(null, JAPMessages.getString(MSG_NO_CERT), LogType.GUI);
+				JAPDialog.showErrorMessage(this, null,
+										   JAPMessages.getString(MSG_NO_CERT), LogType.GUI);
 			}
 			else
 			{
@@ -167,7 +170,8 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 				}
 				catch (Throwable a_e)
 				{
-					MixConfig.handleError(a_e, JAPMessages.getString(MSG_CANNOT_DECRYPT), LogType.MISC);
+					JAPDialog.showErrorMessage(this, a_e,
+											   JAPMessages.getString(MSG_CANNOT_DECRYPT), LogType.MISC);
 				}
 			}
 		}

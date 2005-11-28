@@ -83,7 +83,6 @@ public class MixConfig extends JApplet
 
 	private static final String IMAGE_LOAD_PATH = "images/mixconfig/";
 	private static final String MAIN_ICON_PATH = JAPMessages.getString("main_icon");
-	private static final int OPTION_PANE_WIDTH = 70;
 
         /** The configuration object edited by this <CODE>MixConfig</CODE> application. */
 	private static MixConfiguration m_mixConfiguration;
@@ -173,9 +172,10 @@ public class MixConfig extends JApplet
 			{
 				if (m_currentFileName != null)
 				{
-					handleError(null, JAPMessages.getString("config_file_not_found",
+					JAPDialog.showErrorMessage(getMainWindow(), null,
+											   JAPMessages.getString("config_file_not_found",
 						new File(m_currentFileName).toString()),
-								LogType.MISC);
+											   LogType.MISC);
 				}
 
 				m_mixConfiguration = new MixConfiguration();
@@ -211,7 +211,9 @@ public class MixConfig extends JApplet
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleException(e, JAPMessages.getString("could_not_initialise"), LogType.MISC);
+			JAPDialog.showErrorMessage(getMainWindow(),e, JAPMessages.getString("could_not_initialise"),
+									   LogType.MISC);
+			System.exit(1);
 		}
 
 		//set Message Title
@@ -275,7 +277,9 @@ public class MixConfig extends JApplet
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleException(e, JAPMessages.getString("could_not_initialise"), LogType.MISC);
+			JAPDialog.showErrorMessage(getMainWindow(),e, JAPMessages.getString("could_not_initialise"),
+									   LogType.MISC);
+			System.exit(1);
 		}
 	}
 
@@ -371,51 +375,6 @@ public class MixConfig extends JApplet
 			loadImageIcon(MAIN_ICON_PATH));
 	}
 
-	/**
-	 * Displays a dialog showing a critical error message to the user and logs the error message
-	 * to the currently used Log. As this method handles critical errors only,
-	 * the application will stop when the dialog is closed.
-	 * @param a_e a Throwable that has been caught (may be null)
-	 * @param a_message a message that is shown to the user (may be null)
-	 * @param a_logType the log type for this error
-	 * @see logging.LogHolder
-	 * @see logging.LogType
-	 * @see logging.Log
-	 */
-	public static void handleException(Throwable a_e, String a_message, int a_logType)
-	{
-		a_message = retrieveErrorMessage(a_e, a_message);
-		LogHolder.log(LogLevel.EXCEPTION, a_logType, a_message, true);
-		LogHolder.log(LogLevel.EXCEPTION, a_logType, a_e);
-
-		showErrorMessage(a_message, JAPMessages.getString("exception"));
-
-		System.exit(1);
-	}
-
-	/**
-	 * Displays a dialog showing an error message to the user and logs the error message
-	 * to the currently used Log.
-	 * @param a_e a Throwable that has been caught (may be null)
-	 * @param a_message a message that is shown to the user (may be null)
-	 * @param a_logType the log type for this error
-	 * @see logging.LogHolder
-	 * @see logging.LogType
-	 * @see logging.Log
-	 */
-	public static void handleError(Throwable a_e, String a_message, int a_logType)
-	{
-		a_message = retrieveErrorMessage(a_e, a_message);
-		LogHolder.log(LogLevel.ERR, a_logType, a_message, true);
-		if (a_e != null)
-		{
-			// the exception is only shown in debug mode
-			LogHolder.log(LogLevel.DEBUG, a_logType, a_e);
-		}
-
-		showErrorMessage(a_message, JAPMessages.getString("error"));
-	}
-
 
 	public static Frame getMainWindow()
 	{
@@ -485,60 +444,12 @@ public class MixConfig extends JApplet
 			}
 			catch (IOException e)
 			{
-				MixConfig.handleError(e, JAPMessages.getString("error_open_file", file.toString()),
-									  LogType.MISC);
+				JAPDialog.showErrorMessage(getMainWindow(),e,
+										   JAPMessages.getString("error_open_file", file.toString()),
+										   LogType.MISC);
 			}
 		}
 		return null;
-	}
-
-
-
-	/**
-	 * Retrieves an error message from a Throwable and a message String that may be shown to the
-	 * user.
-	 * @param a_e a Throwable (may be null)
-	 * @param a_message an error message (may be null)
-	 * @return the retrieved error message
-	 */
-	private static String retrieveErrorMessage(Throwable a_e, String a_message)
-	{
-		if (a_message == null)
-		{
-			if (a_e == null || a_e.getMessage() == null)
-			{
-				a_message = JAPMessages.getString("unknown_error");
-			}
-			else
-			{
-				a_message = a_e.getMessage();
-			}
-		}
-
-		return a_message;
-	}
-
-	/**
-	 * Shows an error message to the user.
-	 * @param a_message a message
-	 * @param a_title a title
-	 */
-	private static void showErrorMessage(String a_message, String a_title)
-	{
-		try
-		{
-			JOptionPane.showMessageDialog(getMainWindow(),
-										  TextFormatUtil.wrapWordsOfTextLine(
-											  a_message, OPTION_PANE_WIDTH),
-										  a_title,
-										  JOptionPane.ERROR_MESSAGE);
-		}
-		catch (Exception e)
-		{
-			LogHolder.log(LogLevel.EXCEPTION, LogType.GUI,
-						  JAPMessages.getString("could_not_display_error"));
-			LogHolder.log(LogLevel.EXCEPTION, LogType.GUI, e);
-		}
 	}
 
 	private static void createMixOnCDConfiguration() throws Exception

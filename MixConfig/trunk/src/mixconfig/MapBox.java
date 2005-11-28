@@ -54,6 +54,7 @@ import javax.swing.text.html.HTMLEditorKit.ParserCallback;
 import javax.swing.text.html.parser.DTD;
 import javax.swing.text.html.parser.DocumentParser;
 
+import gui.JAPDialog;
 import logging.LogType;
 
 /** This class provides a dialog showing a map section loaded from MapQuest(R)
@@ -184,7 +185,7 @@ class MapBox extends JDialog implements ChangeListener
 		}
 		catch (IOException ioe)
 		{
-			MixConfig.handleError(ioe, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ioe, null, LogType.GUI);
 		}
 	}
 

@@ -54,6 +54,7 @@ import gui.CountryMapper;
 import gui.JAPHelp;
 import gui.JAPMessages;
 import logging.LogType;
+import gui.JAPDialog;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener,
 	ChangeListener
@@ -259,7 +260,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		}
 		catch (Exception e)
 		{
-			MixConfig.handleError(e, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), e, null, LogType.GUI);
 		}
 	}
 
@@ -400,7 +401,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleError(ex, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 	}
 

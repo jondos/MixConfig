@@ -43,6 +43,7 @@ import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
 import mixconfig.MixConfigPanel;
 import mixconfig.GeneralPanel;
+import gui.JAPDialog;
 
 /** A class that displays the Mix configuration panels as a wizard. To the left of
  * the panel, a logo is displayed; at the bottom, there are three navigation
@@ -164,7 +165,7 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleError(ex, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 
 		//Set the title with steps
@@ -184,7 +185,9 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 		}
 		catch (Exception io)
 		{
-			MixConfig.handleError(io, "Switching View to Wizard: Error on loading the MixConfiguration", LogType.MISC);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), io,
+									   "Switching View to Wizard: Error on loading the MixConfiguration",
+									   LogType.MISC);
 		}
 	}
 
@@ -201,8 +204,9 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 		}
 		catch (Exception io)
 		{
-			MixConfig.handleError(io, "Switching View to Wizard: Error on loading the MixConfiguration",
-								  LogType.MISC);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), io,
+									   "Switching View to Wizard: Error on loading the MixConfiguration",
+									   LogType.MISC);
 		}
 	}
 

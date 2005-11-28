@@ -52,6 +52,7 @@ import anon.infoservice.ListenerInterface;
 import gui.JAPHelp;
 import gui.JAPJIntField;
 import logging.LogType;
+import gui.JAPDialog;
 
 /**
  * The PaymentPanel is one page in the MixConfig TabbedPane and allows the user to specify
@@ -389,7 +390,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		}
 		catch (Exception ex)
 		{
-			MixConfig.handleError(ex, null, LogType.GUI);
+			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 	}
 
