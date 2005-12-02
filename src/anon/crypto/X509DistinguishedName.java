@@ -64,6 +64,17 @@ public final class X509DistinguishedName
 	/** Given name : Identifier for the string "GIVENNAME" */
 	public static final String GIVENNAME_IDENTIFIER = X509Name.GIVENNAME.getId();
 
+	public static final String LABEL_COMMON_NAME = "CN";
+	public static final String LABEL_COUNTRY = "C";
+	public static final String LABEL_STATE_OR_PROVINCE = "ST";
+	public static final String LABEL_LOCALITY = "L";
+	public static final String LABEL_ORGANISATION = "O";
+	public static final String LABEL_ORGANISATIONAL_UNIT = "OU";
+	public static final String LABEL_EMAIL = "E";
+	public static final String LABEL_EMAIL_ADDRESS = "EmailAddress";
+	public static final String LABEL_SURNAME = "SURNAME";
+	public static final String LABEL_GIVENNAME = "GIVENNAME";
+
 	private X509Name m_bcX509Name;
 
 	/**
@@ -162,31 +173,43 @@ public final class X509DistinguishedName
 
 		if (a_identifier.equals(CN_IDENTIFIER))
 		{
-			return "CN";
+			return LABEL_COMMON_NAME;
 		}
 		else if (a_identifier.equals(C_IDENTIFIER))
 		{
-			return "C";
+			return LABEL_COUNTRY;
 		}
 		else if (a_identifier.equals(ST_IDENTIFIER))
 		{
-			return "ST";
+			return LABEL_STATE_OR_PROVINCE;
 		}
 		else if (a_identifier.equals(L_IDENTIFIER))
 		{
-			return "L";
+			return LABEL_LOCALITY;
 		}
 		else if (a_identifier.equals(O_IDENTIFIER))
 		{
-			return "O";
+			return LABEL_ORGANISATION;
 		}
 		else if (a_identifier.equals(OU_IDENTIFIER))
 		{
-			return "OU";
+			return LABEL_ORGANISATIONAL_UNIT;
 		}
 		else if (a_identifier.equals(E_IDENTIFIER))
 		{
-			return "E";
+			return LABEL_EMAIL;
+		}
+		else if (a_identifier.equals(EmailAddress_IDENTIFIER))
+		{
+			return LABEL_EMAIL_ADDRESS;
+		}
+		else if (a_identifier.equals(SURNAME_IDENTIFIER))
+		{
+			return LABEL_SURNAME;
+		}
+		else if (a_identifier.equals(GIVENNAME_IDENTIFIER))
+		{
+			return LABEL_GIVENNAME;
 		}
 
 		return a_identifier;

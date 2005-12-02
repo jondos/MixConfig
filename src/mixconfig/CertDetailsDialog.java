@@ -36,10 +36,10 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.*;
 import java.util.Enumeration;
-import jcui.common.TextFormatUtil;
 import gui.CountryMapper;
 import gui.JAPMessages;
 import java.util.Date;
+import java.util.StringTokenizer;
 import anon.crypto.AbstractX509Extension;
 import anon.crypto.IMyPublicKey;
 import anon.crypto.JAPCertificate;
@@ -48,10 +48,9 @@ import anon.crypto.Validity;
 import anon.crypto.X509Extensions;
 import anon.crypto.AbstractX509Extension;
 import anon.crypto.X509UnknownExtension;
-import org.bouncycastle.asn1.x509.X509Name;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import java.awt.GridLayout;
-
 import gui.JAPDialog;
 
 /**
@@ -68,12 +67,16 @@ public class CertDetailsDialog extends JAPDialog
 	private static final String MSG_CERTVALID = CertDetailsDialog.class.getName() + "_CERT_VALID";
 	private static final String MSG_CERTNOTVALID = CertDetailsDialog.class.getName() + "_CERT_NOTVALID";
 
+	private static final String MSG_X509Attribute_ST = CertDetailsDialog.class.getName() + "_X509Attribute_ST";
+	private static final String MSG_X509Attribute_L = CertDetailsDialog.class.getName() + "_X509Attribute_L";
+	private static final String MSG_X509Attribute_C = CertDetailsDialog.class.getName() + "_X509Attribute_C";
+	private static final String MSG_X509Attribute_CN = CertDetailsDialog.class.getName() + "_X509Attribute_CN";
+	private static final String DELIMITER = ", ";
 	private int maxKeyLen = 0;
 
 	public CertDetailsDialog(Component a_parent, JAPCertificate a_cert)
 	{
 		super(a_parent, "Certificate Details");
-		JPanel jp_root = new JPanel();
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 		Vector lengthVector = new Vector();
 
@@ -98,7 +101,16 @@ public class CertDetailsDialog extends JAPDialog
 		{
 			if (extensionsVect.getExtension(i) instanceof X509UnknownExtension)
 			{
-				extKeys.addElement("Unknown Extension");
+				if (extensionsVect.getExtension(i).isCritical())
+				{
+					extKeys.addElement("Unknown Extension*");
+				}
+
+				else
+				{
+					extKeys.addElement("Unknown Extension");
+				}
+
 				AbstractX509Extension val = (AbstractX509Extension) extensionsVect.getExtension(i);
 				StringBuffer tmpValBuf = new StringBuffer();
 
@@ -106,12 +118,14 @@ public class CertDetailsDialog extends JAPDialog
 				{
 					for (int j = 0; j < val.getValues().size(); j++)
 					{
-						tmpValBuf.append(val.getValues().elementAt(j).toString());
-						tmpValBuf.append(" - ");
+						tmpValBuf.append(" ");
+						//tmpValBuf.append(val.getValues().elementAt(j).toString());
+						//tmpValBuf.append(DELIMITER);
 					}
 					extVals.addElement(tmpValBuf.toString());
 				}
-			}
+
+		   }
 
 			else
 			{
@@ -128,7 +142,7 @@ public class CertDetailsDialog extends JAPDialog
 						if (o != val.getValues().lastElement())
 						{
 							tmpValBuf.append(val.getValues().elementAt(j).toString());
-							tmpValBuf.append(" - ");
+							tmpValBuf.append(DELIMITER);
 						}
 						else
 						{
@@ -144,10 +158,10 @@ public class CertDetailsDialog extends JAPDialog
 	// Validity
 		Validity validity = a_cert.getValidity();
 		Vector validityKeys = new Vector();
-		validityKeys.addElement(new String("Is valid"));
+		validityKeys.addElement(new String("Certificate is"));
 		validityKeys.addElement(new String("Valid from"));
 		validityKeys.addElement(new String("Valid until"));
-		//lengthVector.addElement(validityKeys);
+		lengthVector.addElement(validityKeys);
 		Vector validityValues = new Vector();
 
 		if (validity.isValid(new Date()))
@@ -165,7 +179,7 @@ public class CertDetailsDialog extends JAPDialog
 	   Vector fpKeys = new Vector();
 	   fpKeys.addElement(new String("SHA1 Fingerprint"));
 	   fpKeys.addElement(new String("MD5 Fingerprint"));
-		   //lengthVector.addElement(fpKeys);
+	   lengthVector.addElement(fpKeys);
 	   Vector fpValues = new Vector();
 	   fpValues.addElement(a_cert.getSHA1Fingerprint());
 	   fpValues.addElement(a_cert.getMD5Fingerprint());
@@ -174,37 +188,42 @@ public class CertDetailsDialog extends JAPDialog
 		Vector keyKeys = new Vector();
 		keyKeys.addElement(new String("Key Algorithm"));
 		keyKeys.addElement(new String("Key Length"));
-		// lengthVector.addElement(keyKeys);
+		lengthVector.addElement(keyKeys);
 		Vector keyValues = new Vector();
 		keyValues.addElement(new String(a_cert.getPublicKey().getAlgorithm()));
 		int kLength = ( (IMyPublicKey) a_cert.getPublicKey()).getKeyLength();
 		keyValues.addElement(new Integer(kLength).toString());
 
 
-		// calculateAbsoluteMaxLen(lengthVector);
+		maxKeyLen = calculateAbsoluteMaxLen(lengthVector);
 
-		// Construction of the Branches
-		// needs to be done after all
-		// Key-Vectors have been added to lengthVector
-		// and after calculateAbsoluteMaxLen() has been done
+
+		/* Important
+			Construction of the Branches needs to be done after:
+			 - Vectors with Keys have been added to lengthVector
+			 - the method calculateAbsoluteMaxLen() has run
+		 */
 
 		root.add(constructBranch(dNameKeys, dNameVals, "DistinguishedName"));
 		root.add(constructBranch(issuerKeys, issuerVals, "Issuer"));
 		root.add(constructBranch(extKeys, extVals, "Extensions"));
-		root.add(constructBranch(validityKeys, validityValues, "Valditiy"));
+		root.add(constructBranch(validityKeys, validityValues, "Validity"));
 		root.add(constructBranch(fpKeys, fpValues, "Fingerprints"));
 		root.add(constructBranch(keyKeys, keyValues, "Key Information"));
-
-
-
 
 		JTree tree = new JTree(root);
 		tree.setCellRenderer(new MyCellRenderer());
 		tree.setRootVisible(false);
-		this.getContentPane().add(tree);
-		this.setSize(550, 600);
-	}
+		tree.expandRow(0);
+		//tree.expandRow(1);
+		//tree.expandRow(2);
+		tree.setBackground(a_parent.getBackground());
+		JScrollPane sp = new JScrollPane(
+			tree, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
+		this.getContentPane().add(sp);
+		this.pack();
+	}
 /**
 	 * Constructs a Branch of a JTree from two the Vectors keys and values
 	 * @param keyVect Vector with the Keys
@@ -214,8 +233,9 @@ public class CertDetailsDialog extends JAPDialog
 	 */
 	private DefaultMutableTreeNode constructBranch(Vector keyVect, Vector valVect, String title)
 	{
-		DefaultMutableTreeNode res = new DefaultMutableTreeNode(title);
+		DetailsNode res = new DetailsNode(title);
 		DetailsNode resNode;
+		String resKey, resValue;
 		Enumeration keys = keyVect.elements();
 		Enumeration values = valVect.elements();
 
@@ -224,86 +244,123 @@ public class CertDetailsDialog extends JAPDialog
 
 			while (keys.hasMoreElements())
 			{
-				String keyTmp = keys.nextElement().toString();
-				String valTmp = values.nextElement().toString();
-
-				resNode = new DetailsNode(keyTmp, valTmp, maxKeyLen);
+				resKey = keys.nextElement().toString();
+				if (values.hasMoreElements())
+				{
+					resValue = values.nextElement().toString();
+				}
+				else
+				{
+					resValue = "missing Data";
+				}
+				resNode = new DetailsNode(resKey, resValue);
 				res.add(resNode);
 			}
 		}
 			return res;
 	}
 
-/**
+	/**
 	 * Returns the maximum length of Strings in a Vector
-	 * @param a_vector Vector with Strings
+	 * @param a_vector Vector with DetailNodes
 	 * @return int which is the maximal length
 	 */
-	private int getMaxLength(Vector a_vector)
+	private int getVectorsMaxKeyLength(Vector a_vector)
 	{
-		int tmpMaxLen = 0;
+		int maxLen = 0;
 		if (a_vector != null && a_vector.size() > 0)
 		{
 			for (int i = 0; i < a_vector.size(); i++)
 			{
-				tmpMaxLen = a_vector.elementAt(i).toString().length();
-				if (tmpMaxLen > maxKeyLen)
+				if (a_vector.elementAt(i) instanceof String)
 				{
-					maxKeyLen = tmpMaxLen;
+					String str = (String) a_vector.elementAt(i);
+					int tmpLen = str.length();
+					if (tmpLen > maxLen)
+					{
+						maxLen = tmpLen;
+					}
 				}
 			}
 		}
-		return tmpMaxLen;
+	return maxLen;
 	}
 
-/**
-	 * Sets the maximum String lengths from all Elements from a Vector
+	/**
+	 * Returns the maximum key length of ... /todo/
 	 * yet are implemented as allowed Elements: Vector
-	 * @param a_vector Vector
+	 * @param a_meta_vector Vector
 	 *
 	 * @todo implement also handling for Validity objects
 	 */
-	private void calculateAbsoluteMaxLen(Vector a_meta_vector)
+	private int calculateAbsoluteMaxLen(Vector a_meta_vector)
 	{
+		int res = 0;
+
 		for (int i = 0; i < a_meta_vector.size(); i++)
 		{
 			Object o = a_meta_vector.elementAt(i);
 
 			if (o instanceof Vector)
 			{
-				int tmpMaxValLen = getMaxLength( (Vector) o);
-				if (tmpMaxValLen > maxKeyLen)
+				int tmpMaxLen = getVectorsMaxKeyLength( (Vector) o);
+				if (tmpMaxLen > res)
 				{
-					maxKeyLen = tmpMaxValLen;
+					res = tmpMaxLen;
 				}
 			}
 		}
+	return res;
 	}
 
 /**
 	 * Translates a Vector of numerical identifiers into human readable names
-	 * see also anon.crypto.X509DistinguishedName.getAttributeNameFromAttributeIdentifier
+	 *
+	 * see also: anon.crypto.X509DistinguishedName.getAttributeNameFromAttributeIdentifier()
 	 * @param a_vector Vector with numerical identifiers
 	 * @return a Vector with human readable Strings
 	 */
 	private Vector idsToNames(Vector a_vector)
 	{
 		Vector res = new Vector(a_vector.size());
+		String str = " ";
 
 		if (a_vector != null && a_vector.size() > 0)
 		{
-
 			for (int i = 0; i < a_vector.size(); i++)
 			{
-				res.addElement(anon.crypto.X509DistinguishedName.getAttributeNameFromAttributeIdentifier( (String)
-					a_vector.elementAt(i)));
+
+				String abbrev = (anon.crypto.X509DistinguishedName.
+								 getAttributeNameFromAttributeIdentifier( (String) a_vector.elementAt(i)));
+
+				if (abbrev.equals(X509DistinguishedName.LABEL_STATE_OR_PROVINCE))
+				{
+					str = JAPMessages.getString(MSG_X509Attribute_ST);
+				}
+
+				if (abbrev.equals(X509DistinguishedName.LABEL_LOCALITY))
+				{
+					str = JAPMessages.getString(MSG_X509Attribute_L);
+				}
+
+				if (abbrev.equals(X509DistinguishedName.LABEL_COUNTRY))
+				{
+					str = JAPMessages.getString(MSG_X509Attribute_C);
+				}
+
+				if (abbrev.equals(X509DistinguishedName.LABEL_COMMON_NAME))
+				{
+					str = JAPMessages.getString(MSG_X509Attribute_CN);
+				}
+				res.addElement(str);
 			}
 		}
 		return res;
 	}
 
-/**
-	 * Encapsulates a key / value pair of Strings
+	/**
+	 * Class DetialsNode
+	 * encapsulates a key / value pair of Strings
 	 *
 	 * @author Kuno G. Gruen
 	 * @version 1.0
@@ -313,13 +370,31 @@ public class CertDetailsDialog extends JAPDialog
 	{
 		private String key;
 		private String value;
-		private int keyLength;
+		private boolean isTitle = false;
 
-		public DetailsNode(String a_key, String a_value, int a_length)
+		/**
+		 * For key / value pairs only
+		 *
+		 * @param a_key String
+		 * @param a_value String
+		 */
+		public DetailsNode(String a_key, String a_value)
 		{
 			key = a_key;
 			value = a_value;
-			keyLength = a_length;
+		}
+
+		/**
+		 *  For titles only
+		 *
+		 *  these will be stored as the value
+		 * @param a_title String
+		 */
+		public DetailsNode(String a_title)
+		{
+			key = null;
+			value = a_title;
+			isTitle = true;
 		}
 
 		public String getKey()
@@ -332,36 +407,19 @@ public class CertDetailsDialog extends JAPDialog
 			return this.value;
 		}
 
-		public String toString()
+		public int getKeyLength()
 		{
-			StringBuffer sb = new StringBuffer();
-			sb.append(key);
-			sb.append(": ");
-			sb.append(value);
-			return sb.toString();
+			return key.length();
 		}
 
-		/**
-		 * Bloats a String to a given length
-		 * The String is filled with " "
-		 * @param a_string String
-		 * @param a_length int
-		 * @return String
-		 */
-		private String normaliseString(String a_string, int a_length)
+		public String toString()
 		{
-			StringBuffer buf = new StringBuffer();
-			if (a_string != null && (a_string.trim().length()) != 0)
-			{
-				a_string = a_string.trim();
-				int counter = a_length - a_string.length();
-				buf = new StringBuffer(a_string);
-				for (int i = 0; i <= counter; i++)
-				{
-					buf.append("_");
-				}
-			}
-			return buf.toString();
+			return new String();
+		}
+
+		public boolean isTitle()
+		{
+			return isTitle;
 		}
 
 	}
@@ -377,20 +435,48 @@ public class CertDetailsDialog extends JAPDialog
 			int row,
 			boolean hasFocus)
 		{
-			JPanel panel = new JPanel();
+			JPanel res_panel = new JPanel();
 
 			if (value instanceof DefaultMutableTreeNode)
 			{
-				panel.add(new JLabel(value.toString()));
+				res_panel.add(new JLabel(value.toString()));
 			}
 
 			if (value instanceof DetailsNode)
 			{
-			//	panel.add(new JLabel(((DetailsNode) value).getValue()));
+				DetailsNode node = (DetailsNode) value;
+
+				if (node.isTitle())
+				{
+					JLabel lbl_title = new JLabel();
+					lbl_title.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
+					lbl_title.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
+					lbl_title.setText(node.getValue());
+					res_panel.add(lbl_title);
+				}
+
+				else
+				{
+					String key = ( (DetailsNode) value).getKey();
+
+					JLabel lbl_key = new JLabel(key);
+					lbl_key.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
+					lbl_key.setPreferredSize(new java.awt.Dimension(maxKeyLen * 8, lbl_key.getFont().getSize() + 4));
+					res_panel.add(lbl_key);
+
+					String val = ( (DetailsNode) value).getValue();
+					JLabel lbl_val = new JLabel(val);
+
+					lbl_val.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
+					res_panel.add(lbl_val);
+				}
 			}
 
-			return panel;
-
+			else
+			{
+				res_panel.add(new JLabel("error"));
+			}
+			return res_panel;
 
 		}
 
