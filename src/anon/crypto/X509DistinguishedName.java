@@ -160,9 +160,9 @@ public final class X509DistinguishedName
 	}
 
 	/**
-	 * Returns the X509 attribute corresponding to a given attribute identifier.
+	 * Returns the X509 attribute label corresponding to a given attribute identifier.
 	 * @param a_identifier an X509 attribute identifier
-	 * @return the X509 attribute corresponding to a given attribute identifier
+	 * @return the X509 attribute label corresponding to a given attribute identifier
 	 */
 	public static String getAttributeNameFromAttributeIdentifier(String a_identifier)
 	{
