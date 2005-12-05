@@ -67,17 +67,17 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 {
 	private JPanel m_miscPanel;
 	private JCheckBox m_chkPaymentEnabled;
-	private JPanel m_jpiPanel;
+	private TitledGridBagPanel m_jpiPanel;
 	private JTextField m_textJPIName;
 	private JTextField m_textJPIHost;
 	private JTextField m_textJPIPort;
 	private CertPanel m_jpiCertPanel;
-	private JPanel m_databasePanel;
+	private TitledGridBagPanel m_databasePanel;
 	private JTextField m_textDatabaseHost;
 	private JTextField m_textDatabasePort;
 	private JTextField m_textDatabaseDBName;
 	private JTextField m_textDatabaseUsername;
-	private JPanel m_generalPanel;
+	private TitledGridBagPanel m_generalPanel;
 	private JTextField m_textSoftLimit;
 	private JTextField m_textHardLimit;
 	private JTextField m_textSettleInterval;
@@ -123,9 +123,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		this.add(m_miscPanel);
 
 		// GENERAL settings panel
-		GridBagLayout generalLayout = new GridBagLayout();
-		m_generalPanel = new JPanel(generalLayout);
-		m_generalPanel.setBorder(new TitledBorder("General settings"));
+		m_generalPanel = new TitledGridBagPanel("General settings");
 		m_generalPanel.setToolTipText(
 			"General settings regarding the payment system"
 			);
@@ -134,133 +132,78 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 			"<html>This is the soft limit for the number of bytes a Jap can use before <br>" +
 			"sending a cost confirmation</html>"
 			);
-		d.gridy = 0;
-		d.gridx = 0;
-		d.weightx = 0;
-		generalLayout.setConstraints(label, d);
-		m_generalPanel.add(label);
 		m_textSoftLimit = new JAPJIntField(
-			  new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
+			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
 		m_textSoftLimit.setColumns(10);
 		m_textSoftLimit.setName("Accounting/SoftLimit");
 		m_textSoftLimit.addFocusListener(this);
-		d.gridy = 0;
-		d.gridx = 1;
-		d.weightx = 1;
-		d.fill = d.HORIZONTAL;
-		generalLayout.setConstraints(m_textSoftLimit, d);
-		m_generalPanel.add(m_textSoftLimit);
+		m_generalPanel.addRow(label, m_textSoftLimit);
 
 		label = new JLabel("HardLimit (Bytes)");
 		label.setToolTipText(
 			"<html>This is the hard limit for the number of bytes a Jap can use without <br>" +
 			"sending a cost confirmation, before he will be kicked.</html>"
 			);
-		d.gridy = 1;
-		d.gridx = 0;
-		d.weightx = 0;
-		generalLayout.setConstraints(label, d);
-		m_generalPanel.add(label);
 		m_textHardLimit = new JAPJIntField(
-			  new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
+			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
 		m_textHardLimit.setColumns(10);
 		m_textHardLimit.setName("Accounting/HardLimit");
 		m_textHardLimit.addFocusListener(this);
-		d.gridy = 1;
-		d.gridx = 1;
-		d.weightx = 1;
-		generalLayout.setConstraints(m_textHardLimit, d);
-		m_generalPanel.add(m_textHardLimit);
+		m_generalPanel.addRow(label, m_textHardLimit);
 
 		label = new JLabel("SettleInterval (seconds)");
 		label.setToolTipText(
 			"<html>This is the interval in seconds that the SettleThread will sleep<br>" +
 			"before each cycle of transmitting all the open CostConfirmations to the BI</html>"
 			);
-		d.gridy = 2;
-		d.gridx = 0;
-		d.weightx = 0;
-		generalLayout.setConstraints(label, d);
-		m_generalPanel.add(label);
 		m_textSettleInterval = new JAPJIntField(
-			  new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
+			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
 		m_textSettleInterval.setColumns(10);
 		m_textSettleInterval.setName("Accounting/SettleInterval");
 		m_textSettleInterval.addFocusListener(this);
-		d.gridy = 2;
-		d.gridx = 1;
-		d.weightx = 1;
-		generalLayout.setConstraints(m_textSettleInterval, d);
-		m_generalPanel.add(m_textSettleInterval);
+		m_generalPanel.addRow(label, m_textSettleInterval);
 
 		c.gridy++;
 		c.fill = c.HORIZONTAL;
 		c.weightx = 0;
 		c.weighty = 0;
-		layout.setConstraints(m_generalPanel, c);
-		this.add(m_generalPanel);
+		this.add(m_generalPanel, c);
 		c.fill = c.NONE;
 
-		// JPI Panel
-		GridBagLayout jpiLayout = new GridBagLayout();
-		m_jpiPanel = new JPanel(jpiLayout);
-		m_jpiPanel.setBorder(new TitledBorder("JPI (Java Payment Instance)"));
-		m_jpiPanel.setToolTipText(
-			"Please enter the Hostname or IP Address and the port number of the JPI<br> " +
-			"that your mix should use.");
+		// DATABASE Panel
+		m_databasePanel = new TitledGridBagPanel("PostgreSQL Database for accounting");
+		m_databasePanel.setToolTipText("The accounting instance inside the First Mix needs a PostgreSQL<br> " +
+									   "database to store some internal accounting data. Before you start<br> " +
+									   "the First Mix with payment enabled, setup a Postgresql DB and enter<br> " +
+									   "its connection data here.");
 
-		label = new JLabel("JPI ID:");
-		d.gridy = 0;
-		d.gridx = 0;
-		d.weightx = 0;
-		jpiLayout.setConstraints(label, d);
-		m_jpiPanel.add(label);
+		label = new JLabel("Database Hostname:");
+		m_textDatabaseHost = new JTextField(10);
+		m_textDatabaseHost.setName("Accounting/Database/Host");
+		m_textDatabaseHost.addFocusListener(this);
+		m_databasePanel.addRow(label, m_textDatabaseHost);
 
-		m_textJPIName = new JTextField(14);
-		m_textJPIName.setName("Accounting/PaymentInstance/id");
-		m_textJPIName.addFocusListener(this);
-		d.gridx = 1;
-		d.weightx = 1;
-		jpiLayout.setConstraints(m_textJPIName, d);
-		m_jpiPanel.add(m_textJPIName);
+		label = new JLabel("Database Portnumber:");
+		m_textDatabasePort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE);
+		m_textDatabasePort.setName("Accounting/Database/Port");
+		m_textDatabasePort.addFocusListener(this);
+		m_databasePanel.addRow(label, m_textDatabasePort);
 
-		label = new JLabel("JPI Hostname:");
-		d.gridy++;
-		d.gridx = 0;
-		d.weightx = 0;
-		jpiLayout.setConstraints(label, d);
-		m_jpiPanel.add(label);
+		label = new JLabel("Database Name:");
+		m_textDatabaseDBName = new JTextField(10);
+		m_textDatabaseDBName.setName("Accounting/Database/DBName");
+		m_textDatabaseDBName.addFocusListener(this);
+		m_databasePanel.addRow(label, m_textDatabaseDBName);
 
-		m_textJPIHost = new JTextField(14);
-		m_textJPIHost.setName("Accounting/PaymentInstance/Network/ListenerInterfaces/ListenerInterface/Host");
-		m_textJPIHost.addFocusListener(this);
-		d.gridx = 1;
-		d.weightx = 1;
-		jpiLayout.setConstraints(m_textJPIHost, d);
-		m_jpiPanel.add(m_textJPIHost);
+		label = new JLabel("Database Username:");
+		m_textDatabaseUsername = new JTextField(10);
+		m_textDatabaseUsername.setName("Accounting/Database/Username");
+		m_textDatabaseUsername.addFocusListener(this);
+		m_databasePanel.addRow(label, m_textDatabaseUsername);
 
-		label = new JLabel("JPI Portnumber:");
-		d.gridy++;
-		d.gridx = 0;
-		d.weightx = 0;
-		jpiLayout.setConstraints(label, d);
-		m_jpiPanel.add(label);
-
-		m_textJPIPort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE);
-		m_textJPIPort.setName("Accounting/PaymentInstance/Network/ListenerInterfaces/ListenerInterface/Port");
-		m_textJPIPort.addFocusListener(this);
-		d.gridx = 1;
-		d.weightx = 1;
-		jpiLayout.setConstraints(m_textJPIPort, d);
-		m_jpiPanel.add(m_textJPIPort);
-
-		//c.gridy++;
-		c.weightx = 0;
-		c.weighty = 0;
-		c.gridx++;
-		layout.setConstraints(m_jpiPanel, c);
-		this.add(m_jpiPanel);
-		c.gridx--;
+		c.gridy++;
+		layout.setConstraints(m_databasePanel, c);
+		this.add(m_databasePanel);
 
 		// JPI Certificate Panel
 		m_jpiCertPanel = new CertPanel("JPI Certificate",
@@ -269,85 +212,39 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 									   (JAPCertificate)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_jpiCertPanel.setName("Accounting/PaymentInstance/Certificate");
 		m_jpiCertPanel.addChangeListener(this);
-		c.gridy++;
+		c.gridy--;
+		c.gridx++;
 		layout.setConstraints(m_jpiCertPanel, c);
 		this.add(m_jpiCertPanel);
 
-		// DATABASE Panel
-		GridBagLayout databaseLayout = new GridBagLayout();
-		m_databasePanel = new JPanel(databaseLayout);
-		m_databasePanel.setBorder(new TitledBorder("PostgreSQL Database for accounting"));
-		m_databasePanel.setToolTipText("The accounting instance inside the First Mix needs a PostgreSQL<br> " +
-									   "database to store some internal accounting data. Before you start<br> " +
-									   "the First Mix with payment enabled, setup a Postgresql DB and enter<br> " +
-									   "its connection data here.");
+		// JPI Panel
+		m_jpiPanel = new TitledGridBagPanel("JPI (Java Payment Instance)");
+		m_jpiPanel.setToolTipText(
+			"Please enter the Hostname or IP Address and the port number of the JPI<br> " +
+			"that your mix should use.");
 
-		label = new JLabel("Database Hostname:");
-		d.anchor = GridBagConstraints.NORTHWEST;
-		d.fill = GridBagConstraints.NONE;
-		d.gridx = 0;
-		d.gridy = 0;
-		d.weightx = 0;
-		d.gridwidth = 1;
-		databaseLayout.setConstraints(label, d);
-		m_databasePanel.add(label);
+		label = new JLabel("JPI Hostname:");
+		m_textJPIHost = new JTextField(14);
+		m_textJPIHost.setName("Accounting/PaymentInstance/Network/ListenerInterfaces/ListenerInterface/Host");
+		m_textJPIHost.addFocusListener(this);
+		m_jpiPanel.addRow(label, m_textJPIHost);
 
-		m_textDatabaseHost = new JTextField(10);
-		m_textDatabaseHost.setName("Accounting/Database/Host");
-		m_textDatabaseHost.addFocusListener(this);
-		d.gridx = 1;
-		d.weightx = 1;
-		databaseLayout.setConstraints(m_textDatabaseHost, d);
-		m_databasePanel.add(m_textDatabaseHost);
+		label = new JLabel("JPI Portnumber:");
+		m_textJPIPort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE);
+		m_textJPIPort.setName("Accounting/PaymentInstance/Network/ListenerInterfaces/ListenerInterface/Port");
+		m_textJPIPort.addFocusListener(this);
+		m_jpiPanel.addRow(label, m_textJPIPort);
+		label = new JLabel("JPI ID:");
+		m_textJPIName = new JTextField(14);
+		m_textJPIName.setName("Accounting/PaymentInstance/id");
+		m_textJPIName.addFocusListener(this);
+		m_jpiPanel.addRow(label, m_textJPIName);
 
-		label = new JLabel("Database Portnumber:");
-		d.gridy++;
-		d.gridx = 0;
-		d.weightx = 0;
-		databaseLayout.setConstraints(label, d);
-		m_databasePanel.add(label);
-
-		m_textDatabasePort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE);
-		m_textDatabasePort.setName("Accounting/Database/Port");
-		m_textDatabasePort.addFocusListener(this);
-		d.gridx = 1;
-		d.weightx = 1;
-		databaseLayout.setConstraints(m_textDatabasePort, d);
-		m_databasePanel.add(m_textDatabasePort);
-
-		label = new JLabel("Database DBName:");
-		d.gridy++;
-		d.gridx = 0;
-		d.weightx = 0;
-		databaseLayout.setConstraints(label, d);
-		m_databasePanel.add(label);
-
-		m_textDatabaseDBName = new JTextField(10);
-		m_textDatabaseDBName.setName("Accounting/Database/DBName");
-		m_textDatabaseDBName.addFocusListener(this);
-		d.gridx = 1;
-		d.weightx = 1;
-		databaseLayout.setConstraints(m_textDatabaseDBName, d);
-		m_databasePanel.add(m_textDatabaseDBName);
-
-		label = new JLabel("Database Username:");
-		d.gridy++;
-		d.gridx = 0;
-		d.weightx = 0;
-		databaseLayout.setConstraints(label, d);
-		m_databasePanel.add(label);
-
-		m_textDatabaseUsername = new JTextField(10);
-		m_textDatabaseUsername.setName("Accounting/Database/Username");
-		m_textDatabaseUsername.addFocusListener(this);
-		d.gridx = 1;
-		d.weightx = 1;
-		databaseLayout.setConstraints(m_textDatabaseUsername, d);
-		m_databasePanel.add(m_textDatabaseUsername);
-
-		c.gridx++;
-		layout.setConstraints(m_databasePanel, c);
-		this.add(m_databasePanel);
+		c.weightx = 0;
+		c.weighty = 0;
+		c.gridy++;
+		layout.setConstraints(m_jpiPanel, c);
+		this.add(m_jpiPanel);
 
 		//Keep the panels in place
 		JLabel dummyLabel1 = new JLabel("");
@@ -429,12 +326,6 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 	{
 		return new Vector(); /* nothing to check on this panel */
 	}
-
-
-
-
-
-
 
 	protected void enableComponents()
 	{
