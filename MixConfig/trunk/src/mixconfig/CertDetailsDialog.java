@@ -525,7 +525,6 @@ public class CertDetailsDialog extends JAPDialog //implements ListModel
 				if (node.isTitle())
 				{
 					JLabel lbl_title = new JLabel();
-					lbl_title.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
 					lbl_title.setFont(new java.awt.Font(lbl_title.getFont().getFontName(),
 														java.awt.Font.BOLD, 14));
 					lbl_title.setText(node.getValue());
@@ -537,17 +536,14 @@ public class CertDetailsDialog extends JAPDialog //implements ListModel
 					String key = ( (DetailsNode) value).getKey();
 
 					JLabel lbl_key = new JLabel(key);
-					lbl_key.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
 					lbl_key.setPreferredSize(
-					  // new java.awt.Dimension(m_maxKeyLen * 8, lbl_key.getFont().getSize() + 4));
-					   new java.awt.Dimension(m_maxKeyLen * 8, -1));
+					   new java.awt.Dimension(m_maxKeyLen * 8, lbl_key.getFont().getSize() + 4));
 					res_panel.add(lbl_key);
 
 					String val = ( (DetailsNode) value).getValue();
 					JLabel lbl_val = new JLabel(val);
 					lbl_val.setFont(new java.awt.Font(lbl_val.getFont().getFontName(), java.awt.Font.PLAIN,
 													  lbl_val.getFont().getSize()));
-					lbl_val.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
 					res_panel.add(lbl_val);
 				}
 			}
