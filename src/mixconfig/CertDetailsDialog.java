@@ -525,8 +525,8 @@ public class CertDetailsDialog extends JAPDialog //implements ListModel
 				if (node.isTitle())
 				{
 					JLabel lbl_title = new JLabel();
-					lbl_title.setFont(new java.awt.Font(lbl_title.getFont().getFontName(),
-														java.awt.Font.BOLD, 14));
+					lbl_title.setFont(new java.awt.Font(
+					   lbl_title.getFont().getName(),java.awt.Font.BOLD, 14));
 					lbl_title.setText(node.getValue());
 					res_panel.add(lbl_title);
 				}
@@ -542,7 +542,7 @@ public class CertDetailsDialog extends JAPDialog //implements ListModel
 
 					String val = ( (DetailsNode) value).getValue();
 					JLabel lbl_val = new JLabel(val);
-					lbl_val.setFont(new java.awt.Font(lbl_val.getFont().getFontName(), java.awt.Font.PLAIN,
+					lbl_val.setFont(new java.awt.Font(lbl_val.getFont().getName(), java.awt.Font.PLAIN,
 													  lbl_val.getFont().getSize()));
 					res_panel.add(lbl_val);
 				}
