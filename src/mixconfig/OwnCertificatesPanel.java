@@ -464,11 +464,11 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		public X509DistinguishedName getSigName()
 		{
 			Hashtable attributes = new Hashtable();
-			attributes.put(X509DistinguishedName.ST_IDENTIFIER,
+			attributes.put(X509DistinguishedName.IDENTIFIER_ST,
 						   m_txtState.getText());
-			attributes.put(X509DistinguishedName.L_IDENTIFIER,
+			attributes.put(X509DistinguishedName.IDENTIFIER_L,
 						   m_txtCity.getText());
-			attributes.put(X509DistinguishedName.C_IDENTIFIER,
+			attributes.put(X509DistinguishedName.IDENTIFIER_C,
 						   ( (CountryMapper) m_cboxCountry.getSelectedItem()).
 						   getISOCountryCode());
 
@@ -555,11 +555,11 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		public X509DistinguishedName getSigName()
 		{
 			Hashtable attributes = new Hashtable();
-			attributes.put(X509DistinguishedName.CN_IDENTIFIER, CN_ANON_OPERATOR_CERTIFICATE);
-			attributes.put(X509DistinguishedName.OU_IDENTIFIER, m_txtOperatorOrgaUnit.getText());
-			attributes.put(X509DistinguishedName.O_IDENTIFIER, m_txtOperatorOrg.getText());
-			attributes.put(X509DistinguishedName.E_IDENTIFIER, m_txtOperatorEmail.getText());
-			attributes.put(X509DistinguishedName.C_IDENTIFIER,
+			attributes.put(X509DistinguishedName.IDENTIFIER_CN, CN_ANON_OPERATOR_CERTIFICATE);
+			attributes.put(X509DistinguishedName.IDENTIFIER_OU, m_txtOperatorOrgaUnit.getText());
+			attributes.put(X509DistinguishedName.IDENTIFIER_O, m_txtOperatorOrg.getText());
+			attributes.put(X509DistinguishedName.IDENTIFIER_E, m_txtOperatorEmail.getText());
+			attributes.put(X509DistinguishedName.IDENTIFIER_C,
 						   ( (CountryMapper) m_cbxOperatorCountry.getSelectedItem()).getISOCountryCode());
 			return new X509DistinguishedName(attributes);
 		}
