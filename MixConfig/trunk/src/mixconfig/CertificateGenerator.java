@@ -164,7 +164,7 @@ public class CertificateGenerator extends SwingWorker
 			{
 				Hashtable name;
 				name = m_name.getDistinguishedName();
-				name.put(X509DistinguishedName.CN_IDENTIFIER,
+				name.put(X509DistinguishedName.IDENTIFIER_CN,
 						 "<Mix id=" + ski.getValueWithoutColon() + "/>");
 				m_name = new X509DistinguishedName(name);
 			}

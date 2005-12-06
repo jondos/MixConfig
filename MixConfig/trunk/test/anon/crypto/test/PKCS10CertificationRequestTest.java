@@ -58,9 +58,9 @@ public class PKCS10CertificationRequestTest extends XtendedPrivateTestCase
 		String mail = "test@mail.de";
 		String org = "Secret organisation";
 
-		attributes.put(X509DistinguishedName.CN_IDENTIFIER, cn);
-		attributes.put(X509DistinguishedName.E_IDENTIFIER, mail);
-		attributes.put(X509DistinguishedName.O_IDENTIFIER, org);
+		attributes.put(X509DistinguishedName.IDENTIFIER_CN, cn);
+		attributes.put(X509DistinguishedName.IDENTIFIER_E, mail);
+		attributes.put(X509DistinguishedName.IDENTIFIER_O, org);
 		subject = new X509DistinguishedName(attributes);
 
 		m_random.setSeed(756232544);

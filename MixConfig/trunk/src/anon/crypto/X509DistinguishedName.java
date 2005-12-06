@@ -44,25 +44,25 @@ import org.bouncycastle.asn1.DERObjectIdentifier;
 public final class X509DistinguishedName
 {
 	/** Common name : X509 identifier for the string "CN" */
-	public static final String CN_IDENTIFIER = X509Name.CN.getId();
+	public static final String IDENTIFIER_CN = X509Name.CN.getId();
 	/** Country code : X509 identifier for the string "C" */
-	public static final String C_IDENTIFIER = X509Name.C.getId();
+	public static final String IDENTIFIER_C = X509Name.C.getId();
 	/** State or province : X509 identifier for the string "CN" */
-	public static final String ST_IDENTIFIER = X509Name.ST.getId();
+	public static final String IDENTIFIER_ST = X509Name.ST.getId();
 	/** locality name : X509 identifier for the string "L" */
-	public static final String L_IDENTIFIER = X509Name.L.getId();
+	public static final String IDENTIFIER_L = X509Name.L.getId();
 	/** Organisation : X509 identifier for the string "O" */
-	public static final String O_IDENTIFIER = X509Name.O.getId();
+	public static final String IDENTIFIER_O = X509Name.O.getId();
 	/** Organisational Unit : X509 identifier for the string "OU" */
-	public static final String OU_IDENTIFIER = X509Name.OU.getId();
+	public static final String IDENTIFIER_OU = X509Name.OU.getId();
 	/** E-Mail : X509 identifier for the string "E" */
-	public static final String E_IDENTIFIER = X509Name.E.getId();
+	public static final String IDENTIFIER_E = X509Name.E.getId();
 	/** E-Mail 2: X509 identifier for the string "EmailAddress" */
-	public static final String EmailAddress_IDENTIFIER = X509Name.EmailAddress.getId();
+	public static final String IDENTIFIER_EmailAddress = X509Name.EmailAddress.getId();
 	/** Surname : Identifier for the string "SURNAME" */
-	public static final String SURNAME_IDENTIFIER = X509Name.SURNAME.getId();
+	public static final String IDENTIFIER_SURNAME = X509Name.SURNAME.getId();
 	/** Given name : Identifier for the string "GIVENNAME" */
-	public static final String GIVENNAME_IDENTIFIER = X509Name.GIVENNAME.getId();
+	public static final String IDENTIFIER_GIVENNAME = X509Name.GIVENNAME.getId();
 
 	public static final String LABEL_COMMON_NAME = "CN";
 	public static final String LABEL_COUNTRY = "C";
@@ -171,43 +171,43 @@ public final class X509DistinguishedName
 			return null;
 		}
 
-		if (a_identifier.equals(CN_IDENTIFIER))
+		if (a_identifier.equals(IDENTIFIER_CN))
 		{
 			return LABEL_COMMON_NAME;
 		}
-		else if (a_identifier.equals(C_IDENTIFIER))
+		else if (a_identifier.equals(IDENTIFIER_C))
 		{
 			return LABEL_COUNTRY;
 		}
-		else if (a_identifier.equals(ST_IDENTIFIER))
+		else if (a_identifier.equals(IDENTIFIER_ST))
 		{
 			return LABEL_STATE_OR_PROVINCE;
 		}
-		else if (a_identifier.equals(L_IDENTIFIER))
+		else if (a_identifier.equals(IDENTIFIER_L))
 		{
 			return LABEL_LOCALITY;
 		}
-		else if (a_identifier.equals(O_IDENTIFIER))
+		else if (a_identifier.equals(IDENTIFIER_O))
 		{
 			return LABEL_ORGANISATION;
 		}
-		else if (a_identifier.equals(OU_IDENTIFIER))
+		else if (a_identifier.equals(IDENTIFIER_OU))
 		{
 			return LABEL_ORGANISATIONAL_UNIT;
 		}
-		else if (a_identifier.equals(E_IDENTIFIER))
+		else if (a_identifier.equals(IDENTIFIER_E))
 		{
 			return LABEL_EMAIL;
 		}
-		else if (a_identifier.equals(EmailAddress_IDENTIFIER))
+		else if (a_identifier.equals(IDENTIFIER_EmailAddress))
 		{
 			return LABEL_EMAIL_ADDRESS;
 		}
-		else if (a_identifier.equals(SURNAME_IDENTIFIER))
+		else if (a_identifier.equals(IDENTIFIER_SURNAME))
 		{
 			return LABEL_SURNAME;
 		}
-		else if (a_identifier.equals(GIVENNAME_IDENTIFIER))
+		else if (a_identifier.equals(IDENTIFIER_GIVENNAME))
 		{
 			return LABEL_GIVENNAME;
 		}
@@ -242,7 +242,7 @@ public final class X509DistinguishedName
 	 */
 	public String getCommonName()
 	{
-		return getAttribute(CN_IDENTIFIER);
+		return getAttribute(IDENTIFIER_CN);
 	}
 
 	/**
@@ -251,7 +251,7 @@ public final class X509DistinguishedName
 	 */
 	public String getSurname()
 	{
-		return getAttribute(SURNAME_IDENTIFIER);
+		return getAttribute(IDENTIFIER_SURNAME);
 	}
 
 	/**
@@ -260,7 +260,7 @@ public final class X509DistinguishedName
 	 */
 	public String getGivenName()
 	{
-		return getAttribute(GIVENNAME_IDENTIFIER);
+		return getAttribute(IDENTIFIER_GIVENNAME);
 	}
 
 	/**
@@ -269,7 +269,7 @@ public final class X509DistinguishedName
 	 */
 	public String getCountryCode()
 	{
-		return getAttribute(C_IDENTIFIER);
+		return getAttribute(IDENTIFIER_C);
 	}
 
 	/**
@@ -278,7 +278,7 @@ public final class X509DistinguishedName
 	 */
 	public String getStateOrProvince()
 	{
-		return getAttribute(ST_IDENTIFIER);
+		return getAttribute(IDENTIFIER_ST);
 	}
 
 	/**
@@ -287,7 +287,7 @@ public final class X509DistinguishedName
 	 */
 	public String getLocalityName()
 	{
-		return getAttribute(L_IDENTIFIER);
+		return getAttribute(IDENTIFIER_L);
 	}
 
 	/**
@@ -296,7 +296,7 @@ public final class X509DistinguishedName
 	 */
 	public String getOrganisation()
 	{
-		return getAttribute(O_IDENTIFIER);
+		return getAttribute(IDENTIFIER_O);
 	}
 
 	/**
@@ -305,7 +305,7 @@ public final class X509DistinguishedName
 	 */
 	public String getOrganisationalUnit()
 	{
-		return getAttribute(OU_IDENTIFIER);
+		return getAttribute(IDENTIFIER_OU);
 	}
 
 	/**
@@ -314,7 +314,7 @@ public final class X509DistinguishedName
 	 */
 	public String getE_EmailAddress()
 	{
-		return getAttribute(E_IDENTIFIER);
+		return getAttribute(IDENTIFIER_E);
 	}
 
 	/**
@@ -323,7 +323,7 @@ public final class X509DistinguishedName
 	 */
 	public String getEmailAddress()
 	{
-		return getAttribute(EmailAddress_IDENTIFIER);
+		return getAttribute(IDENTIFIER_EmailAddress);
 	}
 
 	/**

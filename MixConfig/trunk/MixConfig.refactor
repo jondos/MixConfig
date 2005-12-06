@@ -109,4 +109,64 @@
     <declared-field-type>Ljava/lang/String;</declared-field-type>
     <new-field-name>MSG_INVALID_POSITION</new-field-name>
   </rename-field>
+  <rename-field id="6AP0RGJM0WGE9XA99ULFK8Z" creation-time="Tue Dec 06 10:53:04.061 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <old-field-name>CN_IDENTIFIER</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IDENTIFIER_CN</new-field-name>
+  </rename-field>
+  <rename-field id="4AP0RGJM0WGE9XA99ULFK8Z" creation-time="Tue Dec 06 10:53:12.434 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <old-field-name>C_IDENTIFIER</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IDENTIFIER_C</new-field-name>
+  </rename-field>
+  <rename-field id="2AP0RGJM0WGE9XA99ULFK8Z" creation-time="Tue Dec 06 10:53:21.182 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <old-field-name>ST_IDENTIFIER</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IDENTIFIER_ST</new-field-name>
+  </rename-field>
+  <rename-field id="0AP0RGJM0WGE9XA99ULFK8Z" creation-time="Tue Dec 06 10:53:30.410 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <old-field-name>L_IDENTIFIER</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IDENTIFIER_L</new-field-name>
+  </rename-field>
+  <rename-field id="Y9P0RGJM0WGE9XA99ULFK8Z" creation-time="Tue Dec 06 10:53:39.226 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <old-field-name>O_IDENTIFIER</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IDENTIFIER_O</new-field-name>
+  </rename-field>
+  <rename-field id="W9P0RGJM0WGE9XA99ULFK8Z" creation-time="Tue Dec 06 10:53:47.308 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <old-field-name>OU_IDENTIFIER</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IDENTIFIER_OU</new-field-name>
+  </rename-field>
+  <rename-field id="U9P0RGJM0WGE9XA99ULFK8Z" creation-time="Tue Dec 06 10:53:54.244 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <old-field-name>E_IDENTIFIER</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IDENTIFIER_E</new-field-name>
+  </rename-field>
+  <rename-field id="S9P0RGJM0WGE9XA99ULFK8Z" creation-time="Tue Dec 06 10:54:04.559 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <old-field-name>EmailAddress_IDENTIFIER</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IDENTIFIER_EmailAddress</new-field-name>
+  </rename-field>
+  <rename-field id="Q9P0RGJM0WGE9XA99ULFK8Z" creation-time="Tue Dec 06 10:54:25.850 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <old-field-name>SURNAME_IDENTIFIER</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IDENTIFIER_SURNAME</new-field-name>
+  </rename-field>
+  <rename-field id="O9P0RGJM0WGE9XA99ULFK8Z" creation-time="Tue Dec 06 10:54:34.518 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <old-field-name>GIVENNAME_IDENTIFIER</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IDENTIFIER_GIVENNAME</new-field-name>
+  </rename-field>
 </refactor>

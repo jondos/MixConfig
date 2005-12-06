@@ -38,8 +38,14 @@ import javax.swing.tree.*;
 import java.util.Enumeration;
 import gui.CountryMapper;
 import gui.JAPMessages;
+import gui.GUIUtils;
 import java.util.Date;
 import java.util.StringTokenizer;
+
+import javax.swing.ListModel;
+import javax.swing.ListCellRenderer;
+import javax.swing.DefaultListModel;
+
 import anon.crypto.AbstractX509Extension;
 import anon.crypto.IMyPublicKey;
 import anon.crypto.JAPCertificate;
@@ -62,40 +68,71 @@ import gui.JAPDialog;
  * @author Kuno G. Gruen
  * @version 0.5
  */
-public class CertDetailsDialog extends JAPDialog
+public class CertDetailsDialog extends JAPDialog //implements ListModel
 {
+
+	private static final String ICON_ARROW_RIGHT = "arrow46.gif";
+	private static final String ICON_ARROW_DOWN = "arrowDown.gif";
 	private static final String MSG_CERTVALID = CertDetailsDialog.class.getName() + "_CERT_VALID";
 	private static final String MSG_CERTNOTVALID = CertDetailsDialog.class.getName() + "_CERT_NOTVALID";
-
 	private static final String MSG_X509Attribute_ST = CertDetailsDialog.class.getName() + "_X509Attribute_ST";
 	private static final String MSG_X509Attribute_L = CertDetailsDialog.class.getName() + "_X509Attribute_L";
 	private static final String MSG_X509Attribute_C = CertDetailsDialog.class.getName() + "_X509Attribute_C";
 	private static final String MSG_X509Attribute_CN = CertDetailsDialog.class.getName() + "_X509Attribute_CN";
-	private static final String DELIMITER = ", ";
-	private int maxKeyLen = 0;
+	private static final String MSG_X509Attribute_O = CertDetailsDialog.class.getName() + "_X509Attribute_O";
+	private static final String MSG_X509Attribute_OU = CertDetailsDialog.class.getName() + "_X509Attribute_OU";
+	private static final String MSG_X509Attribute_EMAIL = CertDetailsDialog.class.getName() + "_X509Attribute_EMAIL";
+	private static final String MSG_X509Attribute_EMAILADDRESS = CertDetailsDialog.class.getName() + "_X509Attribute_EMAIL";
+	private static final String MSG_X509Attribute_SURNAME = CertDetailsDialog.class.getName() + "_X509Attribute_SURNAME";
+	private static final String MSG_X509Attribute_GIVENNAME = CertDetailsDialog.class.getName() + "_X509Attribute_GIVENNAME";
+	private static final String UNKNOWN_EXTENSION = "Unknown extension";
+	private int m_maxKeyLen = 0;
 
+	private Vector m_distinguishedNameKeys;
+	private Vector m_distinguishedNameValues;
+	private Vector m_issuerKeys;
+	private Vector m_issuerValues;
+	private Vector m_extensionsKeys;
+	private Vector m_extensionsValues;
+
+
+
+	/**
+	 * Constructs a JTree in which attributes of a Certificate are displayed
+	 *
+	 * @param a_parent Component in which the Tree is included
+	 * @param a_cert JAPCertificate which is the Certificate to be displayed
+	 */
 	public CertDetailsDialog(Component a_parent, JAPCertificate a_cert)
 	{
 		super(a_parent, "Certificate Details");
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 		Vector lengthVector = new Vector();
+		Vector identifiers;
 
 	// Distinguished Name
 		X509DistinguishedName dName = a_cert.getDistinguishedName();
-		Vector dNameKeys = idsToNames(dName.getAttributeIdentifiers());
-		Vector dNameVals = dName.getAttributes();
-		lengthVector.addElement(dNameKeys);
+		identifiers = dName.getAttributeIdentifiers();
+		m_distinguishedNameKeys = idsToNames(identifiers);
+		m_distinguishedNameValues = dName.getAttributes();
+		replaceCountryCodeByCountryName(m_distinguishedNameValues, identifiers);
+		lengthVector.addElement(m_distinguishedNameKeys);
 
 	// Issuer
 		X509DistinguishedName issuer = new X509DistinguishedName(a_cert.getIssuer());
-		Vector issuerKeys = idsToNames(issuer.getAttributeIdentifiers());
-		Vector issuerVals = issuer.getAttributes();
-		lengthVector.addElement(issuerKeys);
+		identifiers = issuer.getAttributeIdentifiers();
+		m_issuerKeys = idsToNames(identifiers);
+		m_issuerValues = issuer.getAttributes();
+		replaceCountryCodeByCountryName(m_issuerValues, identifiers);
+		lengthVector.addElement(m_issuerKeys);
 
 	// Extension
+	// Extensions have keys and values
+	// each key can have more than one values
+	// that's why this complex construction is needed
 		X509Extensions extensionsVect = a_cert.getExtensions();
-		Vector extKeys = new Vector(extensionsVect.getSize());
-		Vector extVals = new Vector(extensionsVect.getSize());
+		m_extensionsKeys = new Vector(extensionsVect.getSize());
+		m_extensionsValues = new Vector(extensionsVect.getSize());
 
 		for (int i = 0; i < extensionsVect.getSize(); i++)
 		{
@@ -103,57 +140,36 @@ public class CertDetailsDialog extends JAPDialog
 			{
 				if (extensionsVect.getExtension(i).isCritical())
 				{
-					extKeys.addElement("Unknown Extension*");
+					m_extensionsKeys.addElement(UNKNOWN_EXTENSION + " *");
 				}
 
 				else
 				{
-					extKeys.addElement("Unknown Extension");
+					m_extensionsKeys.addElement(UNKNOWN_EXTENSION);
 				}
-
-				AbstractX509Extension val = (AbstractX509Extension) extensionsVect.getExtension(i);
-				StringBuffer tmpValBuf = new StringBuffer();
-
-				if (val.getValues() != null && ! (val.getValues().isEmpty()))
-				{
-					for (int j = 0; j < val.getValues().size(); j++)
-					{
-						tmpValBuf.append(" ");
-						//tmpValBuf.append(val.getValues().elementAt(j).toString());
-						//tmpValBuf.append(DELIMITER);
-					}
-					extVals.addElement(tmpValBuf.toString());
-				}
-
-		   }
+			}
 
 			else
 			{
-				AbstractX509Extension key = extensionsVect.getExtension(i);
-				extKeys.addElement(key.getName());
-				AbstractX509Extension val = (AbstractX509Extension) extensionsVect.getExtension(i);
-				StringBuffer tmpValBuf = new StringBuffer();
-
-				if (val.getValues() != null && ! (val.getValues().isEmpty()))
+				m_extensionsKeys.addElement(extensionsVect.getExtension(i).toString());
+				if (!(extensionsVect.getExtensions().isEmpty()))
 				{
-					for (int j = 0; j < val.getValues().size(); j++)
+					AbstractX509Extension val = (AbstractX509Extension) extensionsVect.getExtension(i);
+					if (! (val.getValues().isEmpty()))
 					{
-						Object o = val.getValues().elementAt(j);
-						if (o != val.getValues().lastElement())
+						m_extensionsValues.addElement(val.getValues().firstElement());
+						//val.getValues().removeElementAt(0);
+
+						for (int j = 1; j < val.getValues().size(); j++)
 						{
-							tmpValBuf.append(val.getValues().elementAt(j).toString());
-							tmpValBuf.append(DELIMITER);
-						}
-						else
-						{
-							tmpValBuf.append(val.getValues().elementAt(j).toString());
+							m_extensionsKeys.addElement(new String(" "));
+							m_extensionsValues.addElement(val.getValues().elementAt(j));
 						}
 					}
-					extVals.addElement(tmpValBuf.toString());
 				}
 			}
 		}
-		lengthVector.addElement(extKeys);
+		lengthVector.addElement(m_extensionsKeys);
 
 	// Validity
 		Validity validity = a_cert.getValidity();
@@ -195,7 +211,7 @@ public class CertDetailsDialog extends JAPDialog
 		keyValues.addElement(new Integer(kLength).toString());
 
 
-		maxKeyLen = calculateAbsoluteMaxLen(lengthVector);
+		m_maxKeyLen = calculateAbsoluteMaxLen(lengthVector);
 
 
 		/* Important
@@ -204,33 +220,39 @@ public class CertDetailsDialog extends JAPDialog
 			 - the method calculateAbsoluteMaxLen() has run
 		 */
 
-		root.add(constructBranch(dNameKeys, dNameVals, "DistinguishedName"));
-		root.add(constructBranch(issuerKeys, issuerVals, "Issuer"));
-		root.add(constructBranch(extKeys, extVals, "Extensions"));
+		root.add(constructBranch(m_distinguishedNameKeys, m_distinguishedNameValues, "DistinguishedName"));
+		root.add(constructBranch(m_issuerKeys, m_issuerValues, "Issuer"));
+		root.add(constructBranch(m_extensionsKeys, m_extensionsValues, "Extensions"));
 		root.add(constructBranch(validityKeys, validityValues, "Validity"));
 		root.add(constructBranch(fpKeys, fpValues, "Fingerprints"));
 		root.add(constructBranch(keyKeys, keyValues, "Key Information"));
 
 		JTree tree = new JTree(root);
-		tree.setCellRenderer(new MyCellRenderer());
+		tree.setCellRenderer(new DetailsTreeCellRenderer());
 		tree.setRootVisible(false);
 		tree.expandRow(0);
 		//tree.expandRow(1);
 		//tree.expandRow(2);
 		tree.setBackground(a_parent.getBackground());
+		//	tree.set
 		JScrollPane sp = new JScrollPane(
 			tree, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		this.getContentPane().add(sp);
 		this.pack();
 	}
+
+
+
+
 /**
-	 * Constructs a Branch of a JTree from two the Vectors keys and values
+	 * Constructs a Branch of a JTree from the two Vectors keys and values
 	 * @param keyVect Vector with the Keys
 	 * @param valVect Vector with the corresponding Values
 	 * @param title String which is the title of the branch
 	 * @return DefaultMutableTreeNode
 	 */
+
 	private DefaultMutableTreeNode constructBranch(Vector keyVect, Vector valVect, String title)
 	{
 		DetailsNode res = new DetailsNode(title);
@@ -295,15 +317,16 @@ public class CertDetailsDialog extends JAPDialog
 	 */
 	private int calculateAbsoluteMaxLen(Vector a_meta_vector)
 	{
+		Object obj;
 		int res = 0;
 
 		for (int i = 0; i < a_meta_vector.size(); i++)
 		{
-			Object o = a_meta_vector.elementAt(i);
+			obj = a_meta_vector.elementAt(i);
 
-			if (o instanceof Vector)
+			if (obj instanceof Vector)
 			{
-				int tmpMaxLen = getVectorsMaxKeyLength( (Vector) o);
+				int tmpMaxLen = getVectorsMaxKeyLength( (Vector) obj);
 				if (tmpMaxLen > res)
 				{
 					res = tmpMaxLen;
@@ -337,25 +360,78 @@ public class CertDetailsDialog extends JAPDialog
 				{
 					str = JAPMessages.getString(MSG_X509Attribute_ST);
 				}
-
-				if (abbrev.equals(X509DistinguishedName.LABEL_LOCALITY))
+				else if (abbrev.equals(X509DistinguishedName.LABEL_LOCALITY))
 				{
 					str = JAPMessages.getString(MSG_X509Attribute_L);
 				}
-
-				if (abbrev.equals(X509DistinguishedName.LABEL_COUNTRY))
+				else if (abbrev.equals(X509DistinguishedName.LABEL_COUNTRY))
 				{
 					str = JAPMessages.getString(MSG_X509Attribute_C);
 				}
-
-				if (abbrev.equals(X509DistinguishedName.LABEL_COMMON_NAME))
+				else if (abbrev.equals(X509DistinguishedName.LABEL_COMMON_NAME))
 				{
 					str = JAPMessages.getString(MSG_X509Attribute_CN);
+				}
+				else if (abbrev.equals(X509DistinguishedName.LABEL_ORGANISATION))
+				{
+					str = JAPMessages.getString(MSG_X509Attribute_O);
+				}
+				else if (abbrev.equals(X509DistinguishedName.LABEL_ORGANISATIONAL_UNIT))
+				{
+					str = JAPMessages.getString(MSG_X509Attribute_OU);
+				}
+				else if (abbrev.equals(X509DistinguishedName.LABEL_EMAIL))
+				{
+					str = JAPMessages.getString(MSG_X509Attribute_EMAIL);
+				}
+				else if (abbrev.equals(X509DistinguishedName.LABEL_EMAIL_ADDRESS))
+				{
+					str = JAPMessages.getString(MSG_X509Attribute_EMAILADDRESS);
+				}
+				else if (abbrev.equals(X509DistinguishedName.LABEL_SURNAME))
+				{
+					str = JAPMessages.getString(MSG_X509Attribute_SURNAME);
+				}
+				else if (abbrev.equals(X509DistinguishedName.LABEL_GIVENNAME))
+				{
+					str = JAPMessages.getString(MSG_X509Attribute_GIVENNAME);
+				}
+				else
+				{
+					str = abbrev;
+				}
+				if (!str.equals(abbrev))
+				{
+					str += " (" + abbrev + ")";
 				}
 				res.addElement(str);
 			}
 		}
 		return res;
+	}
+
+	/**
+	 * Looks for the C identifier and replaces the corresponding attribute by a country name if possible.
+	 * @param a_attributes a Vector with distinguished name attributes
+	 * @param a_identifiers a Vector with identifiers corresponding with the dn attributes
+	 */
+	private void replaceCountryCodeByCountryName(Vector a_attributes, Vector a_identifiers)
+	{
+		for (int i = 0; i < a_attributes.size(); i++)
+		{
+			if (a_identifiers.elementAt(i).equals(X509DistinguishedName.IDENTIFIER_C))
+			{
+				try
+				{
+					a_attributes.setElementAt(
+						new CountryMapper(a_attributes.elementAt(i).toString()).toString(), i);
+				}
+				catch (IllegalArgumentException a_e)
+				{
+					// invalid country code
+				}
+			}
+		}
 	}
 
 	/**
@@ -424,7 +500,7 @@ public class CertDetailsDialog extends JAPDialog
 
 	}
 
-	private class MyCellRenderer implements TreeCellRenderer
+	private class DetailsTreeCellRenderer implements TreeCellRenderer
 	{
 		public Component getTreeCellRendererComponent(
 			JTree tree,
@@ -450,7 +526,8 @@ public class CertDetailsDialog extends JAPDialog
 				{
 					JLabel lbl_title = new JLabel();
 					lbl_title.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
-					lbl_title.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
+					lbl_title.setFont(new java.awt.Font(lbl_title.getFont().getFontName(),
+														java.awt.Font.BOLD, 14));
 					lbl_title.setText(node.getValue());
 					res_panel.add(lbl_title);
 				}
@@ -461,12 +538,15 @@ public class CertDetailsDialog extends JAPDialog
 
 					JLabel lbl_key = new JLabel(key);
 					lbl_key.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
-					lbl_key.setPreferredSize(new java.awt.Dimension(maxKeyLen * 8, lbl_key.getFont().getSize() + 4));
+					lbl_key.setPreferredSize(
+					  // new java.awt.Dimension(m_maxKeyLen * 8, lbl_key.getFont().getSize() + 4));
+					   new java.awt.Dimension(m_maxKeyLen * 8, -1));
 					res_panel.add(lbl_key);
 
 					String val = ( (DetailsNode) value).getValue();
 					JLabel lbl_val = new JLabel(val);
-
+					lbl_val.setFont(new java.awt.Font(lbl_val.getFont().getFontName(), java.awt.Font.PLAIN,
+													  lbl_val.getFont().getSize()));
 					lbl_val.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
 					res_panel.add(lbl_val);
 				}
