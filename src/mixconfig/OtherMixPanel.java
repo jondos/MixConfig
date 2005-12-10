@@ -40,13 +40,14 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import anon.crypto.JAPCertificate;
+import gui.JAPDialog;
 import gui.JAPHelp;
-import javax.swing.event.ChangeEvent;
+import gui.JAPMessages;
 import logging.LogType;
-import gui.*;
 
 /**
  * This class is an abstract superclass for NextMixProxyPanel and PreviousMixPanel
@@ -91,8 +92,8 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 
 		m_gbc.anchor = GridBagConstraints.NORTHWEST;
 		m_gbc.insets = new Insets(5, 5, 5, 5);
-		m_gbc.fill = GridBagConstraints.NONE;
-		m_gbc.weightx = 0;
+		m_gbc.fill = GridBagConstraints.HORIZONTAL;
+		m_gbc.weightx = 1;
 		m_gbc.weighty = 0;
 
 		m_otherCert = new CertPanel(a_mixType + " Certificate",
@@ -133,7 +134,6 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		m_otherOpCert.setCertificateView(new OperatorCertificateView());
 		m_otherOpCert.addChangeListener(this);
 		m_gbc.gridx++;
-		m_gbc.fill = m_gbc.NONE;
 		this.add(m_otherOpCert, m_gbc);
 
 		m_locationPanel = this.createLocationPanel();

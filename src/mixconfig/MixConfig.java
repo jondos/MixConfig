@@ -39,6 +39,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
+import javax.swing.WindowConstants;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -77,7 +78,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.012"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.013"; //NEVER change the layout of this line!!
 
 	public static final String MSG_WARNING = "MixConfig_warning";
 
@@ -158,6 +159,7 @@ public class MixConfig extends JApplet
 			}
 
 			m_MainWindow = new JFrame();
+			((JFrame)m_MainWindow).setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 			m_MainWindow.setResizable(false);
 			JAPHelp.init(m_MainWindow);
 
@@ -205,7 +207,7 @@ public class MixConfig extends JApplet
 
 				public void windowClosing(WindowEvent e)
 				{
-					System.exit(0);
+					m_startPanel.getMenu().exit();
 				}
 			});
 		}

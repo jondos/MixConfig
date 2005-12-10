@@ -30,7 +30,6 @@ package mixconfig.wizard;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Vector;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -109,14 +108,14 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 					{
 						Menu menu = ( (ChoicePanel)this.getParent()).getMenu();
 						menu.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
-							"New_from_Cancel"));
+							Menu.CMD_NEW_FROM_CANCEL));
 					}
 				}
 				else if (e.getSource() == getButtonCancel())
 				{
 					Menu menu = ( (ChoicePanel)this.getParent()).getMenu();
 					menu.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
-						"New_from_Cancel"));
+						Menu.CMD_NEW_FROM_CANCEL));
 
 				}
 				int i = m_wizPanel.getState();
@@ -140,24 +139,10 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 				else if ( (i & ConfigWizardPanel.STATE_END) > 0)
 				{
 					getButtonForward().setText("Finish");
-					if (save())
+					if (MixConfig.getMixConfiguration().saveToFile())
 					{
-						Menu menu = ( (ChoicePanel)this.getParent()).getMenu();
-						menu.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
-							Menu.CMD_RESET));
-						( (ChoicePanel)this.getParent()).setStartScreenVisible();
 						m_wizPanel.finish();
-						changeButtonLabelToNext();
-						/** Remove the listener interfaces */
-						for (int j = 0; j<m_wizPanel.getPageCount();j++)
-						{
-							MixConfigPanel p = m_wizPanel.getPage(j);
-							if (p instanceof GeneralPanel)
-							{
-								((GeneralPanel)p).clearListenerInterfaces();
-							}
-
-						}
+						( (ChoicePanel)getParent()).getMenu().reset(false);
 						stateChanged(new ChangeEvent(this));
 					}
 				}
@@ -228,42 +213,6 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 	public void changeButtonLabelToNext()
 	{
 		getButtonForward().setText("Next ->");
-	}
-
-
-	/** Shows a file dialog and saves the configuration
-	 * @throws IOException If an I/O error occurs while saving the configuration
-	 * @return <CODE>true</CODE> if the saving succeeded, <CODE>false</CODE> if it was aborted by the user
-	 */
-	private boolean save() throws IOException
-	{
-		MixConfiguration mixConf = MixConfig.getMixConfiguration();
-
-		String fileName = MixConfig.getCurrentFileName();
-		File file;
-
-		if (fileName != null)
-		{
-			file = new File(fileName);
-		}
-		else
-		{
-			file = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG,
-											MixConfig.FILTER_XML).getSelectedFile();
-		}
-
-		if (file != null)
-		{
-			String fname = file.getName();
-			if (!fname.toLowerCase().endsWith(".xml"))
-			{
-				file = new File(file.getParent(), fname + ".xml");
-			}
-			mixConf.save(new FileWriter(file.getCanonicalPath()));
-			MixConfig.info("Configuration saved", "Configuration saved as " + file);
-		}
-
-		return file != null;
 	}
 
 	public int getPageCount()

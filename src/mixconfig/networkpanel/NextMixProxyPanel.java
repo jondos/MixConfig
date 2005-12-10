@@ -129,15 +129,15 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			}
 		};
 
-		GridBagConstraints d = new GridBagConstraints();
-		d.anchor = GridBagConstraints.CENTER;
-		d.insets = new Insets(5, 5, 5, 5);
-		d.gridx = 0;
-		d.gridy = 1;
-		d.weightx = 1;
-		d.weighty = 1;
-		d.gridheight = 3;
-		d.fill = GridBagConstraints.HORIZONTAL;
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.anchor = GridBagConstraints.CENTER;
+		constraints.insets = new Insets(5, 5, 5, 5);
+		constraints.gridx = 0;
+		constraints.gridy = 1;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		constraints.gridheight = 3;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 
 		// Now the outgoing connections
 		c.gridx = 0;
@@ -204,7 +204,9 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 						" Next Mix", " Next Mix", " Proxy"
 					};
 					MixConfiguration mixConf = getConfiguration();
-					int mixType = Integer.valueOf(mixConf.getValue("General/MixType")).intValue();
+					int mixType = Integer.valueOf(mixConf.getValue(
+									   GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).
+						intValue();
 
 					new OutgoingDialog(MixConfig.getMainWindow(),
 									   "Change" + titles[mixType],
@@ -224,16 +226,15 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			//column.setMaxWidth(columnSizes1[Index]);
 		}
 
-		d.anchor = GridBagConstraints.CENTER;
-		d.insets = new Insets(5, 5, 5, 5);
-		d.gridx = 0;
-		d.gridy = 0;
-		d.weightx = 1;
-		d.weighty = 1;
-		d.gridheight = 3;
-		d.fill = GridBagConstraints.BOTH;
-		Out_Layout.setConstraints(scrollPane2, d);
-		panel2.add(scrollPane2);
+		constraints.anchor = GridBagConstraints.WEST;
+		constraints.insets = getDefaultInsets();
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		constraints.gridheight = 3;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		panel2.add(scrollPane2, constraints);
 
 		for (int Nr = 0; Nr < 2; Nr++)
 		{
@@ -247,7 +248,8 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 					{
 						public void tableChanged(TableModelEvent e)
 						{
-							String s = getConfiguration().getValue("General/MixType");
+							String s = getConfiguration().getValue(
+								GeneralPanel.XMLPATH_GENERAL_MIXTYPE);
 							int i = Integer.valueOf(s).intValue();
 							ob.setEnabled(i == MixConfiguration.MIXTYPE_LAST ||
 										  omodel.getRowCount() == 0);
@@ -278,7 +280,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			}
 			GridBagConstraints ibd = new GridBagConstraints();
 			ibd.anchor = GridBagConstraints.NORTHWEST;
-			ibd.insets = new Insets(5, 5, 5, 5);
+			ibd.insets = getDefaultInsets();
 			ibd.gridx = 1;
 			ibd.gridy = Nr;
 			ibd.weightx = 0.1;
@@ -287,6 +289,15 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			Out_Layout.setConstraints(OutButton, ibd);
 			panel2.add(OutButton);
 		}
+
+		//Keep the panels in place
+
+		constraints.gridx = 5;
+		constraints.gridy++;
+		constraints.weightx = 10;
+		constraints.weighty = 10;
+		constraints.fill = GridBagConstraints.BOTH;
+		add(new JLabel(), constraints);
 	}
 
 	public void tableChanged(TableModelEvent e)
@@ -405,6 +416,10 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 				!getConfiguration().isAutoConfigurationAllowed()
 				|| getConfiguration().isFallbackEnabled();
 
+			m_bttnAddOutgoing.setEnabled(
+						 mixType == MixConfiguration.MIXTYPE_LAST ||
+						 omodel.getRowCount() == 0);
+
 			/** @todo do not save outgoing if it is disabled; edit MixConfigPanel... */
 			table2.setEnabled(bEnableOutgoing);
 			setEnabled(bEnableOutgoing);
@@ -445,14 +460,36 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			if (e instanceof ConfigurationEvent)
 			{
 				ConfigurationEvent c = (ConfigurationEvent) e;
-				if (c.getChangedAttribute().equals(GeneralPanel.XMLPATH_GENERAL_MIXTYPE))
+				if (c.getChangedAttribute().equals(
+								GeneralPanel.XMLPATH_GENERAL_MIXTYPE))
 				{
-					int i = Integer.valueOf( (String) c.getNewValue()).intValue();
-					m_bttnAddOutgoing.setEnabled(i == MixConfiguration.MIXTYPE_LAST ||
-												 omodel.getRowCount() == 0);
+					int flags;
+					for (int i = 0; i >= 0 && i < omodel.getRowCount(); i++)
+					{
+						flags = omodel.getData(i).getFlags();
+						if (getConfiguration().getMixType() ==
+							MixConfiguration.MIXTYPE_LAST)
+						{
+							if (flags == ConnectionData.NO_PROXY)
+							{
+								omodel.deleteData(i);
+								i--;
+							}
+						}
+						else
+						{
+							if (flags > ConnectionData.NO_PROXY)
+							{
+								omodel.deleteData(i);
+								i--;
+							}
+						}
+					}
+
 					enableComponents();
 				}
-				else if (c.getChangedAttribute().indexOf(GeneralPanel.XMLPATH_AUTOCONFIGURATION) >= 0)
+				else if (c.getChangedAttribute().indexOf(
+								GeneralPanel.XMLPATH_AUTOCONFIGURATION) >= 0)
 				{
 					enableComponents();
 				}

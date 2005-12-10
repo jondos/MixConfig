@@ -70,21 +70,22 @@ public class Menu implements ActionListener
 	public static final String CMD_OPEN_FILE = "Open";
 	public static final String CMD_OPEN_FILE_WIZARD = "OpenWizard";
 	public static final String CMD_RESET = "Reset";
+	public static final String CMD_NEW_FROM_CANCEL = "New_from_Cancel";
 
 	private static final String WIZARD = "wizard";
 	private static final String EXPERT = "expert";
 	private static final String START = "start";
 
-	private static final String PROP_FILE = "menu_file";
-	private static final String PROP_FILE_MNEMONIC = "menu_fileMnemonic";
-	private static final String PROP_TOOLS = "menu_tools";
-	private static final String PROP_TOOLS_MNEMONIC = "menu_toolsMnemonic";
-	private static final String PROP_VIEW = "menu_view";
-	private static final String PROP_VIEW_MNEMONIC = "menu_viewMnemonic";
-	private static final String PROP_HELP = "menu_help";
-	private static final String PROP_HELP_MNEMONIC = "menu_helpMnemonic";
 
-
+	private static final String MSG_REALLY_CONTINUE = Menu.class.getName() + "_really_continue";
+	private static final String MSG_FILE = "menu_file";
+	private static final String MSG_FILE_MNEMONIC = "menu_fileMnemonic";
+	private static final String MSG_TOOLS = "menu_tools";
+	private static final String MSG_TOOLS_MNEMONIC = "menu_toolsMnemonic";
+	private static final String MSG_VIEW = "menu_view";
+	private static final String MSG_VIEW_MNEMONIC = "menu_viewMnemonic";
+	private static final String MSG_HELP = "menu_help";
+	private static final String MSG_HELP_MNEMONIC = "menu_helpMnemonic";
 
 	private JFrame m_mainWin;
 	private JMenuBar m_MenuBar;
@@ -125,17 +126,17 @@ public class Menu implements ActionListener
 			rootPane.setJMenuBar(m_MenuBar);
 		}
 		//the main menu
-		m_fileMenu = new JMenu(JAPMessages.getString(PROP_FILE));
-		m_fileMenu.setMnemonic(JAPMessages.getString(PROP_FILE_MNEMONIC).charAt(0));
+		m_fileMenu = new JMenu(JAPMessages.getString(MSG_FILE));
+		m_fileMenu.setMnemonic(JAPMessages.getString(MSG_FILE_MNEMONIC).charAt(0));
 		m_MenuBar.add(m_fileMenu);
-		m_toolsMenu = new JMenu(JAPMessages.getString(PROP_TOOLS));
-		m_toolsMenu.setMnemonic(JAPMessages.getString(PROP_TOOLS_MNEMONIC).charAt(0));
+		m_toolsMenu = new JMenu(JAPMessages.getString(MSG_TOOLS));
+		m_toolsMenu.setMnemonic(JAPMessages.getString(MSG_TOOLS_MNEMONIC).charAt(0));
 		m_MenuBar.add(m_toolsMenu);
-		JMenu viewMenu = new JMenu(JAPMessages.getString(PROP_VIEW));
-		viewMenu.setMnemonic(JAPMessages.getString(PROP_VIEW_MNEMONIC).charAt(0));
+		JMenu viewMenu = new JMenu(JAPMessages.getString(MSG_VIEW));
+		viewMenu.setMnemonic(JAPMessages.getString(MSG_VIEW_MNEMONIC).charAt(0));
 		m_MenuBar.add(viewMenu);
-		JMenu helpMenu = new JMenu(JAPMessages.getString(PROP_HELP));
-		helpMenu.setMnemonic(JAPMessages.getString(PROP_HELP_MNEMONIC).charAt(0));
+		JMenu helpMenu = new JMenu(JAPMessages.getString(MSG_HELP));
+		helpMenu.setMnemonic(JAPMessages.getString(MSG_HELP_MNEMONIC).charAt(0));
 		m_MenuBar.add(helpMenu);
 
 		//items for "file"
@@ -241,6 +242,54 @@ public class Menu implements ActionListener
 
 	}
 
+	public void exit()
+	{
+		boolean bExit = true;
+
+		//dispose();
+
+		if (!MixConfig.getMixConfiguration().isSavedToFile())
+		{
+			bExit = MixConfig.ask(null, JAPMessages.getString(MSG_REALLY_CONTINUE));
+		}
+		if (bExit)
+		{
+			System.exit(0);
+		}
+	}
+
+	public void reset(boolean a_bStartNewConfiguration) throws XMLParseException, IOException
+	{
+		boolean bReset = false;
+		ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
+		//if you choose "new", when the start-screen is in top, then start the expert-mode
+		if (cp.getActiveCard().equals(START))
+		{
+			cp.setExpertVisible();
+			m_changeViewToWizMenuItem.setEnabled(true);
+			m_changeViewToExpertMenuItem.setEnabled(false);
+		}
+		else
+		{
+			bReset = MixConfig.getMixConfiguration().isSavedToFile();
+			//if the start screen is not on top -> show the warning message
+			if (!bReset)
+			{
+				bReset = MixConfig.ask(null, JAPMessages.getString(MSG_REALLY_CONTINUE));
+			}
+		}
+		if (bReset)
+		{
+			reset();
+			if (!a_bStartNewConfiguration)
+			{
+				cp.setStartScreenVisible(); //set correct button lables
+			}
+			m_configWiz_Panel.changeButtonLabelToNext();
+			m_configWiz_Panel.stateChanged(new ChangeEvent(this));
+		}
+	}
+
 	public void actionPerformed(ActionEvent evt)
 	{
 		try
@@ -261,39 +310,13 @@ public class Menu implements ActionListener
 			{
 				( (ChoicePanel) m_configWiz_Panel.getParent()).setDefaultSize();
 			}
-			else if (evt.getActionCommand().equals("New") || evt.getActionCommand().equals("New_from_Cancel"))
+			else if (evt.getActionCommand().equals("New") || evt.getActionCommand().equals(CMD_NEW_FROM_CANCEL))
 			{
-				boolean warning = false;
-				ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
-				//if the start screen is on top -> don't show the warning message
-				if (!cp.getActiveCard().equals(START))
-				{
-					warning = MixConfig.ask("Notice", "You will lose unsaved information. " +
-											"Do you really want to cancel?");
-				}
-				//if you choose "new", when the start-screen is in top, then start the expert-mode
-				if (cp.getActiveCard().equals(START))
-				{
-					cp.setExpertVisible();
-					m_changeViewToWizMenuItem.setEnabled(true);
-					m_changeViewToExpertMenuItem.setEnabled(false);
-				}
-				if (warning)
-				{
-					reset();
-					if (evt.getActionCommand().equals("New_from_Cancel"))
-					{
-						cp.setStartScreenVisible(); //set korrect button lables
-					}
-					m_configWiz_Panel.changeButtonLabelToNext();
-					m_configWiz_Panel.stateChanged(new ChangeEvent(this));
-				}
-
+				reset(!evt.getActionCommand().equals(CMD_NEW_FROM_CANCEL));
 			}
 			else if (evt.getActionCommand().equals("Exit"))
 			{
-				//dispose();
-				System.exit(0);
+				exit();
 			}
 			else if (evt.getActionCommand().equals("Check"))
 			{
@@ -483,6 +506,8 @@ public class Menu implements ActionListener
 		( (ChoicePanel) m_configWiz_Panel.getParent()).setMessageTitle();
 	}
 
+
+
 	/** Clears all data in the panels and restarts with a new configuration object.
 	 * @throws IOException If a communication error occurs
 	 * @throws XMLParseException If an XML error occurs
@@ -498,6 +523,7 @@ public class Menu implements ActionListener
 		m_configWiz_Panel.setConfiguration(mixconfig);
 		m_configFrame_Panel.reset(); //show the first leaf
 		m_configWiz_Panel.reset(); //show the first leaf
+		mixconfig.setSavedToFile();
 
 		//if you choose "new", when the start-screen is in top, then start the wizard-mode
 		ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();

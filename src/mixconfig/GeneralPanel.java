@@ -115,21 +115,12 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.insets = getDefaultInsets();
-		//c.weightx = 1;
+		c.weightx = 1;
 		c.weighty = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		m_panelGeneralSettings = new TitledGridBagPanel("General Settings");
 		add(m_panelGeneralSettings, c);
 
-		// Mix Type JComboBox
-		m_comboboxMixType = new JComboBox();
-		m_comboboxMixType.setName(this.XMLPATH_GENERAL_MIXTYPE);
-		m_comboboxMixType.addItem(FIRST_MIX);
-		m_comboboxMixType.addItem(MIDDLE_MIX);
-		m_comboboxMixType.addItem(LAST_MIX);
-		m_comboboxMixType.addItemListener(this);
-		m_panelGeneralSettings.addRow(new JLabel("Mix type"), m_comboboxMixType,
-									  GridBagConstraints.HORIZONTAL);
 
 		// Mix Configuration
 		m_combxConfiguration = new JComboBox();
@@ -148,6 +139,15 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 									  m_cbxDynamicFallback, null, GridBagConstraints.HORIZONTAL);
 
 
+		// Mix Type JComboBox
+		m_comboboxMixType = new JComboBox();
+		m_comboboxMixType.setName(this.XMLPATH_GENERAL_MIXTYPE);
+		m_comboboxMixType.addItem(FIRST_MIX);
+		m_comboboxMixType.addItem(MIDDLE_MIX);
+		m_comboboxMixType.addItem(LAST_MIX);
+		m_comboboxMixType.addItemListener(this);
+		m_panelGeneralSettings.addRow(new JLabel("Mix type"), m_comboboxMixType,
+									  GridBagConstraints.HORIZONTAL);
 
 
 		// Mix Name JTextField
@@ -177,12 +177,11 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 
 		m_cascadeNameLabel = new JLabel("Cascade name");
 		m_panelGeneralSettings.addRow(m_cascadeNameLabel, m_tfCascadeName,
-									  m_lblCascadeLength, m_combxCascadeLength,
-									  GridBagConstraints.HORIZONTAL);
+									  m_lblCascadeLength, m_combxCascadeLength);
 
 		m_panelInfoService = new TitledGridBagPanel("Info Service");
 		c.gridy = 1;
-		c.fill = GridBagConstraints.HORIZONTAL;
+		//c.fill = GridBagConstraints.NONE;
 		add(m_panelInfoService, c);
 
 		m_txtISHost = new JTextField(20);
@@ -193,11 +192,11 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_txtISPort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE);
 		m_txtISPort.setName("Network/InfoService/Port");
 		m_txtISPort.setText("");
-		m_txtISPort.setMinimumSize(m_txtISPort.getPreferredSize());
+		//m_txtISPort.setMinimumSize(m_txtISPort.getPreferredSize());
 		m_txtISPort.addFocusListener(this);
 
 		JLabel isHostLabel = new JLabel("Host name");
-		isHostLabel.setPreferredSize(m_cascadeNameLabel.getPreferredSize());
+		//isHostLabel.setPreferredSize(m_cascadeNameLabel.getPreferredSize());
 		m_panelInfoService.addRow(isHostLabel, m_txtISHost, new JLabel("Port"), m_txtISPort);
 
 		m_listenerPanel = new JPanel(new GridBagLayout());
