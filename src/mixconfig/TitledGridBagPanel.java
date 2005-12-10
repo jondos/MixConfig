@@ -335,8 +335,11 @@ public final class TitledGridBagPanel extends JPanel
 				m_constraints.gridwidth = gridwidths[i];
 				if (i == a_components.length - 1)
 				{
-					m_constraints.weightx = 1;
-					m_constraints.weighty = 1;
+					m_constraints.weighty = 10;
+				}
+				else
+				{
+					m_constraints.weighty = 0;
 				}
 				m_constraints.fill = a_fill;
 

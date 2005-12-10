@@ -55,6 +55,14 @@ import gui.JAPJIntField;
  */
 public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 {
+	private static final String XMLPATH_TRAFFIC_SHAPING = "Ressources";
+	private static final String XMLPATH_TRAFFIC_SHAPING_LATENCY = XMLPATH_TRAFFIC_SHAPING + "/Latency";
+	private static final String XMLPATH_TRAFFIC_SHAPING_INTERVAL = XMLPATH_TRAFFIC_SHAPING + "/Intervall";
+
+	private static final String MSG_TRAFFIC_SHAPING = AdvancedPanel.class.getName() + "_TS";
+	private static final String MSG_LATENCY = AdvancedPanel.class.getName() + "_TS_latency";
+	private static final String MSG_INTERVAL = AdvancedPanel.class.getName() + "_TS_interval";
+
 	private static final String SET_UID = JAPMessages.getString("setUID");
 	private static final String SET_FD = JAPMessages.getString("setFD");
 	private static final String RUN_DAEMON = JAPMessages.getString("runDaemon");
@@ -64,11 +72,12 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 	private static final String COMPRESS_LOG = JAPMessages.getString("compressLog");
 	private static final String LOG_SYSLOG = JAPMessages.getString("logSyslog");
 
-	private JTextField m_tfID, m_tfNumOfFileDes, m_tfFileName;
+	private JTextField m_tfID, m_tfNumOfFileDes, m_tfFileName, m_tfLatency, m_tfInterval;
 	private JCheckBox m_cbDaemon, m_cbCompressLog;
 	private JRadioButton m_rbConsole, m_rbFile, m_rbSyslog, m_rbNoLog;
 	private ButtonGroup m_loggingButtonGroup;
 	private CertPanel m_certPanel;
+	private TitledGridBagPanel m_pnlTrafficShaping;
 
 	private String m_logFilePath = "General/Logging/File";
 
@@ -77,50 +86,63 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		super("Advanced");
 		setAutoSaveEnabled(false);
 		this.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.insets = new Insets(5, 5, 5, 5);
-		c.anchor = c.NORTHWEST;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.fill = c.NONE;
-		c.gridheight = 2;
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.insets = getDefaultInsets();
+		constraints.anchor = constraints.NORTHWEST;
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.weightx = 1;
+		constraints.fill = constraints.HORIZONTAL;
+		constraints.gridheight = 2;
 		TitledGridBagPanel loggingPanel = new TitledGridBagPanel("Logging");
-		this.add(loggingPanel, c);
+		this.add(loggingPanel, constraints);
 
 		m_certPanel = new CertPanel("Encrypted log certificate",
 									"This is the certificate your Mix will use to encrypt the log file",
 									(JAPCertificate)null, CertPanel.CERT_ALGORITHM_RSA);
 		m_certPanel.addChangeListener(this);
 		m_certPanel.setEnabled(false);
-		c.gridx++;
-		c.weightx = 1;
-		c.gridheight = 1;
-		this.add(m_certPanel, c);
+		constraints.gridx++;
+		constraints.gridheight = 1;
+		this.add(m_certPanel, constraints);
 
-		c.gridy += 2;
-		c.gridx--;
-		c.weighty = 1;
-		c.weightx = 0;
-		c.fill = c.HORIZONTAL;
+		constraints.gridy += 2;
+		constraints.gridx--;
+		constraints.weighty = 1;
+
+		m_pnlTrafficShaping = new TitledGridBagPanel(JAPMessages.getString(MSG_TRAFFIC_SHAPING));
+		add(m_pnlTrafficShaping, constraints);
+
+		//Latency
+		m_tfLatency = new JAPJIntField(
+			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
+		m_tfLatency.setName(XMLPATH_TRAFFIC_SHAPING_LATENCY);
+		m_tfLatency.addFocusListener(this);
+		m_pnlTrafficShaping.addRow(new JLabel(JAPMessages.getString(MSG_LATENCY) + " (ms)"), m_tfLatency);
+
+		//Interval
+		m_tfInterval = new JAPJIntField(
+			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
+		m_tfInterval.setName(XMLPATH_TRAFFIC_SHAPING_INTERVAL);
+		m_tfInterval.addFocusListener(this);
+		m_pnlTrafficShaping.addRow(new JLabel(JAPMessages.getString(MSG_INTERVAL) + " (ms)"), m_tfInterval);
+
+		constraints.gridx++;
 		TitledGridBagPanel miscPanel = new TitledGridBagPanel("Miscellaneous");
-		this.add(miscPanel, c);
-		c.fill = c.NONE;
+		this.add(miscPanel, constraints);
 
 		//User ID
-		JLabel label = new JLabel(SET_UID);
 		m_tfID = new JTextField(10);
 		m_tfID.setName("General/UserID");
 		m_tfID.addFocusListener(this);
-		miscPanel.addRow(label, m_tfID);
+		miscPanel.addRow(new JLabel(SET_UID), m_tfID);
 
 		//File Descriptors
-		label = new JLabel(SET_FD);
 		m_tfNumOfFileDes = new JAPJIntField(
 			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
-		m_tfNumOfFileDes.setColumns(10);
 		m_tfNumOfFileDes.setName("General/NrOfFileDescriptors");
 		m_tfNumOfFileDes.addFocusListener(this);
-		miscPanel.addRow(label, m_tfNumOfFileDes);
+		miscPanel.addRow(new JLabel(SET_FD), m_tfNumOfFileDes);
 
 		// Daemon
 		m_cbDaemon = new JCheckBox(RUN_DAEMON);
@@ -147,7 +169,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		m_rbFile.addItemListener(this);
 
 		// Log to Directory JTextField
-		m_tfFileName = new JTextField(15);
+		m_tfFileName = new JTextField();
 		m_tfFileName.addFocusListener(this);
 		m_tfFileName.setEnabled(false);
 		loggingPanel.addRow(m_rbFile, m_tfFileName);
@@ -169,6 +191,14 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		m_loggingButtonGroup.add(m_rbConsole);
 		m_loggingButtonGroup.add(m_rbFile);
 		m_loggingButtonGroup.add(m_rbSyslog);
+
+		//Keep the panels in place
+		constraints.gridx++;
+		constraints.gridy++;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		constraints.fill = GridBagConstraints.BOTH;
+		add(new JLabel(), constraints);
 
 		setAutoSaveEnabled(true);
 	}
