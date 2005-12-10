@@ -92,7 +92,7 @@ public class MixConfiguration
 		"FirstMix", "MiddleMix", "LastMix", "FirstOrMiddle"};
 
 	/** The configuration file information version number. */
-	private static final String VERSION = "0.6";
+	private static final String VERSION = "0.61";
 
 	private static final String XML_ATTRIBUTE_VERSION = "version";
 
