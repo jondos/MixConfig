@@ -35,6 +35,8 @@ import java.net.URL;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -63,13 +65,12 @@ import logging.LogType;
 
 class MapBox extends JDialog implements ChangeListener
 {
-	public static final int BOLD = 3;
         /** The URL pointing to the real map image */
 	private String m_urlString;
         /** The label containing the map in form of an <CODE>ImageIcon</CODE> */
 	private JLabel map;
 	private JSlider s;
-	private JButton b;
+	private JButton m_btnClose;
         /** The longitude of the center of the map */
 	private String m_longitude;
         /** The latitude of the center of the map */
@@ -152,11 +153,17 @@ class MapBox extends JDialog implements ChangeListener
 		layout.setConstraints(logolabel, c);
 		getContentPane().add(logolabel);
 
-		b = new JButton("Close");
+		m_btnClose = new JButton("Close");
+		m_btnClose.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent a_event)
+		{
+			dispose();
+		}});
+
 		c.gridx = 2;
 		c.gridy = 2;
-		layout.setConstraints(b, c);
-		getContentPane().add(b);
+		layout.setConstraints(m_btnClose, c);
+		getContentPane().add(m_btnClose);
 		refresh();
 		pack();
 	}

@@ -189,9 +189,6 @@ public class ConfigFrame extends JPanel
 				}
 			}
 		}
-		// Vector.toArray() must not be used; it is not compatible
-		// with JDK 1.1.8
-		// return (String[]) errors.toArray(new String[] {});
 
 		return asString;
 	}

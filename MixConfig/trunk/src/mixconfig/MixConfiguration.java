@@ -51,6 +51,8 @@ import logging.LogLevel;
 import logging.LogType;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.OutgoingConnectionTableModel;
+import java.io.File;
+import java.io.FileWriter;
 
 /** This class provides unified access to the Mix configuration. The configuration
  * is stored as a DOM document.
@@ -97,6 +99,8 @@ public class MixConfiguration
 	/** The configuration as a DOM document */
 	private Document m_configuration = null;
 
+	private boolean m_bSavedToFile = true;
+
 	/** A list of <CODE>ChangeListener</CODE>s receiving events from this object
 	 * whenever the value of an attribute changes
 	 */
@@ -128,6 +132,7 @@ public class MixConfiguration
 		/*
 		   setValue(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK + "/" + MixOnCDPanel.XMLVALUE_NETWORKINTERFACE,
 		   "eth0");*/
+		setSavedToFile();
 	}
 
 	/** Constructs a new instance of <CODE>MixConfiguration</CODE>. The configuration is
@@ -142,6 +147,7 @@ public class MixConfiguration
 		{
 			throw new IOException("Loading of configuration has been canceled!");
 		}
+		setSavedToFile();
 	}
 
 	/** Set's a new <CODE>MixConfiguration</CODE>. Without creating a new Instance
@@ -161,6 +167,7 @@ public class MixConfiguration
 		}
 
 		m_configuration = configuration;
+		setSavedToFile();
 		return true;
 	}
 
@@ -209,6 +216,60 @@ public class MixConfiguration
 	{
 		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Writing configuration...");
 		XMLUtil.write(m_configuration, a_writer);
+		if (a_writer instanceof FileWriter)
+		{
+			m_bSavedToFile = true;
+		}
+	}
+
+	/**
+	 * Returns if the configuration has been saved to a file.
+	 * @return true if the configuration has been saved to a file; false otherwise
+	 */
+	public boolean isSavedToFile()
+	{
+		return m_bSavedToFile;
+	}
+
+	/**
+	 * Tells the configuration object that it has been save to a file.
+	 */
+	public void setSavedToFile()
+	{
+		m_bSavedToFile = true;
+	}
+
+	/** Shows a file dialog and saves the configuration
+	 * @throws IOException If an I/O error occurs while saving the configuration
+	 * @return <CODE>true</CODE> if the saving succeeded, <CODE>false</CODE> if it was aborted by the user
+	 */
+	public boolean saveToFile() throws IOException
+	{
+		String fileName = MixConfig.getCurrentFileName();
+		File file;
+
+		if (fileName != null)
+		{
+			file = new File(fileName);
+		}
+		else
+		{
+			file = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG,
+											MixConfig.FILTER_XML).getSelectedFile();
+		}
+
+		if (file != null)
+		{
+			String fname = file.getName();
+			if (!fname.toLowerCase().endsWith(".xml"))
+			{
+				file = new File(file.getParent(), fname + ".xml");
+			}
+			save(new FileWriter(file.getCanonicalPath()));
+			MixConfig.info("Configuration saved", "Configuration saved as " + file);
+		}
+
+		return file != null;
 	}
 
 	/**
@@ -296,6 +357,23 @@ public class MixConfiguration
 	{
 		return Boolean.valueOf(getValue(GeneralPanel.XMLPATH_AUTOCONFIGURATION + "/" +
 										GeneralPanel.XML_ATTRIBUTE_FALLBACK)).booleanValue();
+	}
+
+	/**
+	 * Checks if there is a <Accounting> tag in the XML configuration structure
+	 * @return boolean
+	 */
+	public boolean isPaymentPresent()
+	{
+		NodeList list = m_configuration.getElementsByTagName("Accounting");
+		if (list.getLength() > 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	public int getMixType()
@@ -679,6 +757,7 @@ public class MixConfiguration
 	 */
 	protected void fireStateChanged(String a_name, Object a_value)
 	{
+		m_bSavedToFile = false;
 		if (a_name.indexOf("MixType") >= 0)
 		{
 			a_value = Integer.toString(getMixTypeAsInt(a_value.toString()));
@@ -688,6 +767,7 @@ public class MixConfiguration
 		{
 			( (ChangeListener) m_changeListeners.elementAt(i)).stateChanged(c);
 		}
+
 	}
 
 	/** Sends a <CODE>ChangeEvent</CODE> to all <CODE>ChangeListener</CODE>s. This method is called whenever the value of an attribute
@@ -834,7 +914,7 @@ public class MixConfiguration
 	 * @throws IOException If an error occurs while reading the configuration
 	 * @return A DOM document containing the configuration
 	 */
-	private Document open(InputSource r) throws XMLParseException, IOException
+	private static Document open(InputSource r) throws XMLParseException, IOException
 	{
 		Document doc;
 		Node root;
@@ -884,23 +964,6 @@ public class MixConfiguration
 		XMLUtil.setAttribute( (Element) root, XML_ATTRIBUTE_VERSION, VERSION);
 
 		return doc;
-	}
-
-	/**
-	 * Checks if there is a <Accounting> tag in the XML configuration structure
-	 * @return boolean
-	 */
-	public boolean isPaymentPresent()
-	{
-		NodeList list = m_configuration.getElementsByTagName("Accounting");
-		if (list.getLength() > 0)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
 	}
 
 }

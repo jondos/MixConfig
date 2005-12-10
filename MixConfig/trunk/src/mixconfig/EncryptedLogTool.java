@@ -78,10 +78,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		getContentPane().setLayout(layout);
 		GridBagLayout layoutFile = new GridBagLayout();
 		GridBagLayout layoutBttns = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.insets = new Insets(10, 10, 10, 10);
-		c.fill = GridBagConstraints.HORIZONTAL;
+
 
 		JPanel panel1 = new JPanel(layoutFile);
 		GridBagConstraints d = new GridBagConstraints();
@@ -89,6 +86,10 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		d.insets = new Insets(5, 5, 5, 5);
 		panel1.setBorder(new TitledBorder("Log File to decrypt"));
 
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.fill = GridBagConstraints.BOTH;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 1;
@@ -114,29 +115,30 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		d.gridx = 0;
 		d.gridy = 1;
 		d.gridwidth = 10;
-		d.fill = GridBagConstraints.HORIZONTAL;
-		m_textLogFile = new JTextArea(20, 80);
+		d.fill = GridBagConstraints.BOTH;
+		m_textLogFile = new JTextArea();
 		m_textLogFile.setEditable(false);
 		JScrollPane sp = new JScrollPane(m_textLogFile);
-		d.weightx = 1;
+		d.weightx = 10;
+		d.weighty = 10;
 		layoutFile.setConstraints(sp, d);
 		panel1.add(sp);
 
 
 		c.gridx = 0;
 		c.gridy = 1;
+		c.weighty = 0;
 		c.fill = GridBagConstraints.NONE;
-		m_privateCertPanel = new CertPanel(JAPMessages.getString(MSG_CERT_HEADLINE),
-										   null,
-										   (PKCS12)null, CertPanel.CERT_ALGORITHM_RSA);
+		m_privateCertPanel =
+			new CertPanel(JAPMessages.getString(MSG_CERT_HEADLINE), null,
+						  (PKCS12)null, CertPanel.CERT_ALGORITHM_RSA);
 		m_privateCertPanel.setCertCreationValidator(new LogCertCreationValidator());
 		m_privateCertPanel.addChangeListener(this);
 		layout.setConstraints(m_privateCertPanel, c);
 		getContentPane().add(m_privateCertPanel);
 
-		pack();
+		setSize(650,600);
 		GUIUtils.positionWindow(this, parent);
-		setResizable(false);
 		setVisible(true);
 	}
 

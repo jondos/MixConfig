@@ -93,7 +93,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.anchor = GridBagConstraints.NORTHWEST;
 		constraints.insets = getDefaultInsets();
-		constraints.fill = GridBagConstraints.NONE;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 
 		m_cbxMixOnCD = new JCheckBox("Use bootable MixOnCD to create and install the mix");
 		m_cbxMixOnCD.setName(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK + "/" +
@@ -198,6 +198,14 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 			m_lblsPW[i] = new JLabel(m_users[i]);
 			m_panelPasswords.addRow(m_lblsPW[i], m_btnsRemovePW[i], m_pwds[i]);
 		}
+
+		//Keep the panels in place
+		constraints.gridx++;
+		constraints.gridy++;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		constraints.fill = GridBagConstraints.BOTH;
+		add(new JLabel(), constraints);
 	}
 
 

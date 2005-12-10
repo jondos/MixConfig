@@ -108,7 +108,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
-		c.weightx = 0;
+		c.weightx = 1;
 		c.weighty = 0;
 		c.insets = getDefaultInsets();
 
@@ -140,7 +140,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		TitledGridBagPanel panelLocation = new TitledGridBagPanel("Mix Location");
 		c.gridx = 0;
 		c.gridy = 1;
-		c.weightx = 0;
+		c.weightx = 1;
 		c.weighty = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		add(panelLocation, c);
@@ -196,18 +196,18 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		TitledGridBagPanel panelOperator = new TitledGridBagPanel("Operator");
 		c.gridx = 1;
 		c.gridy = 1;
-		c.weightx = 0;
+		c.weightx = 1;
 		c.weighty = 0;
 		add(panelOperator, c);
 
-		m_txtOperatorOrg = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtOperatorOrg = new JTextField();
 		m_txtOperatorOrg.setName(XMLPATH_OPERATOR_ORGANISATION);
 		m_txtOperatorOrg.addFocusListener(this);
 		m_txtOperatorOrg.setToolTipText(
 			"This should contain the operating organisation's or a person's name for private persons.");
 		panelOperator.addRow(new JLabel("Organisation"), m_txtOperatorOrg);
 
-		m_txtOperatorOrgaUnit = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtOperatorOrgaUnit = new JTextField();
 		m_txtOperatorOrgaUnit.setName(XMLPATH_OPERATOR_ORGA_UNIT);
 		m_txtOperatorOrgaUnit.addFocusListener(this);
 		m_txtOperatorOrgaUnit.setToolTipText(
@@ -221,13 +221,13 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		m_cbxOperatorCountry.setEditable(false);
 		panelOperator.addRow(new JLabel("Country"), m_cbxOperatorCountry);
 
-		m_txtOperatorUrl = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtOperatorUrl = new JTextField();
 		m_txtOperatorUrl.setName(XMLPATH_OPERATOR_URL);
 		m_txtOperatorUrl.addFocusListener(this);
 		m_txtOperatorUrl.setToolTipText("This should contain a URL that will lead to more information about the operator including contact information.");
 		panelOperator.addRow(new JLabel("URL"), m_txtOperatorUrl);
 
-		m_txtOperatorEmail = new JTextField(MAX_COLUMN_LENGTH);
+		m_txtOperatorEmail = new JTextField();
 		m_txtOperatorEmail.setName(XMLPATH_OPERATOR_EMAIL);
 		m_txtOperatorEmail.addFocusListener(this);
 		m_txtOperatorEmail.setToolTipText(

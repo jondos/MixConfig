@@ -118,7 +118,7 @@ public final class TitledGridBagPanel extends JPanel
 	 */
 	public void addRow(Component a_component, Component a_otherComponent)
 	{
-		addRow(a_component, a_otherComponent, GridBagConstraints.NONE);
+		addRow(a_component, a_otherComponent, GridBagConstraints.HORIZONTAL);
 	}
 
 	public void addRow(Component a_component, Component a_otherComponent, int a_fill)
@@ -178,7 +178,7 @@ public final class TitledGridBagPanel extends JPanel
 	 */
 	public void replaceRow(Component a_component, Component a_otherComponent, int a_rowNumber)
 	{
-		replaceRow(a_component, a_otherComponent, a_rowNumber, GridBagConstraints.NONE);
+		replaceRow(a_component, a_otherComponent, a_rowNumber, GridBagConstraints.HORIZONTAL);
 	}
 
 
@@ -242,7 +242,7 @@ public final class TitledGridBagPanel extends JPanel
 						   Component a_thirdComponent, Component a_fourthComponent, int a_rowNumber)
 	{
 		replaceRow(a_component, a_otherComponent, a_thirdComponent, a_fourthComponent, a_rowNumber,
-				   GridBagConstraints.NONE);
+				   GridBagConstraints.HORIZONTAL);
 	}
 
 
@@ -264,7 +264,7 @@ public final class TitledGridBagPanel extends JPanel
 	 */
 	public void replaceRow(Component[] a_components, int a_gridwidths[], int a_rowNumber)
 	{
-		replaceRow(a_components, a_gridwidths, a_rowNumber, GridBagConstraints.NONE);
+		replaceRow(a_components, a_gridwidths, a_rowNumber, GridBagConstraints.HORIZONTAL);
 	}
 
 	public void replaceRow(Component[] a_components, int a_gridwidths[], int a_rowNumber, int a_fill)
@@ -331,7 +331,7 @@ public final class TitledGridBagPanel extends JPanel
 
 				m_constraints.gridx = i;
 				m_constraints.gridy = a_rowNumber;
-				m_constraints.weightx = 0;
+				m_constraints.weightx = 1;
 				m_constraints.gridwidth = gridwidths[i];
 				if (i == a_components.length - 1)
 				{
@@ -339,6 +339,7 @@ public final class TitledGridBagPanel extends JPanel
 					m_constraints.weighty = 1;
 				}
 				m_constraints.fill = a_fill;
+
 				( (GridBagLayout) getLayout()).setConstraints(a_components[i], m_constraints);
 				add(a_components[i]);
 			}

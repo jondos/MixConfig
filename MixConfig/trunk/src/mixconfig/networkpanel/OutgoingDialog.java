@@ -7,7 +7,6 @@ import java.awt.Insets;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
-import mixconfig.ConfigFrame;
 import mixconfig.MixConfiguration;
 import mixconfig.MixConfig;
 
@@ -94,10 +93,8 @@ public class OutgoingDialog extends ConnectionDialog
 		rc.gridy = 0;
 		rc.weightx = 0;
 
-		MixConfiguration mixConf = MixConfig.getMixConfiguration();
-		String s = mixConf.getValue("General/MixType");
-
-		if (Integer.valueOf(s).intValue() == MixConfiguration.MIXTYPE_LAST)
+		if (MixConfig.getMixConfiguration().getMixType() ==
+			MixConfiguration.MIXTYPE_LAST)
 		{
 			addType(data, layout, lc, rc);
 		}
