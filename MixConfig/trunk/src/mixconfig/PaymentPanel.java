@@ -62,7 +62,6 @@ import logging.LogType;
  */
 public class PaymentPanel extends MixConfigPanel implements ActionListener, ChangeListener
 {
-	private JPanel m_miscPanel;
 	private JCheckBox m_chkPaymentEnabled;
 	private TitledGridBagPanel m_jpiPanel;
 	private JTextField m_textJPIName;
@@ -117,7 +116,6 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 			);
 		m_textSoftLimit = new JAPJIntField(
 			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
-		m_textSoftLimit.setColumns(10);
 		m_textSoftLimit.setName("Accounting/SoftLimit");
 		m_textSoftLimit.addFocusListener(this);
 		m_generalPanel.addRow(label, m_textSoftLimit);
@@ -129,7 +127,6 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 			);
 		m_textHardLimit = new JAPJIntField(
 			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
-		m_textHardLimit.setColumns(10);
 		m_textHardLimit.setName("Accounting/HardLimit");
 		m_textHardLimit.addFocusListener(this);
 		m_generalPanel.addRow(label, m_textHardLimit);
@@ -141,7 +138,6 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 			);
 		m_textSettleInterval = new JAPJIntField(
 			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
-		m_textSettleInterval.setColumns(10);
 		m_textSettleInterval.setName("Accounting/SettleInterval");
 		m_textSettleInterval.addFocusListener(this);
 		m_generalPanel.addRow(label, m_textSettleInterval);
@@ -156,7 +152,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 									   "the First Mix with payment enabled, setup a Postgresql DB and enter<br> " +
 									   "its connection data here.");
 
-		m_textDatabaseHost = new JTextField(10);
+		m_textDatabaseHost = new JTextField();
 		m_textDatabaseHost.setName("Accounting/Database/Host");
 		m_textDatabaseHost.addFocusListener(this);
 		m_databasePanel.addRow(new JLabel("Database Hostname:"), m_textDatabaseHost);
@@ -164,14 +160,15 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		m_textDatabasePort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE);
 		m_textDatabasePort.setName("Accounting/Database/Port");
 		m_textDatabasePort.addFocusListener(this);
-		m_databasePanel.addRow(new JLabel("Database Portnumber:"), m_textDatabasePort);
+		m_databasePanel.addRow(new JLabel("Database Portnumber:"), m_textDatabasePort,
+							   GridBagConstraints.NONE);
 
-		m_textDatabaseDBName = new JTextField(10);
+		m_textDatabaseDBName = new JTextField();
 		m_textDatabaseDBName.setName("Accounting/Database/DBName");
 		m_textDatabaseDBName.addFocusListener(this);
 		m_databasePanel.addRow(new JLabel("Database Name:"), m_textDatabaseDBName);
 
-		m_textDatabaseUsername = new JTextField(10);
+		m_textDatabaseUsername = new JTextField();
 		m_textDatabaseUsername.setName("Accounting/Database/Username");
 		m_textDatabaseUsername.addFocusListener(this);
 		m_databasePanel.addRow(new JLabel("Database Username:"), m_textDatabaseUsername);
@@ -204,7 +201,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		m_textJPIPort = new JAPJIntField(ListenerInterface.PORT_MAX_VALUE);
 		m_textJPIPort.setName("Accounting/PaymentInstance/Network/ListenerInterfaces/ListenerInterface/Port");
 		m_textJPIPort.addFocusListener(this);
-		m_jpiPanel.addRow(new JLabel("JPI Portnumber:"), m_textJPIPort);
+		m_jpiPanel.addRow(new JLabel("JPI Portnumber:"), m_textJPIPort, GridBagConstraints.NONE);
 		m_textJPIName = new JTextField();
 		m_textJPIName.setName("Accounting/PaymentInstance/id");
 		m_textJPIName.addFocusListener(this);
