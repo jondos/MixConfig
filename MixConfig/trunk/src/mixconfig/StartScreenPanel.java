@@ -43,6 +43,7 @@ import mixconfig.wizard.WizardLayout;
 import gui.JAPHelp;
 import java.awt.Graphics;
 import gui.JAPDialog;
+import gui.JAPHtmlMultiLineLabel;
 
 public class StartScreenPanel  extends WizardLayout implements ActionListener
 {
@@ -74,10 +75,7 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		JPanel itemPanel = new JPanel(new BorderLayout());
 		itemPanel.setBorder(new EtchedBorder());
 
-		JTextPane start_text = GUIUtils.createSelectableAndResizeableLabel(this);
-		start_text.setEnabled(false);
-		start_text.setText("\n" + START_TXT);
-		itemPanel.add(start_text, BorderLayout.NORTH);
+		itemPanel.add(new JAPHtmlMultiLineLabel("<br>" + START_TXT), BorderLayout.NORTH);
 
 		JButton b_new = new JButton(BLABEL_NEW);
 		b_new.setActionCommand(CMD_NEW);

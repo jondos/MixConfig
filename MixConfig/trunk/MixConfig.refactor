@@ -169,4 +169,34 @@
     <declared-field-type>Ljava/lang/String;</declared-field-type>
     <new-field-name>IDENTIFIER_GIVENNAME</new-field-name>
   </rename-field>
+  <rename-field id="6AP07C1PI3HE7CAMULFK8Z" creation-time="Sun Dec 11 16:53:16.879 CET 2005">
+    <declaring-class-name>gui.JAPHtmlMultiLineLabel</declaring-class-name>
+    <old-field-name>BODY_START_TAG_WITHOUT_END</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>BODY_START_TAG_WITHOUT_END_BRACE</new-field-name>
+  </rename-field>
+  <rename-field id="5AP07C1PI3HE7CAMULFK8Z" creation-time="Sun Dec 11 16:53:27.805 CET 2005">
+    <declaring-class-name>gui.JAPHtmlMultiLineLabel</declaring-class-name>
+    <old-field-name>HTML_START_TAG</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>HTML_START_TAG_WITHOUT_END_BRACE</new-field-name>
+  </rename-field>
+  <rename-method id="3AP07C1PI3HE7CAMULFK8Z" creation-time="Sun Dec 11 18:05:56.282 CET 2005">
+    <declaring-class-name>gui.GUIUtils</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;)Ljavax/swing/JTextPane;</declared-method-signature>
+    <old-method-name>createSelectableAndResizeableLabel</old-method-name>
+    <new-method-name>createSelectableAndResizeableHTMLLabel</new-method-name>
+  </rename-method>
+  <rename-method id="1AP07C1PI3HE7CAMULFK8Z" creation-time="Sun Dec 11 18:06:15.803 CET 2005">
+    <declaring-class-name>gui.GUIUtils</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;)Ljavax/swing/JTextPane;</declared-method-signature>
+    <old-method-name>createSelectableAndResizeableHTMLLabel</old-method-name>
+    <new-method-name>createSelectableAndResizeableLabel</new-method-name>
+  </rename-method>
+  <rename-method id="Z9P07C1PI3HE7CAMULFK8Z" creation-time="Sun Dec 11 18:07:38.863 CET 2005">
+    <declaring-class-name>gui.GUIUtils</declaring-class-name>
+    <declared-method-signature>(Ljava/lang/String;Ljava/awt/Font;)Ljava/lang/String;</declared-method-signature>
+    <old-method-name>formatHTMLText</old-method-name>
+    <new-method-name>formatTextAsHTML</new-method-name>
+  </rename-method>
 </refactor>
