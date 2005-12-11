@@ -42,7 +42,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -63,7 +62,7 @@ import logging.LogType;
  * according to the specified latitude and longitude.
  */
 
-class MapBox extends JDialog implements ChangeListener
+class MapBox extends JAPDialog implements ChangeListener
 {
         /** The URL pointing to the real map image */
 	private String m_urlString;
@@ -85,13 +84,10 @@ class MapBox extends JDialog implements ChangeListener
          */
 	public MapBox(Frame parent, String lat, String lon, int level) throws Exception
 	{
-		super(parent, "", true);
-		setBackground(Color.white);
+		super(parent, "");
+		getContentPane().setBackground(Color.white);
 		m_longitude = lon;
 		m_latitude = lat;
-
-		this.setLocation(MixConfig.getMainWindow().getLocation().x + 15,
-						 MixConfig.getMainWindow().getLocation().y + 15);
 
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();

@@ -100,14 +100,24 @@ public class JAPDialog
 
 	/**
 	 * Creates a new instance of JAPDialog. It is user-resizable and modal.
-	 * @param a_parentDialog The parent component for this dialog. If it is null or the parent
-	 *                       component is not within a frame, the dialog's parent frame is the
-	 *                       default frame.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
 	 * @param a_strTitle The title String for this dialog.
 	 */
 	public JAPDialog(JAPDialog a_parentDialog, String a_strTitle)
 	{
 		this(getInternalDialog(a_parentDialog), a_strTitle);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_message The message to be displayed
+	 */
+	public static void showInfoMessage(JAPDialog a_parentDialog, String a_message)
+	{
+		showInfoMessage(getInternalDialog(a_parentDialog), a_message);
 	}
 
 	/**
@@ -120,6 +130,18 @@ public class JAPDialog
 	public static void showInfoMessage(Component a_parentComponent, String a_message)
 	{
 		showInfoMessage(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, null);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 */
+	public static void showInfoMessage(JAPDialog a_parentDialog, String a_title, String a_message)
+	{
+		showInfoMessage(getInternalDialog(a_parentDialog), a_title, a_message);
 	}
 
 	/**
@@ -137,6 +159,19 @@ public class JAPDialog
 
 	/**
 	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_message The message to be displayed
+	 * @param a_icon an icon that will be displayed on the dialog
+	 */
+	public static void showInfoMessage(JAPDialog a_parentDialog, String a_message, Icon a_icon)
+	{
+		showInfoMessage(getInternalDialog(a_parentDialog), a_message, a_icon);
+	}
+
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
@@ -146,6 +181,20 @@ public class JAPDialog
 	public static void showInfoMessage(Component a_parentComponent, String a_message, Icon a_icon)
 	{
 		showInfoMessage(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, a_icon);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_icon an icon that will be displayed on the dialog
+	 */
+	public static void showInfoMessage(JAPDialog a_parentDialog, String a_title, String a_message,
+									   Icon a_icon)
+	{
+		showInfoMessage(getInternalDialog(a_parentDialog), a_title, a_message, a_icon);
 	}
 
 	/**
@@ -168,6 +217,19 @@ public class JAPDialog
 	/**
 	 * Displays a message dialog that asks the user for a confirmation.
 	 * Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_message The message to be displayed
+	 * @return true if the answer was 'yes'; fale otherwise
+	 */
+	public static boolean showYesNoConfirmMessage(JAPDialog a_parentDialog, String a_message)
+	{
+		return showYesNoConfirmMessage(getInternalDialog(a_parentDialog), a_message);
+	}
+
+	/**
+	 * Displays a message dialog that asks the user for a confirmation.
+	 * Words are wrapped automatically if a message line is too long.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
@@ -181,6 +243,21 @@ public class JAPDialog
 											  JAPMessages.getString(MSG_CONFIRMATION),
 											  JOptionPane.YES_NO_OPTION);
 		return (i == JOptionPane.YES_OPTION);
+	}
+
+	/**
+	 * Displays a message dialog that asks the user for a confirmation.
+	 * Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @return true if the answer was 'yes'; fale otherwise
+	 */
+	public static boolean showYesNoConfirmMessage(JAPDialog a_parentDialog, String a_title,
+												  String a_message)
+	{
+		return showYesNoConfirmMessage(getInternalDialog(a_parentDialog), a_title, a_message);
 	}
 
 	/**
@@ -362,6 +439,24 @@ public class JAPDialog
 			}
 		}
 		m_internalDialog.setVisible(a_bVisible);
+	}
+
+	/**
+	 * Sets the title of this dialog.
+	 * @param a_title the title of this dialog
+	 */
+	public final void setTitle(String a_title)
+	{
+		m_internalDialog.setTitle(a_title);
+	}
+
+	/**
+	 * Defines the dialog as modal or not.
+	 * @param a_bModal true if the dialog should be modal; false otherwise
+	 */
+	public final void setModal(boolean a_bModal)
+	{
+		m_internalDialog.setModal(a_bModal);
 	}
 
 	/**
