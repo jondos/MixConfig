@@ -75,6 +75,8 @@ public final class X509DistinguishedName
 	public static final String LABEL_SURNAME = "SURNAME";
 	public static final String LABEL_GIVENNAME = "GIVENNAME";
 
+	private static Vector m_sortedIdentifiers;
+
 	private X509Name m_bcX509Name;
 
 	/**
@@ -345,6 +347,8 @@ public final class X509DistinguishedName
 
 	}
 
+
+
 	/**
 	 * Returns the identifiers of attributes in this X509 name.
 	 * @return the identifiers of attributes in this X509 name
@@ -352,10 +356,22 @@ public final class X509DistinguishedName
 	public Vector getAttributeIdentifiers()
 	{
 		Vector oids = new Vector();
-		Enumeration bcOids = m_bcX509Name.getOIDs().elements();
-		while (bcOids.hasMoreElements())
+		Vector unsortedOIDs = m_bcX509Name.getOIDs();
+		Enumeration identifiers = getSortedIdentifiers();
+		int index;
+
+		while (identifiers.hasMoreElements())
 		{
-			oids.addElement(((DERObjectIdentifier)bcOids.nextElement()).getId());
+			if ((index = unsortedOIDs.indexOf((identifiers.nextElement()))) >= 0)
+			{
+				oids.addElement(((DERObjectIdentifier)unsortedOIDs.elementAt(index)).getId());
+				unsortedOIDs.removeElementAt(index);
+			}
+		}
+
+		for (int i = 0; i < unsortedOIDs.size(); i++)
+		{
+			oids.addElement(((DERObjectIdentifier)unsortedOIDs.elementAt(i)).getId());
 		}
 
 		return oids;
@@ -367,7 +383,27 @@ public final class X509DistinguishedName
 	 */
 	public Vector getAttributes()
 	{
-		return m_bcX509Name.getValues();
+		Vector unsortedOIDs = m_bcX509Name.getOIDs();
+		Vector unsortedAttributes = m_bcX509Name.getValues();
+		Vector attributes = new Vector();
+		Enumeration identifiers = getSortedIdentifiers();
+		int index;
+
+		while (identifiers.hasMoreElements())
+		{
+			if ((index = unsortedOIDs.indexOf((identifiers.nextElement()))) >= 0)
+			{
+				attributes.addElement(unsortedAttributes.elementAt(index));
+				unsortedOIDs.removeElementAt(index);
+				unsortedAttributes.removeElementAt(index);
+			}
+		}
+		for (int i = 0; i < unsortedAttributes.size(); i++)
+		{
+			attributes.addElement(unsortedAttributes.elementAt(i));
+		}
+
+		return attributes;
 	}
 
 	/**
@@ -456,5 +492,25 @@ public final class X509DistinguishedName
 	X509Name getX509Name()
 	{
 		return m_bcX509Name;
+	}
+
+
+	private static Enumeration getSortedIdentifiers()
+	{
+		if (m_sortedIdentifiers == null)
+		{
+			m_sortedIdentifiers = new Vector();
+			m_sortedIdentifiers.addElement(X509Name.CN);
+			m_sortedIdentifiers.addElement(X509Name.SURNAME);
+			m_sortedIdentifiers.addElement(X509Name.GIVENNAME);
+			m_sortedIdentifiers.addElement(X509Name.O);
+			m_sortedIdentifiers.addElement(X509Name.OU);
+			m_sortedIdentifiers.addElement(X509Name.L);
+			m_sortedIdentifiers.addElement(X509Name.ST);
+			m_sortedIdentifiers.addElement(X509Name.C);
+			m_sortedIdentifiers.addElement(X509Name.E);
+			m_sortedIdentifiers.addElement(X509Name.EmailAddress);
+		}
+		return m_sortedIdentifiers.elements();
 	}
 }
