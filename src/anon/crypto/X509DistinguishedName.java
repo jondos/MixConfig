@@ -336,29 +336,19 @@ public final class X509DistinguishedName
 	 */
 	public String getAttribute(String a_identifier)
 	{
-		Vector oids;
-		int index;
+		DERObjectIdentifier identifier;
 
-		if (a_identifier == null || a_identifier.trim().length() == 0)
-		{
-			return null;
-		}
 
-		oids = m_bcX509Name.getOIDs();
-		for (index = 0; index < oids.size(); index++)
-		{
-			if (((DERObjectIdentifier)oids.elementAt(index)).getId().equals(a_identifier))
-			{
-				break;
-			}
-		}
 
-		if (index >= oids.size())
+		int index = m_bcX509Name.getOIDs().indexOf(new DERObjectIdentifier(a_identifier));
+
+		if (index < 0)
 		{
 			return null;
 		}
 
 		return (String)m_bcX509Name.getValues().elementAt(index);
+
 	}
 
 
