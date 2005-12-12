@@ -336,9 +336,10 @@ public final class X509DistinguishedName
 	 */
 	public String getAttribute(String a_identifier)
 	{
-		DERObjectIdentifier identifier;
-
-
+		if (a_identifier == null || a_identifier.trim().length() == 0)
+		{
+			return null;
+		}
 
 		int index = m_bcX509Name.getOIDs().indexOf(new DERObjectIdentifier(a_identifier));
 
@@ -348,7 +349,6 @@ public final class X509DistinguishedName
 		}
 
 		return (String)m_bcX509Name.getValues().elementAt(index);
-
 	}
 
 
