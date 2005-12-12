@@ -336,15 +336,29 @@ public final class X509DistinguishedName
 	 */
 	public String getAttribute(String a_identifier)
 	{
-		int index = m_bcX509Name.getOIDs().indexOf(new DERObjectIdentifier(a_identifier));
+		Vector oids;
+		int index;
 
-		if (index < 0)
+		if (a_identifier == null || a_identifier.trim().length() == 0)
+		{
+			return null;
+		}
+
+		oids = m_bcX509Name.getOIDs();
+		for (index = 0; index < oids.size(); index++)
+		{
+			if (((DERObjectIdentifier)oids.elementAt(index)).getId().equals(a_identifier))
+			{
+				break;
+			}
+		}
+
+		if (index >= oids.size())
 		{
 			return null;
 		}
 
 		return (String)m_bcX509Name.getValues().elementAt(index);
-
 	}
 
 
@@ -494,7 +508,10 @@ public final class X509DistinguishedName
 		return m_bcX509Name;
 	}
 
-
+	/**
+	 * Returns the most important BC object identifiers sorted in a reasonable way.
+	 * @return an Enumeration of the the most important BC object identifiers sorted in a reasonable way
+	 */
 	private static Enumeration getSortedIdentifiers()
 	{
 		if (m_sortedIdentifiers == null)
