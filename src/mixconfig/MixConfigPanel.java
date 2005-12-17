@@ -449,9 +449,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 			if (name.endsWith("OwnCertificate"))
 			{
 				m_mixConf.setValue(name + "/X509PKCS12",
-									   ((PKCS12)certificate).toByteArray(
-											   a.getPrivateCertPassword()));
-
+								   ((PKCS12)certificate).toByteArray(a.getPrivateCertPassword()));
 			}
 
 			m_mixConf.setValue(name + "/X509Certificate",
