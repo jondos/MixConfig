@@ -305,8 +305,11 @@ public class CountryMapper
 				locale = m_locale;
 			}
 
-			strCName = new Locale(locale.getLanguage(), m_iso2).getDisplayCountry();
-			if (strCName == null || strCName.equals(m_iso2))
+			strCName = getJRETransaltionOfCountryCode(m_iso2, locale);
+
+			if (strCName == null || strCName.equals(m_iso2) ||
+				// some old JREs cannot resolve the country code correctly
+				strCName.equals(getJRETransaltionOfCountryCode("AA", locale)))
 			{
 				temp = CountryMapper.class.getName() + "_" + m_iso2;
 				strCName = JAPMessages.getString(temp);
@@ -324,5 +327,10 @@ public class CountryMapper
 		}
 
 		return strCName;
+	}
+
+	private static String getJRETransaltionOfCountryCode(String a_contryCode, Locale a_locale)
+	{
+		return new Locale(a_locale.getLanguage(), a_contryCode).getDisplayCountry();
 	}
 }

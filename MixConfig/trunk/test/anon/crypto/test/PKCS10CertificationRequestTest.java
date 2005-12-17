@@ -76,7 +76,7 @@ public class PKCS10CertificationRequestTest extends XtendedPrivateTestCase
 		request = new PKCS10CertificationRequest(new ByteArrayInputStream(requestData));
 
 		assertTrue(request.verify());
-		assertEquals(3, request.getX509DistinguishedName().getAttributes().size());
+		assertEquals(3, request.getX509DistinguishedName().getAttributeValues().size());
 
 		// reimport the certificate from the request
 		privateCertificate.setX509Certificate(

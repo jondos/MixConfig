@@ -327,7 +327,7 @@ public class Menu implements ActionListener
 				}
 				else
 				{
-					MixConfig.info("Check", "Configuration is valid.");
+					JAPDialog.showInfoMessage(MixConfig.getMainWindow(), "Check", "Configuration is valid.");
 				}
 			}
 			else if (evt.getActionCommand().equals("Save"))

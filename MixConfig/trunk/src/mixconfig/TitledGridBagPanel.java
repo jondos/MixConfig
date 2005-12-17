@@ -35,6 +35,7 @@ import java.awt.LayoutManager;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import java.util.Vector;
+import javax.swing.JLabel;
 import java.awt.Color;
 
 /**
@@ -53,6 +54,11 @@ public final class TitledGridBagPanel extends JPanel
 
 	public TitledGridBagPanel(String a_strTitle)
 	{
+		this(a_strTitle, null);
+	}
+
+	public TitledGridBagPanel(String a_strTitle, Insets a_insets)
+	{
 		super(new GridBagLayout());
 		if (a_strTitle != null)
 		{
@@ -61,9 +67,32 @@ public final class TitledGridBagPanel extends JPanel
 
 		m_constraints = new GridBagConstraints();
 		m_constraints.anchor = GridBagConstraints.WEST; // left-aligned
-		m_constraints.insets = new Insets(5, 5, 5, 5);
-
+		setInsets(a_insets);
 		m_rows = new Vector();
+	}
+
+	/**
+	 * Sets new insets for this panel. All following rows will get the new
+	 * insets.
+	 * @param a_insets new Insets; if null, the pabnel will use the default
+	 * insets
+	 */
+	public void setInsets(Insets a_insets)
+	{
+		if (a_insets == null)
+		{
+			a_insets = getDefaultInsets();
+		}
+		m_constraints.insets = a_insets;
+	}
+
+	/**
+	 * The default insets that are used if no other insets are given.
+	 * @return the default Insets
+	 */
+	public Insets getDefaultInsets()
+	{
+		return new Insets(5, 5, 5, 5);
 	}
 
 	/**
@@ -156,6 +185,31 @@ public final class TitledGridBagPanel extends JPanel
 	public void addRow(Component a_component, Component a_otherComponent, Component a_thirdComponent)
 	{
 		replaceRow(a_component, a_otherComponent, a_thirdComponent, getNextRow());
+	}
+
+	/**
+	 * This method is useful if you plan to use your own GridBagLayout for one ore more rows.
+	 * It instructs this panel to count a new row but not to fill it. Please set the x and y
+	 * values correctly.
+	 */
+	public void addDummyRow()
+	{
+		m_rows.addElement(new JLabel());
+	}
+
+	/**
+	 * This method is useful if you plan to use your own GridBagLayout for one ore more rows.
+	 * It instructs this panel to count a new row but not to fill it. Please set the x and y
+	 * values correctly.
+	 * @param a_rows the number of rows you want to fill "manually"
+	 */
+	public void addDummyRows(int a_rows)
+	{
+		while (a_rows > 0)
+		{
+			m_rows.addElement(new JLabel());
+			a_rows--;
+		}
 	}
 
 	/**
@@ -342,11 +396,8 @@ public final class TitledGridBagPanel extends JPanel
 					m_constraints.weighty = 0;
 				}
 				m_constraints.fill = a_fill;
-
-				( (GridBagLayout) getLayout()).setConstraints(a_components[i], m_constraints);
-				add(a_components[i]);
+				add(a_components[i], m_constraints);
 			}
 		}
-
 	}
 }

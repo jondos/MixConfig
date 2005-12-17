@@ -28,7 +28,6 @@
 package gui;
 
 import java.awt.Font;
-
 import javax.swing.JLabel;
 import anon.util.ClassUtil;
 
@@ -38,6 +37,12 @@ import anon.util.ClassUtil;
  */
 public class JAPHtmlMultiLineLabel extends JLabel
 {
+	public static final String HTML_BREAK = "<br>";
+	private static final String HTML_OPEN_TAG = "<html>";
+	private static final String HTML_CLOSE_TAG = "</html>";
+	private static final String BODY_OPEN_TAG = "<body>";
+	private static final String BODY_CLOSE_TAG = "</body>";
+
 	/**
 	 * Stores the HTML text displayed by this JAPHtmlMultiLineLabel without the header and the
 	 * trailer.
@@ -132,7 +137,7 @@ public class JAPHtmlMultiLineLabel extends JLabel
 		else
 		{
 			m_font = a_defaultFont;
-			super.setText(GUIUtils.formatTextAsHTML(m_rawText, a_defaultFont));
+			super.setText(formatTextAsHTML(m_rawText, a_defaultFont));
 		}
 	}
 
@@ -161,4 +166,92 @@ public class JAPHtmlMultiLineLabel extends JLabel
 	{
 		setText(a_newText);
 	}
+
+
+	/**
+	 * This method adds HTML and BODY tags to a String and overwrites existing tags of this type.
+	 * @param a_HTMLtext a String
+	 * @return the String with HTML and BODY tags
+	 */
+	public static String formatTextAsHTML(String a_HTMLtext, Font a_defaultFont)
+	{
+		if (a_HTMLtext == null || a_HTMLtext.trim().length() == 0)
+		{
+			return a_HTMLtext;
+		}
+		if (a_defaultFont == null)
+		{
+			a_defaultFont = new JLabel().getFont();
+		}
+
+		/* set the new font with the HTML default size */
+		// style=\"font-family:" + a_defaultFont.getFamily() + ";font-size:small\"
+		String header = HTML_OPEN_TAG  + BODY_OPEN_TAG.substring(0, BODY_OPEN_TAG.length() - 1) +
+			" style=\"font-family:" + a_defaultFont.getFamily() + "\">";
+		String trailer = BODY_CLOSE_TAG + HTML_CLOSE_TAG;
+		if (a_defaultFont.isBold())
+		{
+			header = header + "<b>";
+			trailer = "</b>" + trailer;
+		}
+
+		return header + removeHTMLAndBODYTags(a_HTMLtext) + trailer;
+	}
+
+	/**
+	 * Removes heading and trailing HTML and BODY tags from a String if present.
+	 * @param a_HTMLtext a String
+	 * @return the String without heading and trailing HTML and BODY tags
+	 */
+	public static String removeHTMLAndBODYTags(String a_HTMLtext)
+	{
+		return removeTAG(removeTAG(a_HTMLtext, HTML_OPEN_TAG, HTML_CLOSE_TAG), BODY_OPEN_TAG, BODY_CLOSE_TAG);
+	}
+
+	/**
+	 * Removes an embracing TAG from a String.
+	 * @param a_HTMLtext a String
+	 * @param a_openTAG an HTML open tag
+	 * @param a_closeTAG the corresponding HTML close TAG
+	 * @return the String without the embracing tag
+	 */
+	private static String removeTAG(String a_HTMLtext, String a_openTAG, String a_closeTAG)
+	{
+		String strOpenTagWithoutBrace;
+		String strTemp;
+		int start, stop;
+
+		if (a_HTMLtext == null || (a_HTMLtext = a_HTMLtext.trim()).length() == 0)
+		{
+			return a_HTMLtext;
+		}
+
+		strOpenTagWithoutBrace = a_openTAG.substring(0, a_openTAG.length() - 1);
+		strTemp = a_HTMLtext.toLowerCase();
+
+		start = 0;
+		stop = a_HTMLtext.length();
+		if (strTemp.startsWith(strOpenTagWithoutBrace))
+		{
+			start = strTemp.indexOf(">");
+		}
+		if (strTemp.endsWith(a_closeTAG))
+		{
+			stop -= a_closeTAG.length();
+		}
+		if ( (start > 0 || stop < a_HTMLtext.length()))
+		{
+			if (start >= stop)
+			{
+				a_HTMLtext = "";
+			}
+			else
+			{
+				a_HTMLtext = a_HTMLtext.substring(start, stop).trim();
+			}
+		}
+
+		return a_HTMLtext;
+	}
+
 }

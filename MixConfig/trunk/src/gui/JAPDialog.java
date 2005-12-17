@@ -29,15 +29,20 @@
 package gui;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Window;
 import java.awt.Rectangle;
-import java.awt.Container;
+import java.awt.Window;
 import java.awt.event.WindowListener;
-import javax.swing.JDialog;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.text.View;
+
 import jcui.common.TextFormatUtil;
 import logging.LogHolder;
 import logging.LogLevel;
@@ -51,6 +56,8 @@ public class JAPDialog
 {
 	/** The maximum width of an option pane. */
 	public static final int MAX_TEXT_WIDTH = 70;
+	private static final int UNLIMITED_HEIGHT = 1000;
+	private static final double GOLDEN_RATIO_PHI = (1.0 + Math.sqrt(5.0)) / 2.0;
 
 	private static final String MSG_INFO = JAPDialog.class.getName() + "_info";
 	private static final String MSG_CONFIRMATION = JAPDialog.class.getName() + "_confirmation";
@@ -89,13 +96,7 @@ public class JAPDialog
 		m_internalDialog = optionPane.createDialog(a_parentComponent, a_strTitle);
 		m_internalDialog.getContentPane().removeAll();
 		m_internalDialog.setResizable(true);
-
-		// find the first parent that is a window
-		while (a_parentComponent != null && ! (a_parentComponent instanceof Window))
-		{
-			a_parentComponent = a_parentComponent.getParent();
-		}
-		m_parentWindow = (Window)a_parentComponent;
+		m_parentWindow = getParentWindow(a_parentComponent);
 	}
 
 	/**
@@ -209,9 +210,138 @@ public class JAPDialog
 	public static void showInfoMessage(Component a_parentComponent, String a_title, String a_message,
 									   Icon a_icon)
 	{
-		JOptionPane.showMessageDialog(a_parentComponent,
-									  TextFormatUtil.wrapWordsOfTextLine(a_message, MAX_TEXT_WIDTH),
-									  a_title, JOptionPane.INFORMATION_MESSAGE, a_icon);
+		showMessageDialog(a_parentComponent, a_title, a_message,
+						  JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, a_icon);
+	}
+
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_icon an icon that will be displayed on the dialog
+	 * @param a_messageType use the message types from JOptionPane
+	 * @param a_optionType use the option types from JOptionPane
+	 * @see javax.swing.JOptionPane
+	 */
+	public static void showMessageDialog(Component a_parentComponent, String a_title, String a_message,
+										 int a_messageType, int a_optionType, Icon a_icon)
+	{
+		JDialog dialog;
+		JComponent contentPane;
+		JAPHtmlMultiLineLabel label;
+		PreferredWidthBoxPanel dummyBox;
+
+		/*
+		 * Set the dialog parameters and get its label and content pane.
+		 */
+		label = new JAPHtmlMultiLineLabel(a_message);
+		dialog = new JOptionPane(label, a_messageType, a_optionType, a_icon).createDialog(
+			  a_parentComponent, a_title);
+		// trick: a dialog's content pane is always a JComponent; it is needed to set the min/max size
+		contentPane = (JComponent)dialog.getContentPane();
+
+		// get the minimum width and height that is needed to display this dialog without any text
+		Dimension minDimension = new JOptionPane("", a_messageType, a_optionType, a_icon).
+			createDialog(a_parentComponent, a_title).getContentPane().getSize();
+
+		/**
+		 * Calculate the optimal dialog size with respect to the golden ratio.
+		 * The width defines the longer side.
+		 */
+		Dimension bestDimension = null;
+		double currentDelta;
+		double bestDelta;
+		int currentWidth;
+		int bestWidth;
+		int failed;
+
+		// set the maximum width that is allowed for the content pane
+		int maxWidth = (int)getParentWindow(a_parentComponent).getSize().width;
+		if (maxWidth < (int)minDimension.width * 2)
+		{
+			maxWidth = (int)minDimension.width * 2;
+		}
+		// if the text in the content pane is short, reduce the max width to the text length
+		maxWidth = Math.min(contentPane.getWidth(), maxWidth);
+
+		// put the content pane in a box and the box in the dialog
+		contentPane.setMinimumSize(minDimension);
+		dummyBox = new PreferredWidthBoxPanel();
+		dummyBox.add(contentPane);
+
+		/**
+		 * Do a quick heuristic to approximate the golden ratio for the dialog size.
+		 */
+		bestDelta = Double.MAX_VALUE;
+		currentWidth = maxWidth;
+		bestWidth =  currentWidth;
+		failed = 0;
+		for (int i = 0; i < 5; i++)
+		{
+			/**
+			 * Set the exact width of the frame.
+			 * The following trick must be explained:
+			 * Get the HTML view of the label and set its width to the current width of the label that is
+			 * defined by the total width of the surrounding content pane. The height of the view may be
+			 * unlimited, as the view will adapt its height automatically so that the whole text is
+			 * displayed respecting the width that has been set.
+			 * @see javax.swing.JLabel.Bounds()
+			 * @see javax.swing.JLabel.getTextRectangle()
+			 * @see javax.swing.SwingUtilities
+			 * @see javax.swing.plaf.basic.BasicHTML
+			 * @see javax.swing.text.html.HTMLEditorKit
+			 */
+			contentPane.setMaximumSize(new Dimension(currentWidth, UNLIMITED_HEIGHT));
+			dummyBox.setPreferredWidth(currentWidth);
+			dialog.setContentPane(dummyBox);
+			dialog.pack();
+			( (View) label.getClientProperty("html")).setSize((float) label.getWidth(), UNLIMITED_HEIGHT);
+			dialog.pack();
+
+			currentWidth = contentPane.getWidth();
+			currentDelta = dialog.getSize().height * GOLDEN_RATIO_PHI - dialog.getSize().width;
+			if (Math.abs(currentDelta) < Math.abs(bestDelta))
+			{
+				bestDimension = new Dimension(contentPane.getSize());
+				bestDelta = currentDelta;
+				bestWidth = currentWidth;
+				currentWidth += bestDelta / 2.0;
+				failed = 0;
+			}
+			else
+			{
+				currentWidth = bestWidth + (int)(bestDelta / (3.0 * (failed + 1.0)));
+				failed++;
+			}
+
+			// the objective function value
+			//System.out.println("bestDelta: " + bestDelta + "  currentDelta:" + currentDelta);
+
+			currentWidth = (int)Math.max(currentWidth, minDimension.width);
+			if (currentWidth == bestWidth)
+			{
+				break;
+			}
+		}
+
+		/*
+		System.out.println("CurrentSize: " + dummyBox.getSize() + "_" + contentPane.getSize());
+		System.out.println("MaximumSize: " + dummyBox.getMaximumSize() + "_" + contentPane.getMaximumSize());
+		System.out.println("PreferredSize: " + dummyBox.getPreferredSize() + "_" + contentPane.getPreferredSize());
+				*/
+
+		// recreate the dialog and set its final size
+		dialog = new JOptionPane(new JAPHtmlMultiLineLabel(a_message), a_messageType, a_optionType, a_icon).
+			createDialog(a_parentComponent, a_title);
+		((JComponent)dialog.getContentPane()).setPreferredSize(bestDimension);
+		dialog.pack();
+		//System.out.println(dialog.getSize().height * GOLDEN_RATIO_PHI - dialog.getSize().width);
+		dialog.setLocationRelativeTo(a_parentComponent);
+		dialog.setVisible(true);
 	}
 
 	/**
@@ -625,5 +755,49 @@ public class JAPDialog
 	private void alignOnWindow()
 	{
 		GUIUtils.positionWindow(m_internalDialog, getOwner());
+	}
+
+	/**
+	 *
+	 * @param a_parentComponent Component
+	 * @return Window
+	 */
+	private static Window getParentWindow(Component a_parentComponent)
+	{
+		// find the first parent that is a window
+		while (a_parentComponent != null && ! (a_parentComponent instanceof Window))
+		{
+			a_parentComponent = a_parentComponent.getParent();
+		}
+		return (Window)a_parentComponent;
+	}
+
+	private static class PreferredWidthBoxPanel extends JPanel
+	{
+		private int m_preferredWidth;
+
+		public PreferredWidthBoxPanel()
+		{
+			BoxLayout layout;
+			m_preferredWidth = 0;
+			layout = new BoxLayout(this, BoxLayout.Y_AXIS);
+			setLayout(layout);
+
+		}
+		public void setPreferredWidth(int a_preferredWidth)
+		{
+			m_preferredWidth = a_preferredWidth;
+		}
+
+
+		public Dimension getPreferredSize()
+		{
+			if (m_preferredWidth <= 0)
+			{
+				return super.getPreferredSize();
+			}
+
+			return new Dimension(m_preferredWidth, (int)super.getPreferredSize().height);
+		}
 	}
 }

@@ -49,6 +49,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
@@ -71,7 +72,10 @@ import gui.ValidityDialog;
 import gui.JAPMessages;
 import gui.JAPDialog;
 import gui.JAPHtmlMultiLineLabel;
+import gui.JAPMultilineLabel;
 import logging.LogType;
+import logging.LogHolder;
+import logging.LogLevel;
 import mixconfig.wizard.CannotContinueException;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
@@ -137,6 +141,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/*private JTextField m_textCertValidTo;*/
 
 	private JTextPane m_lblSHA1Hash;
+	private JAPMultilineLabel m_lblSHA1HashFallback;
 
 	/** Indicates whether the certificate object is PKCS12 (<CODE>true</CODE>) or X.509 (<CODE>false</CODE>) */
 	private boolean m_bCertIsPKCS12 = false;
@@ -299,7 +304,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			{
 				if (m_certLabel.isEnabled())
 				{
-					CertDetailsDialog dialog = new CertDetailsDialog(getParent(), m_cert.getX509Certificate());
+					CertDetailsDialog dialog = new CertDetailsDialog(getParent(), m_cert.getX509Certificate(),
+						isCertificateVerifyable());
 					dialog.setVisible(true);
 				}
 			}
@@ -330,29 +336,42 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		constraints.gridheight = 2;
 		constraints.gridwidth = 3;
 		constraints.gridx++;
+		constraints.weightx = 1;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.insets = new Insets(0, 5, 0, 0);
 
 		m_lblSHA1Hash = GUIUtils.createSelectableAndResizeableLabel(this);
 		m_lblSHA1Hash.setFont(new Font(m_lblSHA1Hash.getFont().getName(),Font.BOLD, 10));
-		m_lblSHA1Hash.setPreferredSize((new JAPHtmlMultiLineLabel(
-			  "00:00:00:00:00:00:00:00:00:00" + "<br>"+ "00:00:00:00:00:00:00:00:00:00")).getPreferredSize());
+		m_lblSHA1Hash.setText("00 00 00 00 00 00 00 00 00 00 00 ");
+		m_lblSHA1Hash.setPreferredSize(new Dimension(m_lblSHA1Hash.getPreferredSize().width,
+									   (int)(2.5 * m_lblSHA1Hash.getFontMetrics(
+		m_lblSHA1Hash.getFont()).getHeight())));
+	    m_lblSHA1Hash.setText("");
 		m_lblSHA1Hash.setToolTipText("SHA-1 Fingerprint");
-
+		m_lblSHA1HashFallback = new JAPMultilineLabel(m_lblSHA1Hash.getFont());
+		m_lblSHA1HashFallback.setVisible(false);
+		m_lblSHA1HashFallback.setToolTipText("SHA-1 Fingerprint");
 		add(m_lblSHA1Hash, constraints);
+		add(m_lblSHA1HashFallback, constraints);
 
-		constraints.gridy++;
 		constraints.insets = new Insets(0, 5, 5, 0);
 
-		m_textCertValidity = new JLabel();
-		m_textCertValidity.setToolTipText("Validity");
-		m_textCertValidity.setPreferredSize(new JLabel("00.00.0000 - 00.00.0000").getPreferredSize());
-
+		// add dummy label
 		constraints.gridx = 1;
 		constraints.gridy++;
 		constraints.gridheight = 1;
 		constraints.gridwidth = 5;
 		constraints.weightx = 1;
-		layout.setConstraints(m_textCertValidity, constraints);
+		constraints.weighty = 0;
+		constraints.fill = GridBagConstraints.VERTICAL;
+
+		// add validity label
+		add(new JLabel(), constraints);
+		constraints.weighty = 0;
+		constraints.gridy++;
+		m_textCertValidity = new JLabel();
+		m_textCertValidity.setToolTipText("Validity");
+		m_textCertValidity.setPreferredSize(new JLabel("00.00.0000 - 00.00.0000").getPreferredSize());
 		add(m_textCertValidity, constraints);
 		constraints.weightx = 0;
 
@@ -716,8 +735,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			else
 			{
 				m_certLabel.setToolTipText(
-							"The certificate cannot be verified! " +
-							"It is not signed by a trusted certificate authority.");
+							"Click to see the details...");
 			}
 		}
 		else
@@ -1091,8 +1109,27 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		String endDate = day + "." + month + "." + year;
 		m_textCertValidity.setText(startDate + " - " + endDate);
 
-		String fp = a_x509cs.getSHA1Fingerprint();
-		m_lblSHA1Hash.setText(fp.replace(':', ' '));
+		String fp = a_x509cs.getSHA1Fingerprint().replace(':', ' ');
+
+		try
+		{
+			if (m_lblSHA1Hash.isVisible())
+			{
+				m_lblSHA1Hash.setText(fp);
+			}
+			else
+			{
+				m_lblSHA1HashFallback.setText(fp);
+			}
+		}
+		catch (Throwable a_e)
+		{
+			LogHolder.log(LogLevel.DEBUG, LogType.GUI, a_e);
+			fp = fp.substring(0, fp.length() / 2) + "\n" + fp.substring((fp.length() / 2) + 1, fp.length());
+			m_lblSHA1HashFallback.setText(fp);
+			m_lblSHA1Hash.setVisible(false);
+			m_lblSHA1HashFallback.setVisible(true);
+		}
 	}
 
 	/** Clears the text fields that display info about the current certificate. */
@@ -1100,6 +1137,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	{
 		m_textCertValidity.setText("");
 		m_lblSHA1Hash.setText("");
+		m_lblSHA1HashFallback.setText("");
 	}
 
 	private class CertPanelPasswordReader implements IMiscPasswordReader

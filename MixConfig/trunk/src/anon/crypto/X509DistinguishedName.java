@@ -218,33 +218,12 @@ public final class X509DistinguishedName
 	}
 
 	/**
-	 * Returns a user-displayable list of all countries in a given list of country codes.
-	 * You can get the country codes by calling Locale.getISOCountries().
-	 * @param a_locale a Locale; this should be the currently used Locale
-	 * @param a_countryCodes country codes in uppercase two-letter ISO-3166 code
-	 * @return a Vector with user-displayable countries
-	 * @see java.util.Locale
-	 */
-	public static Vector getDisplayCountries(Locale a_locale, String[] a_countryCodes)
-	{
-		Vector countries = new Vector();
-
-		for (int i = 0; i < a_countryCodes.length; i++)
-		{
-			countries.addElement(new Locale(
-						 a_locale.getLanguage(), a_countryCodes[i]).getDisplayCountry());
-		}
-
-		return countries;
-	}
-
-	/**
 	 * Returns the common name.
 	 * @return the common name or null if not set
 	 */
 	public String getCommonName()
 	{
-		return getAttribute(IDENTIFIER_CN);
+		return getAttributeValue(IDENTIFIER_CN);
 	}
 
 	/**
@@ -253,7 +232,7 @@ public final class X509DistinguishedName
 	 */
 	public String getSurname()
 	{
-		return getAttribute(IDENTIFIER_SURNAME);
+		return getAttributeValue(IDENTIFIER_SURNAME);
 	}
 
 	/**
@@ -262,7 +241,7 @@ public final class X509DistinguishedName
 	 */
 	public String getGivenName()
 	{
-		return getAttribute(IDENTIFIER_GIVENNAME);
+		return getAttributeValue(IDENTIFIER_GIVENNAME);
 	}
 
 	/**
@@ -271,7 +250,7 @@ public final class X509DistinguishedName
 	 */
 	public String getCountryCode()
 	{
-		return getAttribute(IDENTIFIER_C);
+		return getAttributeValue(IDENTIFIER_C);
 	}
 
 	/**
@@ -280,7 +259,7 @@ public final class X509DistinguishedName
 	 */
 	public String getStateOrProvince()
 	{
-		return getAttribute(IDENTIFIER_ST);
+		return getAttributeValue(IDENTIFIER_ST);
 	}
 
 	/**
@@ -289,7 +268,7 @@ public final class X509DistinguishedName
 	 */
 	public String getLocalityName()
 	{
-		return getAttribute(IDENTIFIER_L);
+		return getAttributeValue(IDENTIFIER_L);
 	}
 
 	/**
@@ -298,7 +277,7 @@ public final class X509DistinguishedName
 	 */
 	public String getOrganisation()
 	{
-		return getAttribute(IDENTIFIER_O);
+		return getAttributeValue(IDENTIFIER_O);
 	}
 
 	/**
@@ -307,7 +286,7 @@ public final class X509DistinguishedName
 	 */
 	public String getOrganisationalUnit()
 	{
-		return getAttribute(IDENTIFIER_OU);
+		return getAttributeValue(IDENTIFIER_OU);
 	}
 
 	/**
@@ -316,7 +295,7 @@ public final class X509DistinguishedName
 	 */
 	public String getE_EmailAddress()
 	{
-		return getAttribute(IDENTIFIER_E);
+		return getAttributeValue(IDENTIFIER_E);
 	}
 
 	/**
@@ -325,7 +304,7 @@ public final class X509DistinguishedName
 	 */
 	public String getEmailAddress()
 	{
-		return getAttribute(IDENTIFIER_EmailAddress);
+		return getAttributeValue(IDENTIFIER_EmailAddress);
 	}
 
 	/**
@@ -334,7 +313,7 @@ public final class X509DistinguishedName
 	 * @return String the attribute value corresponding to a given identifier or null if the
 	 *                attribute is not set in this X509 name
 	 */
-	public String getAttribute(String a_identifier)
+	public String getAttributeValue(String a_identifier)
 	{
 		if (a_identifier == null || a_identifier.trim().length() == 0)
 		{
@@ -385,7 +364,7 @@ public final class X509DistinguishedName
 	 * Returns the values of attributes in this X509 name.
 	 * @return the values of attributes in this X509 name
 	 */
-	public Vector getAttributes()
+	public Vector getAttributeValues()
 	{
 		Vector unsortedOIDs = m_bcX509Name.getOIDs();
 		Vector unsortedAttributes = m_bcX509Name.getValues();
@@ -418,7 +397,7 @@ public final class X509DistinguishedName
 	{
 		Hashtable name = new Hashtable();
 		Vector identifiers = getAttributeIdentifiers();
-		Vector attributes = getAttributes();
+		Vector attributes = getAttributeValues();
 		for (int i = 0; i < identifiers.size(); i++)
 		{
 			name.put(identifiers.elementAt(i), attributes.elementAt(i));
@@ -435,7 +414,7 @@ public final class X509DistinguishedName
 	public String toString()
 	{
 		Vector identifiers = getAttributeIdentifiers();
-		Vector attributes = getAttributes();
+		Vector attributes = getAttributeValues();
 		String name = "";
 
 		for (int i = 0; i < identifiers.size(); i++)
