@@ -60,6 +60,7 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import logging.SystemErrLog;
+import java.security.SecureRandom;
 
 
 
@@ -77,7 +78,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.022"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.023"; //NEVER change the layout of this line!!
 
 	public static final String MSG_WARNING = "MixConfig_warning";
 
@@ -209,6 +210,13 @@ public class MixConfig extends JApplet
 					m_startPanel.getMenu().exit();
 				}
 			});
+
+			m_startPanel.setMessageTitle(); //set Message Title
+			m_mixConfiguration.setSavedToFile(); // tell the GUI that this configuration has not changed
+
+			LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "Initialising secure random generator...");
+			new SecureRandom().nextDouble();
+			LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "Secure random generator is initialised!");
 		}
 		catch (Exception e)
 		{
@@ -216,9 +224,6 @@ public class MixConfig extends JApplet
 									   LogType.MISC);
 			System.exit(1);
 		}
-
-		m_startPanel.setMessageTitle(); //set Message Title
-		m_mixConfiguration.setSavedToFile(); // tell the GUI that this configuration has not changed
 	}
 
 	/**
