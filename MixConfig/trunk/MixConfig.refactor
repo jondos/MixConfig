@@ -271,4 +271,88 @@
     <old-method-name>showInfoMessage</old-method-name>
     <new-method-name>showInfoDialog</new-method-name>
   </rename-method>
+  <rename-method id="S9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 18:20:04.115 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Window;Ljava/awt/Window;)V</declared-method-signature>
+    <old-method-name>positionWindow</old-method-name>
+    <new-method-name>positionRightUnderWindow</new-method-name>
+  </rename-method>
+  <rename-method id="Q9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 18:20:33.367 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Window;)V</declared-method-signature>
+    <old-method-name>centerWindowOnScreen</old-method-name>
+    <new-method-name>centerOnScreen</new-method-name>
+  </rename-method>
+  <rename-method id="O9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 18:36:11.186 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/Throwable;Ljava/lang/String;Ljava/lang/String;I)V</declared-method-signature>
+    <old-method-name>showErrorMessage</old-method-name>
+    <new-method-name>showErrorDialog</new-method-name>
+  </rename-method>
+  <rename-method id="M9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 18:36:23.653 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/Throwable;Ljava/lang/String;I)V</declared-method-signature>
+    <old-method-name>showErrorMessage</old-method-name>
+    <new-method-name>showErrorDialog</new-method-name>
+  </rename-method>
+  <rename-method id="K9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 18:36:32.166 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/Throwable;Ljava/lang/String;I)V</declared-method-signature>
+    <old-method-name>showErrorMessage</old-method-name>
+    <new-method-name>showErrorDialog</new-method-name>
+  </rename-method>
+  <rename-method id="I9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 18:36:39.887 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/Throwable;Ljava/lang/String;Ljava/lang/String;I)V</declared-method-signature>
+    <old-method-name>showErrorMessage</old-method-name>
+    <new-method-name>showErrorDialog</new-method-name>
+  </rename-method>
+  <rename-method id="G9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 19:06:34.257 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;)Z</declared-method-signature>
+    <old-method-name>showYesNoConfirmMessage</old-method-name>
+    <new-method-name>showYesNoConfirmDialog</new-method-name>
+  </rename-method>
+  <rename-method id="E9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 19:06:42.639 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;)Z</declared-method-signature>
+    <old-method-name>showYesNoConfirmMessage</old-method-name>
+    <new-method-name>showYesNoConfirmDialog</new-method-name>
+  </rename-method>
+  <rename-method id="D9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 19:06:50.641 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;)Z</declared-method-signature>
+    <old-method-name>showYesNoConfirmMessage</old-method-name>
+    <new-method-name>showYesNoConfirmDialog</new-method-name>
+  </rename-method>
+  <rename-method id="C9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 19:06:58.091 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;)Z</declared-method-signature>
+    <old-method-name>showYesNoConfirmMessage</old-method-name>
+    <new-method-name>showYesNoConfirmDialog</new-method-name>
+  </rename-method>
+  <rename-method id="A9P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 19:54:33.415 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;)Z</declared-method-signature>
+    <old-method-name>showYesNoConfirmDialog</old-method-name>
+    <new-method-name>showYesNoDialog</new-method-name>
+  </rename-method>
+  <rename-method id="89P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 19:54:42.787 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;)Z</declared-method-signature>
+    <old-method-name>showYesNoConfirmDialog</old-method-name>
+    <new-method-name>showYesNoDialog</new-method-name>
+  </rename-method>
+  <rename-method id="69P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 19:54:51.178 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;)Z</declared-method-signature>
+    <old-method-name>showYesNoConfirmDialog</old-method-name>
+    <new-method-name>showYesNoDialog</new-method-name>
+  </rename-method>
+  <rename-method id="49P02OUC3CHEK6IVHUO0QKH0" creation-time="Sat Dec 17 19:55:03.074 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;)Z</declared-method-signature>
+    <old-method-name>showYesNoConfirmDialog</old-method-name>
+    <new-method-name>showYesNoDialog</new-method-name>
+  </rename-method>
 </refactor>

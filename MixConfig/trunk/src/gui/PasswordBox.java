@@ -36,7 +36,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -196,7 +195,7 @@ public class PasswordBox extends JAPDialog implements ActionListener, IMiscPassw
 				}
 				if (!eqv)
 				{
-					showErrorMessage(this, null, "Passwords do not match.", "Password Error", LogType.GUI);
+					showErrorDialog(this, null, "Passwords do not match.", "Password Error", LogType.GUI);
 					return;
 				}
 				m_passwd = m_textNewPasswd.getPassword();

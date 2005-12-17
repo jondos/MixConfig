@@ -456,7 +456,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			}
 			else if (source == this.m_bttnRemoveCert)
 			{
-				if (JAPDialog.showYesNoConfirmMessage(this, JAPMessages.getString(MSG_CONFIRM_DELETION)))
+				if (JAPDialog.showYesNoDialog(this, JAPMessages.getString(MSG_CONFIRM_DELETION)))
 				{
 					removeCert();
 				}
@@ -483,7 +483,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorMessage(this, ex, null, LogType.GUI);
+			JAPDialog.showErrorDialog(this, ex, null, LogType.GUI);
 		}
 	}
 
@@ -503,7 +503,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorMessage(this, ex, "Certificate creation failed", LogType.MISC);
+			JAPDialog.showErrorDialog(this, ex, "Certificate creation failed", LogType.MISC);
 		}
 	}
 
@@ -1052,7 +1052,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 					}
 				}
 			} while (file != null && file.exists() &&
-					 !JAPDialog.showYesNoConfirmMessage(this, JAPMessages.getString(MSG_CONFIRM_OVERWRITE)));
+					 !JAPDialog.showYesNoDialog(this, JAPMessages.getString(MSG_CONFIRM_OVERWRITE)));
 
 			if (file != null)
 			{
@@ -1077,7 +1077,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (IOException a_e)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), a_e, null, LogType.MISC);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), a_e, null, LogType.MISC);
 			ClipFrame save =
 				new ClipFrame(this,
 					"I/O error while saving, try clipboard. " +

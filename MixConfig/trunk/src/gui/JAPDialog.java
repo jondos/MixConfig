@@ -29,35 +29,38 @@
 package gui;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Window;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowListener;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JRootPane;
 import javax.swing.JPanel;
 import javax.swing.text.View;
 
-import jcui.common.TextFormatUtil;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
+import javax.swing.JTextPane;
 
 /**
- * This is the generic implementation for a modal, user resizeable dialog. Use the root panel
- * (getRootPanel() method) for customization.
+ * This is the generic implementation for a modal, user resizeable dialog. Use the root pane and content pane
+ * (getRootPane() and getContentPane() methods) for customization.
+ * @see javax.swing.JDialog
+ * @see javax.swing.JOptionPane
+ *
+ * @author Rolf Wendolsky
  */
 public class JAPDialog
 {
-	/** The maximum width of an option pane. */
-	private static final int MAX_TEXT_WIDTH = 70;
+	public static final double GOLDEN_RATIO_PHI = (1.0 + Math.sqrt(5.0)) / 2.0;
 	private static final int UNLIMITED_HEIGHT = 1000;
-	private static final double GOLDEN_RATIO_PHI = (1.0 + Math.sqrt(5.0)) / 2.0;
 
 	private static final String MSG_INFO = JAPDialog.class.getName() + "_info";
 	private static final String MSG_CONFIRMATION = JAPDialog.class.getName() + "_confirmation";
@@ -89,15 +92,41 @@ public class JAPDialog
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_strTitle The title String for this dialog.
+	 * @param a_bModal if the dialog should be modal
 	 */
-	public JAPDialog(Component a_parentComponent, String a_strTitle)
+	public JAPDialog(Component a_parentComponent, String a_strTitle, boolean a_bModal)
 	{
 		m_parentComponent = a_parentComponent;
 		JOptionPane optionPane = new JOptionPane();
 		m_internalDialog = optionPane.createDialog(a_parentComponent, a_strTitle);
 		m_internalDialog.getContentPane().removeAll();
 		m_internalDialog.setResizable(true);
+		m_internalDialog.setModal(a_bModal);
 		m_parentWindow = getParentWindow(a_parentComponent);
+	}
+
+	/**
+	 * Creates a new instance of JAPDialog. It is user-resizable and modal.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_strTitle The title String for this dialog.
+	 */
+	public JAPDialog(Component a_parentComponent, String a_strTitle)
+	{
+		this(a_parentComponent, a_strTitle, true);
+	}
+
+	/**
+	 * Creates a new instance of JAPDialog. It is user-resizable and modal.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_strTitle The title String for this dialog.
+	 * @param a_bModal if the dialog should be modal
+	 */
+	public JAPDialog(JAPDialog a_parentDialog, String a_strTitle, boolean a_bModal)
+	{
+		this(getInternalDialog(a_parentDialog), a_strTitle, a_bModal);
 	}
 
 	/**
@@ -109,6 +138,16 @@ public class JAPDialog
 	public JAPDialog(JAPDialog a_parentDialog, String a_strTitle)
 	{
 		this(getInternalDialog(a_parentDialog), a_strTitle);
+	}
+
+	/**
+	 * Calculates the difference from a window's size and the golden ratio.
+	 * @param a_window a Window
+	 * @return the difference from a window's size and the golden ratio
+	 */
+	public static double getGoldenRatioDelta(Window a_window)
+	{
+		return a_window.getSize().height * GOLDEN_RATIO_PHI - a_window.getSize().width;
 	}
 
 	/**
@@ -124,6 +163,19 @@ public class JAPDialog
 
 	/**
 	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showInfoDialog(JAPDialog a_parentDialog, String a_message,
+									  ILinkedInformation a_linkedInformation)
+	{
+		showInfoDialog(getInternalDialog(a_parentDialog), a_message, a_linkedInformation);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
@@ -131,7 +183,22 @@ public class JAPDialog
 	 */
 	public static void showInfoDialog(Component a_parentComponent, String a_message)
 	{
-		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, null);
+		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, (Icon)null);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showInfoDialog(Component a_parentComponent, String a_message,
+									  ILinkedInformation a_linkedInformation)
+	{
+		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, (Icon)null,
+					   a_linkedInformation);
 	}
 
 	/**
@@ -148,6 +215,20 @@ public class JAPDialog
 
 	/**
 	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showInfoDialog(JAPDialog a_parentDialog, String a_title, String a_message,
+									  ILinkedInformation a_linkedInformation)
+	{
+		showInfoDialog(getInternalDialog(a_parentDialog), a_title, a_message, a_linkedInformation);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
@@ -156,7 +237,22 @@ public class JAPDialog
 	 */
 	public static void showInfoDialog(Component a_parentComponent, String a_title, String a_message)
 	{
-		showInfoDialog(a_parentComponent, a_title, a_message, null);
+		showInfoDialog(a_parentComponent, a_title, a_message, (Icon)null);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showInfoDialog(Component a_parentComponent, String a_title, String a_message,
+									  ILinkedInformation a_linkedInformation)
+	{
+		showInfoDialog(a_parentComponent, a_title, a_message, null, a_linkedInformation);
 	}
 
 	/**
@@ -171,6 +267,19 @@ public class JAPDialog
 		showInfoDialog(getInternalDialog(a_parentDialog), a_message, a_icon);
 	}
 
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_message The message to be displayed
+	 * @param a_icon an icon that will be displayed on the dialog
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showInfoDialog(JAPDialog a_parentDialog, String a_message, Icon a_icon,
+									  ILinkedInformation a_linkedInformation)
+	{
+		showInfoDialog(getInternalDialog(a_parentDialog), a_message, a_icon, a_linkedInformation);
+	}
 
 	/**
 	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
@@ -183,6 +292,22 @@ public class JAPDialog
 	public static void showInfoDialog(Component a_parentComponent, String a_message, Icon a_icon)
 	{
 		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, a_icon);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_message The message to be displayed
+	 * @param a_icon an icon that will be displayed on the dialog
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showInfoDialog(Component a_parentComponent, String a_message, Icon a_icon,
+									  ILinkedInformation a_linkedInformation)
+	{
+		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, a_icon,
+			a_linkedInformation);
 	}
 
 	/**
@@ -200,6 +325,21 @@ public class JAPDialog
 
 	/**
 	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_icon an icon that will be displayed on the dialog
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showInfoDialog(JAPDialog a_parentDialog, String a_title, String a_message, Icon a_icon,
+									  ILinkedInformation a_linkedInformation)
+	{
+		showInfoDialog(getInternalDialog(a_parentDialog), a_title, a_message, a_icon, a_linkedInformation);
+	}
+
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
@@ -211,9 +351,25 @@ public class JAPDialog
 									  Icon a_icon)
 	{
 		showMessageDialog(a_parentComponent, a_title, a_message,
-						  JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, a_icon);
+						  JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, a_icon, null);
 	}
 
+	/**
+	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_icon an icon that will be displayed on the dialog
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showInfoDialog(Component a_parentComponent, String a_title, String a_message,
+									  Icon a_icon, ILinkedInformation a_linkedInformation)
+	{
+		showMessageDialog(a_parentComponent, a_title, a_message, JOptionPane.INFORMATION_MESSAGE,
+						  JOptionPane.DEFAULT_OPTION, a_icon, a_linkedInformation);
+	}
 
 	/**
 	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
@@ -225,15 +381,37 @@ public class JAPDialog
 	 * @param a_icon an icon that will be displayed on the dialog
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 * @return the value the user has selected. UNINITIALIZED_VALUE implies
+	 * the user has not yet made a choice, null means the user closed the window with
+	 * out choosing anything. Otherwise the returned value will be one of the options defined in this object.
 	 * @see javax.swing.JOptionPane
 	 */
-	public static void showMessageDialog(Component a_parentComponent, String a_title, String a_message,
-										 int a_messageType, int a_optionType, Icon a_icon)
+	public static Object showMessageDialog(Component a_parentComponent, String a_title, String a_message,
+										   int a_messageType, int a_optionType, Icon a_icon,
+										   ILinkedInformation a_linkedInformation)
 	{
 		JDialog dialog;
+		JOptionPane pane;
 		JComponent contentPane;
+		boolean blinkedInformation;
 		JAPHtmlMultiLineLabel label;
 		PreferredWidthBoxPanel dummyBox;
+
+		if (a_linkedInformation != null && a_linkedInformation.getMessage() != null &&
+			a_linkedInformation.getMessage().trim().length() > 0)
+		{
+			if (a_message == null)
+			{
+				a_message = "";
+			}
+			a_message += "<br><a href=\"\">" + a_linkedInformation.getMessage() + "</a>";
+			blinkedInformation = true;
+		}
+		else
+		{
+			blinkedInformation = false;
+		}
 
 		/*
 		 * Set the dialog parameters and get its label and content pane.
@@ -243,6 +421,7 @@ public class JAPDialog
 			  a_parentComponent, a_title);
 		// trick: a dialog's content pane is always a JComponent; it is needed to set the min/max size
 		contentPane = (JComponent)dialog.getContentPane();
+
 
 		// get the minimum width and height that is needed to display this dialog without any text
 		Dimension minDimension = new JOptionPane("", a_messageType, a_optionType, a_icon).
@@ -302,11 +481,11 @@ public class JAPDialog
 			( (View) label.getClientProperty("html")).setSize((float) label.getWidth(), UNLIMITED_HEIGHT);
 			dialog.pack();
 
-			currentWidth = contentPane.getWidth();
-			currentDelta = dialog.getSize().height * GOLDEN_RATIO_PHI - dialog.getSize().width;
+			currentWidth = dummyBox.getWidth();
+			currentDelta = getGoldenRatioDelta(dialog);
 			if (Math.abs(currentDelta) < Math.abs(bestDelta))
 			{
-				bestDimension = new Dimension(contentPane.getSize());
+				bestDimension = new Dimension(dummyBox.getSize());
 				bestDelta = currentDelta;
 				bestWidth = currentWidth;
 				currentWidth += bestDelta / 2.0;
@@ -334,14 +513,27 @@ public class JAPDialog
 		System.out.println("PreferredSize: " + dummyBox.getPreferredSize() + "_" + contentPane.getPreferredSize());
 				*/
 
-		// recreate the dialog and set its final size
-		dialog = new JOptionPane(new JAPHtmlMultiLineLabel(a_message), a_messageType, a_optionType, a_icon).
-			createDialog(a_parentComponent, a_title);
+		/**
+		 * Recreate the dialog and set its final size.
+		 */
+        label = new JAPHtmlMultiLineLabel(a_message);
+		pane =  new JOptionPane(label, a_messageType, a_optionType, a_icon);
+		dialog = pane.createDialog(a_parentComponent, a_title);
+		if (blinkedInformation)
+		{
+			label.addMouseListener(new LinkedInformationClickListener(a_linkedInformation, dialog));
+		}
+
 		((JComponent)dialog.getContentPane()).setPreferredSize(bestDimension);
 		dialog.pack();
-		//System.out.println(dialog.getSize().height * GOLDEN_RATIO_PHI - dialog.getSize().width);
+		if (bestDelta != getGoldenRatioDelta(dialog))
+		{
+			LogHolder.log(LogLevel.NOTICE, LogType.GUI, "Calculated dialog size differs from real size!");
+		}
+		//System.out.println(getGoldenRatioDelta(dialog));
 		dialog.setLocationRelativeTo(a_parentComponent);
 		dialog.setVisible(true);
+		return pane.getValue();
 	}
 
 	/**
@@ -352,9 +544,24 @@ public class JAPDialog
 	 * @param a_message The message to be displayed
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
-	public static boolean showYesNoConfirmMessage(JAPDialog a_parentDialog, String a_message)
+	public static boolean showYesNoDialog(JAPDialog a_parentDialog, String a_message)
 	{
-		return showYesNoConfirmMessage(getInternalDialog(a_parentDialog), a_message);
+		return showYesNoDialog(getInternalDialog(a_parentDialog), a_message);
+	}
+
+	/**
+	 * Displays a message dialog that asks the user for a confirmation.
+	 * Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 * @return true if the answer was 'yes'; fale otherwise
+	 */
+	public static boolean showYesNoDialog(JAPDialog a_parentDialog, String a_message,
+										  ILinkedInformation a_linkedInformation)
+	{
+		return showYesNoDialog(getInternalDialog(a_parentDialog), a_message, a_linkedInformation);
 	}
 
 	/**
@@ -366,13 +573,25 @@ public class JAPDialog
 	 * @param a_message The message to be displayed
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
-	public static boolean showYesNoConfirmMessage(Component a_parentComponent, String a_message)
+	public static boolean showYesNoDialog(Component a_parentComponent, String a_message)
 	{
-		int i = JOptionPane.showConfirmDialog(a_parentComponent,
-											  TextFormatUtil.wrapWordsOfTextLine(a_message, MAX_TEXT_WIDTH),
-											  JAPMessages.getString(MSG_CONFIRMATION),
-											  JOptionPane.YES_NO_OPTION);
-		return (i == JOptionPane.YES_OPTION);
+		return showYesNoDialog(a_parentComponent, null, a_message);
+	}
+
+	/**
+	 * Displays a message dialog that asks the user for a confirmation.
+	 * Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 * @return true if the answer was 'yes'; fale otherwise
+	 */
+	public static boolean showYesNoDialog(Component a_parentComponent, String a_message,
+										  ILinkedInformation a_linkedInformation)
+	{
+		return showYesNoDialog(a_parentComponent, null, a_message, a_linkedInformation);
 	}
 
 	/**
@@ -384,10 +603,25 @@ public class JAPDialog
 	 * @param a_message The message to be displayed
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
-	public static boolean showYesNoConfirmMessage(JAPDialog a_parentDialog, String a_title,
-												  String a_message)
+	public static boolean showYesNoDialog(JAPDialog a_parentDialog, String a_title, String a_message)
 	{
-		return showYesNoConfirmMessage(getInternalDialog(a_parentDialog), a_title, a_message);
+		return showYesNoDialog(getInternalDialog(a_parentDialog), a_title, a_message);
+	}
+
+	/**
+	 * Displays a message dialog that asks the user for a confirmation.
+	 * Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 * @return true if the answer was 'yes'; fale otherwise
+	 */
+	public static boolean showYesNoDialog(JAPDialog a_parentDialog, String a_title, String a_message,
+										  ILinkedInformation a_linkedInformation)
+	{
+		return showYesNoDialog(getInternalDialog(a_parentDialog), a_title, a_message, a_linkedInformation);
 	}
 
 	/**
@@ -400,14 +634,56 @@ public class JAPDialog
 	 * @param a_message The message to be displayed
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
-	public static boolean showYesNoConfirmMessage(Component a_parentComponent, String a_title,
-												  String a_message)
+	public static boolean showYesNoDialog(Component a_parentComponent, String a_title, String a_message)
 	{
-		int i = JOptionPane.showConfirmDialog(a_parentComponent,
-											  TextFormatUtil.wrapWordsOfTextLine(a_message, MAX_TEXT_WIDTH),
-											  a_title,
-											  JOptionPane.YES_NO_OPTION);
-		return (i == JOptionPane.YES_OPTION);
+		return showYesNoDialog(a_parentComponent, a_title, a_message, null);
+	}
+
+	/**
+	 * Displays a message dialog that asks the user for a confirmation.
+	 * Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 * @return true if the answer was 'yes'; fale otherwise
+	 */
+	public static boolean showYesNoDialog(Component a_parentComponent, String a_title, String a_message,
+										  ILinkedInformation a_linkedInformation)
+	{
+		Object response;
+
+		if (a_title == null || a_title.trim().length() == 0)
+		{
+			a_title = JAPMessages.getString(MSG_CONFIRMATION);
+		}
+		response = showMessageDialog(a_parentComponent, a_title, a_message, JOptionPane.QUESTION_MESSAGE,
+									 JOptionPane.YES_NO_OPTION, null, a_linkedInformation);
+		if (response == null || !(response instanceof Integer))
+		{
+			return false;
+		}
+
+		return ((Integer)response).intValue() == JOptionPane.YES_OPTION;
+	}
+
+	/**
+	 * Displays a dialog showing an error message to the user and logs the error message
+	 * to the currently used Log.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null or the parent
+	 *                       dialog is not within a frame, the dialog's parent frame is the
+	 *                       default frame.
+	 * @param a_message a message that is shown to the user (may be null)
+	 * @param a_logType the log type for this error
+	 * @see logging.LogHolder
+	 * @see logging.LogType
+	 * @see logging.Log
+	 */
+	public static void showErrorDialog(JAPDialog a_parentDialog, String a_message, int a_logType)
+	{
+		showErrorDialog(a_parentDialog, null, a_message, a_logType);
 	}
 
 	/**
@@ -423,10 +699,10 @@ public class JAPDialog
 	 * @see logging.LogType
 	 * @see logging.Log
 	 */
-	public static void showErrorMessage(JAPDialog a_parentDialog, Throwable a_throwable,
-										String a_message, int a_logType)
+	public static void showErrorDialog(JAPDialog a_parentDialog, Throwable a_throwable, String a_message,
+									   int a_logType)
 	{
-		showErrorMessage(getInternalDialog(a_parentDialog), a_throwable, a_message, a_logType);
+		showErrorDialog(getInternalDialog(a_parentDialog), a_throwable, a_message, a_logType);
 	}
 
 	/**
@@ -443,10 +719,27 @@ public class JAPDialog
 	 * @see logging.LogType
 	 * @see logging.Log
 	 */
-	public static void showErrorMessage(JAPDialog a_parentDialog, Throwable a_throwable, String a_title,
+	public static void showErrorDialog(JAPDialog a_parentDialog, Throwable a_throwable, String a_title,
 										String a_message, int a_logType)
 	{
-		showErrorMessage(getInternalDialog(a_parentDialog), a_throwable, a_title, a_message, a_logType);
+		showErrorDialog(getInternalDialog(a_parentDialog), a_throwable, a_title, a_message, a_logType);
+	}
+
+	/**
+	 * Displays a dialog showing an error message to the user and logs the error message
+	 * to the currently used Log.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_message a message that is shown to the user (may be null)
+	 * @param a_logType the log type for this error
+	 * @see logging.LogHolder
+	 * @see logging.LogType
+	 * @see logging.Log
+	 */
+	public static void showErrorDialog(Component a_parentComponent, String a_message, int a_logType)
+	{
+		showErrorDialog(a_parentComponent, null, a_message, a_logType);
 	}
 
 	/**
@@ -462,10 +755,10 @@ public class JAPDialog
 	 * @see logging.LogType
 	 * @see logging.Log
 	 */
-	public static void showErrorMessage(Component a_parentComponent, Throwable a_throwable,
-										String a_message, int a_logType)
+	public static void showErrorDialog(Component a_parentComponent, Throwable a_throwable, String a_message,
+									   int a_logType)
 	{
-		showErrorMessage(a_parentComponent, a_throwable, null, a_message, a_logType);
+		showErrorDialog(a_parentComponent, a_throwable, null, a_message, a_logType);
 	}
 
 	/**
@@ -482,7 +775,7 @@ public class JAPDialog
 	 * @see logging.LogType
 	 * @see logging.Log
 	 */
-	public static void showErrorMessage(Component a_parentComponent, Throwable a_throwable, String a_title,
+	public static void showErrorDialog(Component a_parentComponent, Throwable a_throwable, String a_title,
 										String a_message, int a_logType)
 	{
 		a_message = retrieveErrorMessage(a_throwable, a_message);
@@ -499,9 +792,8 @@ public class JAPDialog
 			{
 				a_title = JAPMessages.getString(MSG_ERROR_TITLE);
 			}
-			JOptionPane.showMessageDialog(a_parentComponent,
-										  TextFormatUtil.wrapWordsOfTextLine(a_message, MAX_TEXT_WIDTH),
-										  a_title, JOptionPane.ERROR_MESSAGE);
+			showMessageDialog(a_parentComponent, a_title, a_message,
+							  JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION, null, null);
 		}
 		catch (Exception e)
 		{
@@ -510,14 +802,95 @@ public class JAPDialog
 		}
 	}
 
+	/**
+	 * Classes of this type are used to append a clickable message at the end of a dialog message.
+	 * You may also allow to copy the message to the cip board and define any after-click-action
+	 * that you want.
+	 */
+	public static interface ILinkedInformation
+	{
+		/**
+		 * Returns the information message.
+		 * @return the information message
+		 */
+		public String getMessage();
+		/**
+		 * The action that is performed when the link is clicked, for example opening a browser
+		 * window, an E-Mail client or a help page.
+		 */
+		public void openLink();
+		/**
+		 * Returns if the dialog should be disposed if the user clicked the link.
+		 * @return if the dialog should be disposed if the user clicked the link
+		 */
+		public boolean isDialogDisposed();
+	}
+
+	/**
+	 * This is an example implementation of ILinkedInformation. It registers a help context in the
+	 * dialog that is opened when the user clicks on a "More info..." or a self-defined String.
+	 */
+	public static final class LinkedHelpContext implements ILinkedInformation
+	{
+		private static final String MSG_MORE_INFO = LinkedHelpContext.class.getName() + "_more_info";
+
+		private String m_strMessage;
+		private String m_strHelpContext;
+
+		public LinkedHelpContext(String a_strHelpContext, String a_strMessage)
+		{
+			if (a_strMessage == null || a_strMessage.trim().length() == 0)
+			{
+				a_strMessage = JAPMessages.getString(MSG_MORE_INFO);
+			}
+			m_strHelpContext = a_strHelpContext;
+			m_strMessage = a_strMessage;
+		}
+
+		public LinkedHelpContext(String a_strHelpContext)
+		{
+			this(a_strHelpContext, null);
+		}
+
+		public String getMessage()
+		{
+			return m_strMessage;
+		}
+		/**
+		 * Opens a help window with the registered context.
+		 */
+		public void openLink()
+		{
+			JAPHelp.getInstance().getContextObj().setContext(m_strHelpContext);
+			JAPHelp.getInstance().setVisible(true);
+			JAPHelp.getInstance().requestFocus();
+		}
+		/**
+		 * Dispose the dialog, as otherwise the help window could not be accessed.
+		 * @return true
+		 */
+		public boolean isDialogDisposed()
+		{
+			return true;
+		}
+	}
+
+	/**
+	 * Returns the root pane of the dialog.
+	 * @return the root pane of the dialog
+	 */
+	public JRootPane getRootPane()
+	{
+		return m_internalDialog.getRootPane();
+	}
 
 	/**
 	 * Returns the content pane that can be used to place elements on the dialog.
 	 * @return the dialog's content pane
 	 */
-	public final Container getContentPane()
+	public final JComponent getContentPane()
 	{
-		return m_internalDialog.getContentPane();
+		return (JComponent)m_internalDialog.getContentPane();
 	}
 
 	/**
@@ -562,7 +935,7 @@ public class JAPDialog
 	 * Shows or hides the dialog.
 	 * @param a_bVisible 'true' shows the dialog; 'false' hides it
 	 * @param a_bCenterOnParentComponent if true, the dialog is centered on the parent component;
-	 * otherwise, it is centered on the parent window
+	 * otherwise, it is positioned right under the parent window (owner window)
 	 */
 	public final void setVisible(boolean a_bVisible, boolean a_bCenterOnParentComponent)
 	{
@@ -576,7 +949,14 @@ public class JAPDialog
 			{
 				if (!m_bLocationSetManually && !isVisible())
 				{
-					align(a_bCenterOnParentComponent);
+					if (a_bCenterOnParentComponent)
+					{
+						m_internalDialog.setLocationRelativeTo(m_parentComponent);
+					}
+					else
+					{
+						GUIUtils.positionRightUnderWindow(m_internalDialog, getOwner());
+					}
 				}
 			}
 		}
@@ -609,6 +989,11 @@ public class JAPDialog
 		m_internalDialog.dispose();
 	}
 
+	public void requestFocus()
+	{
+		m_internalDialog.requestFocus();
+	}
+
 	/**
 	 * Returns the size of the dialog window.
 	 * @return the size of the dialog window
@@ -637,6 +1022,39 @@ public class JAPDialog
 	{
 		m_bLocationSetManually = true;
 		m_internalDialog.setLocation(a_location);
+	}
+
+	/**
+	 * Sets the location of the dialog 'manually'. After that,
+	 * no automatic alignment is done by this dialog. The dialog is centered on the
+	 * given Component.
+	 * @param a_component a Component
+	 */
+	public final void setLocationRelativeTo(Component a_component)
+	{
+		m_bLocationSetManually = true;
+		m_internalDialog.setLocationRelativeTo(a_component);
+	}
+
+	/**
+	 * Sets the location of the dialog 'manually'. After that,
+	 * no automatic alignment is done by this dialog. Centers this dialog relative to the screen.
+	 */
+	public void setLocationRelativeToScreen()
+	{
+		m_bLocationSetManually = true;
+		GUIUtils.centerOnScreen(m_internalDialog);
+	}
+
+	/**
+	 * Sets the location of the dialog 'manually'. After that,
+	 * no automatic alignment is done by this dialog. The dialog is positioned right
+	 * under the owner window.
+	 */
+	public final void setLocationRelativeToOwner()
+	{
+		m_bLocationSetManually = true;
+		GUIUtils.positionRightUnderWindow(m_internalDialog, getOwner());
 	}
 
 	/**
@@ -721,7 +1139,7 @@ public class JAPDialog
 	 * @param a_dialog a JAPDialog
 	 * @return the internal dialog of a JAPDialog or null if there is none
 	 */
-	private static Component getInternalDialog(JAPDialog a_dialog)
+	private static Window getInternalDialog(JAPDialog a_dialog)
 	{
 		if (a_dialog == null)
 		{
@@ -757,63 +1175,39 @@ public class JAPDialog
 	}
 
 	/**
-	 * Centers the dialog over the parent component or the parent window.
-	 * @param a_bCenterOnParentComponent if true, the dialog is centered on the parent component;
-	 * otherwise, it is centered on the parent window
-	 */
-	private void align(boolean a_bCenterOnParentComponent)
-	{
-		if (!a_bCenterOnParentComponent)
-		{
-			alignOnWindow();
-		}
-		else
-		{
-			alignOnComponent();
-		}
-	}
-
-	/**
-	 * Centers the dialog over the parent component.
-	 */
-	private void alignOnComponent()
-	{
-		/* center the dialog over the parent component, tricky: for getting the absolut position
-		 * values, we create a new Dialog (is centered over the parent) and use it for calculating
-		 * our own location
-		 */
-		JOptionPane optionPane = new JOptionPane();
-		JDialog dummyDialog = optionPane.createDialog(m_parentComponent, null);
-		Rectangle dummyBounds = dummyDialog.getBounds();
-		Dimension ownSize = m_internalDialog.getSize();
-		Point ownLocation = new Point( (Math.max(dummyBounds.x +
-												 ( (dummyBounds.width - ownSize.width) / 2), 0)),
-									  (Math.max(dummyBounds.y +
-												( (dummyBounds.height - ownSize.height) / 2), 0)));
-		m_internalDialog.setLocation(ownLocation);
-	}
-
-	/**
-	 * Centers the dialog over the parent window.
-	 */
-	private void alignOnWindow()
-	{
-		GUIUtils.positionWindow(m_internalDialog, getOwner());
-	}
-
-	/**
-	 *
-	 * @param a_parentComponent Component
-	 * @return Window
+	 * Finds the first parent that is a window.
+	 * @param a_parentComponent a Component
+	 * @return the first parent that is a window
 	 */
 	private static Window getParentWindow(Component a_parentComponent)
 	{
-		// find the first parent that is a window
 		while (a_parentComponent != null && ! (a_parentComponent instanceof Window))
 		{
 			a_parentComponent = a_parentComponent.getParent();
 		}
 		return (Window)a_parentComponent;
+	}
+
+	private static class LinkedInformationClickListener extends MouseAdapter
+	{
+		private ILinkedInformation m_linkedInformation;
+		private JDialog m_dialog;
+
+		public LinkedInformationClickListener(ILinkedInformation a_linkedInformation,
+											  JDialog a_dialog)
+		{
+			m_linkedInformation = a_linkedInformation;
+			m_dialog = a_dialog;
+		}
+
+		public void mouseClicked(MouseEvent a_event)
+		{
+			if (m_linkedInformation.isDialogDisposed())
+			{
+				m_dialog.dispose();
+			}
+			m_linkedInformation.openLink();
+		}
 	}
 
 	private static class PreferredWidthBoxPanel extends JPanel
@@ -826,7 +1220,6 @@ public class JAPDialog
 			m_preferredWidth = 0;
 			layout = new BoxLayout(this, BoxLayout.Y_AXIS);
 			setLayout(layout);
-
 		}
 		public void setPreferredWidth(int a_preferredWidth)
 		{
@@ -840,7 +1233,6 @@ public class JAPDialog
 			{
 				return super.getPreferredSize();
 			}
-
 			return new Dimension(m_preferredWidth, (int)super.getPreferredSize().height);
 		}
 	}

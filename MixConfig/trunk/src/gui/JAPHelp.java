@@ -61,7 +61,7 @@ import anon.util.ResourceLoader;
 
 /* classes modified from Swing Example "Metalworks" */
 /** Help window for the JAP. This is a singleton meaning that there exists only one help window all the time.*/
-public final class JAPHelp extends JDialog
+public final class JAPHelp extends JAPDialog
 {
 	public static final String IMAGE_HOME = JAPMessages.getString("imgHome");
 	public static final String IMAGE_PREV = JAPMessages.getString("imgPrevious");
@@ -110,22 +110,6 @@ public final class JAPHelp extends JDialog
 		return ms_theJAPHelp;
 	}
 
-	/**
-	 * If the parent is a JDialog, we have to use it as virtualParent. It then gets
-	 * invisble when the help window arises and visible again when the help window
-	 * is closed. This is a workaround for the missing ability to make a JDialog parent
-	 * of another JDialog in JDK 1.1.8 (Swing).
-	 * param parent JFrame
-	 * param virtualParent JDialog
-	 */
-	/*	public JAPHelp(JFrame parent, JDialog virtualParent)
-	 {
-	  super(parent, JAPMessages.getString("helpWindow"), false);
-	  m_virtualParent = virtualParent;
-	  m_virtualParent.setVisible(false);
-	  init();
-	 }
-	 */
 	private void init()
 	{
 		m_initializing = true;
@@ -212,15 +196,15 @@ public final class JAPHelp extends JDialog
 			{
 			}
 		}
+		getContentPane().setPreferredSize(new Dimension(600,350));
 		pack();
-		GUIUtils.centerFrame(this);
 		m_initializing = false;
 	}
 
-	/** @deprecated use show() instead; scheduled for deletion */
+	/** @deprecated use setVisible(boolean) instead; scheduled for deletion */
 	public void loadCurrentContext()
 	{
-		show();
+		setVisible(true);
 	}
 
 	public void setVisible(boolean a_bVisible)

@@ -325,7 +325,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		catch (Exception ex)
 		{
 
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 	}
 

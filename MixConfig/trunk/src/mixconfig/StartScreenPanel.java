@@ -167,7 +167,7 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), e, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), e, null, LogType.GUI);
 		}
 
 	}

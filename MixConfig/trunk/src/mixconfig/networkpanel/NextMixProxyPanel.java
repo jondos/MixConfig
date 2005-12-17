@@ -330,7 +330,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 		enableComponents();
 	}
@@ -503,7 +503,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 	}
 

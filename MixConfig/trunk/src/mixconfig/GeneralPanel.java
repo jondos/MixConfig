@@ -831,6 +831,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				ConnectionData olddata = m_listenerModel.getData(i);
 				if (olddata.getName().equalsIgnoreCase(JAPMessages.getString("configuredByMixOnCD")))
 				{
+					/*
+					 * Bugfix: If the model changes here, a newly loaded configuration has no
+					 * hostname if MixOnCD has been activated before loading this configuration.
+					 */
 					olddata.setName("");
 				}
 			}

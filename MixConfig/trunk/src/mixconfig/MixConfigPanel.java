@@ -205,7 +205,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		}
 		catch (Exception uee)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), uee, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), uee, null, LogType.GUI);
 		}
 	}
 
@@ -227,7 +227,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 	}
 

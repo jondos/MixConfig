@@ -111,7 +111,6 @@ public class WizardLayout extends JPanel
 
 		m_bttnHelp.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				GUIUtils.positionWindow(JAPHelp.getInstance(), MixConfig.getMainWindow());
 				JAPHelp.getInstance().setVisible(true);}});
 
 		add(topImage, BorderLayout.NORTH);

@@ -27,16 +27,16 @@
  */
 package gui;
 
-import java.awt.Point;
-import java.awt.Dimension;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.Component;
 import javax.swing.ImageIcon;
 import javax.swing.JTextPane;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.Window;
+import java.awt.Dimension;
+import java.awt.Point;
 
 /**
  * This class contains helper methods for the GUI.
@@ -72,23 +72,11 @@ public final class GUIUtils
 	}
 
 	/**
-	 * Centers a window relative to the screen.
-	 * @param a_window a Window
-	 */
-	public static void centerFrame(Window a_window)
-	{
-		Dimension screenSize = a_window.getToolkit().getScreenSize();
-		Dimension ownSize = a_window.getSize();
-		a_window.setLocation( (screenSize.width - ownSize.width) / 2,
-							 (screenSize.height - ownSize.height) / 2);
-	}
-
-	/**
 	 * Positions a window on the screen relative to a parent window so that its position is optimised.
 	 * @param a_window a Window
 	 * @param a_parent the Window's parent window
 	 */
-	public static void positionWindow(Window a_window, Window a_parent)
+	public static void positionRightUnderWindow(Window a_window, Window a_parent)
 	{
 		if (a_window == null || a_parent == null)
 		{
@@ -99,6 +87,18 @@ public final class GUIUtils
 		Point parentLocation = a_parent.getLocationOnScreen();
 		a_window.setLocation(parentLocation.x + (parentSize.width / 2) - (ownSize.width / 2),
 							 parentLocation.y + 40);
+	}
+
+	/**
+	 * Centers a window relative to the screen.
+	 * @param a_window a Window
+	 */
+	public static void centerOnScreen(Window a_window)
+	{
+		Dimension screenSize = a_window.getToolkit().getScreenSize();
+		Dimension ownSize = a_window.getSize();
+		a_window.setLocation( (screenSize.width - ownSize.width) / 2,
+							 (screenSize.height - ownSize.height) / 2);
 	}
 
 	/**
@@ -118,5 +118,4 @@ public final class GUIUtils
 		selectableLabel.setFont(new Font(jlFont.getName(),Font.BOLD, jlFont.getSize()));
 		return selectableLabel;
 	}
-
 }
