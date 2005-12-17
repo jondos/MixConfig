@@ -78,7 +78,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.016"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.017"; //NEVER change the layout of this line!!
 
 	public static final String MSG_WARNING = "MixConfig_warning";
 
@@ -218,8 +218,8 @@ public class MixConfig extends JApplet
 			System.exit(1);
 		}
 
-		//set Message Title
-		m_startPanel.setMessageTitle();
+		m_startPanel.setMessageTitle(); //set Message Title
+		m_mixConfiguration.setSavedToFile(); // tell the GUI that this configuration has not changed
 	}
 
 	/**
@@ -341,30 +341,27 @@ public class MixConfig extends JApplet
 
 		if (a_message == null || a_message.length == 0)
 		{
-			info(a_title, "");
+			JAPDialog.showInfoMessage(getMainWindow(), a_title, "");
 
 		}
 		else if (a_message.length == 1)
 		{
-			info(a_title, a_message[0]);
+			JAPDialog.showInfoMessage(getMainWindow(), a_title, a_message[0]);
 		}
 		else
 		{
+			message += "<UL>";
 			for (int i = 0; i < a_message.length; i++)
 			{
-				message += TextFormatUtil.formatDescription(a_message[i], "* ", 2, JAPDialog.MAX_TEXT_WIDTH);
+				if (a_message[i] == null || a_message[i].trim().length() == 0)
+				{
+					continue;
+				}
+				message +=  "<LI>" + a_message[i] + "</LI>";
 			}
-			JOptionPane.showMessageDialog(getMainWindow(), message, a_title, JOptionPane.INFORMATION_MESSAGE);
+			message += "</UL>";
+			JAPDialog.showInfoMessage(getMainWindow(), a_title, message);
 		}
-	}
-
-	/** Displays an info message dialog
-	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
-	 */
-	public static void info(String a_title, String a_message)
-	{
-		JAPDialog.showInfoMessage(getMainWindow(), a_title, a_message);
 	}
 
 	public static void about()

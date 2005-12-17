@@ -139,8 +139,11 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 				else if ( (i & ConfigWizardPanel.STATE_END) > 0)
 				{
 					getButtonForward().setText("Finish");
-					if (MixConfig.getMixConfiguration().saveToFile())
+					File file;
+					if ((file = MixConfig.getMixConfiguration().saveToFile()) != null)
 					{
+						JAPDialog.showInfoMessage(MixConfig.getMainWindow(), "Configuration saved",
+												  "Configuration saved as " + file);
 						m_wizPanel.finish();
 						( (ChoicePanel)getParent()).getMenu().reset(false);
 						stateChanged(new ChangeEvent(this));

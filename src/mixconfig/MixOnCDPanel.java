@@ -47,6 +47,7 @@ import anon.crypto.DESCrypt;
 import mixconfig.networkpanel.IPTextField;
 import gui.JAPHelp;
 import java.awt.Graphics;
+import gui.JAPDialog;
 
 /**
  * This panel stores the MixOnCD configuration.
@@ -416,10 +417,11 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 
 		if (a_event.getSource() == m_cbxMixOnCD &&  m_cbxMixOnCD.isSelected())
 		{
-			MixConfig.info("MixOnCD download hint",
-						   "You will have to download the MixOnCD iso-image " +
-						   "from http://anon.inf.tu-dresden.de/develop/MixOnCD.iso.bz2 " +
-						   "to create a bootable mix CD.");
+			JAPDialog.showInfoMessage(MixConfig.getMainWindow(),"MixOnCD download hint",
+									  "You will have to download the MixOnCD iso-image from " +
+									  "<a href=\"http://anon.inf.tu-dresden.de/develop/MixOnCD.iso.bz2\"> " +
+									  "http://anon.inf.tu-dresden.de/develop/MixOnCD.iso.bz2 </a> "+
+									  "to create a bootable mix CD.");
 		}
 	}
 

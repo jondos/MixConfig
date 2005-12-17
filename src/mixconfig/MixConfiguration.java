@@ -241,9 +241,9 @@ public class MixConfiguration
 
 	/** Shows a file dialog and saves the configuration
 	 * @throws IOException If an I/O error occurs while saving the configuration
-	 * @return <CODE>true</CODE> if the saving succeeded, <CODE>false</CODE> if it was aborted by the user
+	 * @return the file if the saving succeeded, null if it was aborted by the user
 	 */
-	public boolean saveToFile() throws IOException
+	public File saveToFile() throws IOException
 	{
 		String fileName = MixConfig.getCurrentFileName();
 		File file;
@@ -254,8 +254,7 @@ public class MixConfiguration
 		}
 		else
 		{
-			file = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG,
-											MixConfig.FILTER_XML).getSelectedFile();
+			file = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG, MixConfig.FILTER_XML).getSelectedFile();
 		}
 
 		if (file != null)
@@ -266,10 +265,9 @@ public class MixConfiguration
 				file = new File(file.getParent(), fname + ".xml");
 			}
 			save(new FileWriter(file.getCanonicalPath()));
-			MixConfig.info("Configuration saved", "Configuration saved as " + file);
 		}
 
-		return file != null;
+		return file;
 	}
 
 	/**

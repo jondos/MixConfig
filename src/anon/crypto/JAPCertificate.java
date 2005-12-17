@@ -629,8 +629,7 @@ public final class JAPCertificate extends X509CertificateStructure
 			ByteArrayOutputStream bArrOStream = new ByteArrayOutputStream();
 			(new DEROutputStream(bArrOStream)).writeObject(getTBSCertificate());
 
-			return ByteSignature.verify(bArrOStream.toByteArray(), getSignature().getBytes(),
-											 a_publicKey);
+			return ByteSignature.verify(bArrOStream.toByteArray(), getSignature().getBytes(), a_publicKey);
 		}
 		catch (IOException a_e)
 		{

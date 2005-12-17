@@ -199,4 +199,28 @@
     <old-method-name>formatHTMLText</old-method-name>
     <new-method-name>formatTextAsHTML</new-method-name>
   </rename-method>
+  <rename-method id="6AP0GL2V06HECO0L1ULFK8Z" creation-time="Tue Dec 13 10:57:23.860 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <declared-method-signature>()Ljava/util/Vector;</declared-method-signature>
+    <old-method-name>getAttributes</old-method-name>
+    <new-method-name>getAttributeValues</new-method-name>
+  </rename-method>
+  <rename-method id="4AP0GL2V06HECO0L1ULFK8Z" creation-time="Tue Dec 13 10:57:33.776 CET 2005">
+    <declaring-class-name>anon.crypto.X509DistinguishedName</declaring-class-name>
+    <declared-method-signature>(Ljava/lang/String;)Ljava/lang/String;</declared-method-signature>
+    <old-method-name>getAttribute</old-method-name>
+    <new-method-name>getAttributeValue</new-method-name>
+  </rename-method>
+  <rename-method id="6AP0N7ZGQ7HEQ06FJULFK8Z" creation-time="Wed Dec 14 15:42:02.478 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;ILjavax/swing/Icon;)V</declared-method-signature>
+    <old-method-name>showInfoMessage</old-method-name>
+    <new-method-name>showDialog</new-method-name>
+  </rename-method>
+  <rename-method id="4AP0N7ZGQ7HEQ06FJULFK8Z" creation-time="Wed Dec 14 15:42:12.602 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;ILjavax/swing/Icon;)V</declared-method-signature>
+    <old-method-name>showDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
 </refactor>

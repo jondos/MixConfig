@@ -27,160 +27,316 @@
  */
 package mixconfig;
 
-import java.util.Vector;
-
+import gui.JAPDialog;
 import java.awt.Component;
 import javax.swing.JPanel;
+import java.util.Vector;
 import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.*;
-import java.util.Enumeration;
-import gui.CountryMapper;
 import gui.JAPMessages;
-import gui.GUIUtils;
 import java.util.Date;
-import java.util.StringTokenizer;
-
-import javax.swing.ListModel;
-import javax.swing.ListCellRenderer;
-import javax.swing.DefaultListModel;
-
-import anon.crypto.AbstractX509Extension;
+import javax.swing.JLabel;
 import anon.crypto.IMyPublicKey;
 import anon.crypto.JAPCertificate;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.Validity;
 import anon.crypto.X509Extensions;
-import anon.crypto.AbstractX509Extension;
 import anon.crypto.X509UnknownExtension;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import java.awt.GridLayout;
-import gui.JAPDialog;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import javax.swing.JSeparator;
+import java.awt.Color;
+import gui.GUIUtils;
+import gui.CountryMapper;
+import logging.*;
 
 /**
- *
  * <p>CertDetails Dialog </p>
- * <p>Beschreibung: </p>
+ * <p>Description: Displays any certificates</p>
  * <p>Copyright: Copyright (c) 2005</p>
  * <p>Organisation: </p>
  * @author Kuno G. Gruen
- * @version 0.5
+ * @version 3.1 / 14.12.2005
  */
-public class CertDetailsDialog extends JAPDialog //implements ListModel
+public class CertDetailsDialog extends JAPDialog
 {
 
-	private static final String ICON_ARROW_RIGHT = "arrow46.gif";
-	private static final String ICON_ARROW_DOWN = "arrowDown.gif";
 	private static final String MSG_CERTVALID = CertDetailsDialog.class.getName() + "_CERT_VALID";
 	private static final String MSG_CERTNOTVALID = CertDetailsDialog.class.getName() + "_CERT_NOTVALID";
-	private static final String MSG_X509Attribute_ST = CertDetailsDialog.class.getName() + "_X509Attribute_ST";
+	private static final String MSG_X509Attribute_ST = CertDetailsDialog.class.getName() +
+		"_X509Attribute_ST";
 	private static final String MSG_X509Attribute_L = CertDetailsDialog.class.getName() + "_X509Attribute_L";
 	private static final String MSG_X509Attribute_C = CertDetailsDialog.class.getName() + "_X509Attribute_C";
-	private static final String MSG_X509Attribute_CN = CertDetailsDialog.class.getName() + "_X509Attribute_CN";
+	private static final String MSG_X509Attribute_CN = CertDetailsDialog.class.getName() +
+		"_X509Attribute_CN";
 	private static final String MSG_X509Attribute_O = CertDetailsDialog.class.getName() + "_X509Attribute_O";
-	private static final String MSG_X509Attribute_OU = CertDetailsDialog.class.getName() + "_X509Attribute_OU";
-	private static final String MSG_X509Attribute_EMAIL = CertDetailsDialog.class.getName() + "_X509Attribute_EMAIL";
-	private static final String MSG_X509Attribute_EMAILADDRESS = CertDetailsDialog.class.getName() + "_X509Attribute_EMAIL";
-	private static final String MSG_X509Attribute_SURNAME = CertDetailsDialog.class.getName() + "_X509Attribute_SURNAME";
-	private static final String MSG_X509Attribute_GIVENNAME = CertDetailsDialog.class.getName() + "_X509Attribute_GIVENNAME";
-	private static final String UNKNOWN_EXTENSION = "Unknown extension";
-	private int m_maxKeyLen = 0;
+	private static final String MSG_X509Attribute_OU = CertDetailsDialog.class.getName() +
+		"_X509Attribute_OU";
+	private static final String MSG_X509Attribute_EMAIL = CertDetailsDialog.class.getName() +
+		"_X509Attribute_EMAIL";
+	private static final String MSG_X509Attribute_EMAILADDRESS = CertDetailsDialog.class.getName() +
+		"_X509Attribute_EMAIL";
+	private static final String MSG_X509Attribute_SURNAME = CertDetailsDialog.class.getName() +
+		"_X509Attribute_SURNAME";
+	private static final String MSG_X509Attribute_GIVENNAME = CertDetailsDialog.class.getName() +
+		"_X509Attribute_GIVENNAME";
+	private static final String MSG_ALERT_CERTDATE_EXPIRED = CertDetailsDialog.class.getName() +
+		"_ALERT_CERTDATE_EXPIRED";
+	private static final String MSG_ALERT_CERTDATE_NOTYET = CertDetailsDialog.class.getName() +
+		"_ALERT_CERTDATE_NOTYET";
+	private static final String MSG_ALERT_UNSIGNED = CertDetailsDialog.class.getName() +
+		"_ALERT_SIGNATURE_NOVALIDSIGNATURE";
+	private static final String UNKNOWN_EXTENSION = CertDetailsDialog.class.getName() +
+		"_ALERT_UNKNOWNEXTENSION";
+	private static final String TITLE_DISTINGUISHEDNAME = CertDetailsDialog.class.getName() +
+		"_TITLE_DISTINGUISHEDNAME";
+	private static final String TITLE_ISSUER = CertDetailsDialog.class.getName() +
+		"_TITLE_ISSUER";
+	private static final String TITLE_VALIDITY = CertDetailsDialog.class.getName() +
+		"_TITLE_VALIDITY";
+	private static final String TITLE_VALIDITY_GENERAL = CertDetailsDialog.class.getName() +
+		"_TITLE_VALIDITY_GENERAL";
+	private static final String TITLE_VALIDITY_TO = CertDetailsDialog.class.getName() +
+		"_TITLE_VALIDITY_TO";
+	private static final String TITLE_VALIDITY_FROM = CertDetailsDialog.class.getName() +
+		"_TITLE_VALIDITY_FROM";
+	private static final String TITLE_EXTENSIONS = CertDetailsDialog.class.getName() +
+		"_TITLE_EXTENSIONS";
+	private static final String TITLE_IDENTIFICATION = CertDetailsDialog.class.getName() +
+		"_TITLE_IDENTIFICATION";
+	private static final String TITLE_IDENTIFICATION_SHA1 = CertDetailsDialog.class.getName() +
+		"_TITLE_IDENTIFICATION_SHA1";
+	private static final String TITLE_IDENTIFICATION_MD5 = CertDetailsDialog.class.getName() +
+		"_TITLE_IDENTIFICATION_MD5";
+	private static final String TITLE_IDENTIFICATION_SERIAL = CertDetailsDialog.class.getName() +
+		"_TITLE_IDENTIFICATION_SERIAL";
+	private static final String TITLE_KEYS = CertDetailsDialog.class.getName() +
+		"_TITLE_KEYS";
+	private static final String TITLE_KEYS_ALGORITHM = CertDetailsDialog.class.getName() +
+		"_TITLE_KEYS_ALGORITHM";
+	private static final String TITLE_KEYS_KEYLENGTH = CertDetailsDialog.class.getName() +
+		"_TITLE_KEYS_KEYLENGTH";
+	private static final String TITLE_KEYS_SIGNALGORITHM = CertDetailsDialog.class.getName() +
+		"_TITLE_KEYS_SIGNALGORITHM";
 
-	private Vector m_distinguishedNameKeys;
-	private Vector m_distinguishedNameValues;
-	private Vector m_issuerKeys;
-	private Vector m_issuerValues;
-	private Vector m_extensionsKeys;
-	private Vector m_extensionsValues;
+	private static final String CERT_VALID_INACTIVE = "certinactive.gif";
+	private static final String CERT_INVALID_INACTIVE = "certinvalidinactive.gif";
+	private static final JLabel LABEL = new JLabel();
 
+	private static final Color TITLE_COLOR = Color.blue;
+	private static final Color ALERT_COLOR = Color.red;
 
+	private static final Font TITLE_FONT = new Font(LABEL.getFont().getName(), Font.BOLD,
+		(LABEL.getFont().getSize()) + 3);
+	private static final Font KEY_FONT = new Font(LABEL.getFont().getName(), Font.BOLD,
+												  (LABEL.getFont().getSize()));
+	private static final Font VALUE_FONT = new Font(LABEL.getFont().getName(), Font.PLAIN,
+		(LABEL.getFont().getSize()));
+	private static final Font ALERT_FONT = new Font(LABEL.getFont().getName(), Font.BOLD,
+		(LABEL.getFont().getSize()));
 
+	private JLabel lbl_summaryIcon;
+	private String str;
 	/**
-	 * Constructs a JTree in which attributes of a Certificate are displayed
 	 *
-	 * @param a_parent Component in which the Tree is included
-	 * @param a_cert JAPCertificate which is the Certificate to be displayed
+	 * @param a_parent The parent object
+	 * @param a_cert JAPCertificate which will be shown
+	 * @param a_bIsVerifyable boolean indicating if the cert has been verified
 	 */
-	public CertDetailsDialog(Component a_parent, JAPCertificate a_cert)
+
+	public CertDetailsDialog(Component a_parent, JAPCertificate a_cert, boolean a_bIsVerifyable)
 	{
 		super(a_parent, "Certificate Details");
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-		Vector lengthVector = new Vector();
-		Vector identifiers;
 
-	// Distinguished Name
+		JPanel rootPanel = new JPanel();
+		rootPanel.setLayout(new GridBagLayout());
+		Insets inset = new Insets(2, 5, 2, 5);
+		TitledGridBagPanel detailsPanel = new TitledGridBagPanel(null, inset);
+		JLabel lbl_key;
+		JLabel lbl_val;
+
+		// Common Name
+		JLabel lbl_summaryName = new JLabel(a_cert.getDistinguishedName().getCommonName(), JLabel.LEFT);
+		lbl_summaryName.setForeground(TITLE_COLOR);
+		lbl_summaryName.setFont(TITLE_FONT);
+		detailsPanel.addRow(lbl_summaryName, null, null);
+
+		// Image
+		if (a_bIsVerifyable)
+		{
+			lbl_summaryIcon = new JLabel(GUIUtils.loadImageIcon(CERT_VALID_INACTIVE, true), JLabel.RIGHT);
+		}
+		else
+		{
+			lbl_summaryIcon = new JLabel(GUIUtils.loadImageIcon(CERT_INVALID_INACTIVE, true), JLabel.RIGHT);
+		}
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridx = 0;
+		constraints.gridy = 1;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.anchor = GridBagConstraints.EAST;
+		constraints.gridheight = 2;
+		constraints.insets = (new Insets(1, 20, 1, 0));
+		detailsPanel.add(lbl_summaryIcon, constraints);
+		constraints.anchor = GridBagConstraints.WEST;
+		constraints.gridheight = 1;
+		constraints.gridx = 1;
+		constraints.insets = inset;
+		detailsPanel.add(new JLabel(JAPMessages.getString(TITLE_ISSUER), JLabel.RIGHT), constraints);
+		constraints.gridx = 2;
+
+		X509DistinguishedName tmp = new X509DistinguishedName(a_cert.getIssuer());
+		str = tmp.getOrganisation();
+		if ( (str == null) || (str.equals("")))
+		{
+			tmp = new X509DistinguishedName(a_cert.getIssuer());
+			str = tmp.getCommonName();
+		}
+		detailsPanel.add(new JLabel(str), constraints);
+		constraints.gridx = 1;
+		constraints.gridy = 2;
+		detailsPanel.addDummyRows(3);
+		detailsPanel.add(new JLabel(JAPMessages.getString(TITLE_VALIDITY_TO), JLabel.RIGHT), constraints);
+		constraints.gridx = 2;
+		detailsPanel.add(new JLabel( (a_cert.getValidity().getValidTo()).toString()), constraints);
+
+		// Display alert messages if necessary
+		Date today = new Date();
+		if (!a_cert.getValidity().isValid(today))
+		{
+			if (a_cert.getValidity().getValidFrom().getTime() < today.getTime())
+			{
+				String MSG = JAPMessages.getString(MSG_ALERT_CERTDATE_EXPIRED);
+				JLabel lbl_validityAlert = new JLabel(MSG, JLabel.LEFT);
+				lbl_validityAlert.setFont(ALERT_FONT);
+				lbl_validityAlert.setForeground(ALERT_COLOR);
+				detailsPanel.addRow(null, null, lbl_validityAlert, null);
+			}
+			else if (a_cert.getValidity().getValidTo().getTime() > today.getTime())
+			{
+				String MSG = JAPMessages.getString(MSG_ALERT_CERTDATE_NOTYET);
+				JLabel lbl_validityAlert = new JLabel(MSG, JLabel.LEFT);
+				lbl_validityAlert.setFont(ALERT_FONT);
+				lbl_validityAlert.setForeground(ALERT_COLOR);
+				detailsPanel.addRow(null, null, lbl_validityAlert, null);
+			}
+		}
+
+		if (!a_bIsVerifyable)
+		{
+			String MSG = JAPMessages.getString(MSG_ALERT_UNSIGNED);
+			JLabel lbl_verifyAlert = new JLabel(MSG, JLabel.LEFT);
+			lbl_verifyAlert.setFont(ALERT_FONT);
+			lbl_verifyAlert.setForeground(ALERT_COLOR);
+			detailsPanel.addRow(null, null, lbl_verifyAlert, null);
+		}
+
+		// Distinguished Name
 		X509DistinguishedName dName = a_cert.getDistinguishedName();
-		identifiers = dName.getAttributeIdentifiers();
-		m_distinguishedNameKeys = idsToNames(identifiers);
-		m_distinguishedNameValues = dName.getAttributes();
-		replaceCountryCodeByCountryName(m_distinguishedNameValues, identifiers);
-		lengthVector.addElement(m_distinguishedNameKeys);
+		Vector distinguishedNameKeys = dName.getAttributeIdentifiers();
+		Vector distinguishedNameValues = dName.getAttributeValues();
+		replaceCountryCodeByCountryName(distinguishedNameValues, distinguishedNameKeys);
+		distinguishedNameKeys = idsToNames(distinguishedNameKeys);
 
-	// Issuer
+		JLabel title_dName = new JLabel(JAPMessages.getString(TITLE_DISTINGUISHEDNAME), JLabel.RIGHT);
+		title_dName.setFont(TITLE_FONT);
+		title_dName.setForeground(TITLE_COLOR);
+		detailsPanel.addRow(title_dName, null, new JSeparator(JSeparator.HORIZONTAL));
+		for (int i = 0; i < distinguishedNameKeys.size(); i++)
+		{
+			lbl_key = new JLabel(distinguishedNameKeys.elementAt(i).toString(), JLabel.RIGHT);
+			lbl_key.setFont(KEY_FONT);
+			lbl_val = new JLabel(distinguishedNameValues.elementAt(i).toString(), JLabel.LEFT);
+			lbl_val.setFont(VALUE_FONT);
+			detailsPanel.addRow(lbl_key, null, lbl_val);
+		}
+
+		// Issuer
 		X509DistinguishedName issuer = new X509DistinguishedName(a_cert.getIssuer());
-		identifiers = issuer.getAttributeIdentifiers();
-		m_issuerKeys = idsToNames(identifiers);
-		m_issuerValues = issuer.getAttributes();
-		replaceCountryCodeByCountryName(m_issuerValues, identifiers);
-		lengthVector.addElement(m_issuerKeys);
+		Vector issuerKeys = issuer.getAttributeIdentifiers();
+		Vector issuerValues = issuer.getAttributeValues();
+		replaceCountryCodeByCountryName(issuerValues, issuerKeys);
+		issuerKeys = idsToNames(issuerKeys);
 
-	// Extension
-	// Extensions have keys and values
-	// each key can have more than one values
-	// that's why this complex construction is needed
+		JLabel title_Issuer = new JLabel(JAPMessages.getString(TITLE_ISSUER), JLabel.RIGHT);
+		title_Issuer.setFont(TITLE_FONT);
+		title_Issuer.setForeground(TITLE_COLOR);
+		detailsPanel.addRow(title_Issuer, null, new JSeparator(JSeparator.HORIZONTAL));
+
+		for (int i = 0; i < issuerKeys.size(); i++)
+		{
+			lbl_key = new JLabel(issuerKeys.elementAt(i).toString(), JLabel.RIGHT);
+			lbl_key.setFont(KEY_FONT);
+			lbl_val = new JLabel(issuerValues.elementAt(i).toString(), JLabel.LEFT);
+			lbl_val.setFont(VALUE_FONT);
+			detailsPanel.addRow(lbl_key, null, lbl_val);
+		}
+
+		// Extensions
 		X509Extensions extensionsVect = a_cert.getExtensions();
-		m_extensionsKeys = new Vector(extensionsVect.getSize());
-		m_extensionsValues = new Vector(extensionsVect.getSize());
+		JLabel title_extensions = new JLabel(JAPMessages.getString(TITLE_EXTENSIONS), JLabel.RIGHT);
+		title_extensions.setFont(TITLE_FONT);
+		title_extensions.setForeground(TITLE_COLOR);
+		detailsPanel.addRow(title_extensions, null, new JSeparator(JSeparator.HORIZONTAL));
+		String critical = null;
 
-		for (int i = 0; i < extensionsVect.getSize(); i++)
+		for (int i = 0; i < extensionsVect.getExtensions().size(); i++)
 		{
 			if (extensionsVect.getExtension(i) instanceof X509UnknownExtension)
 			{
 				if (extensionsVect.getExtension(i).isCritical())
 				{
-					m_extensionsKeys.addElement(UNKNOWN_EXTENSION + " *");
+					critical = "*";
 				}
 
-				else
+				lbl_key = new JLabel(JAPMessages.getString(UNKNOWN_EXTENSION) + critical, JLabel.RIGHT);
+				lbl_key.setFont(KEY_FONT);
+				StringBuffer sb = new StringBuffer();
+				for (int j = 0; j < extensionsVect.getExtension(i).getValues().size(); j++)
 				{
-					m_extensionsKeys.addElement(UNKNOWN_EXTENSION);
+					// no known values available
 				}
+				lbl_val = new JLabel(sb.toString(), JLabel.LEFT);
+				lbl_key.setFont(KEY_FONT);
+				lbl_val.setFont(VALUE_FONT);
+				detailsPanel.addRow(lbl_key, null, lbl_val);
 			}
 
 			else
 			{
-				m_extensionsKeys.addElement(extensionsVect.getExtension(i).toString());
-				if (!(extensionsVect.getExtensions().isEmpty()))
+				lbl_key = new JLabel(extensionsVect.getExtension(i).getName(), JLabel.RIGHT);
+				lbl_key.setFont(KEY_FONT);
+				Vector values = extensionsVect.getExtension(i).getValues();
+				if (values.size() == 0)
 				{
-					AbstractX509Extension val = (AbstractX509Extension) extensionsVect.getExtension(i);
-					if (! (val.getValues().isEmpty()))
+					detailsPanel.addRow(lbl_key, null, null);
+				}
+				else
+				{
+					lbl_val = new JLabel(values.elementAt(0).toString());
+					lbl_val.setFont(VALUE_FONT);
+					detailsPanel.addRow(lbl_key, null, lbl_val);
+					for (int j = 1; j < values.size(); j++)
 					{
-						m_extensionsValues.addElement(val.getValues().firstElement());
-						//val.getValues().removeElementAt(0);
-
-						for (int j = 1; j < val.getValues().size(); j++)
-						{
-							m_extensionsKeys.addElement(new String(" "));
-							m_extensionsValues.addElement(val.getValues().elementAt(j));
-						}
+						lbl_val = new JLabel(values.elementAt(j).toString());
+						lbl_val.setFont(VALUE_FONT);
+						detailsPanel.addRow(null, null, lbl_val);
 					}
 				}
 			}
 		}
-		lengthVector.addElement(m_extensionsKeys);
 
-	// Validity
+		// Validity
 		Validity validity = a_cert.getValidity();
 		Vector validityKeys = new Vector();
-		validityKeys.addElement(new String("Certificate is"));
-		validityKeys.addElement(new String("Valid from"));
-		validityKeys.addElement(new String("Valid until"));
-		lengthVector.addElement(validityKeys);
+		validityKeys.addElement(new String(JAPMessages.getString(TITLE_VALIDITY_GENERAL)));
+		validityKeys.addElement(new String(JAPMessages.getString(TITLE_VALIDITY_FROM)));
+		validityKeys.addElement(new String(JAPMessages.getString(TITLE_VALIDITY_TO)));
 		Vector validityValues = new Vector();
-
-		if (validity.isValid(new Date()))
+		if (a_bIsVerifyable && validity.isValid(new Date()))
 		{
 			validityValues.addElement(JAPMessages.getString(MSG_CERTVALID));
 		}
@@ -191,155 +347,82 @@ public class CertDetailsDialog extends JAPDialog //implements ListModel
 		validityValues.addElement(validity.getValidFrom().toString());
 		validityValues.addElement(validity.getValidTo().toString());
 
-	// Fingerprints
-	   Vector fpKeys = new Vector();
-	   fpKeys.addElement(new String("SHA1 Fingerprint"));
-	   fpKeys.addElement(new String("MD5 Fingerprint"));
-	   lengthVector.addElement(fpKeys);
-	   Vector fpValues = new Vector();
-	   fpValues.addElement(a_cert.getSHA1Fingerprint());
-	   fpValues.addElement(a_cert.getMD5Fingerprint());
+		JLabel title_validity = new JLabel(JAPMessages.getString(TITLE_VALIDITY), JLabel.RIGHT);
+		title_validity.setFont(TITLE_FONT);
+		title_validity.setForeground(TITLE_COLOR);
+		detailsPanel.addRow(title_validity, null, new JSeparator(JSeparator.HORIZONTAL));
 
-	// Key Algorithm and Key length
+		for (int i = 0; i < validityKeys.size(); i++)
+		{
+			lbl_key = new JLabel(validityKeys.elementAt(i).toString(), JLabel.RIGHT);
+			lbl_val = new JLabel(validityValues.elementAt(i).toString(), JLabel.LEFT);
+			lbl_key.setFont(KEY_FONT);
+			lbl_val.setFont(VALUE_FONT);
+			detailsPanel.addRow(lbl_key, null, lbl_val);
+		}
+
+		// Fingerprints
+		Vector fpKeys = new Vector();
+		fpKeys.addElement(JAPMessages.getString(TITLE_IDENTIFICATION_SHA1));
+		fpKeys.addElement(JAPMessages.getString(TITLE_IDENTIFICATION_MD5));
+		fpKeys.addElement(JAPMessages.getString(TITLE_IDENTIFICATION_SERIAL));
+		Vector fpValues = new Vector();
+		fpValues.addElement(a_cert.getSHA1Fingerprint());
+		fpValues.addElement(a_cert.getMD5Fingerprint());
+		fpValues.addElement(a_cert.getSerialNumber().getValue());
+
+		JLabel title_fingerprints = new JLabel(JAPMessages.getString(TITLE_IDENTIFICATION), JLabel.RIGHT);
+		title_fingerprints.setFont(TITLE_FONT);
+		title_fingerprints.setForeground(TITLE_COLOR);
+		detailsPanel.addRow(title_fingerprints, null, new JSeparator(JSeparator.HORIZONTAL));
+		for (int i = 0; i < fpKeys.size(); i++)
+		{
+			lbl_key = new JLabel(fpKeys.elementAt(i).toString(), JLabel.RIGHT);
+			lbl_val = new JLabel(fpValues.elementAt(i).toString());
+			lbl_key.setFont(KEY_FONT);
+			lbl_val.setFont(VALUE_FONT);
+			detailsPanel.addRow(lbl_key, null, lbl_val);
+		}
+
+		// Key Algorithm and Key length
 		Vector keyKeys = new Vector();
-		keyKeys.addElement(new String("Key Algorithm"));
-		keyKeys.addElement(new String("Key Length"));
-		lengthVector.addElement(keyKeys);
+		keyKeys.addElement(JAPMessages.getString(TITLE_KEYS_ALGORITHM));
+		keyKeys.addElement(JAPMessages.getString(TITLE_KEYS_KEYLENGTH));
+		keyKeys.addElement(JAPMessages.getString(TITLE_KEYS_SIGNALGORITHM));
 		Vector keyValues = new Vector();
 		keyValues.addElement(new String(a_cert.getPublicKey().getAlgorithm()));
 		int kLength = ( (IMyPublicKey) a_cert.getPublicKey()).getKeyLength();
 		keyValues.addElement(new Integer(kLength).toString());
+		keyValues.addElement(a_cert.getPublicKey().getSignatureAlgorithm().getXMLSignatureAlgorithmReference());
+		JLabel title_keys = new JLabel(JAPMessages.getString(TITLE_KEYS), JLabel.RIGHT);
+		title_keys.setFont(TITLE_FONT);
+		title_keys.setForeground(TITLE_COLOR);
+		detailsPanel.addRow(title_keys, null, new JSeparator(JSeparator.HORIZONTAL));
+		for (int i = 0; i < keyKeys.size(); i++)
+		{
+			lbl_key = new JLabel(keyKeys.elementAt(i).toString(), JLabel.RIGHT);
+			lbl_val = new JLabel(keyValues.elementAt(i).toString());
+			lbl_key.setFont(KEY_FONT);
+			lbl_val.setFont(VALUE_FONT);
+			detailsPanel.addRow(lbl_key, null, lbl_val);
+		}
 
+		rootPanel.add(detailsPanel);
 
-		m_maxKeyLen = calculateAbsoluteMaxLen(lengthVector);
-
-
-		/* Important
-			Construction of the Branches needs to be done after:
-			 - Vectors with Keys have been added to lengthVector
-			 - the method calculateAbsoluteMaxLen() has run
-		 */
-
-		root.add(constructBranch(m_distinguishedNameKeys, m_distinguishedNameValues, "DistinguishedName"));
-		root.add(constructBranch(m_issuerKeys, m_issuerValues, "Issuer"));
-		root.add(constructBranch(m_extensionsKeys, m_extensionsValues, "Extensions"));
-		root.add(constructBranch(validityKeys, validityValues, "Validity"));
-		root.add(constructBranch(fpKeys, fpValues, "Fingerprints"));
-		root.add(constructBranch(keyKeys, keyValues, "Key Information"));
-
-		JTree tree = new JTree(root);
-		tree.setCellRenderer(new DetailsTreeCellRenderer());
-		tree.setRootVisible(false);
-		tree.expandRow(0);
-		//tree.expandRow(1);
-		//tree.expandRow(2);
-		tree.setBackground(a_parent.getBackground());
-		//	tree.set
 		JScrollPane sp = new JScrollPane(
-			tree, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			rootPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		this.getContentPane().add(sp);
+
 		this.pack();
-	}
+		this.getContentPane().setVisible(true);
 
-
-
-
-/**
-	 * Constructs a Branch of a JTree from the two Vectors keys and values
-	 * @param keyVect Vector with the Keys
-	 * @param valVect Vector with the corresponding Values
-	 * @param title String which is the title of the branch
-	 * @return DefaultMutableTreeNode
-	 */
-
-	private DefaultMutableTreeNode constructBranch(Vector keyVect, Vector valVect, String title)
-	{
-		DetailsNode res = new DetailsNode(title);
-		DetailsNode resNode;
-		String resKey, resValue;
-		Enumeration keys = keyVect.elements();
-		Enumeration values = valVect.elements();
-
-		if ( (keys != null && values != null) && (keys.hasMoreElements() && values.hasMoreElements()) )
-		{
-
-			while (keys.hasMoreElements())
-			{
-				resKey = keys.nextElement().toString();
-				if (values.hasMoreElements())
-				{
-					resValue = values.nextElement().toString();
-				}
-				else
-				{
-					resValue = "missing Data";
-				}
-				resNode = new DetailsNode(resKey, resValue);
-				res.add(resNode);
-			}
-		}
-			return res;
 	}
 
 	/**
-	 * Returns the maximum length of Strings in a Vector
-	 * @param a_vector Vector with DetailNodes
-	 * @return int which is the maximal length
-	 */
-	private int getVectorsMaxKeyLength(Vector a_vector)
-	{
-		int maxLen = 0;
-		if (a_vector != null && a_vector.size() > 0)
-		{
-			for (int i = 0; i < a_vector.size(); i++)
-			{
-				if (a_vector.elementAt(i) instanceof String)
-				{
-					String str = (String) a_vector.elementAt(i);
-					int tmpLen = str.length();
-					if (tmpLen > maxLen)
-					{
-						maxLen = tmpLen;
-					}
-				}
-			}
-		}
-	return maxLen;
-	}
-
-	/**
-	 * Returns the maximum key length of ... /todo/
-	 * yet are implemented as allowed Elements: Vector
-	 * @param a_meta_vector Vector
-	 *
-	 * @todo implement also handling for Validity objects
-	 */
-	private int calculateAbsoluteMaxLen(Vector a_meta_vector)
-	{
-		Object obj;
-		int res = 0;
-
-		for (int i = 0; i < a_meta_vector.size(); i++)
-		{
-			obj = a_meta_vector.elementAt(i);
-
-			if (obj instanceof Vector)
-			{
-				int tmpMaxLen = getVectorsMaxKeyLength( (Vector) obj);
-				if (tmpMaxLen > res)
-				{
-					res = tmpMaxLen;
-				}
-			}
-		}
-	return res;
-	}
-
-/**
 	 * Translates a Vector of numerical identifiers into human readable names
 	 *
-	 * see also: anon.crypto.X509DistinguishedName.getAttributeNameFromAttributeIdentifier()
+	 * @see anon.crypto.X509DistinguishedName.getAttributeNameFromAttributeIdentifier()
 	 * @param a_vector Vector with numerical identifiers
 	 * @return a Vector with human readable Strings
 	 */
@@ -352,7 +435,6 @@ public class CertDetailsDialog extends JAPDialog //implements ListModel
 		{
 			for (int i = 0; i < a_vector.size(); i++)
 			{
-
 				String abbrev = (anon.crypto.X509DistinguishedName.
 								 getAttributeNameFromAttributeIdentifier( (String) a_vector.elementAt(i)));
 
@@ -396,6 +478,7 @@ public class CertDetailsDialog extends JAPDialog //implements ListModel
 				{
 					str = JAPMessages.getString(MSG_X509Attribute_GIVENNAME);
 				}
+
 				else
 				{
 					str = abbrev;
@@ -428,135 +511,10 @@ public class CertDetailsDialog extends JAPDialog //implements ListModel
 				}
 				catch (IllegalArgumentException a_e)
 				{
-					// invalid country code
+					LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Invalid / Unknown country code");
 				}
 			}
 		}
-	}
-
-	/**
-	 * Class DetialsNode
-	 * encapsulates a key / value pair of Strings
-	 *
-	 * @author Kuno G. Gruen
-	 * @version 1.0
-	 * date: 21.11.05
-	 */
-	private class DetailsNode extends DefaultMutableTreeNode
-	{
-		private String key;
-		private String value;
-		private boolean isTitle = false;
-
-		/**
-		 * For key / value pairs only
-		 *
-		 * @param a_key String
-		 * @param a_value String
-		 */
-		public DetailsNode(String a_key, String a_value)
-		{
-			key = a_key;
-			value = a_value;
-		}
-
-		/**
-		 *  For titles only
-		 *
-		 *  these will be stored as the value
-		 * @param a_title String
-		 */
-		public DetailsNode(String a_title)
-		{
-			key = null;
-			value = a_title;
-			isTitle = true;
-		}
-
-		public String getKey()
-		{
-			return this.key;
-		}
-
-		public String getValue()
-		{
-			return this.value;
-		}
-
-		public int getKeyLength()
-		{
-			return key.length();
-		}
-
-		public String toString()
-		{
-			return new String();
-		}
-
-		public boolean isTitle()
-		{
-			return isTitle;
-		}
-
-	}
-
-	private class DetailsTreeCellRenderer implements TreeCellRenderer
-	{
-		public Component getTreeCellRendererComponent(
-			JTree tree,
-			Object value,
-			boolean selected,
-			boolean expanded,
-			boolean leaf,
-			int row,
-			boolean hasFocus)
-		{
-			JPanel res_panel = new JPanel();
-
-			if (value instanceof DefaultMutableTreeNode)
-			{
-				res_panel.add(new JLabel(value.toString()));
-			}
-
-			if (value instanceof DetailsNode)
-			{
-				DetailsNode node = (DetailsNode) value;
-
-				if (node.isTitle())
-				{
-					JLabel lbl_title = new JLabel();
-					lbl_title.setFont(new java.awt.Font(
-					   lbl_title.getFont().getName(),java.awt.Font.BOLD, 14));
-					lbl_title.setText(node.getValue());
-					res_panel.add(lbl_title);
-				}
-
-				else
-				{
-					String key = ( (DetailsNode) value).getKey();
-
-					JLabel lbl_key = new JLabel(key);
-					lbl_key.setPreferredSize(
-					   new java.awt.Dimension(m_maxKeyLen * 8, lbl_key.getFont().getSize() + 4));
-					res_panel.add(lbl_key);
-
-					String val = ( (DetailsNode) value).getValue();
-					JLabel lbl_val = new JLabel(val);
-					lbl_val.setFont(new java.awt.Font(lbl_val.getFont().getName(), java.awt.Font.PLAIN,
-													  lbl_val.getFont().getSize()));
-					res_panel.add(lbl_val);
-				}
-			}
-
-			else
-			{
-				res_panel.add(new JLabel("error"));
-			}
-			return res_panel;
-
-		}
-
 	}
 
 }
-
