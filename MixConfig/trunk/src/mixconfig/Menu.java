@@ -63,6 +63,7 @@ import logging.LogLevel;
 import logging.LogType;
 import mixconfig.wizard.ConfigWizard;
 import gui.JAPDialog;
+import javax.swing.JFileChooser;
 
 public class Menu implements ActionListener
 {
@@ -341,9 +342,14 @@ public class Menu implements ActionListener
 			{
 				if (ignoreInconsistenciesForSaving())
 				{
-					File file =
-						MixConfig.showFileDialog(MixConfig.SAVE_DIALOG,
-												 MixConfig.FILTER_XML).getSelectedFile();
+					JFileChooser fileChooser = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG,
+						MixConfig.FILTER_XML);
+					if (fileChooser == null)
+					{
+						return;
+					}
+					File file = fileChooser.getSelectedFile();
+
 					if (file != null)
 					{
 						String fname = file.getName();
