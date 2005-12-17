@@ -56,7 +56,6 @@ import gui.JAPHelp;
 import gui.JAPMessages;
 import gui.JAPDialog;
 
-import jcui.common.TextFormatUtil;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;

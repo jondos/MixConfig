@@ -52,7 +52,7 @@ public class SimpleFileFilter extends javax.swing.filechooser.FileFilter
 				m_strExtension = ".cer";
 				break;
 			case MixConfig.FILTER_B64_CER:
-				m_strDesc = "Base64 encoded Public X.509 Certificate (*.cer)";
+				m_strDesc = "Public X.509 Certificate, Base64 (*.cer)";
 				m_strExtension = ".cer";
 				break;
 			case MixConfig.FILTER_XML:
