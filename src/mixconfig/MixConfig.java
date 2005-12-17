@@ -78,7 +78,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.017"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.018"; //NEVER change the layout of this line!!
 
 	public static final String MSG_WARNING = "MixConfig_warning";
 
@@ -392,8 +392,15 @@ public class MixConfig extends JApplet
 		return ImageIconLoader.loadImageIcon(IMAGE_LOAD_PATH + a_name);
 	}
 
+	/**
+	 *
+	 * @param type int
+	 * @param filter_type int
+	 * @return the JFileChooser if an action was taken or null if the user clicked 'cancel'
+	 */
 	public static JFileChooser showFileDialog(int type, int filter_type)
 	{
+		int returnValue;
 		SimpleFileFilter active = null;
 		JFileChooser fd2 = new JFileChooser(m_fileCurrentDir);
 		fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -418,22 +425,32 @@ public class MixConfig extends JApplet
 			fd2.setFileFilter(active);
 		}
 		fd2.setFileHidingEnabled(false);
-
 		if (type == SAVE_DIALOG)
 		{
-			fd2.showSaveDialog(getMainWindow());
+			returnValue = fd2.showSaveDialog(getMainWindow());
 		}
 		else
 		{
-			fd2.showOpenDialog(getMainWindow());
+			returnValue = fd2.showOpenDialog(getMainWindow());
 		}
+		if (returnValue == JFileChooser.CANCEL_OPTION)
+		{
+			return null;
+		}
+
 		m_fileCurrentDir = fd2.getCurrentDirectory();
 		return fd2;
 	}
 
 	public static byte[] openFile(int type)
 	{
-		File file = showFileDialog(MixConfig.OPEN_DIALOG, type).getSelectedFile();
+		JFileChooser fileChooser = showFileDialog(MixConfig.OPEN_DIALOG, type);
+		if (fileChooser == null)
+		{
+			return null;
+		}
+
+		File file = fileChooser.getSelectedFile();
 
 		if (file != null)
 		{

@@ -49,7 +49,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
@@ -141,7 +140,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	/*private JTextField m_textCertValidTo;*/
 
 	private JTextPane m_lblSHA1Hash;
-	private JAPMultilineLabel m_lblSHA1HashFallback;
 
 	/** Indicates whether the certificate object is PKCS12 (<CODE>true</CODE>) or X.509 (<CODE>false</CODE>) */
 	private boolean m_bCertIsPKCS12 = false;
@@ -348,11 +346,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		m_lblSHA1Hash.getFont()).getHeight())));
 	    m_lblSHA1Hash.setText("");
 		m_lblSHA1Hash.setToolTipText("SHA-1 Fingerprint");
-		m_lblSHA1HashFallback = new JAPMultilineLabel(m_lblSHA1Hash.getFont());
-		m_lblSHA1HashFallback.setVisible(false);
-		m_lblSHA1HashFallback.setToolTipText("SHA-1 Fingerprint");
 		add(m_lblSHA1Hash, constraints);
-		add(m_lblSHA1HashFallback, constraints);
 
 		constraints.insets = new Insets(0, 5, 5, 0);
 
@@ -652,7 +646,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			m_certView.update(getCert());
 		}
-
+		validate();
 		ChangeEvent event = new ChangeEvent(this);
 		for (int i = 0; i < m_changeListeners.size(); i++)
 		{
@@ -1013,6 +1007,12 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			do
 			{
 				fd = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG, filter);
+				if (fd == null)
+				{
+					type = 0;
+					file = null;
+					continue;
+				}
 				ff = fd.getFileFilter();
 				if (ff instanceof SimpleFileFilter)
 				{
@@ -1110,25 +1110,21 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		m_textCertValidity.setText(startDate + " - " + endDate);
 
 		String fp = a_x509cs.getSHA1Fingerprint().replace(':', ' ');
-
 		try
 		{
-			if (m_lblSHA1Hash.isVisible())
-			{
-				m_lblSHA1Hash.setText(fp);
-			}
-			else
-			{
-				m_lblSHA1HashFallback.setText(fp);
-			}
+			m_lblSHA1Hash.setText(fp);
+			// this is a bugfix for old JDKs
+			m_lblSHA1Hash.setVisible(false);
+			m_lblSHA1Hash.setVisible(true);
 		}
 		catch (Throwable a_e)
 		{
 			LogHolder.log(LogLevel.DEBUG, LogType.GUI, a_e);
+			/*
 			fp = fp.substring(0, fp.length() / 2) + "\n" + fp.substring((fp.length() / 2) + 1, fp.length());
 			m_lblSHA1HashFallback.setText(fp);
 			m_lblSHA1Hash.setVisible(false);
-			m_lblSHA1HashFallback.setVisible(true);
+			m_lblSHA1HashFallback.setVisible(true);*/
 		}
 	}
 
@@ -1137,7 +1133,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	{
 		m_textCertValidity.setText("");
 		m_lblSHA1Hash.setText("");
-		m_lblSHA1HashFallback.setText("");
 	}
 
 	private class CertPanelPasswordReader implements IMiscPasswordReader
