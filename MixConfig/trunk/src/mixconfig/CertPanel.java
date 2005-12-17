@@ -70,8 +70,6 @@ import gui.PasswordBox;
 import gui.ValidityDialog;
 import gui.JAPMessages;
 import gui.JAPDialog;
-import gui.JAPHtmlMultiLineLabel;
-import gui.JAPMultilineLabel;
 import logging.LogType;
 import logging.LogHolder;
 import logging.LogLevel;
@@ -114,6 +112,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private static Vector ms_certpanels = new Vector();
 
 	private String m_strChangedCertNotVerifyable;
+	private JAPDialog.ILinkedInformation m_linkedInformation;
 
 	/** The 'create new certificate' button */
 	private JButton m_bttnCreateCert;
@@ -402,9 +401,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 * verified against one of the trusted certificates.
 	 * @param a_strChangedCertNotVerifyable String
 	 */
-	public void setChangedCertNotVerifyableMessage(String a_strChangedCertNotVerifyable)
+	public void setChangedCertNotVerifyableMessage(String a_strChangedCertNotVerifyable,
+		JAPDialog.ILinkedInformation a_linkedInformation)
 	{
 		m_strChangedCertNotVerifyable = a_strChangedCertNotVerifyable;
+		m_linkedInformation = a_linkedInformation;
 	}
 
 	public void setEnabled(boolean enabled)
@@ -478,7 +479,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			if (bCertChanged && !isCertificateVerifyable() && m_strChangedCertNotVerifyable != null)
 			{
 				JAPDialog.showInfoDialog(this, m_strChangedCertNotVerifyable,
-										  MixConfig.loadImageIcon(CERT_INVALID));
+										 MixConfig.loadImageIcon(CERT_INVALID),
+										 m_linkedInformation);
 			}
 		}
 		catch (Exception ex)
