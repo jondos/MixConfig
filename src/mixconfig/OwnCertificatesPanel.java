@@ -91,6 +91,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	private static final String MSG_CERT_NOT_VERIFYABLE =
 		OwnCertificatesPanel.class.getName() + "_cert_not_verifyable";
 
+	private static final String HELP_CONTEXT = ClassUtil.getShortClassName(OwnCertificatesPanel.class);
+
 	private CertPanel m_ownCert;
 	private CertPanel m_operatorCert;
 	private JButton map;
@@ -117,7 +119,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 								  "certificate to the operators of your " +
 								  "adjacent mixes", (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_ownCert.setName("Certificates/OwnCertificate");
-		m_ownCert.setChangedCertNotVerifyableMessage(JAPMessages.getString(MSG_CERT_NOT_VERIFYABLE));
+		m_ownCert.setChangedCertNotVerifyableMessage(JAPMessages.getString(MSG_CERT_NOT_VERIFYABLE),
+													 new JAPDialog.LinkedHelpContext(HELP_CONTEXT));
 		m_ownCert.setCertCreationValidator(new OwnCertCreationValidator());
 		m_ownCert.setCertificateView(new MixCertificateView());
 		m_ownCert.addChangeListener(this);
@@ -129,7 +132,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 									   "adjacent mixes",
 									   (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_operatorCert.setName("Certificates/OperatorOwnCertificate");
-		m_operatorCert.setChangedCertNotVerifyableMessage(JAPMessages.getString(MSG_CERT_NOT_VERIFYABLE));
+		m_operatorCert.setChangedCertNotVerifyableMessage(JAPMessages.getString(MSG_CERT_NOT_VERIFYABLE),
+			new JAPDialog.LinkedHelpContext(HELP_CONTEXT));
 		m_operatorCert.setCertCreationValidator(new OperatorCertCreationValidator());
 		m_operatorCert.setCertificateView(new OperatorCertificateView());
 		m_operatorCert.addChangeListener(this);
@@ -267,8 +271,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	public void paint(Graphics g)
 	{
 		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext(
-			  ClassUtil.getShortClassName(OwnCertificatesPanel.class));
+		JAPHelp.getInstance().getContextObj().setContext(HELP_CONTEXT);
 	}
 
 	public Vector check()
