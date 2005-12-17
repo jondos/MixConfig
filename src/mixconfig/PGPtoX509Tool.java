@@ -70,6 +70,7 @@ import anon.crypto.PKCS12;
 import anon.crypto.Validity;
 import anon.crypto.X509DistinguishedName;
 import gui.*;
+import javax.swing.JFileChooser;
 
 
 
@@ -183,21 +184,19 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		}
 		else if (strCmd.equals("selectKey"))
 		{
-			try
+			JFileChooser fileChooser = MixConfig.showFileDialog(MixConfig.OPEN_DIALOG,
+				MixConfig.FILTER_ALL);
+
+			if (fileChooser != null)
 			{
-				File f = MixConfig.showFileDialog(MixConfig.OPEN_DIALOG, MixConfig.FILTER_ALL).
-					getSelectedFile();
+				File f = fileChooser.getSelectedFile();
 				if (f != null)
 				{
 					m_textFile.setText(f.getAbsolutePath());
 					m_File = f;
 				}
 			}
-			catch (Exception ex)
-			{
-			}
 		}
-
 	}
 
 	private void doConvert()

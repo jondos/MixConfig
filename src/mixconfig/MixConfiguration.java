@@ -53,6 +53,7 @@ import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.OutgoingConnectionTableModel;
 import java.io.File;
 import java.io.FileWriter;
+import javax.swing.JFileChooser;
 
 /** This class provides unified access to the Mix configuration. The configuration
  * is stored as a DOM document.
@@ -254,7 +255,15 @@ public class MixConfiguration
 		}
 		else
 		{
-			file = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG, MixConfig.FILTER_XML).getSelectedFile();
+			JFileChooser fileChooser = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG, MixConfig.FILTER_XML);
+			if (fileChooser == null)
+			{
+				file = null;
+			}
+			else
+			{
+				file = fileChooser.getSelectedFile();
+			}
 		}
 
 		if (file != null)
