@@ -359,7 +359,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 					updateDeprecatedMixID();
 					if (! ((MixCertificateView) m_ownCert.getCertificateView()).isMixCertificate())
 					{
-						JAPDialog.showInfoMessage(MixConfig.getMainWindow(),
+						JAPDialog.showInfoDialog(MixConfig.getMainWindow(),
 												  JAPMessages.getString(MixConfig.MSG_WARNING),
 												  JAPMessages.getString(MSG_WARNING_NO_MIX_CERT));
 					}

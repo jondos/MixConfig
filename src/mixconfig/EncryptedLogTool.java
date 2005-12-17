@@ -30,6 +30,7 @@ package mixconfig;
 import java.util.Vector;
 
 import java.awt.Frame;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -38,7 +39,6 @@ import java.awt.event.ActionListener;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -50,12 +50,11 @@ import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import anon.util.Base64;
-import gui.GUIUtils;
 import gui.JAPMessages;
 import logging.LogType;
 import gui.JAPDialog;
 
-public class EncryptedLogTool extends JDialog implements ActionListener, ChangeListener
+public class EncryptedLogTool extends JAPDialog implements ActionListener, ChangeListener
 {
 	private static final String MSG_PASSWD_INFO_MSG = EncryptedLogTool.class.getName() +
 		"_password_info_message";
@@ -72,7 +71,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 
 	public EncryptedLogTool(Frame parent)
 	{
-		super(parent, "Log Reader for encrypted Mix logs", true);
+		super(parent, "Log Reader for encrypted Mix logs");
 
 		GridBagLayout layout = new GridBagLayout();
 		getContentPane().setLayout(layout);
@@ -117,6 +116,7 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		d.gridwidth = 10;
 		d.fill = GridBagConstraints.BOTH;
 		m_textLogFile = new JTextArea();
+		m_textLogFile.setPreferredSize(new Dimension(500, 250));
 		m_textLogFile.setEditable(false);
 		JScrollPane sp = new JScrollPane(m_textLogFile);
 		d.weightx = 10;
@@ -136,10 +136,8 @@ public class EncryptedLogTool extends JDialog implements ActionListener, ChangeL
 		m_privateCertPanel.addChangeListener(this);
 		layout.setConstraints(m_privateCertPanel, c);
 		getContentPane().add(m_privateCertPanel);
-
-		setSize(650,600);
-		GUIUtils.positionWindow(this, parent);
-		setVisible(true);
+		pack();
+		setVisible(true, false);
 	}
 
 	public void stateChanged(ChangeEvent a_event)

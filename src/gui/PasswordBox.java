@@ -43,8 +43,9 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 
 import anon.util.IMiscPasswordReader;
+import logging.LogType;
 
-public class PasswordBox extends JDialog implements ActionListener, IMiscPasswordReader
+public class PasswordBox extends JAPDialog implements ActionListener, IMiscPasswordReader
 {
 	private static final String OK_COMMAND = "OK";
 
@@ -59,7 +60,7 @@ public class PasswordBox extends JDialog implements ActionListener, IMiscPasswor
 
 	public PasswordBox(Frame parent, String title, int type, String msg)
 	{
-		super(parent, title, true);
+		super(parent, title);
 
 		m_Type = type;
 		GridBagLayout layout = new GridBagLayout();
@@ -79,7 +80,7 @@ public class PasswordBox extends JDialog implements ActionListener, IMiscPasswor
 			JTextArea msgl = new JTextArea(msg);
 			msgl.setEditable(false);
 			msgl.setEnabled(false);
-			msgl.setBackground(getBackground());
+			msgl.setBackground(getContentPane().getBackground());
 			msgl.setDisabledTextColor(new JLabel("").getForeground());
 			msgl.setWrapStyleWord(false);
 			msgl.setLineWrap(false);
@@ -167,7 +168,6 @@ public class PasswordBox extends JDialog implements ActionListener, IMiscPasswor
 		layout.setConstraints(p, c);
 		getContentPane().add(p);
 		pack();
-		setLocationRelativeTo(parent);
 		setResizable(false);
 	}
 
@@ -196,9 +196,7 @@ public class PasswordBox extends JDialog implements ActionListener, IMiscPasswor
 				}
 				if (!eqv)
 				{
-					javax.swing.JOptionPane.showMessageDialog(this,
-						"Passwords do not match.", "Password Error",
-						javax.swing.JOptionPane.ERROR_MESSAGE);
+					showErrorMessage(this, null, "Passwords do not match.", "Password Error", LogType.GUI);
 					return;
 				}
 				m_passwd = m_textNewPasswd.getPassword();

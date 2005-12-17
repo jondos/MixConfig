@@ -37,7 +37,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -48,7 +47,7 @@ import gui.JAPMessages;
 import gui.ValidityDialog;
 import gui.JAPDialog;
 
-public class SigCertTool extends JDialog implements ActionListener, ChangeListener
+public class SigCertTool extends JAPDialog implements ActionListener, ChangeListener
 {
 	private static final String MSG_CONFIRMATION_TITLE = SigCertTool.class.getName() + "_Confirmation_title";
 	private static final String MSG_CONFIRMATION = SigCertTool.class.getName() + "_Confirmation_message";
@@ -59,7 +58,7 @@ public class SigCertTool extends JDialog implements ActionListener, ChangeListen
 
 	public SigCertTool(Frame parent)
 	{
-		super(parent, "Sign a public certificate", true);
+		super(parent, "Sign a public certificate");
 		this.setResizable(false);
 
 		// upper public certificate
@@ -103,8 +102,7 @@ public class SigCertTool extends JDialog implements ActionListener, ChangeListen
 		//enableButton();
 
 		pack();
-		GUIUtils.positionWindow(this, parent);
-		setVisible(true);
+		setVisible(true, false);
 	}
 
 	public void actionPerformed(ActionEvent ae)
@@ -123,7 +121,7 @@ public class SigCertTool extends JDialog implements ActionListener, ChangeListen
 						dialog.getValidity(),
 						( (JAPCertificate) m_publicCertPanel.getCert()).getExtensions(), new BigInteger("0"));
 				m_publicCertPanel.setCert(signedCertificate);
-				JAPDialog.showInfoMessage(this,JAPMessages.getString(MSG_CONFIRMATION_TITLE),
+				JAPDialog.showInfoDialog(this,JAPMessages.getString(MSG_CONFIRMATION_TITLE),
 										  JAPMessages.getString(MSG_CONFIRMATION));
 			}
 		}

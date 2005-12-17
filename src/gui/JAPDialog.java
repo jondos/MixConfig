@@ -55,7 +55,7 @@ import logging.LogType;
 public class JAPDialog
 {
 	/** The maximum width of an option pane. */
-	public static final int MAX_TEXT_WIDTH = 70;
+	private static final int MAX_TEXT_WIDTH = 70;
 	private static final int UNLIMITED_HEIGHT = 1000;
 	private static final double GOLDEN_RATIO_PHI = (1.0 + Math.sqrt(5.0)) / 2.0;
 
@@ -65,7 +65,8 @@ public class JAPDialog
 	private static final String MSG_ERROR_UNKNOWN = JAPDialog.class.getName() + "_error_unknown";
 	private static final String MSG_ERROR_UNDISPLAYABLE = JAPDialog.class.getName() + "error_undisplayable";
 
-	private boolean m_bIsDisplayable = true;
+	private boolean m_bDisplayable = true;
+	private boolean m_bLocationSetManually = false;
 
 	/**
 	 * Stores the instance of JDialog for internal use.
@@ -116,9 +117,9 @@ public class JAPDialog
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_message The message to be displayed
 	 */
-	public static void showInfoMessage(JAPDialog a_parentDialog, String a_message)
+	public static void showInfoDialog(JAPDialog a_parentDialog, String a_message)
 	{
-		showInfoMessage(getInternalDialog(a_parentDialog), a_message);
+		showInfoDialog(getInternalDialog(a_parentDialog), a_message);
 	}
 
 	/**
@@ -128,9 +129,9 @@ public class JAPDialog
 	 *                          default frame.
 	 * @param a_message The message to be displayed
 	 */
-	public static void showInfoMessage(Component a_parentComponent, String a_message)
+	public static void showInfoDialog(Component a_parentComponent, String a_message)
 	{
-		showInfoMessage(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, null);
+		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, null);
 	}
 
 	/**
@@ -140,9 +141,9 @@ public class JAPDialog
 	 * @param a_title The title of the message dialog
 	 * @param a_message The message to be displayed
 	 */
-	public static void showInfoMessage(JAPDialog a_parentDialog, String a_title, String a_message)
+	public static void showInfoDialog(JAPDialog a_parentDialog, String a_title, String a_message)
 	{
-		showInfoMessage(getInternalDialog(a_parentDialog), a_title, a_message);
+		showInfoDialog(getInternalDialog(a_parentDialog), a_title, a_message);
 	}
 
 	/**
@@ -153,9 +154,9 @@ public class JAPDialog
 	 * @param a_title The title of the message dialog
 	 * @param a_message The message to be displayed
 	 */
-	public static void showInfoMessage(Component a_parentComponent, String a_title, String a_message)
+	public static void showInfoDialog(Component a_parentComponent, String a_title, String a_message)
 	{
-		showInfoMessage(a_parentComponent, a_title, a_message, null);
+		showInfoDialog(a_parentComponent, a_title, a_message, null);
 	}
 
 	/**
@@ -165,9 +166,9 @@ public class JAPDialog
 	 * @param a_message The message to be displayed
 	 * @param a_icon an icon that will be displayed on the dialog
 	 */
-	public static void showInfoMessage(JAPDialog a_parentDialog, String a_message, Icon a_icon)
+	public static void showInfoDialog(JAPDialog a_parentDialog, String a_message, Icon a_icon)
 	{
-		showInfoMessage(getInternalDialog(a_parentDialog), a_message, a_icon);
+		showInfoDialog(getInternalDialog(a_parentDialog), a_message, a_icon);
 	}
 
 
@@ -179,9 +180,9 @@ public class JAPDialog
 	 * @param a_message The message to be displayed
 	 * @param a_icon an icon that will be displayed on the dialog
 	 */
-	public static void showInfoMessage(Component a_parentComponent, String a_message, Icon a_icon)
+	public static void showInfoDialog(Component a_parentComponent, String a_message, Icon a_icon)
 	{
-		showInfoMessage(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, a_icon);
+		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, a_icon);
 	}
 
 	/**
@@ -192,10 +193,9 @@ public class JAPDialog
 	 * @param a_message The message to be displayed
 	 * @param a_icon an icon that will be displayed on the dialog
 	 */
-	public static void showInfoMessage(JAPDialog a_parentDialog, String a_title, String a_message,
-									   Icon a_icon)
+	public static void showInfoDialog(JAPDialog a_parentDialog, String a_title, String a_message, Icon a_icon)
 	{
-		showInfoMessage(getInternalDialog(a_parentDialog), a_title, a_message, a_icon);
+		showInfoDialog(getInternalDialog(a_parentDialog), a_title, a_message, a_icon);
 	}
 
 	/**
@@ -207,8 +207,8 @@ public class JAPDialog
 	 * @param a_message The message to be displayed
 	 * @param a_icon an icon that will be displayed on the dialog
 	 */
-	public static void showInfoMessage(Component a_parentComponent, String a_title, String a_message,
-									   Icon a_icon)
+	public static void showInfoDialog(Component a_parentComponent, String a_title, String a_message,
+									  Icon a_icon)
 	{
 		showMessageDialog(a_parentComponent, a_title, a_message,
 						  JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, a_icon);
@@ -540,6 +540,15 @@ public class JAPDialog
 	}
 
 	/**
+	 * Returns if the dialog is visible on the screen.
+	 * @return true if the dialog is visible on the screen; false otherwise
+	 */
+	public boolean isVisible()
+	{
+		return m_internalDialog.isVisible();
+	}
+
+	/**
 	 * Shows or hides the dialog. If shown, the dialog is centered over the parent component.
 	 * Subclasses may override this method to change this centering behaviour.
 	 * @param a_bVisible 'true' shows the dialog; 'false' hides it
@@ -559,13 +568,16 @@ public class JAPDialog
 	{
 		if (a_bVisible)
 		{
-			if (!m_bIsDisplayable)
+			if (!m_bDisplayable)
 			{
 				throw new RuntimeException("Dialog has been disposed and cannot be made visible!");
 			}
 			else
 			{
-				align(a_bCenterOnParentComponent);
+				if (!m_bLocationSetManually && !isVisible())
+				{
+					align(a_bCenterOnParentComponent);
+				}
 			}
 		}
 		m_internalDialog.setVisible(a_bVisible);
@@ -614,6 +626,38 @@ public class JAPDialog
 	public final void setSize(int a_width, int a_height)
 	{
 			m_internalDialog.setSize(a_width, a_height);
+	}
+
+	/**
+	 * Sets the location of the dialog 'manually'. After that,
+	 * no automatic alignment is done by this dialog.
+	 * @param a_location a Point on the screen
+	 */
+	public final void setLocation(Point a_location)
+	{
+		m_bLocationSetManually = true;
+		m_internalDialog.setLocation(a_location);
+	}
+
+	/**
+	 * Sets the location of the dialog 'manually'. After that,
+	 * no automatic alignment is done by this dialog.
+	 * @param x a x cooredinate on the screen
+	 * @param y a y cooredinate on the screen
+	 */
+	public final void setLocation(int x, int y)
+	{
+		m_bLocationSetManually = true;
+		m_internalDialog.setLocation(x, y);
+	}
+
+	/**
+	 * Sets the size of the dialog window.
+	 * @param a_size the new size of the dialog window
+	 */
+	public final void setSize(Dimension a_size)
+	{
+		m_internalDialog.setSize(a_size);
 	}
 
 	/**

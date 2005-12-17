@@ -831,9 +831,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				ConnectionData olddata = m_listenerModel.getData(i);
 				if (olddata.getName().equalsIgnoreCase(JAPMessages.getString("configuredByMixOnCD")))
 				{
-					ConnectionData newdata = (ConnectionData)olddata.clone();
-					newdata.setName(JAPMessages.getString(""));
-					m_listenerModel.changeData(newdata, olddata);
+					olddata.setName("");
 				}
 			}
 
