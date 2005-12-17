@@ -142,7 +142,7 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 					File file;
 					if ((file = MixConfig.getMixConfiguration().saveToFile()) != null)
 					{
-						JAPDialog.showInfoMessage(MixConfig.getMainWindow(), "Configuration saved",
+						JAPDialog.showInfoDialog(MixConfig.getMainWindow(), "Configuration saved",
 												  "Configuration saved as " + file);
 						m_wizPanel.finish();
 						( (ChoicePanel)getParent()).getMenu().reset(false);

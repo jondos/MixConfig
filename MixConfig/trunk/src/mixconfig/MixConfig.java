@@ -77,7 +77,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.018"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.019"; //NEVER change the layout of this line!!
 
 	public static final String MSG_WARNING = "MixConfig_warning";
 
@@ -340,12 +340,12 @@ public class MixConfig extends JApplet
 
 		if (a_message == null || a_message.length == 0)
 		{
-			JAPDialog.showInfoMessage(getMainWindow(), a_title, "");
+			JAPDialog.showInfoDialog(getMainWindow(), a_title, "");
 
 		}
 		else if (a_message.length == 1)
 		{
-			JAPDialog.showInfoMessage(getMainWindow(), a_title, a_message[0]);
+			JAPDialog.showInfoDialog(getMainWindow(), a_title, a_message[0]);
 		}
 		else
 		{
@@ -359,7 +359,7 @@ public class MixConfig extends JApplet
 				message +=  "<LI>" + a_message[i] + "</LI>";
 			}
 			message += "</UL>";
-			JAPDialog.showInfoMessage(getMainWindow(), a_title, message);
+			JAPDialog.showInfoDialog(getMainWindow(), a_title, message);
 		}
 	}
 

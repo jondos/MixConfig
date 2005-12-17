@@ -75,7 +75,7 @@ import javax.swing.JFileChooser;
 
 
 
-public class PGPtoX509Tool extends JDialog implements ActionListener
+public class PGPtoX509Tool extends JAPDialog implements ActionListener
 {
 
 	private JTextField m_textFile;
@@ -83,7 +83,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 	private Frame m_Parent;
 	public PGPtoX509Tool(Frame parent)
 	{
-		super(parent, "PGP to X.509 key converter", true);
+		super(parent, "PGP to X.509 key converter");
 		m_Parent = parent;
 		GridBagLayout layout = new GridBagLayout();
 		getContentPane().setLayout(layout);
@@ -167,8 +167,7 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		getContentPane().add(panel3);
 
 		pack();
-		GUIUtils.positionWindow(this, parent);
-		setVisible(true);
+		setVisible(true, false);
 	}
 
 	public void actionPerformed(ActionEvent e)
@@ -204,11 +203,11 @@ public class PGPtoX509Tool extends JDialog implements ActionListener
 		try
 		{
 			doPGPtoX509();
-			JOptionPane.showMessageDialog(this, "Converted and saved successfully!");
+			showInfoDialog(this, "Converted and saved successfully!");
 		}
 		catch (Exception e)
 		{
-			JOptionPane.showMessageDialog(this, "Ooops, error during transformation: " + e.toString());
+			showInfoDialog(this, "Ooops, error during transformation: " + e.toString());
 		}
 	}
 

@@ -336,7 +336,7 @@ public class CertDetailsDialog extends JAPDialog
 		validityKeys.addElement(new String(JAPMessages.getString(TITLE_VALIDITY_FROM)));
 		validityKeys.addElement(new String(JAPMessages.getString(TITLE_VALIDITY_TO)));
 		Vector validityValues = new Vector();
-		if (a_bIsVerifyable && validity.isValid(new Date()))
+		if (validity.isValid(new Date()))
 		{
 			validityValues.addElement(JAPMessages.getString(MSG_CERTVALID));
 		}

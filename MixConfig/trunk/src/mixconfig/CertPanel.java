@@ -477,7 +477,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 			if (bCertChanged && !isCertificateVerifyable() && m_strChangedCertNotVerifyable != null)
 			{
-				JAPDialog.showInfoMessage(this, m_strChangedCertNotVerifyable,
+				JAPDialog.showInfoDialog(this, m_strChangedCertNotVerifyable,
 										  MixConfig.loadImageIcon(CERT_INVALID));
 			}
 		}
@@ -897,7 +897,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		PasswordBox dialog =
 			new PasswordBox(MixConfig.getMainWindow(), "Change password",
 							PasswordBox.CHANGE_PASSWORD, strMessage);
-		GUIUtils.positionWindow(dialog, MixConfig.getMainWindow());
+		System.out.println("hello");
 
 		while (true)
 		{

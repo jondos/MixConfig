@@ -58,7 +58,7 @@ public class CertificateGenerator extends SwingWorker
 	private char[] m_passwd;
 
 	/** The overgiven Parent */
-	private Component m_parent;
+	private JAPDialog m_parent;
 
 	/** A dialog to be shown as long as the certificate generation thread is busy. */
 	private BusyWindow m_notification;
@@ -87,8 +87,7 @@ public class CertificateGenerator extends SwingWorker
 	 * @param a_bDSA if true, DSA ist used; otherwise an RSA certificate is created
 	 */
 	public CertificateGenerator(X509DistinguishedName a_name, X509Extensions a_extensions,
-								Validity a_validity, char[] a_passwd, Component a_parent,
-		boolean a_bDSA)
+								Validity a_validity, char[] a_passwd, JAPDialog a_parent, boolean a_bDSA)
 	{
 		m_name = a_name;
 		m_extensions = a_extensions;
