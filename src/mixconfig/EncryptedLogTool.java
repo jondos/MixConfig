@@ -116,9 +116,10 @@ public class EncryptedLogTool extends JAPDialog implements ActionListener, Chang
 		d.gridwidth = 10;
 		d.fill = GridBagConstraints.BOTH;
 		m_textLogFile = new JTextArea();
-		m_textLogFile.setPreferredSize(new Dimension(500, 250));
+
 		m_textLogFile.setEditable(false);
 		JScrollPane sp = new JScrollPane(m_textLogFile);
+		sp.setPreferredSize(new Dimension(500, 250));
 		d.weightx = 10;
 		d.weighty = 10;
 		layoutFile.setConstraints(sp, d);
@@ -154,13 +155,11 @@ public class EncryptedLogTool extends JAPDialog implements ActionListener, Chang
 		{
 			if (m_arLog == null || m_arLog.length == 0)
 			{
-				JAPDialog.showErrorMessage(this, null,
-										   JAPMessages.getString(MSG_NO_LOG), LogType.GUI);
+				JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_NO_LOG), LogType.GUI);
 			}
 			else if (m_privateCertPanel.getCert() == null)
 			{
-				JAPDialog.showErrorMessage(this, null,
-										   JAPMessages.getString(MSG_NO_CERT), LogType.GUI);
+				JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_NO_CERT), LogType.GUI);
 			}
 			else
 			{
@@ -170,8 +169,8 @@ public class EncryptedLogTool extends JAPDialog implements ActionListener, Chang
 				}
 				catch (Throwable a_e)
 				{
-					JAPDialog.showErrorMessage(this, a_e,
-											   JAPMessages.getString(MSG_CANNOT_DECRYPT), LogType.MISC);
+					JAPDialog.showErrorDialog(this, a_e,
+											  JAPMessages.getString(MSG_CANNOT_DECRYPT), LogType.MISC);
 				}
 			}
 		}
@@ -181,6 +180,7 @@ public class EncryptedLogTool extends JAPDialog implements ActionListener, Chang
 			{
 				byte[] buff = MixConfig.openFile(MixConfig.FILTER_ALL);
 				m_textLogFile.setText(new String(buff));
+				m_textLogFile.revalidate();
 				m_arLog = buff;
 			}
 			catch (Exception ex)

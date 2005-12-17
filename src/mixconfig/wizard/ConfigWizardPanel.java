@@ -322,7 +322,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		}
 		catch (Exception io)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), io,
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), io,
 									   "Error on loading the MixConfiguration", LogType.MISC);
 		}
 		while (!m_pages[getCurrentPageNr()].isEnabled())

@@ -153,7 +153,7 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), ex, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ex, null, LogType.GUI);
 		}
 
 		//Set the title with steps
@@ -173,7 +173,7 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 		}
 		catch (Exception io)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), io,
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), io,
 									   "Switching View to Wizard: Error on loading the MixConfiguration",
 									   LogType.MISC);
 		}
@@ -192,7 +192,7 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 		}
 		catch (Exception io)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), io,
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), io,
 									   "Switching View to Wizard: Error on loading the MixConfiguration",
 									   LogType.MISC);
 		}

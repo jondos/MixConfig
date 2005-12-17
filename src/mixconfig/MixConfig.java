@@ -77,7 +77,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.019"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.021"; //NEVER change the layout of this line!!
 
 	public static final String MSG_WARNING = "MixConfig_warning";
 
@@ -173,7 +173,7 @@ public class MixConfig extends JApplet
 			{
 				if (m_currentFileName != null)
 				{
-					JAPDialog.showErrorMessage(getMainWindow(), null,
+					JAPDialog.showErrorDialog(getMainWindow(), null,
 											   JAPMessages.getString("config_file_not_found",
 						new File(m_currentFileName).toString()),
 											   LogType.MISC);
@@ -212,7 +212,7 @@ public class MixConfig extends JApplet
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorMessage(getMainWindow(),e, JAPMessages.getString("could_not_initialise"),
+			JAPDialog.showErrorDialog(getMainWindow(),e, JAPMessages.getString("could_not_initialise"),
 									   LogType.MISC);
 			System.exit(1);
 		}
@@ -278,7 +278,7 @@ public class MixConfig extends JApplet
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorMessage(getMainWindow(),e, JAPMessages.getString("could_not_initialise"),
+			JAPDialog.showErrorDialog(getMainWindow(),e, JAPMessages.getString("could_not_initialise"),
 									   LogType.MISC);
 			System.exit(1);
 		}
@@ -326,7 +326,7 @@ public class MixConfig extends JApplet
 	 */
 	public static boolean ask(String a_title, String a_message)
 	{
-		return JAPDialog.showYesNoConfirmMessage(MixConfig.getMainWindow(), a_title, a_message);
+		return JAPDialog.showYesNoDialog(MixConfig.getMainWindow(), a_title, a_message);
 	}
 
 	/** Displays an info message dialog
@@ -459,7 +459,7 @@ public class MixConfig extends JApplet
 			}
 			catch (IOException e)
 			{
-				JAPDialog.showErrorMessage(getMainWindow(),e,
+				JAPDialog.showErrorDialog(getMainWindow(),e,
 										   JAPMessages.getString("error_open_file", file.toString()),
 										   LogType.MISC);
 			}

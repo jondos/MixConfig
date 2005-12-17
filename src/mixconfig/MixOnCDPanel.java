@@ -419,9 +419,8 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		{
 			JAPDialog.showInfoDialog(MixConfig.getMainWindow(),"MixOnCD download hint",
 									  "You will have to download the MixOnCD iso-image from " +
-									  "<a href=\"http://anon.inf.tu-dresden.de/develop/MixOnCD.iso.bz2\"> " +
-									  "http://anon.inf.tu-dresden.de/develop/MixOnCD.iso.bz2 </a> "+
-									  "to create a bootable mix CD.");
+									  "the AN.ON homepage to create a bootable mix CD.",
+									  new JAPDialog.LinkedHelpContext("livecd_deployment"));
 		}
 	}
 

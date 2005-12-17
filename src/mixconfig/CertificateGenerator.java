@@ -174,7 +174,7 @@ public class CertificateGenerator extends SwingWorker
 		{
 			if (!Thread.interrupted())
 			{
-				JAPDialog.showErrorMessage(MixConfig.getMainWindow(), e, null, LogType.THREAD);
+				JAPDialog.showErrorDialog(MixConfig.getMainWindow(), e, null, LogType.THREAD);
 			}
 		}
 		return null;

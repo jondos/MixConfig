@@ -54,7 +54,6 @@ import javax.swing.event.ChangeEvent;
 
 import anon.util.XMLParseException;
 import gui.ClipFrame;
-import gui.GUIUtils;
 import gui.JAPHelp;
 import gui.JAPMessages;
 
@@ -304,7 +303,6 @@ public class Menu implements ActionListener
 			else if (evt.getSource() == m_helpTopics)
 			{
 				JAPHelp.getInstance().getContextObj().setContext("index");
-				GUIUtils.positionWindow(JAPHelp.getInstance(), MixConfig.getMainWindow());
 				JAPHelp.getInstance().setVisible(true);
 			}
 			else if (evt.getSource() == m_defaultSize)
@@ -505,7 +503,7 @@ public class Menu implements ActionListener
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorMessage(MixConfig.getMainWindow(), e, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), e, null, LogType.GUI);
 		}
 
 		//set MessageTitle
