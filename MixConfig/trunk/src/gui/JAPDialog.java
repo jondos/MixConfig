@@ -42,12 +42,14 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.JPanel;
+import javax.swing.JFrame;
 import javax.swing.text.View;
+import javax.swing.JTextPane;
 
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
-import javax.swing.JTextPane;
+
 
 /**
  * This is the generic implementation for a modal, user resizeable dialog. Use the root pane and content pane
@@ -394,38 +396,51 @@ public class JAPDialog
 		JDialog dialog;
 		JOptionPane pane;
 		JComponent contentPane;
-		boolean blinkedInformation;
+		String message;
+		String strLinkedInformation;
 		JAPHtmlMultiLineLabel label;
 		PreferredWidthBoxPanel dummyBox;
+		Component parentContentPane;
+
+		if (a_parentComponent instanceof JFrame)
+		{
+			parentContentPane = ((JFrame)a_parentComponent).getContentPane();
+		}
+		else
+		{
+			parentContentPane = a_parentComponent;
+		}
+
+		if (a_message == null)
+		{
+			a_message = "";
+		}
+		message = a_message;
 
 		if (a_linkedInformation != null && a_linkedInformation.getMessage() != null &&
 			a_linkedInformation.getMessage().trim().length() > 0)
 		{
-			if (a_message == null)
-			{
-				a_message = "";
-			}
-			a_message += "<br><a href=\"\">" + a_linkedInformation.getMessage() + "</a>";
-			blinkedInformation = true;
+			strLinkedInformation = "<a href=\"\">" + a_linkedInformation.getMessage() + "</a>";
+			message += "<br>" + strLinkedInformation;
 		}
 		else
 		{
-			blinkedInformation = false;
+			strLinkedInformation = null;
 		}
 
 		/*
 		 * Set the dialog parameters and get its label and content pane.
 		 */
-		label = new JAPHtmlMultiLineLabel(a_message);
+		label = new JAPHtmlMultiLineLabel(message);
 		dialog = new JOptionPane(label, a_messageType, a_optionType, a_icon).createDialog(
-			  a_parentComponent, a_title);
+			  parentContentPane, a_title);
 		// trick: a dialog's content pane is always a JComponent; it is needed to set the min/max size
 		contentPane = (JComponent)dialog.getContentPane();
 
 
 		// get the minimum width and height that is needed to display this dialog without any text
 		Dimension minDimension = new JOptionPane("", a_messageType, a_optionType, a_icon).
-			createDialog(a_parentComponent, a_title).getContentPane().getSize();
+			createDialog(parentContentPane, a_title).getContentPane().getSize();
 
 		/**
 		 * Calculate the optimal dialog size with respect to the golden ratio.
@@ -516,14 +531,35 @@ public class JAPDialog
 		/**
 		 * Recreate the dialog and set its final size.
 		 */
-        label = new JAPHtmlMultiLineLabel(a_message);
-		pane =  new JOptionPane(label, a_messageType, a_optionType, a_icon);
-		dialog = pane.createDialog(a_parentComponent, a_title);
-		if (blinkedInformation)
+		dummyBox = new PreferredWidthBoxPanel();
+		label = new JAPHtmlMultiLineLabel(a_message);
+		dummyBox.add(label);
+		if (strLinkedInformation != null)
 		{
-			label.addMouseListener(new LinkedInformationClickListener(a_linkedInformation, dialog));
+			JComponent linkLabel;
+			if (a_linkedInformation.isCopyAllowed())
+			{   /** @todo this is not nice in most of the old JDKs) */
+				JTextPane textPane = GUIUtils.createSelectableAndResizeableLabel(dummyBox);
+				textPane.setText(a_linkedInformation.getMessage());
+				textPane.setFont(label.getFont());
+
+				//System.out.println(( (View) label.getClientProperty("html")).get);
+				//System.out.println(textPane.getFont().getSize());
+				//System.out.println(label.getFont().getSize());
+				textPane.setForeground(java.awt.Color.blue);
+				linkLabel = textPane;
+			}
+			else
+			{
+				linkLabel = new JAPHtmlMultiLineLabel(strLinkedInformation);
+			}
+
+			linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation, dialog));
+			dummyBox.add(linkLabel);
 		}
 
+		pane =  new JOptionPane(dummyBox, a_messageType, a_optionType, a_icon);
+		dialog = pane.createDialog(parentContentPane, a_title);
 		((JComponent)dialog.getContentPane()).setPreferredSize(bestDimension);
 		dialog.pack();
 		if (bestDelta != getGoldenRatioDelta(dialog))
@@ -532,6 +568,7 @@ public class JAPDialog
 		}
 		//System.out.println(getGoldenRatioDelta(dialog));
 		dialog.setLocationRelativeTo(a_parentComponent);
+		dialog.setResizable(false);
 		dialog.setVisible(true);
 		return pane.getValue();
 	}
@@ -820,10 +857,10 @@ public class JAPDialog
 		 */
 		public void openLink();
 		/**
-		 * Returns if the dialog should be disposed if the user clicked the link.
-		 * @return if the dialog should be disposed if the user clicked the link
+		 * Returns if the user is allowed to copy the link text.
+		 * @return if the user is allowed to copy the link text
 		 */
-		public boolean isDialogDisposed();
+		public boolean isCopyAllowed();
 	}
 
 	/**
@@ -866,12 +903,12 @@ public class JAPDialog
 			JAPHelp.getInstance().requestFocus();
 		}
 		/**
-		 * Dispose the dialog, as otherwise the help window could not be accessed.
-		 * @return true
+		 * This makes no sense and is not allowed
+		 * @return boolean
 		 */
-		public boolean isDialogDisposed()
+		public boolean isCopyAllowed()
 		{
-			return true;
+			return false;
 		}
 	}
 
@@ -1014,8 +1051,7 @@ public class JAPDialog
 	}
 
 	/**
-	 * Sets the location of the dialog 'manually'. After that,
-	 * no automatic alignment is done by this dialog.
+	 * Sets the location of the dialog 'manually'. After that, no automatic alignment is done by this dialog.
 	 * @param a_location a Point on the screen
 	 */
 	public final void setLocation(Point a_location)
@@ -1025,31 +1061,38 @@ public class JAPDialog
 	}
 
 	/**
-	 * Sets the location of the dialog 'manually'. After that,
-	 * no automatic alignment is done by this dialog. The dialog is centered on the
-	 * given Component.
+	 * The dialog is centered on the given Component.
+	 * Sets the location of the dialog 'manually'. After that, no automatic alignment is done by this dialog.
 	 * @param a_component a Component
 	 */
-	public final void setLocationRelativeTo(Component a_component)
+	public final void setLocationCenteredOn(Component a_component)
 	{
 		m_bLocationSetManually = true;
 		m_internalDialog.setLocationRelativeTo(a_component);
 	}
 
 	/**
-	 * Sets the location of the dialog 'manually'. After that,
-	 * no automatic alignment is done by this dialog. Centers this dialog relative to the screen.
+     * The dialog is centered on the parent Component.
+	 * Sets the location of the dialog 'manually'. After that, no automatic alignment is done by this dialog.
 	 */
-	public void setLocationRelativeToScreen()
+	public final void setLocationCenteredOnParent()
+	{
+		setLocationCenteredOn(getParentComponent());
+	}
+
+	/**
+	 * Centers this dialog relative to the screen.
+	 * Sets the location of the dialog 'manually'. After that, no automatic alignment is done by this dialog.
+	 */
+	public final void setLocationCenteredOnScreen()
 	{
 		m_bLocationSetManually = true;
 		GUIUtils.centerOnScreen(m_internalDialog);
 	}
 
 	/**
-	 * Sets the location of the dialog 'manually'. After that,
-	 * no automatic alignment is done by this dialog. The dialog is positioned right
-	 * under the owner window.
+	 * The dialog is positioned right under the owner window.
+	 * Sets the location of the dialog 'manually'. After that, no automatic alignment is done by this dialog.
 	 */
 	public final void setLocationRelativeToOwner()
 	{
@@ -1202,10 +1245,6 @@ public class JAPDialog
 
 		public void mouseClicked(MouseEvent a_event)
 		{
-			if (m_linkedInformation.isDialogDisposed())
-			{
-				m_dialog.dispose();
-			}
 			m_linkedInformation.openLink();
 		}
 	}
