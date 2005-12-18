@@ -544,7 +544,7 @@ public class JAPDialog
 				linkLabel = new JAPHtmlMultiLineLabel(strLinkedInformation);
 			}
 
-			linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation, dialog));
+			linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation));
 			dummyBox.add(linkLabel);
 		}
 
@@ -1224,13 +1224,10 @@ public class JAPDialog
 	private static class LinkedInformationClickListener extends MouseAdapter
 	{
 		private ILinkedInformation m_linkedInformation;
-		private JDialog m_dialog;
 
-		public LinkedInformationClickListener(ILinkedInformation a_linkedInformation,
-											  JDialog a_dialog)
+		public LinkedInformationClickListener(ILinkedInformation a_linkedInformation)
 		{
 			m_linkedInformation = a_linkedInformation;
-			m_dialog = a_dialog;
 		}
 
 		public void mouseClicked(MouseEvent a_event)
