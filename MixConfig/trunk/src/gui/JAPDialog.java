@@ -42,7 +42,6 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.JPanel;
-import javax.swing.JFrame;
 import javax.swing.text.View;
 import javax.swing.JTextPane;
 
@@ -64,6 +63,8 @@ public class JAPDialog
 	public static final double GOLDEN_RATIO_PHI = (1.0 + Math.sqrt(5.0)) / 2.0;
 	private static final int UNLIMITED_HEIGHT = 1000;
 
+	private static final String TAG_A_BEGIN = "<a href=\"\">";
+	private static final String TAG_A_END = "</a>";
 	private static final String MSG_INFO = JAPDialog.class.getName() + "_info";
 	private static final String MSG_CONFIRMATION = JAPDialog.class.getName() + "_confirmation";
 	private static final String MSG_ERROR_TITLE = JAPDialog.class.getName() + "_error_title";
@@ -410,8 +411,9 @@ public class JAPDialog
 		if (a_linkedInformation != null && a_linkedInformation.getMessage() != null &&
 			a_linkedInformation.getMessage().trim().length() > 0)
 		{
-			strLinkedInformation = "<a href=\"\">" + a_linkedInformation.getMessage() + "</a>";
-			message += "<br>" + strLinkedInformation;
+			strLinkedInformation =
+				JAPHtmlMultiLineLabel.removeTagsAndNewLines(a_linkedInformation.getMessage());
+			message += "<br>" + TAG_A_BEGIN + strLinkedInformation + TAG_A_END;
 		}
 		else
 		{
@@ -516,7 +518,7 @@ public class JAPDialog
 		System.out.println("CurrentSize: " + dummyBox.getSize() + "_" + contentPane.getSize());
 		System.out.println("MaximumSize: " + dummyBox.getMaximumSize() + "_" + contentPane.getMaximumSize());
 		System.out.println("PreferredSize: " + dummyBox.getPreferredSize() + "_" + contentPane.getPreferredSize());
-				*/
+		*/
 
 		/**
 		 * Recreate the dialog and set its final size.
@@ -530,7 +532,7 @@ public class JAPDialog
 			if (a_linkedInformation.isCopyAllowed())
 			{   /** @todo this is not nice in most of the old JDKs) */
 				JTextPane textPane = GUIUtils.createSelectableAndResizeableLabel(dummyBox);
-				textPane.setText(a_linkedInformation.getMessage());
+				textPane.setText(strLinkedInformation);
 				textPane.setFont(label.getFont());
 
 				//System.out.println(( (View) label.getClientProperty("html")).get);
@@ -541,7 +543,7 @@ public class JAPDialog
 			}
 			else
 			{
-				linkLabel = new JAPHtmlMultiLineLabel(strLinkedInformation);
+				linkLabel = new JAPHtmlMultiLineLabel(TAG_A_BEGIN + strLinkedInformation + TAG_A_END);
 			}
 
 			linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation));
@@ -837,7 +839,8 @@ public class JAPDialog
 	public static interface ILinkedInformation
 	{
 		/**
-		 * Returns the information message.
+		 * Returns the information message. This must be normal text, HTML is not allowed and
+		 * tags are filtered out.
 		 * @return the information message
 		 */
 		public String getMessage();
@@ -893,8 +896,8 @@ public class JAPDialog
 			JAPHelp.getInstance().requestFocus();
 		}
 		/**
-		 * This makes no sense and is not allowed
-		 * @return boolean
+		 * This makes no sense and is not allowed.
+		 * @return false
 		 */
 		public boolean isCopyAllowed()
 		{
