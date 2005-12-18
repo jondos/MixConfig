@@ -71,7 +71,7 @@ public class EncryptedLogTool extends JAPDialog implements ActionListener, Chang
 
 	public EncryptedLogTool(Frame parent)
 	{
-		super(parent, "Log Reader for encrypted Mix logs");
+		super(parent, "Log Reader for encrypted Mix logs", true);
 
 		GridBagLayout layout = new GridBagLayout();
 		getContentPane().setLayout(layout);

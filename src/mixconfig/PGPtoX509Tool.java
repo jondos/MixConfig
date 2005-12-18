@@ -40,9 +40,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
@@ -83,7 +81,7 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 	private Frame m_Parent;
 	public PGPtoX509Tool(Frame parent)
 	{
-		super(parent, "PGP to X.509 key converter");
+		super(parent, "PGP to X.509 key converter", true);
 		m_Parent = parent;
 		GridBagLayout layout = new GridBagLayout();
 		getContentPane().setLayout(layout);
