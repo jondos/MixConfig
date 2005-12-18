@@ -46,7 +46,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -79,8 +78,6 @@ public final class JAPHelp extends JAPDialog
 	private JButton m_forwardButton;
 	private JButton m_homeButton;
 
-	private JDialog m_virtualParent;
-
 	private boolean m_initializing;
 	private JAPHelpContext m_helpContext;
 
@@ -93,12 +90,16 @@ public final class JAPHelp extends JAPDialog
 	}
 
 	/**
-	 * Creates and initialises a new global help object with the given frame as parent frame.
+	 * Creates and initialises the new global help object with the given frame as parent frame.
+	 * Does nothing if called more than once.
 	 * @param a_parent the parent frame of the help object
 	 */
 	public static void init(Frame a_parent)
 	{
-		ms_theJAPHelp = new JAPHelp(a_parent);
+		if (ms_theJAPHelp == null)
+		{
+			ms_theJAPHelp = new JAPHelp(a_parent);
+		}
 	}
 
 	/**
@@ -122,7 +123,6 @@ public final class JAPHelp extends JAPDialog
 			{
 				closePressed();
 			}
-
 		}
 		);
 
@@ -196,12 +196,14 @@ public final class JAPHelp extends JAPDialog
 			{
 			}
 		}
-		getContentPane().setPreferredSize(new Dimension(600,350));
+
+		getContentPane().setPreferredSize(new Dimension(
+			  Math.min(Toolkit.getDefaultToolkit().getScreenSize().width - 50, 600),
+			  Math.min(Toolkit.getDefaultToolkit().getScreenSize().height - 80, 350)));
 		pack();
 		m_initializing = false;
 	}
 
-	/** @deprecated use setVisible(boolean) instead; scheduled for deletion */
 	public void loadCurrentContext()
 	{
 		setVisible(true);
@@ -239,14 +241,6 @@ public final class JAPHelp extends JAPDialog
 		return m_helpContext;
 	}
 
-	public Dimension getPreferredSize()
-	{
-		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		d.width = Math.min(d.width - 50, 600 /*400*/);
-		d.height = Math.min(d.height - 80, 350 /*300*/);
-		return (d);
-	}
-
 	private void homePressed()
 	{
 		m_htmlpaneTheHelpPane.load(helpPath + "index_" + langShort + ".html");
@@ -255,10 +249,6 @@ public final class JAPHelp extends JAPDialog
 	private void closePressed()
 	{
 		setVisible(false);
-		if (m_virtualParent != null)
-		{
-			m_virtualParent.setVisible(true);
-		}
 	}
 
 	private void backPressed()

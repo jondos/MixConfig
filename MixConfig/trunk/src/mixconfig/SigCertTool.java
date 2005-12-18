@@ -42,7 +42,6 @@ import javax.swing.event.ChangeListener;
 
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
-import gui.GUIUtils;
 import gui.JAPMessages;
 import gui.ValidityDialog;
 import gui.JAPDialog;
@@ -58,7 +57,7 @@ public class SigCertTool extends JAPDialog implements ActionListener, ChangeList
 
 	public SigCertTool(Frame parent)
 	{
-		super(parent, "Sign a public certificate");
+		super(parent, "Sign a public certificate", true);
 		this.setResizable(false);
 
 		// upper public certificate
