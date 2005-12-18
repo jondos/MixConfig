@@ -400,16 +400,6 @@ public class JAPDialog
 		String strLinkedInformation;
 		JAPHtmlMultiLineLabel label;
 		PreferredWidthBoxPanel dummyBox;
-		Component parentContentPane;
-
-		if (a_parentComponent instanceof JFrame)
-		{
-			parentContentPane = ((JFrame)a_parentComponent).getContentPane();
-		}
-		else
-		{
-			parentContentPane = a_parentComponent;
-		}
 
 		if (a_message == null)
 		{
@@ -433,14 +423,14 @@ public class JAPDialog
 		 */
 		label = new JAPHtmlMultiLineLabel(message);
 		dialog = new JOptionPane(label, a_messageType, a_optionType, a_icon).createDialog(
-			  parentContentPane, a_title);
+			  a_parentComponent, a_title);
 		// trick: a dialog's content pane is always a JComponent; it is needed to set the min/max size
 		contentPane = (JComponent)dialog.getContentPane();
 
 
 		// get the minimum width and height that is needed to display this dialog without any text
 		Dimension minDimension = new JOptionPane("", a_messageType, a_optionType, a_icon).
-			createDialog(parentContentPane, a_title).getContentPane().getSize();
+			createDialog(a_parentComponent, a_title).getContentPane().getSize();
 
 		/**
 		 * Calculate the optimal dialog size with respect to the golden ratio.
@@ -559,7 +549,7 @@ public class JAPDialog
 		}
 
 		pane =  new JOptionPane(dummyBox, a_messageType, a_optionType, a_icon);
-		dialog = pane.createDialog(parentContentPane, a_title);
+		dialog = pane.createDialog(a_parentComponent, a_title);
 		((JComponent)dialog.getContentPane()).setPreferredSize(bestDimension);
 		dialog.pack();
 		if (bestDelta != getGoldenRatioDelta(dialog))
