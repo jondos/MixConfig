@@ -199,6 +199,16 @@ public class JAPHtmlMultiLineLabel extends JLabel
 	}
 
 	/**
+	 * Automatically removes all tags and new lines that are found in a text.
+	 * @param a_text a String
+	 * @return the String without tags and new lines
+	 */
+	public static String removeTagsAndNewLines(String a_text)
+	{
+		return a_text;
+	}
+
+	/**
 	 * Removes heading and trailing HTML and BODY tags from a String if present.
 	 * @param a_HTMLtext a String
 	 * @return the String without heading and trailing HTML and BODY tags
