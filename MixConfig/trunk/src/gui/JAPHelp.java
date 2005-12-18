@@ -55,6 +55,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
+import javax.swing.JComponent;
 
 import anon.util.ResourceLoader;
 
@@ -197,7 +198,7 @@ public final class JAPHelp extends JAPDialog
 			}
 		}
 
-		getContentPane().setPreferredSize(new Dimension(
+		((JComponent)getContentPane()).setPreferredSize(new Dimension(
 			  Math.min(Toolkit.getDefaultToolkit().getScreenSize().width - 50, 600),
 			  Math.min(Toolkit.getDefaultToolkit().getScreenSize().height - 80, 350)));
 		pack();
