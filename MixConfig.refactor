@@ -355,4 +355,16 @@
     <old-method-name>showYesNoConfirmDialog</old-method-name>
     <new-method-name>showYesNoDialog</new-method-name>
   </rename-method>
+  <rename-method id="2AP0VDIZ5DHENVBBA76YS6Y0" creation-time="Sun Dec 18 11:56:53.153 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>()V</declared-method-signature>
+    <old-method-name>setLocationRelativeToScreen</old-method-name>
+    <new-method-name>setLocationCenteredOnScreen</new-method-name>
+  </rename-method>
+  <rename-method id="0AP0VDIZ5DHENVBBA76YS6Y0" creation-time="Sun Dec 18 11:58:00.059 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;)V</declared-method-signature>
+    <old-method-name>setLocationRelativeTo</old-method-name>
+    <new-method-name>setLocationCenteredOn</new-method-name>
+  </rename-method>
 </refactor>
