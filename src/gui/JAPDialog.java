@@ -31,6 +31,7 @@ package gui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Container;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -44,6 +45,11 @@ import javax.swing.JRootPane;
 import javax.swing.JPanel;
 import javax.swing.text.View;
 import javax.swing.JTextPane;
+import javax.swing.JLayeredPane;
+import javax.swing.WindowConstants;
+import javax.swing.RootPaneContainer;
+import javax.accessibility.Accessible;
+import javax.accessibility.AccessibleContext;
 
 import logging.LogHolder;
 import logging.LogLevel;
@@ -58,7 +64,7 @@ import logging.LogType;
  *
  * @author Rolf Wendolsky
  */
-public class JAPDialog
+public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 {
 	public static final double GOLDEN_RATIO_PHI = (1.0 + Math.sqrt(5.0)) / 2.0;
 	private static final int UNLIMITED_HEIGHT = 1000;
@@ -525,9 +531,9 @@ public class JAPDialog
 		dummyBox = new PreferredWidthBoxPanel();
 		label = new JAPHtmlMultiLineLabel(a_message);
 		dummyBox.add(label);
+		JComponent linkLabel = null;
 		if (strLinkedInformation != null)
 		{
-			JComponent linkLabel;
 			if (a_linkedInformation.isCopyAllowed())
 			{   /** @todo this is not nice in most of the old JDKs) */
 				JTextPane textPane = GUIUtils.createSelectableAndResizeableLabel(dummyBox);
@@ -546,12 +552,16 @@ public class JAPDialog
 					strLinkedInformation + JAPHtmlMultiLineLabel.TAG_A_CLOSE);
 			}
 
-			linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation));
 			dummyBox.add(linkLabel);
 		}
 
 		pane =  new JOptionPane(dummyBox, a_messageType, a_optionType, a_icon);
 		dialog = pane.createDialog(a_parentComponent, a_title);
+		if (strLinkedInformation != null)
+		{
+			linkLabel.addMouseListener(
+						 new LinkedInformationClickListener(a_linkedInformation, dialog));
+		}
 		((JComponent)dialog.getContentPane()).setPreferredSize(bestDimension);
 		dialog.pack();
 		if (bestDelta != getGoldenRatioDelta(dialog))
@@ -847,8 +857,9 @@ public class JAPDialog
 		/**
 		 * The action that is performed when the link is clicked, for example opening a browser
 		 * window, an E-Mail client or a help page.
+		 * @param a_dialog the dialog from that the link is opened
 		 */
-		public void openLink();
+		public void openLink(JDialog a_dialog);
 		/**
 		 * Returns if the user is allowed to copy the link text.
 		 * @return if the user is allowed to copy the link text
@@ -888,8 +899,9 @@ public class JAPDialog
 		}
 		/**
 		 * Opens a help window with the registered context.
+		 * @param a_dialog the dialog from that the link is opened
 		 */
-		public void openLink()
+		public void openLink(JDialog a_dialog)
 		{
 			JAPHelp.getInstance().getContextObj().setContext(m_strHelpContext);
 			JAPHelp.getInstance().setVisible(true);
@@ -906,6 +918,24 @@ public class JAPDialog
 	}
 
 	/**
+	 * Returns the glass pane.
+	 * @return the glass pane
+	 */
+	public Component getGlassPane()
+	{
+		return m_internalDialog.getGlassPane();
+	}
+
+	/**
+	 * Returns the JLayeredPane.
+	 * @return the JLayeredPane
+	 */
+	public JLayeredPane getLayeredPane()
+	{
+		return m_internalDialog.getLayeredPane();
+	}
+
+	/**
 	 * Returns the root pane of the dialog.
 	 * @return the root pane of the dialog
 	 */
@@ -918,9 +948,36 @@ public class JAPDialog
 	 * Returns the content pane that can be used to place elements on the dialog.
 	 * @return the dialog's content pane
 	 */
-	public final JComponent getContentPane()
+	public final Container getContentPane()
 	{
-		return (JComponent)m_internalDialog.getContentPane();
+		return m_internalDialog.getContentPane();
+	}
+
+	/**
+	 * Sets a new content pane for this dialog.
+	 * @param a_contentPane a new content pane for this dialog
+	 */
+	public void setContentPane(Container a_contentPane)
+	{
+		m_internalDialog.setContentPane(a_contentPane);
+	}
+
+	/**
+	 * Sets a new glass pane for this dialog.
+	 * @param a_glassPane a new glass pane for this dialog
+	 */
+	public void setGlassPane(Component a_glassPane)
+	{
+		m_internalDialog.setGlassPane(a_glassPane);
+	}
+
+	/**
+	 * Sets a new JLayeredPane for this dialog.
+	 * @param a_layeredPane a new JLayeredPane for this dialog
+	 */
+	public void setLayeredPane(JLayeredPane a_layeredPane)
+	{
+		m_internalDialog.setLayeredPane(a_layeredPane);
 	}
 
 	/**
@@ -1133,6 +1190,15 @@ public class JAPDialog
 	}
 
 	/**
+	 * Returns the AccessibleContext associated with this dialog
+	 * @return the AccessibleContext associated with this dialog
+	 */
+	public AccessibleContext getAccessibleContext()
+	{
+		return m_internalDialog.getAccessibleContext();
+	}
+
+	/**
 	 * Defines the reaction of this dialog on a klick on the close button in the dialog's title bar.
 	 * @param a_windowAction insert an element of javax.swing.WindowConstants
 	 * @see javax.swing.WindowConstants
@@ -1227,15 +1293,18 @@ public class JAPDialog
 	private static class LinkedInformationClickListener extends MouseAdapter
 	{
 		private ILinkedInformation m_linkedInformation;
+		private JDialog m_dialog;
 
-		public LinkedInformationClickListener(ILinkedInformation a_linkedInformation)
+		public LinkedInformationClickListener(ILinkedInformation a_linkedInformation,
+			JDialog a_dialog)
 		{
 			m_linkedInformation = a_linkedInformation;
+			m_dialog = a_dialog;
 		}
 
 		public void mouseClicked(MouseEvent a_event)
 		{
-			m_linkedInformation.openLink();
+			m_linkedInformation.openLink(m_dialog);
 		}
 	}
 
