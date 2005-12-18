@@ -37,11 +37,13 @@ import anon.util.ClassUtil;
  */
 public class JAPHtmlMultiLineLabel extends JLabel
 {
-	public static final String HTML_BREAK = "<br>";
-	private static final String HTML_OPEN_TAG = "<html>";
-	private static final String HTML_CLOSE_TAG = "</html>";
-	private static final String BODY_OPEN_TAG = "<body>";
-	private static final String BODY_CLOSE_TAG = "</body>";
+	public static final String TAG_BREAK = "<br>";
+	public static final String TAG_A_OPEN = "<a href=\"\">";
+	public static final String TAG_A_CLOSE = "</a>";
+	private static final String TAG_HTML_OPEN = "<html>";
+	private static final String TAG_HTML_CLOSE = "</html>";
+	private static final String TAG_BODY_OPEN = "<body>";
+	private static final String TAG_BODY_CLOSE = "</body>";
 
 	/**
 	 * Stores the HTML text displayed by this JAPHtmlMultiLineLabel without the header and the
@@ -186,9 +188,9 @@ public class JAPHtmlMultiLineLabel extends JLabel
 
 		/* set the new font with the HTML default size */
 		// style=\"font-family:" + a_defaultFont.getFamily() + ";font-size:small\"
-		String header = HTML_OPEN_TAG  + BODY_OPEN_TAG.substring(0, BODY_OPEN_TAG.length() - 1) +
+		String header = TAG_HTML_OPEN  + TAG_BODY_OPEN.substring(0, TAG_BODY_OPEN.length() - 1) +
 			" style=\"font-family:" + a_defaultFont.getFamily() + "\">";
-		String trailer = BODY_CLOSE_TAG + HTML_CLOSE_TAG;
+		String trailer = TAG_BODY_CLOSE + TAG_HTML_CLOSE;
 		if (a_defaultFont.isBold())
 		{
 			header = header + "<b>";
@@ -215,7 +217,7 @@ public class JAPHtmlMultiLineLabel extends JLabel
 	 */
 	public static String removeHTMLAndBODYTags(String a_HTMLtext)
 	{
-		return removeTAG(removeTAG(a_HTMLtext, HTML_OPEN_TAG, HTML_CLOSE_TAG), BODY_OPEN_TAG, BODY_CLOSE_TAG);
+		return removeTAG(removeTAG(a_HTMLtext, TAG_HTML_OPEN, TAG_HTML_CLOSE), TAG_BODY_OPEN, TAG_BODY_CLOSE);
 	}
 
 	/**
