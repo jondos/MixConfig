@@ -63,8 +63,6 @@ public class JAPDialog
 	public static final double GOLDEN_RATIO_PHI = (1.0 + Math.sqrt(5.0)) / 2.0;
 	private static final int UNLIMITED_HEIGHT = 1000;
 
-	private static final String TAG_A_BEGIN = "<a href=\"\">";
-	private static final String TAG_A_END = "</a>";
 	private static final String MSG_INFO = JAPDialog.class.getName() + "_info";
 	private static final String MSG_CONFIRMATION = JAPDialog.class.getName() + "_confirmation";
 	private static final String MSG_ERROR_TITLE = JAPDialog.class.getName() + "_error_title";
@@ -413,7 +411,8 @@ public class JAPDialog
 		{
 			strLinkedInformation =
 				JAPHtmlMultiLineLabel.removeTagsAndNewLines(a_linkedInformation.getMessage());
-			message += "<br>" + TAG_A_BEGIN + strLinkedInformation + TAG_A_END;
+			message += JAPHtmlMultiLineLabel.TAG_BREAK + JAPHtmlMultiLineLabel.TAG_A_OPEN +
+				strLinkedInformation + JAPHtmlMultiLineLabel.TAG_A_CLOSE;
 		}
 		else
 		{
@@ -543,7 +542,8 @@ public class JAPDialog
 			}
 			else
 			{
-				linkLabel = new JAPHtmlMultiLineLabel(TAG_A_BEGIN + strLinkedInformation + TAG_A_END);
+				linkLabel = new JAPHtmlMultiLineLabel(JAPHtmlMultiLineLabel.TAG_A_OPEN +
+					strLinkedInformation + JAPHtmlMultiLineLabel.TAG_A_CLOSE);
 			}
 
 			linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation));

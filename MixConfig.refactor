@@ -367,4 +367,10 @@
     <old-method-name>setLocationRelativeTo</old-method-name>
     <new-method-name>setLocationCenteredOn</new-method-name>
   </rename-method>
+  <rename-field id="Y9P0VDIZ5DHENVBBA76YS6Y0" creation-time="Sun Dec 18 14:12:31.996 CET 2005">
+    <declaring-class-name>gui.JAPHtmlMultiLineLabel</declaring-class-name>
+    <old-field-name>HTML_BREAK</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>TAG_BREAK</new-field-name>
+  </rename-field>
 </refactor>
