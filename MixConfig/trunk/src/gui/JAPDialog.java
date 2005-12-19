@@ -28,38 +28,39 @@
 
 package gui;
 
+import javax.accessibility.Accessible;
+import javax.accessibility.AccessibleContext;
+
+import java.awt.AWTEvent;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.MenuComponent;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowListener;
-import java.awt.EventQueue;
-import java.awt.AWTEvent;
-import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JRootPane;
-import javax.swing.JPanel;
-import javax.swing.text.View;
-import javax.swing.JTextPane;
 import javax.swing.JLayeredPane;
-import javax.swing.WindowConstants;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRootPane;
+import javax.swing.JTextPane;
 import javax.swing.RootPaneContainer;
-import javax.accessibility.Accessible;
-import javax.accessibility.AccessibleContext;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+import javax.swing.text.View;
 
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
-import java.awt.MenuComponent;
 
 
 
@@ -75,6 +76,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 {
 	public static final double GOLDEN_RATIO_PHI = (1.0 + Math.sqrt(5.0)) / 2.0;
 	private static final int UNLIMITED_HEIGHT = 1000;
+	private static final int NUMBER_OF_HEURISTIC_ITERATIONS = 5;
 
 	private static final String MSG_INFO = JAPDialog.class.getName() + "_info";
 	private static final String MSG_CONFIRMATION = JAPDialog.class.getName() + "_confirmation";
@@ -713,7 +715,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		currentWidth = maxWidth;
 		bestWidth =  currentWidth;
 		failed = 0;
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < NUMBER_OF_HEURISTIC_ITERATIONS; i++)
 		{
 			/**
 			 * Set the exact width of the frame.

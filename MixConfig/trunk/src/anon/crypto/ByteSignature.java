@@ -62,8 +62,6 @@ public final class ByteSignature
 	 */
 	public static boolean verify(byte[] a_message, byte[] a_signature, IMyPublicKey a_publicKey)
 	{
-		boolean verified;
-
 		if (a_publicKey == null)
 		{
 			return false;
@@ -71,9 +69,8 @@ public final class ByteSignature
 
 		//synchronized (a_publicKey.getSignatureAlgorithm())
 		{
-			verified = a_publicKey.getSignatureAlgorithm().verify(a_message, a_signature);
+			return  a_publicKey.getSignatureAlgorithm().verify(a_message, a_signature);
 		}
-		return verified;
 	}
 
 	/**
@@ -96,8 +93,6 @@ public final class ByteSignature
 	 */
 	public static byte[] sign(byte[] a_message, IMyPrivateKey a_privateKey)
 	{
-		byte[] signature;
-
 		if (a_privateKey == null)
 		{
 			return null;
@@ -105,10 +100,8 @@ public final class ByteSignature
 		// synchronization is needed so that no one else can reinit the signature algorithm
 		//synchronized (a_privateKey.getSignatureAlgorithm())
 		{
-			signature = a_privateKey.getSignatureAlgorithm().sign(a_message);
+			return a_privateKey.getSignatureAlgorithm().sign(a_message);
 		}
-
-		return signature;
 	}
 
 	/**
