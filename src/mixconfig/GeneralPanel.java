@@ -67,6 +67,7 @@ import gui.JAPMessages;
 import mixconfig.networkpanel.ConnectionData;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.IncomingDialog;
+import gui.*;
 
 public class GeneralPanel extends MixConfigPanel implements ActionListener, TableModelListener,
 	ChangeListener

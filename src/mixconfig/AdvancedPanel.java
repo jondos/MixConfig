@@ -48,6 +48,7 @@ import java.awt.event.FocusEvent;
 import anon.util.Base64;
 import javax.swing.JLabel;
 import gui.JAPJIntField;
+import gui.*;
 
 /**
  * The panel for advanced settings

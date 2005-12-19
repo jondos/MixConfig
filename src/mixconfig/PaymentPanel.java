@@ -50,6 +50,7 @@ import gui.JAPHelp;
 import gui.JAPJIntField;
 import gui.JAPDialog;
 import logging.LogType;
+import gui.*;
 
 /**
  * The PaymentPanel is one page in the MixConfig TabbedPane and allows the user to specify

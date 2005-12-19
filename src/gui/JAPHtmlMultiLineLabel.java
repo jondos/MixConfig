@@ -27,6 +27,7 @@
  */
 package gui;
 
+import java.util.StringTokenizer;
 import java.awt.Font;
 import javax.swing.JLabel;
 import anon.util.ClassUtil;
@@ -173,6 +174,7 @@ public class JAPHtmlMultiLineLabel extends JLabel
 	/**
 	 * This method adds HTML and BODY tags to a String and overwrites existing tags of this type.
 	 * @param a_HTMLtext a String
+	 * @param a_defaultFont a default font for the HTML text
 	 * @return the String with HTML and BODY tags
 	 */
 	public static String formatTextAsHTML(String a_HTMLtext, Font a_defaultFont)
@@ -201,13 +203,58 @@ public class JAPHtmlMultiLineLabel extends JLabel
 	}
 
 	/**
-	 * Automatically removes all tags and new lines that are found in a text.
+	 * Automatically removes all tags "<" and ">" and the space between and new lines that are
+	 * found in a text.
 	 * @param a_text a String
 	 * @return the String without tags and new lines
 	 */
 	public static String removeTagsAndNewLines(String a_text)
 	{
-		return a_text;
+		String text;
+		String token;
+		StringTokenizer tokenizer;
+		int indexTagBegin, indexTagEnd;
+
+		text = a_text;
+		while (true)
+		{
+			indexTagBegin = text.indexOf("<");
+			indexTagEnd = text.indexOf(">");
+			if (indexTagBegin < 0 && indexTagEnd < 0)
+			{
+				break;
+			}
+
+			if (indexTagEnd >= 0 && (indexTagBegin < 0 || indexTagEnd < indexTagBegin))
+			{
+				// there is a ">" without a corresponding "<"
+				indexTagBegin = indexTagEnd;
+			}
+			else if (indexTagEnd < 0)
+			{
+				// there is a "<" without a corresponding ">"
+					indexTagEnd = indexTagBegin;
+			}
+			indexTagEnd++;
+			if (indexTagEnd >= text.length())
+			{
+				text = text.substring(0, indexTagBegin);
+			}
+			else
+			{
+				text = text.substring(0, indexTagBegin) + text.substring(indexTagEnd, text.length());
+			}
+		}
+
+	    tokenizer = new StringTokenizer(text, "\t\n\r\f");
+		text = "";
+		while (tokenizer.hasMoreTokens())
+		{
+			token = tokenizer.nextToken();
+			text += token;
+		}
+
+		return text.trim();
 	}
 
 	/**

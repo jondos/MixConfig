@@ -118,14 +118,6 @@ public final class JAPHelp extends JAPDialog
 		m_helpContext = new JAPHelpContext();
 		m_htmlpaneTheHelpPane = new HtmlPane();
 		m_htmlpaneTheHelpPane.addPropertyChangeListener(new HelpListener());
-		this.addWindowListener(new WindowAdapter()
-		{
-			public void windowClosing(WindowEvent e)
-			{
-				closePressed();
-			}
-		}
-		);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 

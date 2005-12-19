@@ -44,6 +44,7 @@ import gui.JAPHelp;
 import java.awt.Graphics;
 import gui.JAPDialog;
 import gui.JAPHtmlMultiLineLabel;
+import gui.*;
 
 public class StartScreenPanel  extends WizardLayout implements ActionListener
 {
