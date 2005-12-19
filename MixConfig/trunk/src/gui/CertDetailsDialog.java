@@ -25,33 +25,32 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-package mixconfig;
+package gui;
 
-import gui.JAPDialog;
-import java.awt.Component;
-import javax.swing.JPanel;
-import java.util.Vector;
-import javax.swing.JScrollPane;
-import gui.JAPMessages;
 import java.util.Date;
-import javax.swing.JLabel;
-import anon.crypto.IMyPublicKey;
-import anon.crypto.JAPCertificate;
-import anon.crypto.X509DistinguishedName;
-import anon.crypto.Validity;
-import anon.crypto.X509Extensions;
-import anon.crypto.X509UnknownExtension;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
+import java.util.Vector;
+
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import java.awt.Color;
-import gui.GUIUtils;
-import gui.CountryMapper;
-import logging.*;
+
+import anon.crypto.IMyPublicKey;
+import anon.crypto.JAPCertificate;
+import anon.crypto.Validity;
+import anon.crypto.X509DistinguishedName;
+import anon.crypto.X509Extensions;
+import anon.crypto.X509UnknownExtension;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
+
 
 /**
  * <p>CertDetails Dialog </p>

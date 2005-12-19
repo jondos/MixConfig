@@ -76,7 +76,8 @@ public class Menu implements ActionListener
 	private static final String EXPERT = "expert";
 	private static final String START = "start";
 
-
+	private static final String MSG_NO_VALID_CLIPDOC = Menu.class.getName() + "_no_valid_clipdoc";
+	private static final String MSG_COULD_NOT_PARSE = Menu.class.getName() + "_could_not_parse";
 	private static final String MSG_REALLY_CONTINUE = Menu.class.getName() + "_really_continue";
 	private static final String MSG_FILE = "menu_file";
 	private static final String MSG_FILE_MNEMONIC = "menu_fileMnemonic";
@@ -423,26 +424,41 @@ public class Menu implements ActionListener
 				//m_configFrame_Panel.setConfiguration(new MixConfiguration(new StringReader(xmlString)));
 				StringReader sr = new StringReader(xmlString);
 				MixConfiguration mixconfig = MixConfig.getMixConfiguration();
-				mixconfig.setMixConfiguration(sr);
-				m_configFrame_Panel.setConfiguration(mixconfig);
-				m_configWiz_Panel.setConfiguration(mixconfig);
-
-				//if you choose "open using clipboard", when the start-screen is in top, then start the expert-mode
-				ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
-				if (cp.getActiveCard().equals(START))
+				try
 				{
-					cp.setExpertVisible();
-					m_changeViewToWizMenuItem.setEnabled(true);
-					m_changeViewToExpertMenuItem.setEnabled(false);
+					mixconfig.setMixConfiguration(sr);
+					m_configFrame_Panel.setConfiguration(mixconfig);
+					m_configWiz_Panel.setConfiguration(mixconfig);
+
+					//if you choose "open using clipboard", when the start-screen is in top, then start the expert-mode
+					ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
+					if (cp.getActiveCard().equals(START))
+					{
+						cp.setExpertVisible();
+						m_changeViewToWizMenuItem.setEnabled(true);
+						m_changeViewToExpertMenuItem.setEnabled(false);
+					}
+					m_configFrame_Panel.reset(); //show the first leaf
+					m_configWiz_Panel.reset(); //show the first leaf
 				}
-				m_configFrame_Panel.reset(); //show the first leaf
-				m_configWiz_Panel.reset(); //show the first leaf
+				catch (XMLParseException a_e)
+				{
+					JAPDialog.showErrorDialog(MixConfig.getMainWindow(), a_e,
+											  JAPMessages.getString(MSG_COULD_NOT_PARSE),
+											  JAPMessages.getString(MSG_NO_VALID_CLIPDOC), LogType.GUI);
+				}
 			}
 			else if (evt.getActionCommand().equals(CMD_OPEN_FILE) ||
 					 evt.getActionCommand().equals(CMD_OPEN_FILE_WIZARD))
 			{
-				File file = MixConfig.showFileDialog(MixConfig.OPEN_DIALOG, MixConfig.FILTER_XML)
-					.getSelectedFile();
+
+				File file = null;
+				JFileChooser chooser = MixConfig.showFileDialog(MixConfig.OPEN_DIALOG, MixConfig.FILTER_XML);
+				if (chooser != null)
+				{
+					file = chooser.getSelectedFile();
+				}
+
 				MixConfiguration mixconfig = MixConfig.getMixConfiguration();
 
 				if (file != null && mixconfig.setMixConfiguration(new FileReader(file)))

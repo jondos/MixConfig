@@ -25,18 +25,19 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-package mixconfig;
+package gui;
 
+import java.util.Vector;
+
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
-import java.util.Vector;
-import javax.swing.JLabel;
-import java.awt.Color;
 
 /**
  * This is a JPanel that uses a GridBaglayout to show vertical lists of two components.

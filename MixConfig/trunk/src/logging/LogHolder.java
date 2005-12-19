@@ -288,7 +288,7 @@ public final class LogHolder
 		int index;
 
 		new Exception().printStackTrace(pwriter);
-//System.out.println(swriter.toString());
+
 		tokenizer = new StringTokenizer(swriter.toString());
 		tokenizer.nextToken(); // jump over the exception message
 		while (tokenizer.hasMoreTokens())

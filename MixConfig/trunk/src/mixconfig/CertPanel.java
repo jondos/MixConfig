@@ -74,6 +74,7 @@ import logging.LogType;
 import logging.LogHolder;
 import logging.LogLevel;
 import mixconfig.wizard.CannotContinueException;
+import gui.*;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>

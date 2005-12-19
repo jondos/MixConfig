@@ -48,6 +48,7 @@ import mixconfig.networkpanel.IPTextField;
 import gui.JAPHelp;
 import java.awt.Graphics;
 import gui.JAPDialog;
+import gui.*;
 
 /**
  * This panel stores the MixOnCD configuration.

@@ -51,7 +51,7 @@ import mixconfig.AdvancedPanel;
 import mixconfig.CascadePanel;
 import mixconfig.MixOnCDPanel;
 import mixconfig.PreviousMixPanel;
-import mixconfig.TitledGridBagPanel;
+import gui.TitledGridBagPanel;
 import mixconfig.networkpanel.NextMixProxyPanel;
 import gui.JAPDialog;
 

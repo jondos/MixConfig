@@ -373,4 +373,24 @@
     <declared-field-type>Ljava/lang/String;</declared-field-type>
     <new-field-name>TAG_BREAK</new-field-name>
   </rename-field>
+  <rename-field id="W9P0VDIZ5DHENVBBA76YS6Y0" creation-time="Sun Dec 18 18:16:23.465 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <old-field-name>modal</old-field-name>
+    <declared-field-type>Z</declared-field-type>
+    <new-field-name>m_bModal</new-field-name>
+  </rename-field>
+  <rename-method id="6AP02MR4HEHE69UI5UO0QKH0" creation-time="Mon Dec 19 08:54:59.442 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>()Z</declared-method-signature>
+    <old-method-name>isDisposed</old-method-name>
+    <new-method-name>isDisplayable</new-method-name>
+  </rename-method>
+  <rename-class id="6AP0SVBJQEHEUOAN236YS6Y0" creation-time="Mon Dec 19 13:18:15.440 CET 2005">
+    <old-class-name>mixconfig.CertDetailsDialog</old-class-name>
+    <new-class-name>gui.CertDetailsDialog</new-class-name>
+  </rename-class>
+  <rename-class id="4AP0SVBJQEHEUOAN236YS6Y0" creation-time="Mon Dec 19 13:18:38.714 CET 2005">
+    <old-class-name>mixconfig.TitledGridBagPanel</old-class-name>
+    <new-class-name>gui.TitledGridBagPanel</new-class-name>
+  </rename-class>
 </refactor>

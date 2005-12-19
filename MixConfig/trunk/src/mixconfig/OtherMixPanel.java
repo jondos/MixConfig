@@ -48,6 +48,7 @@ import gui.JAPDialog;
 import gui.JAPHelp;
 import gui.JAPMessages;
 import logging.LogType;
+import gui.*;
 
 /**
  * This class is an abstract superclass for NextMixProxyPanel and PreviousMixPanel
