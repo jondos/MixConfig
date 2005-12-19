@@ -155,10 +155,7 @@ public class EncryptedLogTool extends JAPDialog implements ActionListener, Chang
 		{
 			if (m_arLog == null || m_arLog.length == 0)
 			{
-				//JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_NO_LOG), LogType.GUI);
-				JAPDialog.showMessageDialog(this, "Message", JAPMessages.getString(MSG_NO_LOG),
-					javax.swing.JOptionPane.INFORMATION_MESSAGE, javax.swing.JOptionPane.DEFAULT_OPTION);
-
+				JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_NO_LOG), LogType.GUI);
 			}
 			else if (m_privateCertPanel.getCert() == null)
 			{
