@@ -126,25 +126,25 @@ public final class JAPJIntField extends JTextField
 		else
 		{
 			arguments[1] = getName();
-		}
+	}
 
 		try
-		{
+	{
 			integer = Integer.parseInt(getText());
 			if (integer < 0 || (!m_bounds.isZeroAllowed() && integer == 0) ||
 				(m_bounds.getMaximum() >= 0 && integer > m_bounds.getMaximum()))
-			{
+		{
 				arguments[0] = new Integer(integer);
 			}
 			return integer;
 		}
 		catch (NumberFormatException a_e)
-		{
+			{
 			arguments[0] = getText();
 		}
 
 		throw new NumberFormatException(JAPMessages.getString(MSG_NO_VALID_INTEGER, arguments));
-	}
+			}
 
 	/**
 	 * Updates the text field with the current bounds. If the number entered in the text field is not
@@ -152,8 +152,8 @@ public final class JAPJIntField extends JTextField
 	 */
 	public void updateBounds()
 	{
-		try
-		{
+			try
+			{
 			if (getInt() > m_bounds.getMaximum())
 			{
 				setInt(m_bounds.getMaximum());
@@ -180,27 +180,27 @@ public final class JAPJIntField extends JTextField
 	 * This interface represents bounds for the integer text field, this means what numbers (max/min)
 	 * are allowed to enter.
 	 */
-	public interface IntFieldBounds
+	public static interface IntFieldBounds
 	{
 		/**
 		 * Returns if zero is allowed.
 		 * @return true if zero is allowed; false otherwise
 		 */
-		public boolean isZeroAllowed();
+		boolean isZeroAllowed();
 
 		/**
 		 * Returns the maximum value that is allowed to enter.
 		 * @return the maximum value that is allowed to enter or a value smaller than zero if there is
 		 * no upper bound
 		 */
-		public int getMaximum();
-	}
+		int getMaximum();
+			}
 
 	/**
 	 * This bound does not allow zeros.
 	 */
 	public static final class IntFieldWithoutZeroBounds implements IntFieldBounds
-	{
+			{
 		private int m_maxValue;
 
 		public IntFieldWithoutZeroBounds(int a_maxValue)
@@ -243,7 +243,7 @@ public final class JAPJIntField extends JTextField
 		public boolean isZeroAllowed()
 		{
 			return true;
-		}
+			}
 
 		public int getMaximum()
 		{
@@ -268,9 +268,9 @@ public final class JAPJIntField extends JTextField
 				currentInt = Integer.parseInt(getText(0, getLength()) + string);
 			}
 			catch (NumberFormatException e)
-			{
+				{
 				return;
-			}
+				}
 
 			// do not allow to write more than one zero and a value higher than the maximum
 			if ((currentInt == 0 && offSet > 0) ||
@@ -293,9 +293,9 @@ public final class JAPJIntField extends JTextField
 				transferFocus();
 			}
 		}
-	}
+		}
 
-	private static final int parseNumberOfDigits(int a_integer)
+	private static int parseNumberOfDigits(int a_integer)
 		{
 			int digits;
 
