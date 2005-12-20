@@ -62,13 +62,34 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 
-
-
 /**
- * This is the generic implementation for a modal, user resizeable dialog. Use the root pane and content pane
+ * This is the generic implementation for a modal, resizeable a dialog. Use the root pane and content pane
  * (getRootPane() and getContentPane() methods) for customization.
+ * <BR>
+ * The customizable dialogs show the same behaviour as the standard JDialog, except for the modality
+ * attribute:
+ * Modal JAPDialogs are only modal for their parent window and the parent of its parent and so on, but not
+ * for other Dialogs or Windows. This allows for example to access a non-modal help window at the time a
+ * modal dialog is displayed.
+ * <BR>
+ * This class is also a replacement for JOptionPane: it allows for the same type of dialogs, and
+ * even has the same syntax (save that it only accepts String messages), but with additional features.
+ * JAPDialog option panes
+ * <UL>
+ * <LI> are auto-formatted in the golden ratio if possible by a quick heuristic </LI>
+ * <LI> interpret the text message as HTML, without adding html or body tags </LI>
+ * <LI> may get an HTML link that triggers an arbitrary event, for example show a help window on clicking
+ *      (interface ILinkedInformation) </LI>
+ * </UL>
+ * These features take the need to put newlines or HTML breaks into the message text to format the dialog.
+ * This is done fully automatically. Also, dialog texts may get smaller, without ignoring important
+ * information. This information may be stored behind the optional dialog link. For displaying a simple
+ * link to a JAPHelp window, for example, there is a class named LinkedHelpContext. Its implementation
+ * should cover most needs.
+ *
  * @see javax.swing.JDialog
  * @see javax.swing.JOptionPane
+ * @see ILinkedInformation
  *
  * @author Rolf Wendolsky
  */
@@ -1351,15 +1372,19 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		if (m_bBlockParentWindow)
 		{
+			m_bBlockParentWindow = false;
 			m_parentWindow.setEnabled(true);
 			m_parentWindow.setVisible(true);
 		}
-		m_internalDialog.setVisible(false);
 
 		if (isDisplayable())
 		{
 			m_bDisposed = true;
 			m_internalDialog.dispose();
+		}
+		else if (isVisible())
+		{
+			m_internalDialog.setVisible(false);
 		}
 	}
 
@@ -1705,7 +1730,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 					while (isVisible())
 					{
 						AWTEvent event = theQueue.getNextEvent();
-						if (m_parentWindow.isEnabled())
+
+						if (m_bBlockParentWindow && m_parentWindow.isEnabled())
 						{
 							// another dialog has enabled the parent; set it back to diabled
 							m_parentWindow.setEnabled(false);
@@ -1780,6 +1806,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 			if (!m_parentWindow.isEnabled())
 			{
+				m_bBlockParentWindow = false;
 				m_parentWindow.setEnabled(true);
 				m_parentWindow.setVisible(true);
 			}
