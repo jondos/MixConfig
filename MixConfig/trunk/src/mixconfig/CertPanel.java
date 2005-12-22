@@ -900,7 +900,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		PasswordBox dialog =
 			new PasswordBox(MixConfig.getMainWindow(), "Change password",
 							PasswordBox.CHANGE_PASSWORD, strMessage);
-		System.out.println("hello");
 
 		while (true)
 		{

@@ -319,7 +319,6 @@ public final class LogHolder
 						strOwnClass = strCurrentMethod.substring(0, index);
 					}
 					strOwnClass = strOwnClass.substring(0, strOwnClass.lastIndexOf('.'));
-					//System.out.println(strOwnClass);
 				}
 				else
 				{
