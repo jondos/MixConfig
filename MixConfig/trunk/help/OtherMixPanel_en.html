@@ -1,0 +1,43 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<H2>Previous/Next Mix and Proxy Panel</H2>
+<P>This panel contains information about one of your neighbour servers.</P>
+
+<P><B>Previous/Next Mix Certificate</B></P>
+The certificates are needed 
+<UL>
+  <LI><B>Import</B><BR>
+	Reads a certificate that you have received from a neighbour mix from a file. After you imported it, you
+	should check whether the certificate's hash value is the same as the value that the other mix' operator
+	told you. Otherwise some attacker might have replaced this certificate by his own.
+ </LI>
+  <LI><B>Export</B><BR>
+	Saves the certificate to a file.
+   </LI>
+  <LI><B>Remove</B><BR>
+      Deletes the certificate. Please make sure you either have a backup of the certificate of you really don't need it any more.
+  </LI>
+</UL>
+
+<B>Mix Location and Own Mix Certificate</B>
+<P>In the text fields, you should enter information about the location of your mix server. By creating
+the mix certificate, you proof that this information is correct.</P>
+
+<P><B>Operator and Operator Certificate</B></P>
+<P>These fields contain information about the mix operator, that means you or your organisation. 
+The operator certificate containing this information must be signed by a certificate 
+authority to proof that it is correct. You can use your operator certificate for different mixes, just export and import it into an other configuration.
+</P>
+
+
+
+
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>

@@ -1,0 +1,92 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>Using the Mix-Software as 'command line JAP'</h2>
+
+The mix software can be used as a replacement for JAP. You can download a 
+<a href="http://anon.inf.tu-dresden.de/develop/aktversions_en.html">
+precompiled binary for linux x86</a> or you have to get the sources and compile 
+it on your own.
+Either download the nightly generated 
+<a href="http://anon.inf.tu-dresden.de/develop/mix.src.tgz">Source Code Tarball</a> 
+or use anonymous CVS to get the newest version.
+
+<p></p>
+
+Use:
+	
+	<blockquote>
+		<code>
+		cvs -d :pserver:anonymous@cvs.inf.tu-dresden.de:/home/sk13/cvssource co proxytest
+		</code>
+	</blockquote>
+	
+Now you need to compile it:
+	
+	<blockquote>	
+		<code>
+			./configure<br></br>
+			make
+		</code>
+	</blockquote>
+	
+You should get a executable file called 'mix'.
+
+
+Do a quick test to see if it starts:
+	
+	<blockquote>
+		<code>
+			./mix -?
+		</code>
+	</blockquote>
+
+This should list a short description of the command line options.
+
+
+Before using the software as a local proxy you have to decide which mix-cascade to use.
+You can use JAP to get the addresses of all available mixes. The address of the 
+'Dresden-Dresden'-cascade for instance is: 
+	
+	<blockquote>
+		<code>
+			mix.inf.tu-dresden.de:6544
+		</code>
+	</blockquote>
+	
+Now you are ready to start the program. The parameters are:
+
+	<blockquote>
+		<code>-j</code> --> to tell the mix to act as local proxy (like JAP)<br></br>
+		<code>-p [IP:]Port</code> --> local port to use (and IP if given)<br></br>
+		<code>-n mix.inf.tu-dresden.de:6544</code> 
+		--> to which cascade to connect ('Dresden-Dresden' in this example)<br></br>
+	</blockquote>
+
+optional parameters:
+	
+	<blockquote>
+		<code>-l <logdir></code> --> Directory where logfile should be placed (if omitted syslog is used)<br></br>
+		<code>-d </code> --> to tell the mix to be a daemon (run in background)<br></br>
+	</blockquote>
+
+If you have started the local proxy you should get messages like:
+
+	<blockquote>
+		<code>
+			[2001/05/03-11:54:26, info    ] Anon proxy started!<br>
+			[2001/05/03-11:54:26, info    ] Using: OpenSSL 0.9.6 24 Sep 2000!<br>
+			[2001/05/03-11:54:26, info    ] Starting MIX...<br>
+			[2001/05/03-11:54:26, info    ] Try connecting to next Mix...<br>
+			[2001/05/03-11:54:26, info    ]  connected!<br>
+			[2001/05/03-11:54:26, info    ] Chain-Length: 2<br>
+		</code>
+	</blockquote>
+
+</body>
+</html>

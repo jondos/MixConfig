@@ -1,0 +1,33 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>SuSE linux setup</h2>
+
+
+Insert the URL corresponding to your system in yast's installations sources: 
+
+<blockquote>
+	<code>
+		<ul>
+		    <li> http://anon.inf.tu-dresden.de/develop/rpm/SUSE-9.0 </li>
+		    <li> http://anon.inf.tu-dresden.de/develop/rpm/SUSE-9.1 </li>
+		    <li> http://anon.inf.tu-dresden.de/develop/rpm/SUSE-9.2 </li>
+		    <li> http://anon.inf.tu-dresden.de/develop/rpm/SUSE-9.3 </li>
+		</ul>
+	</code>	
+</blockquote>
+
+Now you can install the AN.ON mix with yast by searching for "Mix".
+
+Copy the configuration file(s) created by the mix configuration tool in the directory <code>/etc/mix</code> 
+and start the mix by typing <code>sudo /etc/init.d/mix start</code>. 
+If you deploy more than one configuration file, a separate mix will be started for each of the files. 
+To stop all running mixes, type <code>sudo /etc/init.d/mix stop</code>.
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>
