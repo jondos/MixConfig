@@ -210,7 +210,6 @@
   <property category="team" name="ignorePath.2" value="classes"/>
   <property category="team" name="ignorePath.3" value="doc"/>
   <property category="team" name="ignorePath.4" value="doc_doxy"/>
-  <property category="team" name="ignorePath.5" value="help/cvs"/>
   <property category="team" name="ignorePath.6" value="help/cvs"/>
   <node name="help" type="NavigationDirectory">
     <property category="directorynode" name="showSubdirectories" value="1"/>
