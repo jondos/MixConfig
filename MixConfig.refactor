@@ -393,4 +393,22 @@
     <old-class-name>mixconfig.TitledGridBagPanel</old-class-name>
     <new-class-name>gui.TitledGridBagPanel</new-class-name>
   </rename-class>
+  <rename-field id="6AP0QECUEKHERF6UDULFK8Z" creation-time="Fri Dec 23 12:37:30.999 CET 2005">
+    <declaring-class-name>gui.JAPHelp</declaring-class-name>
+    <old-field-name>IMAGE_HOME</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IMG_HOME</new-field-name>
+  </rename-field>
+  <rename-field id="4AP0QECUEKHERF6UDULFK8Z" creation-time="Fri Dec 23 12:37:43.711 CET 2005">
+    <declaring-class-name>gui.JAPHelp</declaring-class-name>
+    <old-field-name>IMAGE_PREV</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IMG_PREVIOUS</new-field-name>
+  </rename-field>
+  <rename-field id="2AP0QECUEKHERF6UDULFK8Z" creation-time="Fri Dec 23 12:37:51.837 CET 2005">
+    <declaring-class-name>gui.JAPHelp</declaring-class-name>
+    <old-field-name>IMAGE_NEXT</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>IMG_NEXT</new-field-name>
+  </rename-field>
 </refactor>

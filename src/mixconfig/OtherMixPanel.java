@@ -310,9 +310,8 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 			m_locLatField.setText(certView.getLatitude());
 			if (!certView.isMixCertificate())
 			{
-				JAPDialog.showInfoDialog(MixConfig.getMainWindow(),
-										  JAPMessages.getString(MixConfig.MSG_WARNING),
-										  JAPMessages.getString(MSG_WARNING_NO_MIX_CERT));
+				JAPDialog.showWarningDialog(MixConfig.getMainWindow(),
+											JAPMessages.getString(MSG_WARNING_NO_MIX_CERT));
 			}
 		}
 		else if (a_e.getSource() == m_otherOpCert)

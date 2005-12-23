@@ -63,8 +63,8 @@ import logging.LogLevel;
 import logging.LogType;
 
 /**
- * This is the generic implementation for a modal, resizeable a dialog. Use the root pane and content pane
- * (getRootPane() and getContentPane() methods) for customization.
+ * This is the generic implementation for an optionally modal, resizable a dialog. Use the root pane and
+ * content pane (getRootPane() and getContentPane() methods) for customization.
  * <BR>
  * The customizable dialogs show the same behaviour as the standard JDialog, except for the modality
  * attribute:
@@ -101,6 +101,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 	private static final String MSG_INFO = JAPDialog.class.getName() + "_info";
 	private static final String MSG_CONFIRMATION = JAPDialog.class.getName() + "_confirmation";
+	private static final String MSG_WARNING = JAPDialog.class.getName() + "_warning";
 	private static final String MSG_ERROR_TITLE = JAPDialog.class.getName() + "_error_title";
 	private static final String MSG_ERROR_UNKNOWN = JAPDialog.class.getName() + "_error_unknown";
 	private static final String MSG_ERROR_UNDISPLAYABLE = JAPDialog.class.getName() + "error_undisplayable";
@@ -126,7 +127,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	private Window m_parentWindow;
 
 	/**
-	 * Creates a new instance of JAPDialog. It is user-resizable and modal.
+	 * Creates a new instance of JAPDialog. It is user-resizable.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
@@ -166,7 +167,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
-	 * Creates a new instance of JAPDialog. It is user-resizable and modal.
+	 * Creates a new instance of JAPDialog. It is user-resizable.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_strTitle The title String for this dialog.
@@ -178,7 +179,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
-	 * Creates a new instance of JAPDialog. It is user-resizable and modal.
+	 * Creates a new instance of JAPDialog. It is user-resizable.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_strTitle The title String for this dialog.
@@ -195,7 +196,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		m_internalDialog.setModal(false);
 		m_internalDialog.addWindowListener(new WindowClosingAdapter(this));
 		m_parentWindow = getParentWindow(a_dialog.getParent());
-		m_bModal = a_bModal;
+		setModal(a_bModal);
 	}
 
 	/**
@@ -426,6 +427,92 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		showMessageDialog(a_parentComponent, a_title, a_message, JOptionPane.INFORMATION_MESSAGE,
 						  JOptionPane.DEFAULT_OPTION, a_icon, a_linkedInformation);
+	}
+
+	/**
+	 * Displays a warning message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showWarningDialog(JAPDialog a_parentDialog, String a_message)
+	{
+		showWarningDialog(a_parentDialog, null, a_message, null);
+	}
+
+	/**
+	 * Displays a warning message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_message The message to be displayed
+	 */
+	public static void showWarningDialog(Component a_parentComponent, String a_message)
+	{
+		showWarningDialog(a_parentComponent, null, a_message, null);
+	}
+
+	/**
+	 * Displays a warning message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showWarningDialog(JAPDialog a_parentDialog, String a_title, String a_message)
+	{
+		showWarningDialog(a_parentDialog, a_title, a_message, null);
+	}
+
+	/**
+	 * Displays a warning message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 */
+	public static void showWarningDialog(Component a_parentComponent, String a_title, String a_message)
+	{
+		showWarningDialog(a_parentComponent, a_title, a_message, null);
+	}
+
+	/**
+	 * Displays a warning message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
+	 *                       the dialog's parent frame is the default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showWarningDialog(JAPDialog a_parentDialog, String a_title, String a_message,
+										 ILinkedInformation a_linkedInformation)
+	{
+		showWarningDialog(getInternalDialog(a_parentDialog), a_title, a_message, a_linkedInformation);
+	}
+
+	/**
+	 * Displays a warning message dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 */
+	public static void showWarningDialog(Component a_parentComponent, String a_title, String a_message,
+										 ILinkedInformation a_linkedInformation)
+	{
+		if (a_title == null)
+		{
+			a_title = JAPMessages.getString(MSG_WARNING);
+		}
+
+		showMessageDialog(a_parentComponent, a_title, a_message, JOptionPane.WARNING_MESSAGE,
+						  JOptionPane.DEFAULT_OPTION, null, a_linkedInformation);
 	}
 
 	/**
@@ -664,6 +751,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		String strLinkedInformation;
 		JAPHtmlMultiLineLabel label;
 		PreferredWidthBoxPanel dummyBox;
+		JComponent linkLabel;
 
 		if (a_message == null)
 		{
@@ -699,21 +787,22 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		contentPane = (JComponent)dialog.getContentPane();
 
 
-		// get the minimum width and height that is needed to display this dialog without any text
-		Dimension minDimension =
-			new JOptionPane("", a_messageType, a_optionType, a_icon, a_options, a_initialSelectionValue).
-			createDialog(a_parentComponent, a_title).getContentPane().getSize();
-
 		/**
 		 * Calculate the optimal dialog size with respect to the golden ratio.
 		 * The width defines the longer side.
 		 */
 		Dimension bestDimension = null;
+		Dimension minDimension;
 		double currentDelta;
 		double bestDelta;
 		int currentWidth;
 		int bestWidth;
 		int failed;
+
+		// get the minimum width and height that is needed to display this dialog without any text
+		minDimension =
+			new JOptionPane("", a_messageType, a_optionType, a_icon, a_options, a_initialSelectionValue).
+			createDialog(a_parentComponent, a_title).getContentPane().getSize();
 
 		// set the maximum width that is allowed for the content pane
 		int maxWidth = (int)getParentWindow(a_parentComponent).getSize().width;
@@ -796,7 +885,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		dummyBox = new PreferredWidthBoxPanel();
 		label = new JAPHtmlMultiLineLabel(a_message);
 		dummyBox.add(label);
-		JComponent linkLabel = null;
+		linkLabel = null;
 		if (strLinkedInformation != null)
 		{
 			if (a_linkedInformation.isCopyAllowed())
@@ -966,7 +1055,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		Object response;
 
-		if (a_title == null || a_title.trim().length() == 0)
+		if (a_title == null)
 		{
 			a_title = JAPMessages.getString(MSG_CONFIRMATION);
 		}
@@ -1099,7 +1188,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 		try
 		{
-			if (a_title == null || a_title.trim().length() == 0)
+			if (a_title == null)
 			{
 				a_title = JAPMessages.getString(MSG_ERROR_TITLE);
 			}
@@ -1353,7 +1442,25 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			m_bModal = a_bModal;
 		}
-		//m_internalDialog.setModal(a_bModal);
+		// the internal dialog is always non-modal
+	}
+
+	/**
+	 * Returns if the dialog is modal.
+	 * @return if the dialog is modal
+	 */
+	public boolean isModal()
+	{
+		return m_bModal;
+	}
+
+	/**
+	 * Returns if the dialog is resizable by the user.
+	 * @return if the dialog is resizable by the user
+	 */
+	public boolean isResizable()
+	{
+		return m_internalDialog.isResizable();
 	}
 
 	/**

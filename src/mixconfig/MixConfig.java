@@ -78,9 +78,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.031"; //NEVER change the layout of this line!!
-
-	public static final String MSG_WARNING = "MixConfig_warning";
+	public final static String VERSION = "00.04.032"; //NEVER change the layout of this line!!
 
 	private static final String IMAGE_LOAD_PATH = "images/mixconfig/";
 	private static final String MAIN_ICON_PATH = JAPMessages.getString("main_icon");

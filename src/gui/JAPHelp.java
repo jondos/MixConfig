@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000, The JAP-Team
+ Copyright (c) 2000-2005, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -42,8 +42,6 @@ import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
@@ -63,10 +61,20 @@ import anon.util.ResourceLoader;
 /** Help window for the JAP. This is a singleton meaning that there exists only one help window all the time.*/
 public final class JAPHelp extends JAPDialog
 {
-	public static final String IMAGE_HOME = JAPMessages.getString("imgHome");
-	public static final String IMAGE_PREV = JAPMessages.getString("imgPrevious");
-	public static final String IMAGE_NEXT = JAPMessages.getString("imgNext");
-	public static final int MAXHELPLANGUAGES = 6;
+	// images
+	private static final String IMG_HOME = JAPHelp.class.getName() + "_home.gif";
+	private static final String IMG_PREVIOUS = JAPHelp.class.getName() + ("_previous.gif");
+	private static final String IMG_NEXT = JAPHelp.class.getName() + ("_next.gif");
+
+	// messages
+	private static final String MSG_CLOSE_BUTTON = JAPHelp.class.getName() + ("_closeButton");
+	private static final String MSG_HELP_WINDOW = JAPHelp.class.getName() + ("_helpWindow");
+	private static final String MSG_HELP_PATH = JAPHelp.class.getName() + ("_helpPath");
+	private static final String MSG_LANGUAGE = JAPHelp.class.getName() + ("_lang");
+	private static final String MSG_LANGUAGE_SHORT = JAPHelp.class.getName() + ("_langshort");
+	private static final String MSG_ERROR_EXT_URL = JAPHelp.class.getName() + ("_error_ext_URL");
+
+	private static final int MAX_HELP_LANGUAGES = 6;
 
 	private String helpPath = " ";
 	private String helpLang = " ";
@@ -84,23 +92,34 @@ public final class JAPHelp extends JAPDialog
 
 	private static JAPHelp ms_theJAPHelp = null;
 
-	private JAPHelp(Frame parent)
+	private JAPHelp(Frame parent, ExternalURLCaller a_urlCaller)
 	{
-		super(parent, JAPMessages.getString("helpWindow"), false);
-		init();
+		super(parent, JAPMessages.getString(MSG_HELP_WINDOW), false);
+		init(a_urlCaller);
 	}
 
 	/**
 	 * Creates and initialises the new global help object with the given frame as parent frame.
 	 * Does nothing if called more than once.
 	 * @param a_parent the parent frame of the help object
+	 * @param a_urlCaller the caller that is used to open external URLs
 	 */
-	public static void init(Frame a_parent)
+	public static void init(Frame a_parent, ExternalURLCaller a_urlCaller)
 	{
 		if (ms_theJAPHelp == null)
 		{
-			ms_theJAPHelp = new JAPHelp(a_parent);
+			ms_theJAPHelp = new JAPHelp(a_parent, a_urlCaller);
 		}
+	}
+
+	/**
+	 * Creates and initialises the new global help object with the given frame as parent frame.
+	 * Does nothing if called more than once. No external URLs can be open with this initialisation.
+	 * @param a_parent the parent frame of the help object
+	 */
+	public static void init(Frame a_parent)
+	{
+		init(a_parent, null);
 	}
 
 	/**
@@ -112,36 +131,41 @@ public final class JAPHelp extends JAPDialog
 		return ms_theJAPHelp;
 	}
 
-	private void init()
+	private void init(ExternalURLCaller a_urlCaller)
 	{
+		if (a_urlCaller == null)
+		{
+			a_urlCaller = new NoURLCaller();
+		}
+
 		m_initializing = true;
 		m_helpContext = new JAPHelpContext();
-		m_htmlpaneTheHelpPane = new HtmlPane();
+		m_htmlpaneTheHelpPane = new HtmlPane(a_urlCaller);
 		m_htmlpaneTheHelpPane.addPropertyChangeListener(new HelpListener());
 
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
 		language = new JComboBox();
 
-		m_backButton = new JButton(GUIUtils.loadImageIcon(IMAGE_PREV, true));
+		m_backButton = new JButton(GUIUtils.loadImageIcon(IMG_PREVIOUS, true));
 		m_backButton.setBackground(Color.gray); //this together with the next lines sems to be
 		m_backButton.setOpaque(false); //stupid but is necessary for JDK 1.5 on Windows XP (and maybe others)
 		m_backButton.setBorder(new EmptyBorder(0, 0, 0, 0));
 		m_backButton.setFocusPainted(false);
 
-		m_forwardButton = new JButton(GUIUtils.loadImageIcon(IMAGE_NEXT, true));
+		m_forwardButton = new JButton(GUIUtils.loadImageIcon(IMG_NEXT, true));
 		m_forwardButton.setBackground(Color.gray); //this together with the next lines sems to be
 		m_forwardButton.setOpaque(false); //stupid but is necessary for JDK 1.5 on Windows XP (and maybe others)
 		m_forwardButton.setBorder(new EmptyBorder(0, 0, 0, 0));
 		m_forwardButton.setFocusPainted(false);
 
-		m_homeButton = new JButton(GUIUtils.loadImageIcon(IMAGE_HOME, true));
+		m_homeButton = new JButton(GUIUtils.loadImageIcon(IMG_HOME, true));
 		m_homeButton.setBackground(Color.gray); //this together with the next lines sems to be
 		m_homeButton.setOpaque(false); //stupid but is necessary for JDK 1.5 on Windows XP (and maybe others)
 		m_homeButton.setBorder(new EmptyBorder(0, 0, 0, 0));
 		m_homeButton.setFocusPainted(false);
 
-		m_closeButton = new JButton(JAPMessages.getString("closeButton"));
+		m_closeButton = new JButton(JAPMessages.getString(MSG_CLOSE_BUTTON));
 		m_forwardButton.setEnabled(false);
 		m_backButton.setEnabled(false);
 
@@ -155,25 +179,24 @@ public final class JAPHelp extends JAPDialog
 
 		getContentPane().add(m_htmlpaneTheHelpPane, BorderLayout.CENTER);
 		getContentPane().add(buttonPanel, BorderLayout.NORTH);
-		//getContentPane().add(container);
 		getRootPane().setDefaultButton(m_closeButton);
 		m_closeButton.addActionListener(new HelpListener());
 		m_backButton.addActionListener(new HelpListener());
 		m_forwardButton.addActionListener(new HelpListener());
 		m_homeButton.addActionListener(new HelpListener());
 		language.addActionListener(new HelpListener());
-		for (int i = 1; i < MAXHELPLANGUAGES; i++)
+		for (int i = 1; i < MAX_HELP_LANGUAGES; i++)
 		{
 			try
 			{
-				String path = JAPMessages.getString("helpPath" + String.valueOf(i));
+				String path = JAPMessages.getString(MSG_HELP_PATH + String.valueOf(i));
 
-				helpLang = JAPMessages.getString("lang" + String.valueOf(i));
-				String lshort = JAPMessages.getString("langshort" + String.valueOf(i));
+				helpLang = JAPMessages.getString(MSG_LANGUAGE + String.valueOf(i));
+				String lshort = JAPMessages.getString(MSG_LANGUAGE_SHORT + String.valueOf(i));
 
 				// This checks if the entry exists in the properties file
 				// if yes, the item will be added
-				if ( (helpLang.equals("lang" + String.valueOf(i))) != true)
+				if ( (helpLang.equals(MSG_LANGUAGE + String.valueOf(i))) != true)
 				{
 					language.addItem(helpLang);
 				}
@@ -190,11 +213,24 @@ public final class JAPHelp extends JAPDialog
 			}
 		}
 
-		((JComponent)getContentPane()).setPreferredSize(new Dimension(
-			  Math.min(Toolkit.getDefaultToolkit().getScreenSize().width - 50, 600),
-			  Math.min(Toolkit.getDefaultToolkit().getScreenSize().height - 80, 350)));
+		( (JComponent) getContentPane()).setPreferredSize(new Dimension(
+			Math.min(Toolkit.getDefaultToolkit().getScreenSize().width - 50, 600),
+			Math.min(Toolkit.getDefaultToolkit().getScreenSize().height - 80, 350)));
 		pack();
 		m_initializing = false;
+	}
+
+	/**
+	 * An instance of this interface is needed to open external URLs.
+	 */
+	public static interface ExternalURLCaller
+	{
+		/**
+		 * Returns if the caller was able to opne the URL in the browser
+		 * @param a_url a URL
+		 * @return if the caller was able to opne the URL in the browser
+		 */
+		boolean openURL(URL a_url);
 	}
 
 	public void loadCurrentContext()
@@ -232,6 +268,22 @@ public final class JAPHelp extends JAPDialog
 	public JAPHelpContext getContextObj()
 	{
 		return m_helpContext;
+	}
+
+	/**
+	 * If no ExternalURLCaller is given, no external URLs can be opened and this caller is instanciated.
+	 */
+	private static final class NoURLCaller implements ExternalURLCaller
+	{
+		/**
+		 * Returns false.
+		 * @param a_url a URL
+		 * @return false
+		 */
+		public boolean openURL(URL a_url)
+		{
+			return false;
+		}
 	}
 
 	private void homePressed()
@@ -286,12 +338,12 @@ public final class JAPHelp extends JAPDialog
 		{
 			if (e.getSource() == language && !m_initializing)
 			{
-				helpPath = JAPMessages.getString("helpPath" + String.valueOf(language.getSelectedIndex() + 1));
-				langShort = JAPMessages.getString("langshort" +
+				helpPath =
+					JAPMessages.getString(MSG_HELP_PATH + String.valueOf(language.getSelectedIndex() + 1));
+				langShort = JAPMessages.getString(MSG_LANGUAGE_SHORT +
 												  String.valueOf(language.getSelectedIndex() + 1));
 				m_htmlpaneTheHelpPane.load(helpPath + m_helpContext.getContext() +
-										   "_" + langShort +
-										   ".html");
+										   "_" + langShort + ".html");
 			}
 			else if (e.getSource() == m_closeButton)
 			{
@@ -324,192 +376,254 @@ public final class JAPHelp extends JAPDialog
 		}
 
 	}
-}
 
-final class HtmlPane extends JScrollPane implements HyperlinkListener
-{
-	private JEditorPane html;
-	private URL url;
-	private Cursor cursor;
-	private Vector m_history;
-	private int m_historyPosition;
-
-	public HtmlPane()
+	private final class HtmlPane extends JScrollPane implements HyperlinkListener
 	{
-		html = new JEditorPane();
-		html.setEditable(false);
-		html.addHyperlinkListener(this);
-		m_history = new Vector();
-		m_historyPosition = -1;
 
-		getViewport().add(html);
-		cursor = html.getCursor(); // ??? (hf)
-	}
+		private ExternalURLCaller m_urlCaller;
+		private JEditorPane html;
+		private URL url;
+		private Cursor cursor;
+		private Vector m_history;
+		private int m_historyPosition;
 
-	public JEditorPane getPane()
-	{
-		return html;
-	}
-
-	/**
-	 * Goes back in the history and loads the appropriate file
-	 */
-	public void goBack()
-	{
-		m_historyPosition--;
-		this.loadURL( (URL) m_history.elementAt(m_historyPosition));
-	}
-
-	/**
-	 * Goes forward in the history and loads the appropriate file
-	 */
-	public void goForward()
-	{
-		m_historyPosition++;
-		this.loadURL( (URL) m_history.elementAt(m_historyPosition));
-	}
-
-	/**
-	 * Adds the given URL to the browser history
-	 * @param a_url URL
-	 */
-	private void addToHistory(URL a_url)
-	{
-		if (m_historyPosition == -1 ||
-			!a_url.getFile().equalsIgnoreCase( ( (URL) m_history.elementAt(m_historyPosition)).getFile()))
+		public HtmlPane(ExternalURLCaller a_urlCaller)
 		{
-			m_history.insertElementAt(a_url, ++m_historyPosition);
-		}
-	}
+			m_urlCaller = a_urlCaller;
+			html = new JEditorPane("text/html", "");
+			html.setEditable(false);
+			html.addHyperlinkListener(this);
+			m_history = new Vector();
+			m_historyPosition = -1;
 
-	public void load(String fn)
-	{
-		URL url = ResourceLoader.getResourceURL(fn);
-		if (url != null)
-		{
-			linkActivated(url);
-		}
-	}
-
-	public void hyperlinkUpdate(HyperlinkEvent e)
-	{
-		if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
-		{
-			linkActivated(e.getURL());
-		}
-		else if (e.getEventType() == HyperlinkEvent.EventType.ENTERED)
-		{
-			html.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		}
-		else if (e.getEventType() == HyperlinkEvent.EventType.EXITED)
-		{
-			html.setCursor(cursor);
-		}
-	}
-
-	protected void linkActivated(URL u)
-	{
-		Cursor waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-		html.setCursor(waitCursor);
-		SwingUtilities.invokeLater(new PageLoader(u));
-		//Update history
-		this.addToHistory(u);
-		this.cleanForwardHistory();
-		//Make sure the window updates its history buttons
-		this.firePropertyChange("CheckButtons", false, true);
-	}
-
-	/**
-	 * Removes all entries from the forward history
-	 */
-	private void cleanForwardHistory()
-	{
-		for (int i = m_history.size() - 1; i > m_historyPosition; i--)
-		{
-			m_history.removeElementAt(i);
-		}
-	}
-
-	/**
-	 * Returns true if there are entries in the back history
-	 * @return boolean
-	 */
-	public boolean backAllowed()
-	{
-		if (m_historyPosition <= 0)
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-
-	/**
-	 * Returns true if there are entries in the forward history
-	 * @return boolean
-	 */
-	public boolean forwardAllowed()
-	{
-		if (m_history.size() - 1 > m_historyPosition)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	/**
-	 * Loads URL without adding it to the history
-	 * @param a_url URL
-	 */
-	protected void loadURL(URL a_url)
-	{
-		Cursor waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-		html.setCursor(waitCursor);
-		SwingUtilities.invokeLater(new PageLoader(a_url));
-	}
-
-	final class PageLoader implements Runnable
-	{
-		PageLoader(URL u)
-		{
-			url = u;
+			getViewport().add(html);
+			cursor = html.getCursor(); // ??? (hf)
 		}
 
-		public void run()
+		public JEditorPane getPane()
 		{
-			if (url == null)
+			return html;
+		}
+
+		/**
+		 * Goes back in the history and loads the appropriate file
+		 */
+		public void goBack()
+		{
+			m_historyPosition--;
+			this.loadURL( (URL) m_history.elementAt(m_historyPosition));
+		}
+
+		/**
+		 * Goes forward in the history and loads the appropriate file
+		 */
+		public void goForward()
+		{
+			m_historyPosition++;
+			this.loadURL( (URL) m_history.elementAt(m_historyPosition));
+		}
+
+		/**
+		 * Adds the given URL to the browser history
+		 * @param a_url URL
+		 */
+		private void addToHistory(URL a_url)
+		{
+			if (m_historyPosition == -1 ||
+				!a_url.getFile().equalsIgnoreCase( ( (URL) m_history.elementAt(m_historyPosition)).getFile()))
 			{
-				// restore the original cursor
+				m_history.insertElementAt(a_url, ++m_historyPosition);
+			}
+		}
+
+		public void load(String fn)
+		{
+			URL url = ResourceLoader.getResourceURL(fn);
+			if (url != null)
+			{
+				linkActivated(url);
+			}
+		}
+
+		public void hyperlinkUpdate(HyperlinkEvent e)
+		{
+			if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+			{
+				linkActivated(e.getURL());
+			}
+			else if (e.getEventType() == HyperlinkEvent.EventType.ENTERED)
+			{
+				html.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			}
+			else if (e.getEventType() == HyperlinkEvent.EventType.EXITED)
+			{
 				html.setCursor(cursor);
-				// PENDING(prinz) remove this hack when
-				// automatic validation is activated.
-				html.getParent().repaint();
+			}
+		}
+
+		private void linkActivated(URL u)
+		{
+
+			Cursor waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
+			html.setCursor(waitCursor);
+			SwingUtilities.invokeLater(new PageLoader(u));
+			//Update history
+			this.addToHistory(u);
+			this.cleanForwardHistory();
+			//Make sure the window updates its history buttons
+			this.firePropertyChange("CheckButtons", false, true);
+		}
+
+	/**
+		 * Removes all entries from the forward history
+		 */
+		private void cleanForwardHistory()
+		{
+			for (int i = m_history.size() - 1; i > m_historyPosition; i--)
+			{
+				m_history.removeElementAt(i);
+			}
+		}
+
+		/**
+		 * Returns true if there are entries in the back history
+		 * @return boolean
+		 */
+		public boolean backAllowed()
+		{
+			if (m_historyPosition <= 0)
+			{
+				return false;
 			}
 			else
 			{
-				Document doc = html.getDocument();
-				try
+				return true;
+			}
+		}
+
+		/**
+		 * Returns true if there are entries in the forward history
+		 * @return boolean
+		 */
+		public boolean forwardAllowed()
+		{
+			if (m_history.size() - 1 > m_historyPosition)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		/**
+		 * Loads URL without adding it to the history
+		 * @param a_url URL
+		 */
+		private void loadURL(URL a_url)
+		{
+			Cursor waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
+			html.setCursor(waitCursor);
+			SwingUtilities.invokeLater(new PageLoader(a_url));
+		}
+
+		private final class PageLoader implements Runnable
+		{
+			PageLoader(URL u)
+			{
+				url = u;
+			}
+
+			public void run()
+			{
+				if (url == null)
 				{
-					html.setPage(url);
+					// restore the original cursor
+					html.setCursor(cursor);
+					// PENDING(prinz) remove this hack when
+					// automatic validation is activated.
+					html.getParent().repaint();
 				}
-				catch (IOException ioe)
+				else if (url.getProtocol().equals("file"))
 				{
-					html.setDocument(doc);
-					getToolkit().beep();
+					Document doc = html.getDocument();
+					try
+					{
+						html.setPage(url);
+					}
+					catch (IOException ioe)
+					{
+						html.setDocument(doc);
+						getToolkit().beep();
+					}
+					finally
+					{
+						// schedule the cursor to revert after
+						// the paint has happended.
+						url = null;
+						SwingUtilities.invokeLater(this);
+					}
 				}
-				finally
+				else
 				{
-					// schedule the cursor to revert after
-					// the paint has happended.
-					url = null;
-					SwingUtilities.invokeLater(this);
+					if (!m_urlCaller.openURL(url))
+					{
+						html.setCursor(cursor);
+						JAPDialog.showInfoDialog(html.getParent(), JAPMessages.getString(MSG_ERROR_EXT_URL),
+												 new ExternalLinkedInformation(url));
+					}
+				}
+			}
+
+			/**
+			 * Needed to copy an external URL that could not be opened to the clip board.
+			 */
+			private class ExternalLinkedInformation implements JAPDialog.ILinkedInformation
+			{
+				private URL m_url;
+
+				public ExternalLinkedInformation(URL a_url)
+				{
+					m_url = a_url;
+				}
+
+				/**
+				 * Returns the URL that could not be opened in the help window.
+				 * @return the URL
+				 */
+				public String getMessage()
+				{
+					return m_url.toString();
+				}
+
+				/**
+				 * No action is performed on clicking the link.
+				 */
+				public void openLink()
+				{
+				}
+
+				/**
+				 * Returns true.
+				 * @return true
+				 */
+				public boolean isCopyAllowed()
+				{
+					return true;
+				}
+
+				/**
+				 * Returns false, as the dialog does not need to open an other window.
+				 * @return false
+				 */
+				public boolean isDialogSemiModal()
+				{
+					return false;
 				}
 			}
 		}
 	}
 }
+
+
