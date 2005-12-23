@@ -113,13 +113,13 @@
   <property category="java.sapient" name="UMM" value="true"/>
   <property category="java.sapient" name="URSP" value="true"/>
   <property category="javaFormatting" name="EventMatch" value="0"/>
-  <property category="javaFormatting" name="alwaysClasses" value="1"/>
   <property category="javaFormatting" name="classBraceNextLine" value="1"/>
   <property category="javaFormatting" name="extendsOnNewLine" value="0"/>
   <property category="javaFormatting" name="implementsOnNewLine" value="0"/>
   <property category="javaFormatting" name="methodBraceNextLine" value="1"/>
   <property category="javaFormatting" name="otherBraceNextLine" value="1"/>
   <property category="javaFormatting" name="packagePrefixGroups" value="java;javax;BLANK_LINE;java.awt;javax.swing;BLANK_LINE;org;(*)"/>
+  <property category="javaFormatting" name="packageThreshold" value="0"/>
   <property category="javaFormatting" name="wrapAtColumn" value="110"/>
   <property category="javadoc" name="custom.tags.1" value="todo;a;To Do:"/>
   <property category="optimize.0" name="OptimizableType" value="intuitive.ide.borland.jb10.ProfilerBootstrap"/>
@@ -210,6 +210,8 @@
   <property category="team" name="ignorePath.2" value="classes"/>
   <property category="team" name="ignorePath.3" value="doc"/>
   <property category="team" name="ignorePath.4" value="doc_doxy"/>
+  <property category="team" name="ignorePath.5" value="help/cvs"/>
+  <property category="team" name="ignorePath.6" value="help/cvs"/>
   <node name="help" type="NavigationDirectory">
     <property category="directorynode" name="showSubdirectories" value="1"/>
     <property category="directorynode" name="url" value="help"/>
