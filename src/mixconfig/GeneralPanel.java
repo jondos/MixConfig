@@ -77,12 +77,19 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	public static final String XMLPATH_GENERAL_MIXNAME = "General/MixName";
 
 
-	private static final String FIRST_MIX = JAPMessages.getString("first_mix");
-	private static final String MIDDLE_MIX = JAPMessages.getString("middle_mix");
-	private static final String LAST_MIX = JAPMessages.getString("last_mix");
+	private static final String MSG_FIRST_MIX = GeneralPanel.class.getName() + "_first_mix";
+	private static final String MSG_MIDDLE_MIX = GeneralPanel.class.getName() + "_middle_mix";
+	private static final String MSG_LAST_MIX = GeneralPanel.class.getName() + "_last_mix";
+	private static final String MSG_CONFIGURATION_STATIC =
+		GeneralPanel.class.getName() + "_configuration_static";
+	private static final String MSG_CONFIGURATION_DYNAMIC =
+		GeneralPanel.class.getName() + "_configuration_dynamic";
+	private static final String MSG_ALLOW_DYNAMIC_FALLBACK =
+		GeneralPanel.class.getName() + "_allow_dynamic_fallback";
+	private static final String MSG_EXPERIMENTAL_FEATURE =
+		GeneralPanel.class.getName() + "_experimental_feature";
 
-	private static final String CONFIGURATION_STATIC = JAPMessages.getString("configuration_static");
-	private static final String CONFIGURATION_DYNAMIC = JAPMessages.getString("configuration_dynamic");
+
 
 	public static final String XMLPATH_AUTOCONFIGURATION =
 		"Network/InfoService/AllowAutoConfiguration";
@@ -125,12 +132,12 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		// Mix Configuration
 		m_combxConfiguration = new JComboBox();
 		m_combxConfiguration.setName(XMLPATH_AUTOCONFIGURATION);
-		m_combxConfiguration.addItem(CONFIGURATION_STATIC);
-		m_combxConfiguration.addItem(CONFIGURATION_DYNAMIC);
+		m_combxConfiguration.addItem(JAPMessages.getString(MSG_CONFIGURATION_STATIC));
+		m_combxConfiguration.addItem(JAPMessages.getString(MSG_CONFIGURATION_DYNAMIC));
 		m_combxConfiguration.addItemListener(this);
-		m_combxConfiguration.setToolTipText(JAPMessages.getString("experimental_feature"));
+		m_combxConfiguration.setToolTipText(JAPMessages.getString(MSG_EXPERIMENTAL_FEATURE));
 
-		m_cbxDynamicFallback = new JCheckBox(JAPMessages.getString("allow_dynamic_fallback"));
+		m_cbxDynamicFallback = new JCheckBox(JAPMessages.getString(MSG_ALLOW_DYNAMIC_FALLBACK));
 		m_cbxDynamicFallback.setToolTipText(JAPMessages.getString("experimental_feature"));
 		m_cbxDynamicFallback.setName(XMLPATH_AUTOCONFIGURATION + "/" + XML_ATTRIBUTE_FALLBACK );
 		m_cbxDynamicFallback.addItemListener(this);
@@ -142,9 +149,9 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		// Mix Type JComboBox
 		m_comboboxMixType = new JComboBox();
 		m_comboboxMixType.setName(this.XMLPATH_GENERAL_MIXTYPE);
-		m_comboboxMixType.addItem(FIRST_MIX);
-		m_comboboxMixType.addItem(MIDDLE_MIX);
-		m_comboboxMixType.addItem(LAST_MIX);
+		m_comboboxMixType.addItem(JAPMessages.getString(MSG_FIRST_MIX));
+		m_comboboxMixType.addItem(JAPMessages.getString(MSG_MIDDLE_MIX));
+		m_comboboxMixType.addItem(JAPMessages.getString(MSG_LAST_MIX));
 		m_comboboxMixType.addItemListener(this);
 		m_panelGeneralSettings.addRow(new JLabel("Mix type"), m_comboboxMixType,
 									  GridBagConstraints.HORIZONTAL);
@@ -616,11 +623,11 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				getConfiguration().isFallbackEnabled())
 			{
 				m_cbxDynamicFallback.setSelected(getConfiguration().isFallbackEnabled());
-				m_combxConfiguration.setSelectedItem(CONFIGURATION_STATIC);
+				m_combxConfiguration.setSelectedItem(JAPMessages.getString(MSG_CONFIGURATION_STATIC));
 			}
 			else
 			{
-				m_combxConfiguration.setSelectedItem(CONFIGURATION_DYNAMIC);
+				m_combxConfiguration.setSelectedItem(JAPMessages.getString(MSG_CONFIGURATION_DYNAMIC));
 			}
 		}
 		else if (a_combx == m_combxCascadeLength)
@@ -680,7 +687,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	{
 		if (a_combx == m_combxConfiguration)
 		{
-			if (a_combx.getSelectedItem().equals(CONFIGURATION_STATIC) &&
+			if (a_combx.getSelectedItem().equals(JAPMessages.getString(MSG_CONFIGURATION_STATIC)) &&
 				!m_cbxDynamicFallback.isSelected())
 			{
 				getConfiguration().removeNode(m_combxConfiguration.getName());
@@ -712,13 +719,14 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	{
 		boolean bEnableCascadeName;
 
-		if (m_combxConfiguration.getSelectedItem().equals(CONFIGURATION_DYNAMIC) &&
+		if (m_combxConfiguration.getSelectedItem().equals(JAPMessages.getString(MSG_CONFIGURATION_DYNAMIC)) &&
 			m_cbxDynamicFallback.isSelected())
 		{
 			m_cbxDynamicFallback.setSelected(false);
 		}
 		m_cbxDynamicFallback.setEnabled(
-				  m_combxConfiguration.getSelectedItem().equals(CONFIGURATION_STATIC));
+				  m_combxConfiguration.getSelectedItem().equals(
+						  JAPMessages.getString(MSG_CONFIGURATION_STATIC)));
 
 
 		m_lblCascadeLength.setEnabled(getConfiguration().isAutoConfigurationAllowed() &&
@@ -813,7 +821,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				if (olddata.getTransport() != ConnectionData.UNIX && !olddata.isVirtual())
 				{
 					ConnectionData newdata = (ConnectionData)olddata.clone();
-					newdata.setName(JAPMessages.getString("configuredByMixOnCD"));
+					newdata.setName(JAPMessages.getString(MixOnCDPanel.MSG_CONFIGURED_BY_MIXONCD));
 					m_listenerModel.changeData(newdata, olddata);
 				}
 			}
@@ -823,7 +831,8 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 			for (int i = 0; i < m_listenerModel.getRowCount(); i++)
 			{
 				ConnectionData olddata = m_listenerModel.getData(i);
-				if (olddata.getName().equalsIgnoreCase(JAPMessages.getString("configuredByMixOnCD")))
+				if (olddata.getName().equalsIgnoreCase(
+								JAPMessages.getString(MixOnCDPanel.MSG_CONFIGURED_BY_MIXONCD)))
 				{
 					/*
 					 * Bugfix: If the model changes here, a newly loaded configuration has no

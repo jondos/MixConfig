@@ -64,14 +64,14 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 	private static final String MSG_LATENCY = AdvancedPanel.class.getName() + "_TS_latency";
 	private static final String MSG_INTERVAL = AdvancedPanel.class.getName() + "_TS_interval";
 
-	private static final String SET_UID = JAPMessages.getString("setUID");
-	private static final String SET_FD = JAPMessages.getString("setFD");
-	private static final String RUN_DAEMON = JAPMessages.getString("runDaemon");
-	private static final String ENABLE_LOGGING = JAPMessages.getString("enableLogging");
-	private static final String LOG_CONSOLE = JAPMessages.getString("logConsole");
-	private static final String LOG_DIR = JAPMessages.getString("logDir");
-	private static final String COMPRESS_LOG = JAPMessages.getString("compressLog");
-	private static final String LOG_SYSLOG = JAPMessages.getString("logSyslog");
+	private static final String MSG_SET_UID = AdvancedPanel.class.getName() + "_setUID";
+	private static final String MSG_SET_FD = AdvancedPanel.class.getName() + "_setFD";
+	private static final String MSG_RUN_DAEMON = AdvancedPanel.class.getName() + "_runDaemon";
+	private static final String MSG_ENABLE_LOGGING = AdvancedPanel.class.getName() + "_enableLogging";
+	private static final String MSG_LOG_CONSOLE = AdvancedPanel.class.getName() + "_logConsole";
+	private static final String MSG_LOG_DIR = AdvancedPanel.class.getName() + "_logDir";
+	private static final String MSG_COMPRESS_LOG = AdvancedPanel.class.getName() + "_compressLog";
+	private static final String MSG_LOG_SYSLOG = AdvancedPanel.class.getName() + "_logSyslog";
 
 	private JTextField m_tfID, m_tfNumOfFileDes, m_tfFileName, m_tfLatency, m_tfInterval;
 	private JCheckBox m_cbDaemon, m_cbCompressLog;
@@ -136,36 +136,36 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		m_tfID = new JTextField(10);
 		m_tfID.setName("General/UserID");
 		m_tfID.addFocusListener(this);
-		miscPanel.addRow(new JLabel(SET_UID), m_tfID);
+		miscPanel.addRow(new JLabel(JAPMessages.getString(MSG_SET_UID)), m_tfID);
 
 		//File Descriptors
 		m_tfNumOfFileDes = new JAPJIntField(
 			new JAPJIntField.IntFieldWithoutZeroBounds(JAPJIntField.NO_MAXIMUM_BOUND));
 		m_tfNumOfFileDes.setName("General/NrOfFileDescriptors");
 		m_tfNumOfFileDes.addFocusListener(this);
-		miscPanel.addRow(new JLabel(SET_FD), m_tfNumOfFileDes);
+		miscPanel.addRow(new JLabel(JAPMessages.getString(MSG_SET_FD)), m_tfNumOfFileDes);
 
 		// Daemon
-		m_cbDaemon = new JCheckBox(RUN_DAEMON);
+		m_cbDaemon = new JCheckBox(JAPMessages.getString(MSG_RUN_DAEMON));
 		m_cbDaemon.setName("General/Daemon");
 		m_cbDaemon.addItemListener(this);
 		miscPanel.addRow(m_cbDaemon, null);
 
 		// Logging
-		m_rbNoLog = new JRadioButton(ENABLE_LOGGING);
+		m_rbNoLog = new JRadioButton(JAPMessages.getString(MSG_ENABLE_LOGGING));
 		m_rbNoLog.setSelected(true);
 		m_rbNoLog.setModel(new ToggleButtonModel());
 		m_rbNoLog.addItemListener(this);
 		loggingPanel.addRow(m_rbNoLog, null);
 
 		// Console Logging
-		m_rbConsole = new JRadioButton(LOG_CONSOLE);
+		m_rbConsole = new JRadioButton(JAPMessages.getString(MSG_LOG_CONSOLE));
 		m_rbConsole.setModel(new ToggleButtonModel());
 		m_rbConsole.addItemListener(this);
 		loggingPanel.addRow(m_rbConsole, null);
 
 		// Log to Directory JRadioButton
-		m_rbFile = new JRadioButton(LOG_DIR);
+		m_rbFile = new JRadioButton(JAPMessages.getString(MSG_LOG_DIR));
 		m_rbFile.setModel(new ToggleButtonModel());
 		m_rbFile.addItemListener(this);
 
@@ -176,13 +176,13 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		loggingPanel.addRow(m_rbFile, m_tfFileName);
 
 		// Compress Log JCheckBox
-		m_cbCompressLog = new JCheckBox(COMPRESS_LOG);
+		m_cbCompressLog = new JCheckBox(JAPMessages.getString(MSG_COMPRESS_LOG));
 		m_cbCompressLog.addItemListener(this);
 		m_cbCompressLog.setEnabled(false);
 		loggingPanel.addRow(null, m_cbCompressLog);
 
 		// Syslog JRadioButton
-		m_rbSyslog = new JRadioButton(LOG_SYSLOG);
+		m_rbSyslog = new JRadioButton(JAPMessages.getString(MSG_LOG_SYSLOG));
 		m_rbSyslog.setModel(new ToggleButtonModel());
 		m_rbSyslog.addItemListener(this);
 		loggingPanel.addRow(m_rbSyslog, null);

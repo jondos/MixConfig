@@ -27,28 +27,27 @@
  */
 package mixconfig;
 
-import java.util.Vector;
 import java.io.IOException;
-import java.awt.GridBagConstraints;
+import java.security.NoSuchAlgorithmException;
+import java.util.Vector;
+
 import java.awt.Component;
-import java.awt.event.ItemEvent;
-import java.awt.event.FocusEvent;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JTextField;
 import javax.swing.JPasswordField;
-import java.security.NoSuchAlgorithmException;
+import javax.swing.JTextField;
 
-import anon.crypto.MD5Crypt;
 import anon.crypto.DESCrypt;
-import mixconfig.networkpanel.IPTextField;
-import gui.JAPHelp;
-import java.awt.Graphics;
+import anon.crypto.MD5Crypt;
 import gui.JAPDialog;
-import gui.*;
+import gui.TitledGridBagPanel;
+import mixconfig.networkpanel.IPTextField;
 
 /**
  * This panel stores the MixOnCD configuration.
@@ -61,6 +60,9 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 	public static final String XMLPATH_MIXONCD_LOGIN_PASSWORD = XMLPATH_MIXONCD + "/Login/Password";
 	public static final String XMLATTRIBUTE_DHCP = "dhcp";
 	public static final String XMLVALUE_NETWORKINTERFACE = "NetworkInterface";
+
+	public static final String MSG_CONFIGURED_BY_MIXONCD =
+		MixOnCDPanel.class.getName() + "_configuredByMixOnCD";
 
 	private static final int VISIBLE_PASSWORD_LENGTH = 15;
 

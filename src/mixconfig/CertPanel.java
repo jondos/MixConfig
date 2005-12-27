@@ -97,11 +97,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private static final Hashtable TRUSTED_CERTIFICATES =
 		JAPCertificate.getInstance("certificates/acceptedCAs/", true);
 
-	private static final String CERT_VALID = "../cert.gif";
-	private static final String CERT_INVALID = "../certinvalid.gif";
-	private static final String CERT_VALID_INACTIVE = "../certinactive.gif";
-	private static final String CERT_INVALID_INACTIVE = "../certinvalidinactive.gif";
-	private static final String CERT_DISABLED = "../certdisabled.gif";
+	private static final String CERT_VALID = "cert.gif";
+	private static final String CERT_INVALID = "certinvalid.gif";
+	private static final String CERT_VALID_INACTIVE = "certinactive.gif";
+	private static final String CERT_INVALID_INACTIVE = "certinvalidinactive.gif";
+	private static final String CERT_DISABLED = "certdisabled.gif";
 
 	private static final String MSG_MANDATORY_ALGO = CertPanel.class.getName() + "_mandatory_algorithm";
 	private static final String MSG_CERT_TYPE_UNKNOWN = CertPanel.class.getName() + "_cert_type_unknown";
@@ -294,7 +294,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			constraints.fill = GridBagConstraints.NONE;
 		}
 
-		m_certLabel = new JLabel(MixConfig.loadImageIcon(CERT_DISABLED));
+		m_certLabel = new JLabel(ImageIconLoader.loadImageIcon(CERT_DISABLED));
 		m_certLabel.setBorder(null);
 		m_certLabel.addMouseListener(new MouseAdapter()
 		{
@@ -480,7 +480,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			if (bCertChanged && !isCertificateVerifyable() && m_strChangedCertNotVerifyable != null)
 			{
 				JAPDialog.showInfoDialog(this, m_strChangedCertNotVerifyable,
-										 MixConfig.loadImageIcon(CERT_INVALID),
+										 ImageIconLoader.loadImageIcon(CERT_INVALID),
 										 m_linkedInformation);
 			}
 		}
@@ -706,22 +706,22 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			{
 				if (bValid)
 				{
-					m_certLabel.setIcon(MixConfig.loadImageIcon(CERT_VALID));
+					m_certLabel.setIcon(ImageIconLoader.loadImageIcon(CERT_VALID));
 				}
 				else
 				{
-					m_certLabel.setIcon(MixConfig.loadImageIcon(CERT_INVALID));
+					m_certLabel.setIcon(ImageIconLoader.loadImageIcon(CERT_INVALID));
 				}
 			}
 			else
 			{
 				if (bValid)
 				{
-					m_certLabel.setIcon(MixConfig.loadImageIcon(CERT_VALID_INACTIVE));
+					m_certLabel.setIcon(ImageIconLoader.loadImageIcon(CERT_VALID_INACTIVE));
 				}
 				else
 				{
-					m_certLabel.setIcon(MixConfig.loadImageIcon(CERT_INVALID_INACTIVE));
+					m_certLabel.setIcon(ImageIconLoader.loadImageIcon(CERT_INVALID_INACTIVE));
 				}
 			}
 
@@ -737,7 +737,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		else
 		{
-			m_certLabel.setIcon(MixConfig.loadImageIcon(CERT_DISABLED));
+			m_certLabel.setIcon(ImageIconLoader.loadImageIcon(CERT_DISABLED));
 			m_certLabel.setToolTipText("");
 		}
 	}

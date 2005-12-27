@@ -27,8 +27,6 @@
  */
 package gui;
 
-import java.awt.MediaTracker;
-import java.awt.Toolkit;
 import java.awt.Component;
 import javax.swing.ImageIcon;
 import javax.swing.JTextPane;
@@ -43,32 +41,16 @@ import java.awt.Point;
  */
 public final class GUIUtils
 {
-	public static final String IMGPATHHICOLOR = "images/";
-	public static final String IMGPATHLOWCOLOR = "images/lowcolor/";
-
 	/**
 	 * Loads an Image from a File or a Resource.
 	 * @param strImage the Resource or filename of the Image
 	 * @param sync true if the loading is synchron, false if it should be asynchron
 	 * @return the loaded image or an empty icon if the image could not be loaded
+	 * @deprecated use ImageIconLoader.loadImageIcon() instead
 	 */
 	public static ImageIcon loadImageIcon(String strImage, boolean sync)
 	{
-		ImageIcon img = null;
-
-		// try loading the lowcolor images
-		if (Toolkit.getDefaultToolkit().getColorModel().getPixelSize() <= 16)
-		{
-			img = ImageIconLoader.loadImageIcon(IMGPATHLOWCOLOR + strImage, sync);
-		}
-		// if loading of lowcolor images was not successful or
-		//    we have to load the hicolor images
-		if (img == null || img.getImageLoadStatus() == MediaTracker.ERRORED)
-		{
-			img = ImageIconLoader.loadImageIcon(IMGPATHHICOLOR + strImage, sync);
-		}
-
-		return img;
+		return ImageIconLoader.loadImageIcon(strImage, sync);
 	}
 
 	/**
