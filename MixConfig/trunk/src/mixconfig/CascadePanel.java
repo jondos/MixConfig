@@ -69,8 +69,7 @@ import org.xml.sax.SAXException;
 import logging.LogType;
 import gui.JAPHelpContext;
 import gui.JAPDialog;
-import gui.ImageIconLoader;
-import gui.ImageIconLoader;
+import gui.GUIUtils;
 
 /** The <CODE>CascadePanel</CODE> is a panel that lets the user edit settings concerning
  * an entire mix cascade. It should only be made visible when the mix that is being
@@ -156,13 +155,13 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.weighty = 0;
 
-		ImageIcon downarrow = ImageIconLoader.loadImageIcon(IMG_ARROW_DOWN);
+		ImageIcon downarrow = GUIUtils.loadImageIcon(IMG_ARROW_DOWN);
 
 		m_addMixButton = new JButton(downarrow);
 		m_addMixButton.addActionListener(this);
 		m_addMixButton.setToolTipText("Use the buttons to move available mixes into your cascade.");
 
-		ImageIcon uparrow = ImageIconLoader.loadImageIcon(IMG_ARROW_UP);
+		ImageIcon uparrow = GUIUtils.loadImageIcon(IMG_ARROW_UP);
 
 		m_remMixButton = new JButton(uparrow);
 		m_remMixButton.addActionListener(this);
@@ -202,10 +201,10 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		constraints.gridwidth = 1;
 		constraints.fill = GridBagConstraints.NONE;
 
-		m_moveMixUpButton = new JButton(ImageIconLoader.loadImageIcon("arrowUp.gif"));
+		m_moveMixUpButton = new JButton(GUIUtils.loadImageIcon("arrowUp.gif"));
 		m_moveMixUpButton.addActionListener(this);
 		m_moveMixUpButton.setToolTipText("Move selected mix up in cascade");
-		m_moveMixDownButton = new JButton(ImageIconLoader.loadImageIcon("arrowDown.gif"));
+		m_moveMixDownButton = new JButton(GUIUtils.loadImageIcon("arrowDown.gif"));
 		m_moveMixDownButton.addActionListener(this);
 		m_moveMixDownButton.setToolTipText("Move selected mix down in cascade");
 		JPanel buttonPanel2 = new JPanel();

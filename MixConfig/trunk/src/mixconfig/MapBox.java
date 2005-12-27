@@ -57,7 +57,7 @@ import javax.swing.text.html.parser.DocumentParser;
 
 import gui.JAPDialog;
 import logging.LogType;
-import gui.ImageIconLoader;
+import gui.GUIUtils;
 
 /** This class provides a dialog showing a map section loaded from MapQuest(R)
  * according to the specified latitude and longitude.
@@ -145,7 +145,7 @@ class MapBox extends JAPDialog implements ChangeListener
 
 		//String logo = "http://art.mapquest.com/mqsite_english/logo";
 		//URL MapLogo = new URL(logo);
-		ImageIcon maplogo = ImageIconLoader.loadImageIcon(IMG_MAPQUEST);
+		ImageIcon maplogo = GUIUtils.loadImageIcon(IMG_MAPQUEST);
 		JLabel logolabel = new JLabel(maplogo);
 		c.gridx = 1;
 		c.gridy = 2;

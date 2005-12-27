@@ -109,19 +109,19 @@ public final class JAPHelp extends JAPDialog
 
 		language = new JComboBox();
 
-		m_backButton = new JButton(ImageIconLoader.loadImageIcon(IMG_PREVIOUS, true));
+		m_backButton = new JButton(GUIUtils.loadImageIcon(IMG_PREVIOUS, true));
 		m_backButton.setBackground(Color.gray); //this together with the next lines sems to be
 		m_backButton.setOpaque(false); //stupid but is necessary for JDK 1.5 on Windows XP (and maybe others)
 		m_backButton.setBorder(new EmptyBorder(0, 0, 0, 0));
 		m_backButton.setFocusPainted(false);
 
-		m_forwardButton = new JButton(ImageIconLoader.loadImageIcon(IMG_NEXT, true));
+		m_forwardButton = new JButton(GUIUtils.loadImageIcon(IMG_NEXT, true));
 		m_forwardButton.setBackground(Color.gray); //this together with the next lines sems to be
 		m_forwardButton.setOpaque(false); //stupid but is necessary for JDK 1.5 on Windows XP (and maybe others)
 		m_forwardButton.setBorder(new EmptyBorder(0, 0, 0, 0));
 		m_forwardButton.setFocusPainted(false);
 
-		m_homeButton = new JButton(ImageIconLoader.loadImageIcon(IMG_HOME, true));
+		m_homeButton = new JButton(GUIUtils.loadImageIcon(IMG_HOME, true));
 		m_homeButton.setBackground(Color.gray); //this together with the next lines sems to be
 		m_homeButton.setOpaque(false); //stupid but is necessary for JDK 1.5 on Windows XP (and maybe others)
 		m_homeButton.setBorder(new EmptyBorder(0, 0, 0, 0));

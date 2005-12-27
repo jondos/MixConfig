@@ -51,7 +51,7 @@ import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectKeyIdentifier;
 import anon.util.ResourceLoader;
 import anon.util.XMLUtil;
-import gui.ImageIconLoader;
+import gui.GUIUtils;
 import gui.JAPHelp;
 import gui.JAPMessages;
 import gui.JAPDialog;
@@ -78,7 +78,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.034"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.035"; //NEVER change the layout of this line!!
 
 	private static final String IMAGE_LOAD_PATH = "images/mixconfig/";
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
@@ -196,7 +196,7 @@ public class MixConfig extends JApplet
 			LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Show the GUI startScreen...");
 			m_MainWindow.setVisible(true);
 
-			ImageIcon icon = ImageIconLoader.loadImageIcon(IMG_MAIN);
+			ImageIcon icon = GUIUtils.loadImageIcon(IMG_MAIN);
 			if (icon != null)
 			{
 				m_MainWindow.setIconImage(icon.getImage());
@@ -379,7 +379,7 @@ public class MixConfig extends JApplet
 			"Mix Configuration Tool\nVersion: " + VERSION,
 			"About",
 			JOptionPane.INFORMATION_MESSAGE,
-			ImageIconLoader.loadImageIcon(IMG_MAIN));
+			GUIUtils.loadImageIcon(IMG_MAIN));
 	}
 
 

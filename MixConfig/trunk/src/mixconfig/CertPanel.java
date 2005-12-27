@@ -294,7 +294,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			constraints.fill = GridBagConstraints.NONE;
 		}
 
-		m_certLabel = new JLabel(ImageIconLoader.loadImageIcon(CERT_DISABLED));
+		m_certLabel = new JLabel(GUIUtils.loadImageIcon(CERT_DISABLED));
 		m_certLabel.setBorder(null);
 		m_certLabel.addMouseListener(new MouseAdapter()
 		{
@@ -480,8 +480,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			if (bCertChanged && !isCertificateVerifyable() && m_strChangedCertNotVerifyable != null)
 			{
 				JAPDialog.showInfoDialog(this, m_strChangedCertNotVerifyable,
-										 ImageIconLoader.loadImageIcon(CERT_INVALID),
-										 m_linkedInformation);
+										 GUIUtils.loadImageIcon(CERT_INVALID), m_linkedInformation);
 			}
 		}
 		catch (Exception ex)
@@ -706,22 +705,22 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			{
 				if (bValid)
 				{
-					m_certLabel.setIcon(ImageIconLoader.loadImageIcon(CERT_VALID));
+					m_certLabel.setIcon(GUIUtils.loadImageIcon(CERT_VALID));
 				}
 				else
 				{
-					m_certLabel.setIcon(ImageIconLoader.loadImageIcon(CERT_INVALID));
+					m_certLabel.setIcon(GUIUtils.loadImageIcon(CERT_INVALID));
 				}
 			}
 			else
 			{
 				if (bValid)
 				{
-					m_certLabel.setIcon(ImageIconLoader.loadImageIcon(CERT_VALID_INACTIVE));
+					m_certLabel.setIcon(GUIUtils.loadImageIcon(CERT_VALID_INACTIVE));
 				}
 				else
 				{
-					m_certLabel.setIcon(ImageIconLoader.loadImageIcon(CERT_INVALID_INACTIVE));
+					m_certLabel.setIcon(GUIUtils.loadImageIcon(CERT_INVALID_INACTIVE));
 				}
 			}
 
@@ -737,7 +736,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		else
 		{
-			m_certLabel.setIcon(ImageIconLoader.loadImageIcon(CERT_DISABLED));
+			m_certLabel.setIcon(GUIUtils.loadImageIcon(CERT_DISABLED));
 			m_certLabel.setToolTipText("");
 		}
 	}

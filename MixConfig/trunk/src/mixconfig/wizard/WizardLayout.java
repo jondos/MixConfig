@@ -42,7 +42,7 @@ import gui.AutoScaleImage;
 import gui.JAPHelp;
 import gui.JAPHelpContext;
 import mixconfig.MixConfig;
-import gui.ImageIconLoader;
+import gui.GUIUtils;
 
 public abstract class WizardLayout extends JPanel implements JAPHelpContext.IHelpContext
 {
@@ -66,9 +66,9 @@ public abstract class WizardLayout extends JPanel implements JAPHelpContext.IHel
 		setLayout(new BorderLayout());
 
 	   //Create the image at the top
-		JLabel leftImage = new JLabel(ImageIconLoader.loadImageIcon(IMG_LEFT));
-		AutoScaleImage centerImage = new AutoScaleImage(ImageIconLoader.loadImageIcon(IMG_CENTER), false);
-		JLabel rightImage = new JLabel(ImageIconLoader.loadImageIcon(IMG_RIGHT));
+		JLabel leftImage = new JLabel(GUIUtils.loadImageIcon(IMG_LEFT));
+		AutoScaleImage centerImage = new AutoScaleImage(GUIUtils.loadImageIcon(IMG_CENTER), false);
+		JLabel rightImage = new JLabel(GUIUtils.loadImageIcon(IMG_RIGHT));
 		GridBagConstraints topImageConstraints = new GridBagConstraints();
 		JPanel topImage = new JPanel(new GridBagLayout());
 
