@@ -27,12 +27,15 @@
  */
 package gui;
 
-import javax.swing.JLabel;
 import java.awt.Image;
-import javax.swing.ImageIcon;
-import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
-import logging.*;
+import java.awt.event.ComponentEvent;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
 
 /**
  * This class implements an image that automatically scales its content

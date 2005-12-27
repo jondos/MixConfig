@@ -49,6 +49,7 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLayeredPane;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
@@ -104,7 +105,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	private static final String MSG_WARNING = JAPDialog.class.getName() + "_warning";
 	private static final String MSG_ERROR_TITLE = JAPDialog.class.getName() + "_error_title";
 	private static final String MSG_ERROR_UNKNOWN = JAPDialog.class.getName() + "_error_unknown";
-	private static final String MSG_ERROR_UNDISPLAYABLE = JAPDialog.class.getName() + "error_undisplayable";
+	private static final String MSG_ERROR_UNDISPLAYABLE = JAPDialog.class.getName() + "_error_undisplayable";
 
 	private boolean m_bDisposed = false;
 	private boolean m_bLocationSetManually = false;
@@ -433,9 +434,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Displays a warning message dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_title The title of the message dialog
 	 * @param a_message The message to be displayed
-	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
 	public static void showWarningDialog(JAPDialog a_parentDialog, String a_message)
 	{
@@ -460,7 +459,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
 	 * @param a_message The message to be displayed
-	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
 	public static void showWarningDialog(JAPDialog a_parentDialog, String a_title, String a_message)
 	{
@@ -893,10 +891,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 				JTextPane textPane = GUIUtils.createSelectableAndResizeableLabel(dummyBox);
 				textPane.setText(strLinkedInformation);
 				textPane.setFont(label.getFont());
-
-				//System.out.println(( (View) label.getClientProperty("html")).get);
-				//System.out.println(textPane.getFont().getSize());
-				//System.out.println(label.getFont().getSize());
+				textPane.setMargin(new java.awt.Insets(0,0,0,0));
+				textPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,1,0));
 				textPane.setForeground(java.awt.Color.blue);
 				linkLabel = textPane;
 			}
@@ -1430,6 +1426,41 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	public final void setTitle(String a_title)
 	{
 		m_internalDialog.setTitle(a_title);
+	}
+
+	/**
+	 * Sets the menubar for this dialog.
+	 * @param a_menubar the menubar being placed in the dialog
+	 */
+	public void setJMenuBar(JMenuBar a_menubar)
+	{
+		m_internalDialog.setJMenuBar(a_menubar);
+	}
+
+	/**
+	 * Returns the menubar set on this dialog.
+	 * @return the menubar set on this dialog
+	 */
+	public JMenuBar getJMenuBar()
+	{
+		return m_internalDialog.getJMenuBar();
+	}
+
+	/**
+	 * If this Window is visible, brings this Window to the front and may make it the focused Window.
+	 */
+	public void toFront()
+	{
+		m_internalDialog.toFront();
+	}
+
+	/**
+	 * If this Window is visible, sends this Window to the back and may cause it to lose focus or
+	 * activation if it is the focused or active Window.
+	 */
+	public void toBack()
+	{
+		m_internalDialog.toBack();
 	}
 
 	/**

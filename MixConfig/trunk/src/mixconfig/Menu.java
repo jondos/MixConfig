@@ -45,6 +45,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -54,17 +55,16 @@ import javax.swing.event.ChangeEvent;
 
 import anon.util.XMLParseException;
 import gui.ClipFrame;
+import gui.JAPDialog;
 import gui.JAPHelp;
+import gui.JAPHelpContext;
 import gui.JAPMessages;
-
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import mixconfig.wizard.ConfigWizard;
-import gui.JAPDialog;
-import javax.swing.JFileChooser;
 
-public class Menu implements ActionListener
+public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 {
 
 	public static final String CMD_OPEN_FILE = "Open";
@@ -85,7 +85,6 @@ public class Menu implements ActionListener
 	private static final String MSG_TOOLS_MNEMONIC = "menu_toolsMnemonic";
 	private static final String MSG_VIEW = "menu_view";
 	private static final String MSG_VIEW_MNEMONIC = "menu_viewMnemonic";
-	private static final String MSG_HELP = "menu_help";
 	private static final String MSG_HELP_MNEMONIC = "menu_helpMnemonic";
 
 	private JFrame m_mainWin;
@@ -136,8 +135,8 @@ public class Menu implements ActionListener
 		JMenu viewMenu = new JMenu(JAPMessages.getString(MSG_VIEW));
 		viewMenu.setMnemonic(JAPMessages.getString(MSG_VIEW_MNEMONIC).charAt(0));
 		m_MenuBar.add(viewMenu);
-		JMenu helpMenu = new JMenu(JAPMessages.getString(MSG_HELP));
-		helpMenu.setMnemonic(JAPMessages.getString(MSG_HELP_MNEMONIC).charAt(0));
+		JMenu helpMenu = new JMenu(JAPMessages.getString(JAPHelp.MSG_HELP_BUTTON));
+		helpMenu.setMnemonic(JAPMessages.getString(JAPHelp.MSG_HELP_BUTTON).charAt(0));
 		m_MenuBar.add(helpMenu);
 
 		//items for "file"
@@ -234,13 +233,16 @@ public class Menu implements ActionListener
 
 		//items for "help"
 		JMenuItem aboutMenuItem = new JMenuItem("About...");
-		m_helpTopics = new JMenuItem("Help topics");
-		m_helpTopics.addActionListener(this);
-		helpMenu.add(m_helpTopics);
+		helpMenu.add(JAPHelp.createHelpMenuItem(this));
 		helpMenu.add(aboutMenuItem);
 		aboutMenuItem.setActionCommand("About");
 		aboutMenuItem.addActionListener(this);
 
+	}
+
+	public String getHelpContext()
+	{
+		return JAPHelpContext.INDEX;
 	}
 
 	public void exit()
@@ -300,11 +302,6 @@ public class Menu implements ActionListener
 			if (evt.getActionCommand().equals(CMD_RESET))
 			{
 				reset();
-			}
-			else if (evt.getSource() == m_helpTopics)
-			{
-				JAPHelp.getInstance().getContextObj().setContext("index");
-				JAPHelp.getInstance().setVisible(true);
 			}
 			else if (evt.getSource() == m_defaultSize)
 			{
@@ -486,7 +483,7 @@ public class Menu implements ActionListener
 			}
 			else if (evt.getActionCommand().equals("toolCertSigMenuItem"))
 			{
-				new SigCertTool(MixConfig.getMainWindow());
+				new CertificationTool(MixConfig.getMainWindow());
 			}
 			else if (evt.getActionCommand().equals("toolEncLogMenuItem"))
 			{

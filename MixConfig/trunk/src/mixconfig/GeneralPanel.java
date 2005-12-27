@@ -61,7 +61,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import anon.infoservice.ListenerInterface;
-import gui.JAPHelp;
 import gui.JAPJIntField;
 import gui.JAPMessages;
 import mixconfig.networkpanel.ConnectionData;
@@ -754,16 +753,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		}
 	}
 
-	/**
-	 * Registers for the correct help context every time the panel is painted.
-	 * @param g Graphics
-	 */
-	public void paint(Graphics g)
+	public String getHelpContext()
 	{
-		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("GeneralPanel");
+			return "GeneralPanel";
 	}
-
 
 	public void load() throws IOException
 	{

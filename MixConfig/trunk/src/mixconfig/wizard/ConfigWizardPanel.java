@@ -54,13 +54,14 @@ import mixconfig.PreviousMixPanel;
 import gui.TitledGridBagPanel;
 import mixconfig.networkpanel.NextMixProxyPanel;
 import gui.JAPDialog;
+import gui.JAPHelpContext;
 
 /**
  * A class that represents a wizard.
  * <strong>Note:</strong> This class is based on a part of ronin's wizard API.
  * @author ronin &lt;ronin2@web.de&gt;
  */
-public class ConfigWizardPanel extends JPanel implements ChangeListener
+public class ConfigWizardPanel extends JPanel implements ChangeListener, JAPHelpContext.IHelpContext
 {
 
 	/** indicates a state in which the wizard may continue to the next page */
@@ -167,6 +168,11 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		}
 
 		fireStateChanged();
+	}
+
+	public String getHelpContext()
+	{
+		return m_pages[m_currentPage].getHelpContext();
 	}
 
 	/**
@@ -385,6 +391,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener
 		final ConfigWizardPanel panelWizard = this;
 		MixConfigPanel finish = new MixConfigPanel("Finish") {
 			// this is an anonymous class to insert it into the common MixConfigPanel array
+			public String getHelpContext() {return JAPHelpContext.INDEX;}
 			public Vector check() {return panelWizard.check();}
 			public void enableComponents() {}};
 		String text[] =

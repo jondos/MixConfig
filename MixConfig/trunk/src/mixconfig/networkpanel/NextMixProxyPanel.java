@@ -60,7 +60,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import gui.JAPHelp;
 import logging.LogType;
 import mixconfig.CertPanel;
 import mixconfig.ConfigurationEvent;
@@ -71,6 +70,7 @@ import mixconfig.OtherMixPanel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import gui.JAPDialog;
+import gui.JAPHelpContext;
 
 /** A panel that provides settings for configuring the Mix's network access:<br>
  * Listeners for incoming connections, and network adresses of outgoing
@@ -386,10 +386,9 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		return errors;
 	}
 
-	public void paint(Graphics g)
-	{
-		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("index");
+	public String getHelpContext()
+		{
+			return JAPHelpContext.INDEX;
 	}
 
 	protected void enableComponents()

@@ -53,8 +53,11 @@ import anon.util.Base64;
 import gui.JAPMessages;
 import logging.LogType;
 import gui.JAPDialog;
+import gui.JAPHelpContext;
+import gui.JAPHelp;
 
-public class EncryptedLogTool extends JAPDialog implements ActionListener, ChangeListener
+public class EncryptedLogTool extends JAPDialog
+	implements ActionListener, ChangeListener, JAPHelpContext.IHelpContext
 {
 	private static final String MSG_PASSWD_INFO_MSG = EncryptedLogTool.class.getName() +
 		"_password_info_message";
@@ -73,70 +76,68 @@ public class EncryptedLogTool extends JAPDialog implements ActionListener, Chang
 	{
 		super(parent, "Log Reader for encrypted Mix logs", true);
 
-		GridBagLayout layout = new GridBagLayout();
-		getContentPane().setLayout(layout);
-		GridBagLayout layoutFile = new GridBagLayout();
-		GridBagLayout layoutBttns = new GridBagLayout();
+		GridBagConstraints constraintsContentPane;
+		GridBagConstraints constraintsPanelLog;
+		JPanel panelLog;
 
+		getContentPane().setLayout(new GridBagLayout());
 
-		JPanel panel1 = new JPanel(layoutFile);
-		GridBagConstraints d = new GridBagConstraints();
-		d.anchor = GridBagConstraints.NORTHWEST;
-		d.insets = new Insets(5, 5, 5, 5);
-		panel1.setBorder(new TitledBorder("Log File to decrypt"));
+		constraintsContentPane = new GridBagConstraints();
+		constraintsContentPane.anchor = GridBagConstraints.NORTHWEST;
+		constraintsContentPane.insets = new Insets(10, 10, 10, 10);
+		constraintsContentPane.fill = GridBagConstraints.BOTH;
+		constraintsContentPane.gridx = 0;
+		constraintsContentPane.gridy = 0;
+		constraintsContentPane.weightx = 1;
+		constraintsContentPane.weighty = 1;
+		panelLog = new JPanel(new GridBagLayout());
+		panelLog.setBorder(new TitledBorder("Log File to decrypt"));
+		getContentPane().add(panelLog, constraintsContentPane);
 
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.insets = new Insets(10, 10, 10, 10);
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.weightx = 1;
-		c.weighty = 1;
-		layout.setConstraints(panel1, c);
-		getContentPane().add(panel1);
-
+		constraintsPanelLog = new GridBagConstraints();
+		constraintsPanelLog.anchor = GridBagConstraints.WEST;
+		constraintsPanelLog.insets = new Insets(5, 5, 5, 5);
+		constraintsPanelLog.gridx = 0;
+		constraintsPanelLog.gridy = 0;
 		m_btnChooseFile = new JButton("Choose...");
-		d.gridwidth = 1;
-		d.fill = GridBagConstraints.NONE;
+		constraintsPanelLog.fill = GridBagConstraints.NONE;
 		m_btnChooseFile.addActionListener(this);
-		layoutFile.setConstraints(m_btnChooseFile, d);
-		panel1.add(m_btnChooseFile);
+		panelLog.add(m_btnChooseFile, constraintsPanelLog);
 
-		d.gridy = 1;
-		d.anchor = GridBagConstraints.WEST;
+		constraintsPanelLog.gridx++;
 		m_btnDecrypt = new JButton("Decrypt");
 		m_btnDecrypt.addActionListener(this);
-		layoutBttns.setConstraints(m_btnDecrypt, d);
-		panel1.add(m_btnDecrypt);
+		panelLog.add(m_btnDecrypt, constraintsPanelLog);
+
+		constraintsPanelLog.gridx++;
+		panelLog.add(JAPHelp.createHelpButton(this), constraintsPanelLog);
 
 
-		d.gridx = 0;
-		d.gridy = 1;
-		d.gridwidth = 10;
-		d.fill = GridBagConstraints.BOTH;
+		constraintsPanelLog.gridx = 0;
+		constraintsPanelLog.gridy = 1;
+		constraintsPanelLog.gridwidth = 3;
+		constraintsPanelLog.gridheight = 3;
+		constraintsPanelLog.fill = GridBagConstraints.BOTH;
 		m_textLogFile = new JTextArea();
 
 		m_textLogFile.setEditable(false);
 		JScrollPane sp = new JScrollPane(m_textLogFile);
 		sp.setPreferredSize(new Dimension(500, 250));
-		d.weightx = 10;
-		d.weighty = 10;
-		layoutFile.setConstraints(sp, d);
-		panel1.add(sp);
+		constraintsPanelLog.weightx = 10;
+		constraintsPanelLog.weighty = 10;
+		panelLog.add(sp, constraintsPanelLog);
 
 
-		c.gridx = 0;
-		c.gridy = 1;
-		c.weighty = 0;
-		c.fill = GridBagConstraints.NONE;
+		constraintsContentPane.gridx = 0;
+		constraintsContentPane.gridy = 1;
+		constraintsContentPane.weighty = 0;
+		constraintsContentPane.fill = GridBagConstraints.NONE;
 		m_privateCertPanel =
 			new CertPanel(JAPMessages.getString(MSG_CERT_HEADLINE), null,
 						  (PKCS12)null, CertPanel.CERT_ALGORITHM_RSA);
 		m_privateCertPanel.setCertCreationValidator(new LogCertCreationValidator());
 		m_privateCertPanel.addChangeListener(this);
-		layout.setConstraints(m_privateCertPanel, c);
-		getContentPane().add(m_privateCertPanel);
+		getContentPane().add(m_privateCertPanel, constraintsContentPane);
 		pack();
 		setVisible(true, false);
 	}
@@ -147,6 +148,11 @@ public class EncryptedLogTool extends JAPDialog implements ActionListener, Chang
 		{
 			pack();
 		}
+	}
+
+	public String getHelpContext()
+	{
+		return JAPHelpContext.INDEX;
 	}
 
 	public void actionPerformed(ActionEvent a_event)

@@ -32,27 +32,24 @@ package mixconfig.wizard;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import gui.JAPHelp;
-import gui.GUIUtils;
+import javax.swing.ImageIcon;
+
 import gui.AutoScaleImage;
-import gui.JAPMessages;
+import gui.JAPHelp;
+import gui.JAPHelpContext;
 import mixconfig.MixConfig;
 
-
-
-public class WizardLayout extends JPanel
+public abstract class WizardLayout extends JPanel implements JAPHelpContext.IHelpContext
 {
 
 	/** The paths to the logo parts to display at the top  of the wizard */
-	protected static final String PATH_LEFT = JAPMessages.getString("leftWizardImage");
-	protected static final String PATH_CENTER = JAPMessages.getString("centerWizardImage");
-	protected static final String PATH_RIGHT = JAPMessages.getString("rightWizardImage");
+	private static final String IMG_LEFT =	WizardLayout.class.getName() + "_left.gif";
+	private static final String IMG_CENTER = WizardLayout.class.getName() + "_center.gif";
+	private static final String IMG_RIGHT = WizardLayout.class.getName() + "_right.gif";
 
 	/** The forward navigation button */
 		private JButton m_bttnForward;
@@ -63,20 +60,14 @@ public class WizardLayout extends JPanel
 		/** The cancel navigation button */
 		private JButton m_bttnCancel;
 
-		/** The help button */
-		private JButton m_bttnHelp;
-
-
-
 	public WizardLayout()
 	{
 		setLayout(new BorderLayout());
 
 	   //Create the image at the top
-		JLabel leftImage = new JLabel(MixConfig.loadImageIcon(PATH_LEFT));
-		AutoScaleImage centerImage = new AutoScaleImage(
-		MixConfig.loadImageIcon(PATH_CENTER), false);
-		JLabel rightImage = new JLabel(MixConfig.loadImageIcon(PATH_RIGHT));
+		JLabel leftImage = new JLabel(MixConfig.loadImageIcon(IMG_LEFT));
+		AutoScaleImage centerImage = new AutoScaleImage(MixConfig.loadImageIcon(IMG_CENTER), false);
+		JLabel rightImage = new JLabel(MixConfig.loadImageIcon(IMG_RIGHT));
 		GridBagConstraints topImageConstraints = new GridBagConstraints();
 		JPanel topImage = new JPanel(new GridBagLayout());
 
@@ -99,19 +90,13 @@ public class WizardLayout extends JPanel
 		m_bttnBack = new JButton("<- Back");
 		m_bttnCancel = new JButton("Cancel");
 		m_bttnForward = new JButton("Next ->");
-		m_bttnHelp = new JButton("Help");
 
 		Box buttonBox = Box.createHorizontalBox();
-		buttonBox.add(m_bttnHelp);
+		buttonBox.add(JAPHelp.createHelpButton(this));
 		buttonBox.add(Box.createHorizontalGlue());
 		buttonBox.add(m_bttnBack);
 		buttonBox.add(m_bttnForward);
 		buttonBox.add(m_bttnCancel);
-
-
-		m_bttnHelp.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				JAPHelp.getInstance().setVisible(true);}});
 
 		add(topImage, BorderLayout.NORTH);
 		add(buttonBox, BorderLayout.SOUTH);

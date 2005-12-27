@@ -411,4 +411,14 @@
     <declared-field-type>Ljava/lang/String;</declared-field-type>
     <new-field-name>IMG_NEXT</new-field-name>
   </rename-field>
+  <rename-class id="6AP0GU7Y4QHE2AJOF66YS6Y0" creation-time="Tue Dec 27 12:47:12.608 CET 2005">
+    <old-class-name>mixconfig.SigCertTool</old-class-name>
+    <new-class-name>mixconfig.CertificationTool</new-class-name>
+  </rename-class>
+  <rename-field id="4AP0GU7Y4QHE2AJOF66YS6Y0" creation-time="Tue Dec 27 15:13:20.305 CET 2005">
+    <declaring-class-name>gui.JAPHelp</declaring-class-name>
+    <old-field-name>MSG_HELP_TOPICS</old-field-name>
+    <declared-field-type>Ljava/lang/String;</declared-field-type>
+    <new-field-name>MSG_HELP_MENU_ITEM</new-field-name>
+  </rename-field>
 </refactor>

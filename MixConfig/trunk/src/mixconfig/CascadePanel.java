@@ -67,8 +67,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 import logging.LogType;
-import gui.JAPHelp;
-import java.awt.Graphics;
+import gui.JAPHelpContext;
 import gui.JAPDialog;
 
 /** The <CODE>CascadePanel</CODE> is a panel that lets the user edit settings concerning
@@ -334,10 +333,9 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		enableComponents();
 	}
 
-	public void paint(Graphics g)
+	public String getHelpContext()
 	{
-		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("index");
+		return JAPHelpContext.INDEX;
 	}
 
 	/** Moves the currently selected entry from one table to another.

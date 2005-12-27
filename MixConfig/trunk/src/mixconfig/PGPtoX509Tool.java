@@ -40,6 +40,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -67,13 +68,16 @@ import anon.crypto.MyRSAPrivateKey;
 import anon.crypto.PKCS12;
 import anon.crypto.Validity;
 import anon.crypto.X509DistinguishedName;
-import gui.*;
-import javax.swing.JFileChooser;
+import gui.JAPDialog;
+import gui.JAPHelpContext;
+import gui.JAPHelp;
+import gui.PasswordBox;
+import logging.LogType;
 
 
 
 
-public class PGPtoX509Tool extends JAPDialog implements ActionListener
+public class PGPtoX509Tool extends JAPDialog implements ActionListener, JAPHelpContext.IHelpContext
 {
 
 	private JTextField m_textFile;
@@ -131,14 +135,6 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 		f.anchor = GridBagConstraints.NORTHEAST;
 		f.insets = new Insets(5, 5, 5, 5);
 
-		JLabel space = new JLabel();
-		f.gridx = 0;
-		f.gridy = 0;
-		f.weightx = 1;
-		f.fill = f.HORIZONTAL;
-		layoutBttns.setConstraints(space, f);
-		panel3.add(space);
-
 		JButton bttnSign = new JButton("Convert and Save");
 		bttnSign.setActionCommand("Convert");
 		bttnSign.addActionListener(this);
@@ -146,36 +142,33 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 		f.gridy = 0;
 		f.weightx = 0;
 		f.fill = f.NONE;
-		layoutBttns.setConstraints(bttnSign, f);
-		panel3.add(bttnSign);
+		f.anchor = GridBagConstraints.WEST;
+		panel3.add(bttnSign, f);
 
-		JButton bttnCancel = new JButton("Cancel");
-		bttnCancel.setActionCommand("Cancel");
-		bttnCancel.addActionListener(this);
 		f.gridx = 1;
 		f.gridy = 0;
-		layoutBttns.setConstraints(bttnCancel, f);
-		panel3.add(bttnCancel);
+		panel3.add(JAPHelp.createHelpButton(this), f);
 
 		c.gridx = 0;
 		c.gridy = 2;
 		c.weightx = 1;
 		c.weighty = 1;
-		layout.setConstraints(panel3, c);
-		getContentPane().add(panel3);
+		getContentPane().add(panel3, c);
 
 		pack();
+		setResizable(false);
 		setVisible(true, false);
+	}
+
+	public String getHelpContext()
+	{
+		return JAPHelpContext.INDEX;
 	}
 
 	public void actionPerformed(ActionEvent e)
 	{
 		String strCmd = e.getActionCommand();
-		if (strCmd.equals("Cancel"))
-		{
-			dispose();
-		}
-		else if (strCmd.equals("Convert"))
+		if (strCmd.equals("Convert"))
 		{
 			doConvert();
 		}
@@ -205,7 +198,7 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 		}
 		catch (Exception e)
 		{
-			showInfoDialog(this, "Ooops, error during transformation: " + e.toString());
+			showErrorDialog(this, e, "Ooops, error during transformation.", LogType.CRYPTO);
 		}
 	}
 
