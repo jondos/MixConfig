@@ -31,10 +31,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
@@ -44,25 +44,24 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.JToggleButton.ToggleButtonModel;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
+import anon.crypto.ICertificate;
+import anon.crypto.PKCS12;
 import anon.util.Base64;
+import anon.util.ClassUtil;
+import gui.JAPDialog;
+import gui.JAPHelpContext;
+import logging.LogType;
 import mixconfig.networkpanel.IPTextField;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.OutgoingConnectionTableModel;
-import javax.swing.JTabbedPane;
-import anon.crypto.ICertificate;
-import anon.crypto.PKCS12;
-import logging.LogType;
-import anon.util.ClassUtil;
-import gui.JAPDialog;
 
 /** This is the abstract superclass of all configuration panels. It saves
  * the data entered by the user to the underlying configuration object, and updates
@@ -84,7 +83,8 @@ import gui.JAPDialog;
  * @author ronin &lt;ronin2@web.de&gt;
  * @todo Find another way to synchronize non-ItemSelectables. The FocusListener is not a safe way.
  */
-public abstract class MixConfigPanel extends JPanel implements ItemListener, FocusListener
+public abstract class MixConfigPanel extends JPanel implements ItemListener, FocusListener,
+		JAPHelpContext.IHelpContext
 {
 	public static final int MAX_COLUMN_LENGTH = 20;
 	public static final int MAX_COMBO_BOX_LENGTH = 27;

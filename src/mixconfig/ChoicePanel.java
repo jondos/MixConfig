@@ -34,7 +34,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import logging.LogType;
 import mixconfig.wizard.ConfigWizard;
-import java.awt.Graphics;
 import javax.swing.JRootPane;
 import gui.JAPDialog;
 
@@ -184,36 +183,6 @@ public class ChoicePanel extends JPanel
 			m_Parent.pack();
 			m_Parent.setLocation(location);
 		}
-	}
-
-	public void paint(Graphics g)
-	{
-		/*
-		   Dimension currentDimension = new Dimension(getSize());
-		   boolean bChangeSize = false;
-
-		   if (currentDimension.getWidth() < DEFAULT_SIZE.getWidth())
-		   {
-		 currentDimension.setSize(DEFAULT_SIZE.getWidth(), currentDimension.getHeight());
-		 bChangeSize = true;
-		   }
-		   if (currentDimension.getHeight() < DEFAULT_SIZE.getHeight())
-		   {
-		 currentDimension.setSize(currentDimension.getWidth(), DEFAULT_SIZE.getHeight());
-		 bChangeSize = true;
-		   }
-
-		   if (bChangeSize)
-		   {
-		 setSize(currentDimension);
-		 setMinimumSize(currentDimension);
-		 setPreferredSize(currentDimension);
-		   }
-		   else */
-		{
-			super.paint(g);
-		}
-
 	}
 
 	/**

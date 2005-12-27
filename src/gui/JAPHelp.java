@@ -54,8 +54,10 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 
 import anon.util.ResourceLoader;
+import gui.JAPHelpContext.IHelpContext;
 
 /* classes modified from Swing Example "Metalworks" */
 /** Help window for the JAP. This is a singleton meaning that there exists only one help window all the time.*/
@@ -73,6 +75,8 @@ public final class JAPHelp extends JAPDialog
 	private static final String MSG_LANGUAGE = JAPHelp.class.getName() + ("_lang");
 	private static final String MSG_LANGUAGE_SHORT = JAPHelp.class.getName() + ("_langshort");
 	private static final String MSG_ERROR_EXT_URL = JAPHelp.class.getName() + ("_error_ext_URL");
+	public static final String MSG_HELP_BUTTON = JAPHelp.class.getName() + ("_helpButton");
+	public static final String MSG_HELP_MENU_ITEM = JAPHelp.class.getName() + ("_helpMenuItem");
 
 	private static final int MAX_HELP_LANGUAGES = 6;
 
@@ -95,48 +99,6 @@ public final class JAPHelp extends JAPDialog
 	private JAPHelp(Frame parent, ExternalURLCaller a_urlCaller)
 	{
 		super(parent, JAPMessages.getString(MSG_HELP_WINDOW), false);
-		init(a_urlCaller);
-	}
-
-	/**
-	 * Creates and initialises the new global help object with the given frame as parent frame.
-	 * Does nothing if called more than once.
-	 * @param a_parent the parent frame of the help object
-	 * @param a_urlCaller the caller that is used to open external URLs
-	 */
-	public static void init(Frame a_parent, ExternalURLCaller a_urlCaller)
-	{
-		if (ms_theJAPHelp == null)
-		{
-			ms_theJAPHelp = new JAPHelp(a_parent, a_urlCaller);
-		}
-	}
-
-	/**
-	 * Creates and initialises the new global help object with the given frame as parent frame.
-	 * Does nothing if called more than once. No external URLs can be open with this initialisation.
-	 * @param a_parent the parent frame of the help object
-	 */
-	public static void init(Frame a_parent)
-	{
-		init(a_parent, null);
-	}
-
-	/**
-	 * Retruns the current help instance.
-	 * @return the current help instance
-	 */
-	public static JAPHelp getInstance()
-	{
-		return ms_theJAPHelp;
-	}
-
-	private void init(ExternalURLCaller a_urlCaller)
-	{
-		if (a_urlCaller == null)
-		{
-			a_urlCaller = new NoURLCaller();
-		}
 
 		m_initializing = true;
 		m_helpContext = new JAPHelpContext();
@@ -213,6 +175,7 @@ public final class JAPHelp extends JAPDialog
 			}
 		}
 
+		// set window size
 		( (JComponent) getContentPane()).setPreferredSize(new Dimension(
 			Math.min(Toolkit.getDefaultToolkit().getScreenSize().width - 50, 600),
 			Math.min(Toolkit.getDefaultToolkit().getScreenSize().height - 80, 350)));
@@ -221,16 +184,59 @@ public final class JAPHelp extends JAPDialog
 	}
 
 	/**
+	 * Creates and initialises a new global help object with the given frame as parent frame.
+	 * @param a_parent the parent frame of the help object
+	 * @param a_urlCaller the caller that is used to open external URLs (may be null)
+	 */
+	public static void init(Frame a_parent, ExternalURLCaller a_urlCaller)
+	{
+		ms_theJAPHelp = new JAPHelp(a_parent, a_urlCaller);
+	}
+
+	/**
+	 * Returns the current help instance.
+	 * @return the current help instance
+	 */
+	public static JAPHelp getInstance()
+	{
+		return ms_theJAPHelp;
+	}
+
+	/**
 	 * An instance of this interface is needed to open external URLs.
 	 */
 	public static interface ExternalURLCaller
 	{
 		/**
-		 * Returns if the caller was able to opne the URL in the browser
+		 * Returns if the caller was able to open the URL in the browser
 		 * @param a_url a URL
-		 * @return if the caller was able to opne the URL in the browser
+		 * @return if the caller was able to open the URL in the browser
 		 */
 		boolean openURL(URL a_url);
+	}
+
+	/**
+	 * Creates a button that opens the help window with the given context.
+	 * @param a_helpContext a help context
+	 * @return a button that opens the help window with the given context
+	 */
+	public static JButton createHelpButton(IHelpContext a_helpContext)
+	{
+		JButton helpButton = new JButton(JAPMessages.getString(MSG_HELP_BUTTON));
+		helpButton.addActionListener(new HelpContextActionListener(a_helpContext));
+		return helpButton;
+	}
+
+	/**
+	 * Creates a menu item that opens the help window with the given context.
+	 * @param a_helpContext a help context
+	 * @return a menu item that opens the help window with the given context
+	 */
+	public static JMenuItem createHelpMenuItem(IHelpContext a_helpContext)
+	{
+		JMenuItem helpButton = new JMenuItem(JAPMessages.getString(MSG_HELP_MENU_ITEM));
+		helpButton.addActionListener(new HelpContextActionListener(a_helpContext));
+		return helpButton;
 	}
 
 	public void loadCurrentContext()
@@ -270,19 +276,21 @@ public final class JAPHelp extends JAPDialog
 		return m_helpContext;
 	}
 
-	/**
-	 * If no ExternalURLCaller is given, no external URLs can be opened and this caller is instanciated.
-	 */
-	private static final class NoURLCaller implements ExternalURLCaller
+	private static final class HelpContextActionListener implements ActionListener
 	{
-		/**
-		 * Returns false.
-		 * @param a_url a URL
-		 * @return false
-		 */
-		public boolean openURL(URL a_url)
+		private IHelpContext m_helpContext;
+
+		public HelpContextActionListener(IHelpContext a_helpContext)
 		{
-			return false;
+			m_helpContext = a_helpContext;
+		}
+
+		public void actionPerformed(ActionEvent a_event)
+		{
+			getInstance().getContextObj().setContext(m_helpContext);
+			getInstance().loadCurrentContext();
+			getInstance().toFront();
+			getInstance().requestFocus();
 		}
 	}
 
@@ -374,12 +382,10 @@ public final class JAPHelp extends JAPDialog
 				checkNavigationButtons();
 			}
 		}
-
 	}
 
 	private final class HtmlPane extends JScrollPane implements HyperlinkListener
 	{
-
 		private ExternalURLCaller m_urlCaller;
 		private JEditorPane html;
 		private URL url;
@@ -389,8 +395,12 @@ public final class JAPHelp extends JAPDialog
 
 		public HtmlPane(ExternalURLCaller a_urlCaller)
 		{
+			if (a_urlCaller == null)
+			{
+				a_urlCaller = new ExternalURLCaller(){public boolean openURL(URL a_url) {return false;}};
+			}
 			m_urlCaller = a_urlCaller;
-			html = new JEditorPane("text/html", "");
+			html = new JEditorPane("text/html", "<html><body></body></html>");
 			html.setEditable(false);
 			html.addHyperlinkListener(this);
 			m_history = new Vector();
@@ -463,7 +473,6 @@ public final class JAPHelp extends JAPDialog
 
 		private void linkActivated(URL u)
 		{
-
 			Cursor waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
 			html.setCursor(waitCursor);
 			SwingUtilities.invokeLater(new PageLoader(u));
@@ -474,7 +483,7 @@ public final class JAPHelp extends JAPDialog
 			this.firePropertyChange("CheckButtons", false, true);
 		}
 
-	/**
+		/**
 		 * Removes all entries from the forward history
 		 */
 		private void cleanForwardHistory()

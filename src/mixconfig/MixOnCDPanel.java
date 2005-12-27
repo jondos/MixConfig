@@ -425,14 +425,9 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		}
 	}
 
-	/**
-	 * Registers for the correct help context every time the panel is painted.
-	 * @param g Graphics
-	 */
-	public void paint(Graphics g)
+	public String getHelpContext()
 	{
-		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("livecd");
+		return "livecd";
 	}
 
 	public void focusGained(FocusEvent a_event)

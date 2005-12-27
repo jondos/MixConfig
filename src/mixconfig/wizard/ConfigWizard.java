@@ -28,21 +28,20 @@
 package mixconfig.wizard;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import gui.JAPDialog;
 import logging.LogType;
 import mixconfig.ChoicePanel;
 import mixconfig.Menu;
 import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
-import mixconfig.MixConfigPanel;
-import mixconfig.GeneralPanel;
-import gui.JAPDialog;
 
 /** A class that displays the Mix configuration panels as a wizard. To the left of
  * the panel, a logo is displayed; at the bottom, there are three navigation
@@ -217,6 +216,12 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 	{
 		getButtonForward().setText("Next ->");
 	}
+
+	public String getHelpContext()
+	{
+		return m_wizPanel.getHelpContext();
+	}
+
 
 	public int getPageCount()
 	{

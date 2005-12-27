@@ -27,7 +27,6 @@
  */
 package mixconfig;
 
-
 import java.math.BigInteger;
 
 import java.awt.Frame;
@@ -45,64 +44,86 @@ import anon.crypto.PKCS12;
 import gui.JAPMessages;
 import gui.ValidityDialog;
 import gui.JAPDialog;
+import gui.JAPHelp;
+import gui.JAPHelpContext;
+import javax.swing.JPanel;
 
-public class SigCertTool extends JAPDialog implements ActionListener, ChangeListener
+public class CertificationTool extends JAPDialog
+	implements ActionListener, ChangeListener, JAPHelpContext.IHelpContext
 {
-	private static final String MSG_CONFIRMATION_TITLE = SigCertTool.class.getName() + "_Confirmation_title";
-	private static final String MSG_CONFIRMATION = SigCertTool.class.getName() + "_Confirmation_message";
+	private static final String MSG_CONFIRMATION_TITLE = CertificationTool.class.getName() + "_Confirmation_title";
+	private static final String MSG_CONFIRMATION = CertificationTool.class.getName() + "_Confirmation_message";
 
 	private CertPanel m_publicCertPanel;
 	private CertPanel m_privateCertPanel;
 	private JButton m_btnSign;
 
-	public SigCertTool(Frame parent)
+	public CertificationTool(Frame parent)
 	{
 		super(parent, "Sign a public certificate", true);
-		this.setResizable(false);
+
+		GridBagLayout gbl = new GridBagLayout();
+		GridBagConstraints constraints = new GridBagConstraints();
+		GridBagConstraints buttonConstraints = new GridBagConstraints();
+		JPanel panelButtons;
 
 		// upper public certificate
-		GridBagLayout gbl = new GridBagLayout();
-		this.getContentPane().setLayout(gbl);
-		GridBagConstraints publicConstraint = new GridBagConstraints();
-		publicConstraint.anchor = GridBagConstraints.NORTH;
-		publicConstraint.gridx = 0;
-		publicConstraint.gridy = 0;
-		publicConstraint.insets = new Insets(5, 5, 5, 5);
+		getContentPane().setLayout(gbl);
+		constraints.anchor = GridBagConstraints.NORTH;
+		constraints.gridwidth = 2;
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.insets = new Insets(5, 5, 5, 5);
 		m_publicCertPanel = new CertPanel("Public certificate",
 										  "Hint: Public Certificate to be signed ", (JAPCertificate)null,
 										  CertPanel.CERT_ALGORITHM_BOTH);
 		m_publicCertPanel.setName("Public Certificate");
 		m_publicCertPanel.addChangeListener(this);
-		this.getContentPane().add(m_publicCertPanel, publicConstraint);
+		getContentPane().add(m_publicCertPanel, constraints);
 
 		// middle private certificate
-		GridBagConstraints privateConstraint = new GridBagConstraints();
-		privateConstraint.anchor = GridBagConstraints.CENTER;
-		privateConstraint.gridx = 0;
-		privateConstraint.gridy = 1;
-		privateConstraint.insets = new Insets(5, 5, 5, 5);
+		constraints.anchor = GridBagConstraints.CENTER;
+		constraints.gridy++;
 		m_privateCertPanel = new CertPanel("Private certificate",
 										   "Hint: Private Certificate to sign a Public Certificate",
 										   (PKCS12)null, CertPanel.CERT_ALGORITHM_BOTH);
 		m_privateCertPanel.setName("Private Certificate");
 		m_privateCertPanel.addChangeListener(this);
-		this.getContentPane().add(m_privateCertPanel, privateConstraint);
+		getContentPane().add(m_privateCertPanel, constraints);
 
-		// bottom button
+		// bottom buttons
+		constraints.gridwidth = 1;
+		constraints.gridy++;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		panelButtons = new JPanel(new GridBagLayout());
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+
+		buttonConstraints.anchor = GridBagConstraints.WEST;
+		buttonConstraints.gridx = 0;
+		buttonConstraints.gridy = 0;
+		buttonConstraints.insets = constraints.insets;
 		m_btnSign = new JButton("Sign Certificate");
 		m_btnSign.addActionListener(this);
-		GridBagConstraints btnConstraint = new GridBagConstraints();
-		btnConstraint.anchor = GridBagConstraints.SOUTH;
-		btnConstraint.gridx = 0;
-		btnConstraint.gridy = 3;
-		btnConstraint.insets = new Insets(5, 5, 5, 5);
-		this.getContentPane().add(m_btnSign, btnConstraint);
+		panelButtons.add(m_btnSign, buttonConstraints);
 		m_btnSign.setEnabled(false);
-		//enableButton();
+		buttonConstraints.gridx++;
+		panelButtons.add(JAPHelp.createHelpButton(this), buttonConstraints);
+
+		getContentPane().add(panelButtons, constraints);
+
 
 		pack();
+		setResizable(false);
 		setVisible(true, false);
 	}
+
+	public String getHelpContext()
+	{
+		//return CertificationTool.class.getName();
+		return JAPHelpContext.INDEX;
+	}
+
 
 	public void actionPerformed(ActionEvent ae)
 	{

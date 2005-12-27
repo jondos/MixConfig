@@ -28,23 +28,20 @@
 package mixconfig;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import javax.swing.border.EtchedBorder;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import gui.GUIUtils;
-import logging.LogType;
-import mixconfig.wizard.WizardLayout;
-import gui.JAPHelp;
-import java.awt.Graphics;
+import javax.swing.border.EtchedBorder;
+
 import gui.JAPDialog;
 import gui.JAPHtmlMultiLineLabel;
-import gui.*;
+import gui.TitledGridBagPanel;
+import logging.LogType;
+import mixconfig.wizard.WizardLayout;
 
 public class StartScreenPanel  extends WizardLayout implements ActionListener
 {
@@ -76,7 +73,8 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		JPanel itemPanel = new JPanel(new BorderLayout());
 		itemPanel.setBorder(new EtchedBorder());
 
-		itemPanel.add(new JAPHtmlMultiLineLabel("<br>" + START_TXT), BorderLayout.NORTH);
+		itemPanel.add(
+			  new JAPHtmlMultiLineLabel(JAPHtmlMultiLineLabel.TAG_BREAK + START_TXT), BorderLayout.NORTH);
 
 		JButton b_new = new JButton(BLABEL_NEW);
 		b_new.setActionCommand(CMD_NEW);
@@ -128,14 +126,9 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		add(itemPanel, BorderLayout.CENTER);
 	}
 
-	/**
-	 * Registers for the correct help context every time the panel is painted.
-	 * @param g Graphics
-	 */
-	public void paint(Graphics g)
+	public String getHelpContext()
 	{
-		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("start");
+		return "start";
 	}
 
 	public void actionPerformed(ActionEvent ae)

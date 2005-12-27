@@ -388,6 +388,11 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		setAutoSaveEnabled(true);
 	}
 
+	public String getHelpContext()
+	{
+		return JAPHelpContext.INDEX;
+	}
+
 	public Vector check()
 	{
 		Vector errors = new Vector();

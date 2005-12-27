@@ -273,10 +273,9 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 		setAutoSaveEnabled(true);
 	}
 
-	public void paint(Graphics g)
+	public String getHelpContext()
 	{
-		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext("index");
+		return JAPHelpContext.INDEX;
 	}
 
 	public Vector check()

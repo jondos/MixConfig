@@ -78,6 +78,11 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 		enableComponents();
 	}
 
+	public String getHelpContext()
+	{
+		return JAPHelpContext.INDEX;
+	}
+
 	public void stateChanged(ChangeEvent e)
 	{
 		try

@@ -269,10 +269,9 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		}
 	}
 
-	public void paint(Graphics g)
+	public String getHelpContext()
 	{
-		super.paint(g);
-		JAPHelp.getInstance().getContextObj().setContext(HELP_CONTEXT);
+		return HELP_CONTEXT;
 	}
 
 	public Vector check()
