@@ -58,6 +58,8 @@ import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.text.View;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants.CharacterConstants;
 
 import logging.LogHolder;
 import logging.LogLevel;
@@ -889,6 +891,13 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			if (a_linkedInformation.isCopyAllowed())
 			{   /** @todo this is not nice in most of the old JDKs) */
 				JTextPane textPane = GUIUtils.createSelectableAndResizeableLabel(dummyBox);
+				/*
+				SimpleAttributeSet attributes;
+				attributes = new SimpleAttributeSet(textPane.getCharacterAttributes());
+				attributes.addAttribute(CharacterConstants.Underline, Boolean.TRUE);
+				textPane.setCharacterAttributes(attributes, true);
+			*/
+
 				textPane.setText(strLinkedInformation);
 				textPane.setFont(label.getFont());
 				textPane.setMargin(new java.awt.Insets(0,0,0,0));

@@ -35,6 +35,15 @@ import java.awt.Font;
 import java.awt.Window;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Hashtable;
+import logging.LogHolder;
+import logging.LogLevel;
+import java.awt.Image;
+import java.net.URL;
+import java.awt.Toolkit;
+import java.awt.MediaTracker;
+import anon.util.ResourceLoader;
+import logging.LogType;
 
 /**
  * This class contains helper methods for the GUI.
@@ -42,15 +51,112 @@ import java.awt.Point;
 public final class GUIUtils
 {
 	/**
-	 * Loads an Image from a File or a Resource.
-	 * @param strImage the Resource or filename of the Image
-	 * @param sync true if the loading is synchron, false if it should be asynchron
-	 * @return the loaded image or an empty icon if the image could not be loaded
-	 * @deprecated use ImageIconLoader.loadImageIcon() instead
+	 * The default path to store images.
 	 */
-	public static ImageIcon loadImageIcon(String strImage, boolean sync)
+	public static final String DEFAULT_IMGAGE_PATH = "images/";
+	/**
+	 * Images with a smaller pixes size than 16 bit should be stored in this path. Their names must
+	 * be equal to the corresponding images in the default path.
+	 */
+	public static final String DEFAULT_IMGAGE_PATH_LOWCOLOR = "images/lowcolor/";
+
+	// all loaded icons are stored in the cache and do not need to be reloaded from file
+	private static Hashtable ms_iconCache = new Hashtable();
+
+	/**
+	 * Loads an ImageIcon from the classpath or the current directory.
+	 * The icon may be contained in an archive (JAR) or a directory structure. If the icon could
+	 * not be found in the classpath, it is loaded from the current directory.
+	 * If even the current directory does not contain the icon, it is loaded from the default image path.
+	 * Once an icon is loaded, it is stored in a memory cache, so that further calls of this method
+	 * do not load the icon from the file system, but from the cache.
+	 * @param a_strRelativeImagePath the relative resource path or filename of the Image
+	 * @return the loaded ImageIcon or null if the icon could not be loaded
+	 *         (getImageLoadStatus() == java.awt.MediaTracker.ERRORED)
+	 */
+	public static ImageIcon loadImageIcon(String a_strRelativeImagePath)
 	{
-		return ImageIconLoader.loadImageIcon(strImage, sync);
+		return loadImageIcon(a_strRelativeImagePath, true);
+	}
+
+	/**
+	 * Loads an ImageIcon from the classpath or the current directory.
+	 * The icon may be contained in an archive (JAR) or a directory structure. If the icon could
+	 * not be found in the classpath, it is loaded from the current directory.
+	 * If even the current directory does not contain the icon, it is loaded from the default image path.
+	 * Once an icon is loaded, it is stored in a memory cache, so that further calls of this method
+	 * do not load the icon from the file system, but from the cache.
+	 * The image may be loaded synchronously so that the method only returns when the image has been
+	 * loaded completely (or an error occured), or asynchronously so that the method returns even if
+	 * the image has not been loaded yet.
+	 * @param a_strRelativeImagePath the relative resource path or filename of the Image
+	 * @param a_bSync true if the image should be loaded synchronously; false otherwise
+	 * @return the loaded ImageIcon or null if the icon could not be loaded
+	 *         (getImageLoadStatus() == java.awt.MediaTracker.ERRORED)
+	 */
+	public static ImageIcon loadImageIcon(String a_strRelativeImagePath, boolean a_bSync)
+	{
+		ImageIcon img;
+		int statusBits;
+
+		// try to load the image from the cache
+		if (ms_iconCache.containsKey(a_strRelativeImagePath))
+		{
+			return new ImageIcon((Image)ms_iconCache.get(a_strRelativeImagePath));
+		}
+
+		// load image from the local classpath or the local directory
+		img = loadImageIconInternal(ResourceLoader.getResourceURL(a_strRelativeImagePath));
+
+		if (img == null && (Toolkit.getDefaultToolkit().getColorModel().getPixelSize() <= 16))
+		{
+			// load the image from the low color image path
+			img = loadImageIconInternal(
+				 ResourceLoader.getResourceURL(DEFAULT_IMGAGE_PATH_LOWCOLOR + a_strRelativeImagePath));
+		}
+
+		if (img == null || img.getImageLoadStatus() == MediaTracker.ERRORED)
+		{
+			// load the image from the default image path
+			img = loadImageIconInternal(
+						 ResourceLoader.getResourceURL(DEFAULT_IMGAGE_PATH + a_strRelativeImagePath));
+		}
+
+		if (img != null)
+		{
+			if (a_bSync)
+			{
+				statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED | MediaTracker.COMPLETE;
+				while ( (img.getImageLoadStatus() & statusBits) == 0)
+				{
+					Thread.yield();
+				}
+			}
+
+			// write the image to the cache
+			ms_iconCache.put(a_strRelativeImagePath, img.getImage());
+		}
+
+		statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED;
+		if (img == null || (img.getImageLoadStatus() & statusBits) != 0)
+		{
+			LogHolder.log(LogLevel.INFO, LogType.GUI,
+						  "Could not load requested image '" + a_strRelativeImagePath + "'!");
+		}
+
+		return img;
+	}
+
+	private static ImageIcon loadImageIconInternal(URL a_imageURL)
+	{
+		try
+		{
+			return new ImageIcon(a_imageURL);
+		}
+		catch (NullPointerException a_e)
+		{
+			return null;
+		}
 	}
 
 	/**

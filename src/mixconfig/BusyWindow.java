@@ -43,7 +43,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import gui.ImageIconLoader;
+import gui.GUIUtils;
 
 
 class BusyWindow extends JDialog implements ActionListener
@@ -75,7 +75,7 @@ class BusyWindow extends JDialog implements ActionListener
 		p.add(label);
 		gbc.gridy++;
 
-		ImageIcon img = ImageIconLoader.loadImageIcon("busy.gif");
+		ImageIcon img = GUIUtils.loadImageIcon("busy.gif");
 		MediaTracker mt = new MediaTracker(this);
 		mt.addImage(img.getImage(), 1);
 		try
