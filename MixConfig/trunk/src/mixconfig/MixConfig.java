@@ -78,10 +78,17 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.033"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.034"; //NEVER change the layout of this line!!
 
 	private static final String IMAGE_LOAD_PATH = "images/mixconfig/";
-	private static final String MAIN_ICON_PATH = JAPMessages.getString("main_icon");
+	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
+
+	private static final String MSG_COULD_NOT_INITIALISE =
+		MixConfig.class.getName() + "_could_not_initialise";
+	private static final String MSG_CONFIG_FILE_NOT_FOUND =
+		MixConfig.class.getName() + "_configFileNotFound";
+	private static final String MSG_ERROR_OPEN_FILE =
+		MixConfig.class.getName() + "_errorOpenFile";
 
         /** The configuration object edited by this <CODE>MixConfig</CODE> application. */
 	private static MixConfiguration m_mixConfiguration;
@@ -164,8 +171,7 @@ public class MixConfig extends JApplet
 
 			if (m_currentFileName != null && (f = new File(m_currentFileName)).exists())
 			{
-				LogHolder.log(LogLevel.DEBUG, LogType.MISC,
-							  JAPMessages.getString("loading_config_file"));
+				LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Load a configuration file...");
 				m_mixConfiguration = new MixConfiguration(new FileReader(f));
 			}
 			else //no existig file is given
@@ -173,7 +179,7 @@ public class MixConfig extends JApplet
 				if (m_currentFileName != null)
 				{
 					JAPDialog.showErrorDialog(getMainWindow(), null,
-											   JAPMessages.getString("config_file_not_found",
+											   JAPMessages.getString(MSG_CONFIG_FILE_NOT_FOUND,
 						new File(m_currentFileName).toString()),
 											   LogType.MISC);
 				}
@@ -187,10 +193,10 @@ public class MixConfig extends JApplet
 			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 			Dimension size = m_MainWindow.getSize();
 			m_MainWindow.setLocation( (d.width - size.width) / 2, (d.height - size.height) / 2);
-			LogHolder.log(LogLevel.DEBUG, LogType.GUI, JAPMessages.getString("show_gui"));
+			LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Show the GUI startScreen...");
 			m_MainWindow.setVisible(true);
 
-			ImageIcon icon = loadImageIcon(MAIN_ICON_PATH);
+			ImageIcon icon = ImageIconLoader.loadImageIcon(IMG_MAIN);
 			if (icon != null)
 			{
 				m_MainWindow.setIconImage(icon.getImage());
@@ -218,7 +224,7 @@ public class MixConfig extends JApplet
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorDialog(getMainWindow(),e, JAPMessages.getString("could_not_initialise"),
+			JAPDialog.showErrorDialog(getMainWindow(),e, JAPMessages.getString(MSG_COULD_NOT_INITIALISE),
 									   LogType.MISC);
 			System.exit(1);
 		}
@@ -373,25 +379,13 @@ public class MixConfig extends JApplet
 			"Mix Configuration Tool\nVersion: " + VERSION,
 			"About",
 			JOptionPane.INFORMATION_MESSAGE,
-			loadImageIcon(MAIN_ICON_PATH));
+			ImageIconLoader.loadImageIcon(IMG_MAIN));
 	}
 
 
 	public static Frame getMainWindow()
 	{
 		return m_MainWindow;
-	}
-
-	/**
-	 * Loads an image icon from the MixConfig icon directory. This is
-	 * a shortcut for IconDirectory + ImageName. If you need to load an
-	 * image from the common image directory add "../" before the file name.
-	 * @param a_name the name of the image icon to load
-	 * @return the loaded image icon or null if the icon could not be loaded
-	 */
-	public static ImageIcon loadImageIcon(String a_name)
-	{
-		return ImageIconLoader.loadImageIcon(IMAGE_LOAD_PATH + a_name);
 	}
 
 	/**
@@ -463,7 +457,7 @@ public class MixConfig extends JApplet
 			catch (IOException e)
 			{
 				JAPDialog.showErrorDialog(getMainWindow(),e,
-										   JAPMessages.getString("error_open_file", file.toString()),
+										   JAPMessages.getString(MSG_ERROR_OPEN_FILE, file.toString()),
 										   LogType.MISC);
 			}
 		}

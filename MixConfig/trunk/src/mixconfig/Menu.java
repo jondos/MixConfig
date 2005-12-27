@@ -79,13 +79,9 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 	private static final String MSG_NO_VALID_CLIPDOC = Menu.class.getName() + "_no_valid_clipdoc";
 	private static final String MSG_COULD_NOT_PARSE = Menu.class.getName() + "_could_not_parse";
 	private static final String MSG_REALLY_CONTINUE = Menu.class.getName() + "_really_continue";
-	private static final String MSG_FILE = "menu_file";
-	private static final String MSG_FILE_MNEMONIC = "menu_fileMnemonic";
-	private static final String MSG_TOOLS = "menu_tools";
-	private static final String MSG_TOOLS_MNEMONIC = "menu_toolsMnemonic";
-	private static final String MSG_VIEW = "menu_view";
-	private static final String MSG_VIEW_MNEMONIC = "menu_viewMnemonic";
-	private static final String MSG_HELP_MNEMONIC = "menu_helpMnemonic";
+	private static final String MSG_FILE = Menu.class.getName() + "_file";
+	private static final String MSG_TOOLS = Menu.class.getName() + "_tools";
+	private static final String MSG_VIEW = Menu.class.getName() + "_view";
 
 	private JFrame m_mainWin;
 	private JMenuBar m_MenuBar;
@@ -127,13 +123,13 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		}
 		//the main menu
 		m_fileMenu = new JMenu(JAPMessages.getString(MSG_FILE));
-		m_fileMenu.setMnemonic(JAPMessages.getString(MSG_FILE_MNEMONIC).charAt(0));
+		m_fileMenu.setMnemonic(JAPMessages.getString(MSG_FILE).charAt(0));
 		m_MenuBar.add(m_fileMenu);
 		m_toolsMenu = new JMenu(JAPMessages.getString(MSG_TOOLS));
-		m_toolsMenu.setMnemonic(JAPMessages.getString(MSG_TOOLS_MNEMONIC).charAt(0));
+		m_toolsMenu.setMnemonic(JAPMessages.getString(MSG_TOOLS).charAt(0));
 		m_MenuBar.add(m_toolsMenu);
 		JMenu viewMenu = new JMenu(JAPMessages.getString(MSG_VIEW));
-		viewMenu.setMnemonic(JAPMessages.getString(MSG_VIEW_MNEMONIC).charAt(0));
+		viewMenu.setMnemonic(JAPMessages.getString(MSG_VIEW).charAt(0));
 		m_MenuBar.add(viewMenu);
 		JMenu helpMenu = new JMenu(JAPMessages.getString(JAPHelp.MSG_HELP_BUTTON));
 		helpMenu.setMnemonic(JAPMessages.getString(JAPHelp.MSG_HELP_BUTTON).charAt(0));

@@ -52,6 +52,7 @@ import anon.infoservice.ListenerInterface;
 import gui.JAPMessages;
 import gui.JAPJIntField;
 import javax.swing.JComponent;
+import mixconfig.MixOnCDPanel;
 
 abstract class ConnectionDialog extends JDialog
 {
@@ -96,7 +97,7 @@ abstract class ConnectionDialog extends JDialog
 				return new ConnectionData(getType(),
 										  ssl.getSelection().getActionCommand().equals("SSL") ?
 										  ConnectionData.SSL_TCP : ConnectionData.RAW_TCP,
-										  JAPMessages.getString("configuredByMixOnCD"),
+										  JAPMessages.getString(MixOnCDPanel.MSG_CONFIGURED_BY_MIXONCD),
 										  (iptext.getText().length() == 0) ? 0 :
 										  Integer.parseInt(iptext.getText()),
 										  0,

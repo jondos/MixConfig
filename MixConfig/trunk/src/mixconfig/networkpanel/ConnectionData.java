@@ -33,6 +33,7 @@ import org.w3c.dom.Node;
 import anon.util.XMLUtil;
 import gui.JAPMessages;
 import anon.util.IXMLEncodable;
+import mixconfig.MixOnCDPanel;
 
 final public class ConnectionData implements IXMLEncodable, Cloneable
 {
@@ -228,7 +229,8 @@ final public class ConnectionData implements IXMLEncodable, Cloneable
 		if ( (m_iTransport & UNIX) == 0) // TCP?
 		{
 			data = docOwner.createElement("Host");
-			if (!m_strHostname.equalsIgnoreCase(JAPMessages.getString("configuredByMixOnCD")))
+			if (!m_strHostname.equalsIgnoreCase(
+						 JAPMessages.getString(MixOnCDPanel.MSG_CONFIGURED_BY_MIXONCD)))
 			{
 				data.appendChild(docOwner.createTextNode(m_strHostname));
 			}
@@ -241,7 +243,8 @@ final public class ConnectionData implements IXMLEncodable, Cloneable
 		else // UNIX?
 		{
 			data = docOwner.createElement("File");
-			if (!m_strHostname.equalsIgnoreCase(JAPMessages.getString("configuredByMixOnCD")))
+			if (!m_strHostname.equalsIgnoreCase(JAPMessages.getString(
+												MixOnCDPanel.MSG_CONFIGURED_BY_MIXONCD)))
 			{
 				data.appendChild(docOwner.createTextNode(m_strHostname));
 			}
