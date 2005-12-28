@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.Vector;
 
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -63,10 +62,10 @@ import javax.swing.table.TableColumn;
 import anon.infoservice.ListenerInterface;
 import gui.JAPJIntField;
 import gui.JAPMessages;
+import gui.TitledGridBagPanel;
 import mixconfig.networkpanel.ConnectionData;
 import mixconfig.networkpanel.IncomingConnectionTableModel;
 import mixconfig.networkpanel.IncomingDialog;
-import gui.*;
 
 public class GeneralPanel extends MixConfigPanel implements ActionListener, TableModelListener,
 	ChangeListener
@@ -77,17 +76,17 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	public static final String XMLPATH_GENERAL_MIXNAME = "General/MixName";
 
 
-	private static final String MSG_FIRST_MIX = GeneralPanel.class.getName() + "_first_mix";
-	private static final String MSG_MIDDLE_MIX = GeneralPanel.class.getName() + "_middle_mix";
-	private static final String MSG_LAST_MIX = GeneralPanel.class.getName() + "_last_mix";
-	private static final String MSG_CONFIGURATION_STATIC =
-		GeneralPanel.class.getName() + "_configuration_static";
-	private static final String MSG_CONFIGURATION_DYNAMIC =
-		GeneralPanel.class.getName() + "_configuration_dynamic";
+	private static final String MSG_FIRST_MIX = GeneralPanel.class.getName() + "_firstMix";
+	private static final String MSG_MIDDLE_MIX = GeneralPanel.class.getName() + "_middleMix";
+	private static final String MSG_LAST_MIX = GeneralPanel.class.getName() + "_lastMix";
+	private static final String MSG_CONFIGURATION_STATIC = GeneralPanel.class.getName() + "_configStatic";
+	private static final String MSG_CONFIGURATION_DYNAMIC = GeneralPanel.class.getName() + "_configDynamic";
 	private static final String MSG_ALLOW_DYNAMIC_FALLBACK =
-		GeneralPanel.class.getName() + "_allow_dynamic_fallback";
+		GeneralPanel.class.getName() + "_allowDynamicFallback";
 	private static final String MSG_EXPERIMENTAL_FEATURE =
-		GeneralPanel.class.getName() + "_experimental_feature";
+		GeneralPanel.class.getName() + "_experimentalFeature";
+	private static final String MSG_TOO_MANY_INTERFACES = GeneralPanel.class.getName() + "_tooManyInterfaces";
+
 
 
 
@@ -164,8 +163,6 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_tfMixName.addFocusListener(this);
 		m_panelGeneralSettings.addRow(new JLabel("Mix name"), m_tfMixName,
 									  GridBagConstraints.HORIZONTAL);
-
-
 
 		// Cascade Name JTextField; this field is disabled by selecting a middle mix type
 		m_tfCascadeName = new JTextField(20);
@@ -401,7 +398,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		s = mixConf.getValue(XMLPATH_GENERAL_MIXNAME);
 		if (s == null || s.equals(""))
 		{
-			errors.addElement("Mix Name not entered in General Panel.");
+			errors.addElement("Mix Name not entered.");
 		}
 
 		try
@@ -413,7 +410,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				   getConfiguration().isAutoConfigurationAllowed())) &&
 				(s == null || s.equals("")))
 			{
-				errors.addElement("Cascade Name not entered in General Panel.");
+				errors.addElement("Cascade Name not entered.");
 			}
 		}
 		catch (NumberFormatException nfe)
@@ -424,14 +421,14 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		s = getConfiguration().getValue("Network/InfoService/Host");
 		if (s == null || s.equals(""))
 		{
-			errors.addElement("InfoService host name is incorrect in General Panel.");
+			errors.addElement("InfoService host name is incorrect.");
 		}
 
 		s = getConfiguration().getValue("Network/InfoService/Port");
 		if (s == null || s.equals(""))
 		{
 			errors.addElement(
-				"The Port field for the Info Service should not be blank in General Panel.");
+				"The Port field for the Info Service should not be blank.");
 		}
 		boolean bPortInvalid = false;
 		try
@@ -445,7 +442,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		if (bPortInvalid)
 		{
 			errors.addElement(
-				"The InfoService port is invalid in General Panel.");
+				"The InfoService port is invalid.");
 		}
 
 		for (int i = 0; i < m_listenerModel.getRowCount(); i++)
@@ -540,15 +537,15 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	{
 		if (m_listenerModel.getRowCount() > 2)
 		{
-			errors.addElement("Too many interfaces for middle or last mix");
+			errors.addElement(MSG_TOO_MANY_INTERFACES);
 		}
 		else if(defaultPorts.size() > 1)
 		{
-			errors.addElement("Too many interfaces for middle or last mix");
+			errors.addElement(MSG_TOO_MANY_INTERFACES);
 		}
 		else if(hiddenPorts.size() > 1 && virtualPorts.size() > 1)
 		{
-			errors.addElement("Too many interfaces for middle or last mix");
+			errors.addElement(MSG_TOO_MANY_INTERFACES);
 		}
 	}
 
@@ -763,7 +760,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 
 	public String getHelpContext()
 	{
-			return "GeneralPanel";
+			return getClass().getName();
 	}
 
 	public void load() throws IOException
@@ -810,7 +807,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	}
 
 
-	/** Set the information in the "Listener interfaces" according to MixOnCD */
+	/* Set the information in the "Listener interfaces" according to MixOnCD */
 	private void setMixOnCDInfo(boolean a_configuredByMixOnCD)
 	{
 		if (a_configuredByMixOnCD)

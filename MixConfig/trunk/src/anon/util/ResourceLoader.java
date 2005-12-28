@@ -49,10 +49,11 @@ import java.util.zip.ZipFile;
  */
 public final class ResourceLoader
 {
-	private static final String SYSTEM_RESOURCE_TYPE_ZIP = "ZIP";
-	private static final String SYSTEM_RESOURCE_TYPE_JAR = "JAR";
-	private static final String SYSTEM_RESOURCE_TYPE_FILE = "FILE";
-	private static final String SYSTEM_RESOURCE = "systemresource:/";
+	public static final String SYSTEM_RESOURCE_TYPE_ZIP = "zip";
+	public static final String SYSTEM_RESOURCE_TYPE_JAR = "jar";
+	public static final String SYSTEM_RESOURCE_TYPE_FILE = "file";
+	public static final String SYSTEM_RESOURCE_TYPE_GENERIC = "systemresource";
+	private static final String SYSTEM_RESOURCE = SYSTEM_RESOURCE_TYPE_GENERIC + ":/";
 	private static final String SYSTEM_RESOURCE_ENDSIGN = "/+/";
 	private static final String DIR_UP = "../";
 	private static final String DIR_CURRENT = "./";
@@ -440,17 +441,17 @@ public final class ResourceLoader
 		// find the beginning of the [id] string
 		a_systemResource =
 			a_systemResource.substring(SYSTEM_RESOURCE.length(), a_systemResource.length());
-		if (a_systemResource.toUpperCase().startsWith(SYSTEM_RESOURCE_TYPE_ZIP))
+		if (a_systemResource.toLowerCase().startsWith(SYSTEM_RESOURCE_TYPE_ZIP))
 		{
 			a_systemResource = a_systemResource.substring(
 				SYSTEM_RESOURCE_TYPE_ZIP.length(), a_systemResource.length());
 		}
-		else if (a_systemResource.toUpperCase().startsWith(SYSTEM_RESOURCE_TYPE_JAR))
+		else if (a_systemResource.toLowerCase().startsWith(SYSTEM_RESOURCE_TYPE_JAR))
 		{
 			a_systemResource = a_systemResource.substring(
 				SYSTEM_RESOURCE_TYPE_JAR.length(), a_systemResource.length());
 		}
-		else if (a_systemResource.toUpperCase().startsWith(SYSTEM_RESOURCE_TYPE_FILE))
+		else if (a_systemResource.toLowerCase().startsWith(SYSTEM_RESOURCE_TYPE_FILE))
 		{
 			a_systemResource = a_systemResource.substring(
 				SYSTEM_RESOURCE_TYPE_FILE.length(), a_systemResource.length());

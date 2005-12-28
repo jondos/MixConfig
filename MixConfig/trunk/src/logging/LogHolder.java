@@ -319,6 +319,11 @@ public final class LogHolder
 						strOwnClass = strCurrentMethod.substring(0, index);
 					}
 					strOwnClass = strOwnClass.substring(0, strOwnClass.lastIndexOf('.'));
+					// filter out internal classes
+					if (strOwnClass.indexOf("$") > 0)
+					{
+						strOwnClass = strOwnClass.substring(0, strOwnClass.indexOf("$"));
+					}
 				}
 				else
 				{

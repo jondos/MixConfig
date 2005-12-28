@@ -34,11 +34,13 @@ import anon.util.Util;
 
 /**
  * Objects of this class store a language code and can translate it into
- * the localised name of the corresponding language.
+ * the localised name of the corresponding language. The default locale of
+ * this class is bound to the locale used in JAPMessages.
  *
  * @author Rolf Wendolsky
+ * @see gui.JAPMessages
  * @see http://www.w3.org/WAI/ER/IG/ert/iso639.htm
- * @version ISO 639 on 25.10.05
+ * @version ISO 639 on 27.12.05
  */
 public class LanguageMapper extends AbstractISOCodeMapper
 {

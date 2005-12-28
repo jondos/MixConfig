@@ -138,13 +138,13 @@ public abstract class AbstractISOCodeMapper
 	 */
 	public final String getISOCode()
 	{
-		return m_iso2;
+		return m_iso2.toLowerCase();
 	}
 
 	/**
-	 * Returns if the ISO country codes of two CountryMapper objects are equal.
+	 * Returns if the ISO codes of two mapper objects are equal.
 	 * @param a_object an Object
-	 * @return true if the ISO country codes of two CountryMapper objects are
+	 * @return true if the ISO country codes of two mapper objects are
 	 *         equal; false otherwise
 	 */
 	public final boolean equals(Object a_object)

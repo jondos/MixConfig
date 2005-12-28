@@ -164,6 +164,10 @@ public class ConfigFrame extends JPanel
 		for (int i = 0; i < m_panels.length; i++)
 		{
 				errors[i] = m_panels[i].check();
+				for (int j = 0; j < errors[i].size(); j++)
+				{
+					errors[i].setElementAt(errors[i].elementAt(j) + " (" + m_panels[i].getName() + ")", j);
+				}
 		}
 
 		int size = 0;
