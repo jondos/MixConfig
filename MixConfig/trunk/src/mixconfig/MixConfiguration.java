@@ -54,6 +54,7 @@ import mixconfig.networkpanel.OutgoingConnectionTableModel;
 import java.io.File;
 import java.io.FileWriter;
 import javax.swing.JFileChooser;
+import gui.JAPDialog;
 
 /** This class provides unified access to the Mix configuration. The configuration
  * is stored as a DOM document.
@@ -933,7 +934,7 @@ public class MixConfiguration
 		String ver = XMLUtil.parseAttribute(root, XML_ATTRIBUTE_VERSION, null);
 		if (ver == null || ver.length() == 0)
 		{
-			if (!MixConfig.ask(
+			if (!JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
 				"XML file version unknown",
 				"This file does not contain any version information,\n" +
 				"thus information may be lost.\nDo you want to continue?"))
@@ -946,7 +947,7 @@ public class MixConfiguration
 		{
 			if (Float.valueOf(ver).floatValue() > Float.valueOf(VERSION).floatValue())
 			{
-				if (!MixConfig.ask(
+				if (!JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
 					"XML file version mismatch",
 					"The version of this file is newer than this utility,\n" +
 					"thus information may not be read properly.\n" +
@@ -959,7 +960,7 @@ public class MixConfiguration
 		}
 		catch (NumberFormatException a_e)
 		{
-			if (!MixConfig.ask(
+			if (!JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
 				"Invalid XML file version",
 				"This file contains an invalid version information,\n" +
 				"thus information may not be read properly.\nDo you want to continue?"))

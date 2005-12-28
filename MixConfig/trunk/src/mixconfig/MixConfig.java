@@ -31,7 +31,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Calendar;
+
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
@@ -39,11 +41,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
-import javax.swing.WindowConstants;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
+
 import org.w3c.dom.Document;
 import anon.crypto.PKCS12;
 import anon.crypto.Validity;
@@ -52,15 +55,13 @@ import anon.crypto.X509SubjectKeyIdentifier;
 import anon.util.ResourceLoader;
 import anon.util.XMLUtil;
 import gui.GUIUtils;
+import gui.JAPDialog;
 import gui.JAPHelp;
 import gui.JAPMessages;
-import gui.JAPDialog;
-
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import logging.SystemErrLog;
-import java.security.SecureRandom;
 
 public class MixConfig extends JApplet
 {
@@ -283,7 +284,6 @@ public class MixConfig extends JApplet
 
 			m_mainPanel = new ConfigFrame(null);
 			m_startPanel = new ChoicePanel(null,getRootPane());
-			//myFrame.pack();//setBounds(10,10,600,650);
 
 			setContentPane(m_startPanel);
 		}
@@ -328,16 +328,6 @@ public class MixConfig extends JApplet
 	public static String getCurrentFileName()
 	{
 		return m_currentFileName;
-	}
-
-	/** Displays a confirm dialog.
-	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
-	 * @return <CODE>true</CODE> if the user confirmed, <CODE>false</CODE> otherwise
-	 */
-	public static boolean ask(String a_title, String a_message)
-	{
-		return JAPDialog.showYesNoDialog(MixConfig.getMainWindow(), a_title, a_message);
 	}
 
 	/** Displays an info message dialog

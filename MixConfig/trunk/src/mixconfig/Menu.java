@@ -249,7 +249,8 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 
 		if (!MixConfig.getMixConfiguration().isSavedToFile())
 		{
-			bExit = MixConfig.ask(null, JAPMessages.getString(MSG_REALLY_CONTINUE));
+			bExit = JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
+											  JAPMessages.getString(MSG_REALLY_CONTINUE));
 		}
 		if (bExit)
 		{
@@ -274,7 +275,8 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			//if the start screen is not on top -> show the warning message
 			if (!bReset)
 			{
-				bReset = MixConfig.ask(null, JAPMessages.getString(MSG_REALLY_CONTINUE));
+				bReset = JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
+					JAPMessages.getString(MSG_REALLY_CONTINUE));
 			}
 		}
 		if (bReset)
@@ -655,12 +657,13 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 
 		if (m_configFrame_Panel.check().length > 0)
 		{
-			bIgnore = MixConfig.ask("Inconsistencies found",
-									"The configuration is not consistent! " +
-									"The mix will not run properly if you do not " +
-									"correct the remaining errors." +
-									"Please choose '" + "" + "' for details. \n" +
-									"Do you really want to save this configuration?");
+			bIgnore = JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
+												"Inconsistencies found",
+												"The configuration is not consistent! " +
+												"The mix will not run properly if you do not " +
+												"correct the remaining errors." +
+												"Please choose '" + "" + "' for details. \n" +
+												"Do you really want to save this configuration?");
 		}
 
 		return bIgnore;
