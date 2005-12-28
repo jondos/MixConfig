@@ -102,12 +102,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	private static final int UNLIMITED_HEIGHT = 1000;
 	private static final int NUMBER_OF_HEURISTIC_ITERATIONS = 5;
 
-	private static final String MSG_INFO = JAPDialog.class.getName() + "_info";
-	private static final String MSG_CONFIRMATION = JAPDialog.class.getName() + "_confirmation";
-	private static final String MSG_WARNING = JAPDialog.class.getName() + "_warning";
-	private static final String MSG_ERROR_TITLE = JAPDialog.class.getName() + "_error_title";
-	private static final String MSG_ERROR_UNKNOWN = JAPDialog.class.getName() + "_error_unknown";
-	private static final String MSG_ERROR_UNDISPLAYABLE = JAPDialog.class.getName() + "_error_undisplayable";
+	private static final String MSG_TITLE_INFO = JAPDialog.class.getName() + "_titleInfo";
+	private static final String MSG_TITLE_CONFIRMATION = JAPDialog.class.getName() + "_titleConfirmation";
+	private static final String MSG_TITLE_WARNING = JAPDialog.class.getName() + "_titleWarning";
+	private static final String MSG_TITLE_ERROR = JAPDialog.class.getName() + "_titleError";
+	private static final String MSG_ERROR_UNKNOWN = JAPDialog.class.getName() + "_errorUnknown";
+	private static final String MSG_ERROR_UNDISPLAYABLE = JAPDialog.class.getName() + "_errorUndisplayable";
 
 	private boolean m_bDisposed = false;
 	private boolean m_bLocationSetManually = false;
@@ -245,7 +245,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public static void showInfoDialog(Component a_parentComponent, String a_message)
 	{
-		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, (Icon)null);
+		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_TITLE_INFO), a_message, (Icon)null);
 	}
 
 	/**
@@ -259,7 +259,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	public static void showInfoDialog(Component a_parentComponent, String a_message,
 									  ILinkedInformation a_linkedInformation)
 	{
-		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, (Icon)null,
+		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_TITLE_INFO), a_message, (Icon)null,
 					   a_linkedInformation);
 	}
 
@@ -353,7 +353,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public static void showInfoDialog(Component a_parentComponent, String a_message, Icon a_icon)
 	{
-		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, a_icon);
+		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_TITLE_INFO), a_message, a_icon);
 	}
 
 	/**
@@ -368,7 +368,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	public static void showInfoDialog(Component a_parentComponent, String a_message, Icon a_icon,
 									  ILinkedInformation a_linkedInformation)
 	{
-		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_INFO), a_message, a_icon,
+		showInfoDialog(a_parentComponent, JAPMessages.getString(MSG_TITLE_INFO), a_message, a_icon,
 			a_linkedInformation);
 	}
 
@@ -508,7 +508,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		if (a_title == null)
 		{
-			a_title = JAPMessages.getString(MSG_WARNING);
+			a_title = JAPMessages.getString(MSG_TITLE_WARNING);
 		}
 
 		showMessageDialog(a_parentComponent, a_title, a_message, JOptionPane.WARNING_MESSAGE,
@@ -761,7 +761,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 		if (a_title == null)
 		{
-			JAPMessages.getString(MSG_INFO);
+			JAPMessages.getString(MSG_TITLE_INFO);
 		}
 
 		if (a_linkedInformation != null && a_linkedInformation.getMessage() != null &&
@@ -1062,7 +1062,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 		if (a_title == null)
 		{
-			a_title = JAPMessages.getString(MSG_CONFIRMATION);
+			a_title = JAPMessages.getString(MSG_TITLE_CONFIRMATION);
 		}
 		response = showMessageDialog(a_parentComponent, a_title, a_message, JOptionPane.QUESTION_MESSAGE,
 									 JOptionPane.YES_NO_OPTION, null, a_linkedInformation);
@@ -1195,7 +1195,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			if (a_title == null)
 			{
-				a_title = JAPMessages.getString(MSG_ERROR_TITLE);
+				a_title = JAPMessages.getString(MSG_TITLE_ERROR);
 			}
 			showMessageDialog(a_parentComponent, a_title, a_message,
 							  JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION, null, null);
@@ -1244,7 +1244,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public static final class LinkedHelpContext implements ILinkedInformation
 	{
-		private static final String MSG_MORE_INFO = LinkedHelpContext.class.getName() + "_more_info";
+		private static final String MSG_MORE_INFO = LinkedHelpContext.class.getName() + "_moreInfo";
 
 		private String m_strMessage;
 		private String m_strHelpContext;
