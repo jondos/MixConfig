@@ -46,6 +46,7 @@ import javax.swing.JTextField;
 import anon.crypto.DESCrypt;
 import anon.crypto.MD5Crypt;
 import gui.JAPDialog;
+import gui.JAPMessages;
 import gui.TitledGridBagPanel;
 import mixconfig.networkpanel.IPTextField;
 
@@ -59,7 +60,26 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 	public static final String XMLPATH_MIXONCD_NETWORK = XMLPATH_MIXONCD + "/Network";
 	public static final String XMLPATH_MIXONCD_LOGIN_PASSWORD = XMLPATH_MIXONCD + "/Login/Password";
 	public static final String XMLATTRIBUTE_DHCP = "dhcp";
+	public static final String XMLATTRIBUTE_USER = "user";
 	public static final String XMLVALUE_NETWORKINTERFACE = "NetworkInterface";
+
+	public static final String MSG_TITLE = MixOnCDPanel.class.getName() + "_title";
+	public static final String MSG_TITLE_NETWORK = MixOnCDPanel.class.getName() + "_titleNetwork";
+	public static final String MSG_TITLE_PASSWORDS = MixOnCDPanel.class.getName() + "_titlePasswords";
+	public static final String MSG_CLEAR_USER = MixOnCDPanel.class.getName() + "_clearUser";
+	public static final String MSG_USE_BOOTABLE_CD = MixOnCDPanel.class.getName() + "_useBootableCD";
+	public static final String MSG_DHCP_AUTO_CONF = MixOnCDPanel.class.getName() + "_DHCPAutoConf";
+	public static final String MSG_TITLE_DOWNLOAD_HINT = MixOnCDPanel.class.getName() + "_titleDownloadHint";
+	public static final String MSG_DOWNLOAD_HINT = MixOnCDPanel.class.getName() + "_downloadHint";
+	public static final String MSG_SUBNET_MASK = MixOnCDPanel.class.getName() + "_subnetMask";
+	public static final String MSG_DNS_SERVERS = MixOnCDPanel.class.getName() + "_DNSServers";
+	public static final String MSG_DEFAULT_GATEWAY = MixOnCDPanel.class.getName() + "_defaultGateway";
+	public static final String MSG_INVALID_LOCAL_IP = MixOnCDPanel.class.getName() + "_invalidLocalIP";
+	public static final String MSG_INVALID_SUBNET_MASK = MixOnCDPanel.class.getName() + "_invalidSubnetMask";
+	public static final String MSG_NO_VALID_DNS = MixOnCDPanel.class.getName() + "_noValidDNS";
+	public static final String MSG_INVALID_DEFAULT_GATEWAY =
+		MixOnCDPanel.class.getName() + "_invalidDefaultGateway";
+	public static final String MSG_OPTIONAL = MixOnCDPanel.class.getName() + "_optional";
 
 	public static final String MSG_CONFIGURED_BY_MIXONCD =
 		MixOnCDPanel.class.getName() + "_configuredByMixOnCD";
@@ -92,14 +112,14 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 
 	public MixOnCDPanel()
 	{
-		super("MixOnCD");
+		super(JAPMessages.getString(MSG_TITLE));
 
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.anchor = GridBagConstraints.NORTHWEST;
 		constraints.insets = getDefaultInsets();
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 
-		m_cbxMixOnCD = new JCheckBox("Use bootable MixOnCD to create and install the mix");
+		m_cbxMixOnCD = new JCheckBox(JAPMessages.getString(MSG_USE_BOOTABLE_CD));
 		m_cbxMixOnCD.setName(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK + "/" +
 							 MixOnCDPanel.XMLATTRIBUTE_DHCP);
 		m_cbxMixOnCD.addActionListener(this);
@@ -112,12 +132,12 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		 * network settings
 		 */
 		constraints.gridy = 1;
-		m_panelLocalNetworkSettings = new TitledGridBagPanel("Local Network Settings");
+		m_panelLocalNetworkSettings = new TitledGridBagPanel(JAPMessages.getString(MSG_TITLE_NETWORK));
 		add(m_panelLocalNetworkSettings, constraints);
 
 
 		// DHCP JCheckBox
-		m_cbDHCP = new JCheckBox("Automatically configured by DHCP");
+		m_cbDHCP = new JCheckBox(JAPMessages.getString(MSG_DHCP_AUTO_CONF));
 		m_cbDHCP.setName(XMLPATH_MIXONCD_NETWORK + "/" + XMLATTRIBUTE_DHCP);
 		m_cbDHCP.addItemListener(this);
 		m_panelLocalNetworkSettings.addRow(m_cbDHCP, (Component)null);
@@ -130,31 +150,36 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		m_txtSubnetMask = new IPTextField();
 		m_txtSubnetMask.setName(XMLPATH_MIXONCD_NETWORK + "/SubnetMask");
 		m_txtSubnetMask.addFocusListener(this);
-		m_panelLocalNetworkSettings.addRow(new JLabel("Subnet mask"), m_txtSubnetMask);
+		m_panelLocalNetworkSettings.addRow(new JLabel(JAPMessages.getString(MSG_SUBNET_MASK)), m_txtSubnetMask);
 
 
 		m_txtDefaultGateway = new IPTextField();
 		m_txtDefaultGateway.setName(XMLPATH_MIXONCD_NETWORK + "/DefaultGateway");
 		m_txtDefaultGateway.addFocusListener(this);
-		m_panelLocalNetworkSettings.addRow(new JLabel("Default Gateway"), m_txtDefaultGateway);
+		m_panelLocalNetworkSettings.addRow(
+			  new JLabel(JAPMessages.getString(MSG_DEFAULT_GATEWAY)), m_txtDefaultGateway);
 
 		m_txtNetworkInterface = new JTextField(4);
 		m_txtNetworkInterface.setName(XMLPATH_MIXONCD_NETWORK + "/" + XMLVALUE_NETWORKINTERFACE);
 		m_txtNetworkInterface.addFocusListener(this);
 		m_txtNetworkInterface.setToolTipText(
-				  "The network interface, for example eth0, eth1. (Optional)");
-		m_panelLocalNetworkSettings.addRow(new JLabel("Interface (optional)"), m_txtNetworkInterface);
+			  "The network interface, for example eth0, eth1. (" +
+			  JAPMessages.getString(MSG_OPTIONAL) + ")");
+		m_panelLocalNetworkSettings.addRow(new JLabel("Interface (" +
+													  JAPMessages.getString(MSG_OPTIONAL) +
+													  ")"), m_txtNetworkInterface);
 
 		m_txtHostname = new JTextField(15);
 		m_txtHostname.setName(XMLPATH_MIXONCD_NETWORK + "/Hostname");
 		m_txtHostname.addFocusListener(this);
-		m_txtHostname.setToolTipText("Host name of the mix server. (Optional)");
-		m_panelLocalNetworkSettings.addRow(new JLabel("Hostname (optional)"), m_txtHostname);
+		m_panelLocalNetworkSettings.addRow(new JLabel("Hostname (" +
+													  JAPMessages.getString(MSG_OPTIONAL) +
+													  ")"), m_txtHostname);
 
 
 
 		m_panelLocalNetworkSettings.addRow(new JLabel(), (Component)null);
-		m_lblDNSServersHeadline = new JLabel("DNS Servers");
+		m_lblDNSServersHeadline = new JLabel(JAPMessages.getString(MSG_DNS_SERVERS));
 		m_panelLocalNetworkSettings.addRow(m_lblDNSServersHeadline, (Component)null);
 
 		m_txtDNSServers = new IPTextField[2];
@@ -165,7 +190,8 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 			m_txtDNSServers[i] = new IPTextField();
 			m_txtDNSServers[i].setName(XMLPATH_MIXONCD_NETWORK + "/DNSServers" + "/IP");
 			m_txtDNSServers[i].addFocusListener(this);
-			m_lblDNSServersOptional[i] = new JLabel("DNS " + (i+1) +" (optional)");
+			m_lblDNSServersOptional[i] = new JLabel("DNS " + (i+1) +" (" +
+				JAPMessages.getString(MSG_OPTIONAL) + ")");
 			m_lblDNSServersMandatory[i] = new JLabel("DNS " + (i+1));
 			m_panelLocalNetworkSettings.addRow(m_lblDNSServersOptional[i], m_txtDNSServers[i]);
 		}
@@ -177,7 +203,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		constraints.gridx = 1;
 		constraints.weightx = 1;
 		constraints.weighty = 1;
-		m_panelPasswords = new TitledGridBagPanel("User Passwords");
+		m_panelPasswords = new TitledGridBagPanel(JAPMessages.getString(MSG_TITLE_PASSWORDS));
 		add(m_panelPasswords, constraints);
 
 
@@ -196,7 +222,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 			m_pwds[i].setName(XMLPATH_MIXONCD_LOGIN_PASSWORD + "/" + m_users[i]);
 			m_pwds[i].addFocusListener(this);
 
-			m_btnsRemovePW[i] = new JButton("Clear");
+			m_btnsRemovePW[i] = new JButton(JAPMessages.getString(MSG_CLEAR_USER));
 			m_btnsRemovePW[i].addActionListener(this);
 			m_btnsRemovePW[i].addFocusListener(this);
 			m_lblsPW[i] = new JLabel(m_users[i]);
@@ -235,15 +261,15 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		{
 			if (!m_txtIP.isCorrect())
 			{
-				errors.addElement("Invalid IP entered in MixOnCD panel.");
+				errors.addElement(JAPMessages.getString(MSG_INVALID_LOCAL_IP));
 			}
 			if (!m_txtSubnetMask.isCorrect())
 			{
-				errors.addElement("Invalid subnet mask entered in MixOnCD panel.");
+				errors.addElement(JAPMessages.getString(MSG_INVALID_SUBNET_MASK));
 			}
 			if (!m_txtDefaultGateway.isCorrect())
 			{
-				errors.addElement("Invalid default gateway entered in MixOnCD panel.");
+				errors.addElement(JAPMessages.getString(MSG_INVALID_DEFAULT_GATEWAY));
 			}
 
 			for (int i = 0; i < m_txtDNSServers.length; i++)
@@ -255,7 +281,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 			}
 			if (!bValidDNS)
 			{
-				errors.addElement("No valid DNS server is specified in MixOnCD panel.");
+				errors.addElement(MSG_NO_VALID_DNS);
 			}
 		}
 
@@ -420,9 +446,9 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 
 		if (a_event.getSource() == m_cbxMixOnCD &&  m_cbxMixOnCD.isSelected())
 		{
-			JAPDialog.showInfoDialog(MixConfig.getMainWindow(),"MixOnCD download hint",
-									  "You will have to download the MixOnCD iso-image from " +
-									  "the AN.ON homepage to create a bootable mix CD.",
+			JAPDialog.showInfoDialog(MixConfig.getMainWindow(),
+									 JAPMessages.getString(MSG_TITLE_DOWNLOAD_HINT),
+									 JAPMessages.getString(MSG_DOWNLOAD_HINT),
 									  new JAPDialog.LinkedHelpContext("livecd_deployment"));
 		}
 	}
@@ -547,7 +573,7 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 		{
 			getConfiguration().setAttribute(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK,
 											MixOnCDPanel.XMLATTRIBUTE_DHCP, true);
-			strEnabled = "true";
+			return true;
 		}
 
 		return Boolean.valueOf(strEnabled).booleanValue();
@@ -556,7 +582,8 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 
 	private void savePasswords()
 	{
-		getConfiguration().setValues(XMLPATH_MIXONCD_LOGIN_PASSWORD, m_passwordHashes, "user", m_users);
+		getConfiguration().setValues(XMLPATH_MIXONCD_LOGIN_PASSWORD, m_passwordHashes,
+									 XMLATTRIBUTE_USER, m_users);
 	}
 
 
@@ -566,7 +593,8 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 
 		for (int i = 0; i < m_users.length; i++)
 		{
-			password = getConfiguration().getValues(XMLPATH_MIXONCD_LOGIN_PASSWORD, "user", m_users[i]);
+			password = getConfiguration().getValues(XMLPATH_MIXONCD_LOGIN_PASSWORD,
+													XMLATTRIBUTE_USER, m_users[i]);
 
 			if (password.length == 0 || password[0] == null || password[0].trim().length() == 0)
 			{

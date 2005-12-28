@@ -67,7 +67,6 @@ public class OperatorCertificateView implements ICertificateView
 
 		Vector vecTags, vecValues;
 		X509Extensions extensions;
-		X509SubjectAlternativeName alternativeName;
 		JAPCertificate certificate = a_certificate.getX509Certificate();
 		X509DistinguishedName dn = certificate.getDistinguishedName();
 
