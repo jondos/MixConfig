@@ -136,7 +136,7 @@ public class OperatorCertificateView implements ICertificateView
 
 	public String getCountry()
 	{
-		if (m_CountryMapper.getISOCountryCode().length() == 0)
+		if (m_CountryMapper.getISOCode().length() == 0)
 		{
 			return "";
 		}

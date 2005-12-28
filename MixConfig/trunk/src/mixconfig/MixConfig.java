@@ -62,13 +62,12 @@ import logging.LogType;
 import logging.SystemErrLog;
 import java.security.SecureRandom;
 
-
-
 public class MixConfig extends JApplet
 {
-	static {
-		JAPMessages.init("MixConfigMessages");
+	static
+	{
 		LogHolder.setLogInstance(new SystemErrLog(LogLevel.WARNING, LogType.ALL));
+		JAPMessages.init("MixConfigMessages");
 	}
 
 	public final static int SAVE_DIALOG = 1;
@@ -78,7 +77,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.035"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.037"; //NEVER change the layout of this line!!
 
 	private static final String IMAGE_LOAD_PATH = "images/mixconfig/";
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
@@ -166,8 +165,8 @@ public class MixConfig extends JApplet
 			m_MainWindow = new JFrame();
 			((JFrame)m_MainWindow).setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 			m_MainWindow.setResizable(false);
+			/** @todo does not work with JView */
 			JAPHelp.init(m_MainWindow, null);
-
 
 			if (m_currentFileName != null && (f = new File(m_currentFileName)).exists())
 			{

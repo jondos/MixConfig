@@ -72,18 +72,14 @@ public final class JAPHelp extends JAPDialog
 	private static final String MSG_CLOSE_BUTTON = JAPHelp.class.getName() + ("_closeButton");
 	private static final String MSG_HELP_WINDOW = JAPHelp.class.getName() + ("_helpWindow");
 	private static final String MSG_HELP_PATH = JAPHelp.class.getName() + ("_helpPath");
-	private static final String MSG_LANGUAGE = JAPHelp.class.getName() + ("_lang");
-	private static final String MSG_LANGUAGE_SHORT = JAPHelp.class.getName() + ("_langshort");
+	private static final String MSG_LANGUAGE_CODE = JAPHelp.class.getName() + ("_languageCode");
 	private static final String MSG_ERROR_EXT_URL = JAPHelp.class.getName() + ("_error_ext_URL");
 	public static final String MSG_HELP_BUTTON = JAPHelp.class.getName() + ("_helpButton");
 	public static final String MSG_HELP_MENU_ITEM = JAPHelp.class.getName() + ("_helpMenuItem");
 
-	private static final int MAX_HELP_LANGUAGES = 6;
-
-	private String helpPath = " ";
-	private String helpLang = " ";
-	private String langShort = " ";
-	private JComboBox language;
+	private String m_helpPath = " ";
+	private LanguageMapper m_language = new LanguageMapper();
+	private JComboBox m_comBoxLanguage;
 	private HtmlPane m_htmlpaneTheHelpPane;
 
 	private JButton m_closeButton;
@@ -107,7 +103,7 @@ public final class JAPHelp extends JAPDialog
 
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-		language = new JComboBox();
+		m_comBoxLanguage = new JComboBox();
 
 		m_backButton = new JButton(GUIUtils.loadImageIcon(IMG_PREVIOUS, true));
 		m_backButton.setBackground(Color.gray); //this together with the next lines sems to be
@@ -135,7 +131,7 @@ public final class JAPHelp extends JAPDialog
 		buttonPanel.add(m_backButton);
 		buttonPanel.add(m_forwardButton);
 		buttonPanel.add(new JLabel("   "));
-		buttonPanel.add(language);
+		buttonPanel.add(m_comBoxLanguage);
 		buttonPanel.add(new JLabel("   "));
 		buttonPanel.add(m_closeButton);
 
@@ -146,32 +142,25 @@ public final class JAPHelp extends JAPDialog
 		m_backButton.addActionListener(new HelpListener());
 		m_forwardButton.addActionListener(new HelpListener());
 		m_homeButton.addActionListener(new HelpListener());
-		language.addActionListener(new HelpListener());
-		for (int i = 1; i < MAX_HELP_LANGUAGES; i++)
+		m_comBoxLanguage.addActionListener(new HelpListener());
+		for (int i = 1; true; i++)
 		{
 			try
 			{
-				String path = JAPMessages.getString(MSG_HELP_PATH + String.valueOf(i));
-
-				helpLang = JAPMessages.getString(MSG_LANGUAGE + String.valueOf(i));
-				String lshort = JAPMessages.getString(MSG_LANGUAGE_SHORT + String.valueOf(i));
-
-				// This checks if the entry exists in the properties file
-				// if yes, the item will be added
-				if ( (helpLang.equals(MSG_LANGUAGE + String.valueOf(i))) != true)
-				{
-					language.addItem(helpLang);
-				}
+				LanguageMapper lang =
+					new LanguageMapper(JAPMessages.getString(MSG_LANGUAGE_CODE + String.valueOf(i)));
+				m_comBoxLanguage.addItem(lang);
 
 				// Make sure to use the language with number 1 listed in the properties file
-				if (helpPath.equals(" ") && langShort.equals(" "))
+				if (m_helpPath.equals(" ") && m_language.getISOCode().length() == 0)
 				{
-					helpPath = path;
-					langShort = lshort;
+					m_helpPath = getHelpPath(i);
+					m_language = lang;
 				}
 			}
 			catch (Exception e)
 			{
+				break;
 			}
 		}
 
@@ -190,7 +179,10 @@ public final class JAPHelp extends JAPDialog
 	 */
 	public static void init(Frame a_parent, ExternalURLCaller a_urlCaller)
 	{
-		ms_theJAPHelp = new JAPHelp(a_parent, a_urlCaller);
+		if (ms_theJAPHelp == null)
+		{
+			ms_theJAPHelp = new JAPHelp(a_parent, a_urlCaller);
+		}
 	}
 
 	/**
@@ -251,7 +243,8 @@ public final class JAPHelp extends JAPDialog
 			try
 			{
 				String currentContext = m_helpContext.getContext();
-				m_htmlpaneTheHelpPane.load(helpPath + currentContext + "_" + langShort + ".html");
+				m_htmlpaneTheHelpPane.load(
+								m_helpPath + currentContext + "_" + m_language.getISOCode() + ".html");
 				if (!isVisible())
 				{
 					super.setVisible(true);
@@ -296,7 +289,7 @@ public final class JAPHelp extends JAPDialog
 
 	private void homePressed()
 	{
-		m_htmlpaneTheHelpPane.load(helpPath + "index_" + langShort + ".html");
+		m_htmlpaneTheHelpPane.load(m_helpPath + "index_" + m_language.getISOCode() + ".html");
 	}
 
 	private void closePressed()
@@ -344,14 +337,13 @@ public final class JAPHelp extends JAPDialog
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			if (e.getSource() == language && !m_initializing)
+			if (e.getSource() == m_comBoxLanguage && !m_initializing)
 			{
-				helpPath =
-					JAPMessages.getString(MSG_HELP_PATH + String.valueOf(language.getSelectedIndex() + 1));
-				langShort = JAPMessages.getString(MSG_LANGUAGE_SHORT +
-												  String.valueOf(language.getSelectedIndex() + 1));
-				m_htmlpaneTheHelpPane.load(helpPath + m_helpContext.getContext() +
-										   "_" + langShort + ".html");
+				m_helpPath = getHelpPath(m_comBoxLanguage.getSelectedIndex() + 1);
+				m_language = new LanguageMapper(JAPMessages.getString(MSG_LANGUAGE_CODE +
+					String.valueOf(m_comBoxLanguage.getSelectedIndex() + 1)));
+				m_htmlpaneTheHelpPane.load(m_helpPath + m_helpContext.getContext() +
+										   "_" + m_language.getISOCode() + ".html");
 			}
 			else if (e.getSource() == m_closeButton)
 			{
@@ -531,8 +523,7 @@ public final class JAPHelp extends JAPDialog
 		 */
 		private void loadURL(URL a_url)
 		{
-			Cursor waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-			html.setCursor(waitCursor);
+			html.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			SwingUtilities.invokeLater(new PageLoader(a_url));
 		}
 
@@ -553,7 +544,20 @@ public final class JAPHelp extends JAPDialog
 					// automatic validation is activated.
 					html.getParent().repaint();
 				}
-				else if (url.getProtocol().equals("file"))
+				else if (url.getProtocol().toLowerCase().indexOf("http") >= 0 ||
+						 url.getProtocol().toLowerCase().indexOf("ftp") >= 0 ||
+						 url.getProtocol().toLowerCase().indexOf("gopher") >= 0)
+				{
+					if (!m_urlCaller.openURL(url))
+					{
+						html.setCursor(cursor);
+						JAPDialog.showInfoDialog(html.getParent(), JAPMessages.getString(MSG_ERROR_EXT_URL),
+												 new ExternalLinkedInformation(url));
+					}
+					m_historyPosition--;
+					m_history.removeElementAt(m_history.size() - 1);
+				}
+				else
 				{
 					Document doc = html.getDocument();
 					try
@@ -571,15 +575,6 @@ public final class JAPHelp extends JAPDialog
 						// the paint has happended.
 						url = null;
 						SwingUtilities.invokeLater(this);
-					}
-				}
-				else
-				{
-					if (!m_urlCaller.openURL(url))
-					{
-						html.setCursor(cursor);
-						JAPDialog.showInfoDialog(html.getParent(), JAPMessages.getString(MSG_ERROR_EXT_URL),
-												 new ExternalLinkedInformation(url));
 					}
 				}
 			}
@@ -631,6 +626,19 @@ public final class JAPHelp extends JAPDialog
 				}
 			}
 		}
+	}
+
+	private static String getHelpPath(int a_languageIndex)
+	{
+		String strMessage = MSG_HELP_PATH + String.valueOf(a_languageIndex);
+		String strHelpPath = JAPMessages.getString(strMessage);
+
+		if (strHelpPath.equals(strMessage) || strHelpPath.trim().length() == 0)
+		{
+			return JAPMessages.getString(MSG_HELP_PATH);
+		}
+
+		return strHelpPath;
 	}
 }
 

@@ -53,12 +53,13 @@ public final class GUIUtils
 	/**
 	 * The default path to store images.
 	 */
-	public static final String DEFAULT_IMGAGE_PATH = "images/";
+	public static final String MSG_DEFAULT_IMGAGE_PATH = GUIUtils.class.getName() + "_imagePath";
 	/**
 	 * Images with a smaller pixes size than 16 bit should be stored in this path. Their names must
 	 * be equal to the corresponding images in the default path.
 	 */
-	public static final String DEFAULT_IMGAGE_PATH_LOWCOLOR = "images/lowcolor/";
+	public static final String MSG_DEFAULT_IMGAGE_PATH_LOWCOLOR =
+		GUIUtils.class.getName() + "_imagePathLowColor";
 
 	// all loaded icons are stored in the cache and do not need to be reloaded from file
 	private static Hashtable ms_iconCache = new Hashtable();
@@ -112,14 +113,16 @@ public final class GUIUtils
 		{
 			// load the image from the low color image path
 			img = loadImageIconInternal(
-				 ResourceLoader.getResourceURL(DEFAULT_IMGAGE_PATH_LOWCOLOR + a_strRelativeImagePath));
+				 ResourceLoader.getResourceURL(
+						 JAPMessages.getString(MSG_DEFAULT_IMGAGE_PATH_LOWCOLOR) + a_strRelativeImagePath));
 		}
 
 		if (img == null || img.getImageLoadStatus() == MediaTracker.ERRORED)
 		{
 			// load the image from the default image path
 			img = loadImageIconInternal(
-						 ResourceLoader.getResourceURL(DEFAULT_IMGAGE_PATH + a_strRelativeImagePath));
+						 ResourceLoader.getResourceURL(
+							   JAPMessages.getString(MSG_DEFAULT_IMGAGE_PATH) + a_strRelativeImagePath));
 		}
 
 		if (img != null)
