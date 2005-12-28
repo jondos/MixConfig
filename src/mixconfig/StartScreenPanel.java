@@ -39,30 +39,20 @@ import javax.swing.border.EtchedBorder;
 
 import gui.JAPDialog;
 import gui.JAPHtmlMultiLineLabel;
+import gui.JAPMessages;
 import gui.TitledGridBagPanel;
 import logging.LogType;
 import mixconfig.wizard.WizardLayout;
 
 public class StartScreenPanel  extends WizardLayout implements ActionListener
 {
-	//Buttonlables
-	private static final String BLABEL_NEW    = "Create new configuration...";
-	private static final String BLABEL_LOAD   = "Load/Resume existing configuration...";
-	private static final String BLABEL_CONFIG = "Configure Cascade for existing configuration...";
+	private static final String MSG_NEW = StartScreenPanel.class.getName() + "_createNew";
+	private static final String MSG_LOAD = StartScreenPanel.class.getName() + "_load";
+	private static final String MSG_CONFIGURE = StartScreenPanel.class.getName() + "_configureCascade";
+	private static final String MSG_WELCOME = StartScreenPanel.class.getName() + "_welcome";
+	private static final String MSG_EXIT = StartScreenPanel.class.getName() + "_exit";
 
-	//Commands
-	private static final String CMD_NEW = "new";
-	private static final String CMD_LOAD = "load";
-	private static final String CMD_CONFIG = "config";
-	private static final String CMD_EXIT = "exit";
-
-	//Start Text
-	private static final String START_TXT = "Welcome to the mix configuration tool! With the help of this program, " +
-						   "you can create the configuration file for your AN.ON mix. " +
-						   "If you are not experienced in "+
-						  "configuring a mix, our wizard will help you with one of the following " +
-						  "options:";
-
+	private JButton m_btnNew, m_btnLoad, m_btnConfigure;
 	private ChoicePanel m_choicePanel;
 
 	public StartScreenPanel(ChoicePanel choicePanel)
@@ -73,21 +63,17 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		JPanel itemPanel = new JPanel(new BorderLayout());
 		itemPanel.setBorder(new EtchedBorder());
 
-		itemPanel.add(
-			  new JAPHtmlMultiLineLabel(JAPHtmlMultiLineLabel.TAG_BREAK + START_TXT), BorderLayout.NORTH);
+		itemPanel.add(new JAPHtmlMultiLineLabel(JAPMessages.getString(MSG_WELCOME)), BorderLayout.NORTH);
 
-		JButton b_new = new JButton(BLABEL_NEW);
-		b_new.setActionCommand(CMD_NEW);
-		b_new.addActionListener(this);
+		m_btnNew = new JButton(JAPMessages.getString(MSG_NEW));
+		m_btnNew.addActionListener(this);
 
-		JButton b_load = new JButton(BLABEL_LOAD);
-		b_load.setActionCommand(CMD_LOAD);
-		b_load.addActionListener(this);
+		m_btnLoad = new JButton(JAPMessages.getString(MSG_LOAD));
+		m_btnLoad.addActionListener(this);
 
-		JButton b_config = new JButton(BLABEL_CONFIG);
-		b_config.setActionCommand(CMD_CONFIG);
-		b_config.addActionListener(this);
-		b_config.setEnabled(false);
+		m_btnConfigure = new JButton(JAPMessages.getString(MSG_CONFIGURE));
+		m_btnConfigure.addActionListener(this);
+		m_btnConfigure.setEnabled(false);
 
 		//Back Button
 		this.getButtonBack().setVisible(false);
@@ -96,8 +82,7 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		this.getButtonForward().setVisible(false);
 
 		//Cancel Button
-		this.getButtonCancel().setActionCommand(CMD_EXIT);
-		this.getButtonCancel().setText("Exit");
+		this.getButtonCancel().setText(JAPMessages.getString(MSG_EXIT));
 		this.getButtonCancel().addActionListener(this);
 		this.getButtonCancel().setEnabled(true);
 
@@ -109,9 +94,9 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		itemPanel.add(panelCenter, BorderLayout.CENTER);
 
 		TitledGridBagPanel panelButtons = new TitledGridBagPanel();
-		panelButtons.addRow(b_new, null, GridBagConstraints.HORIZONTAL);
-		panelButtons.addRow(b_load, null, GridBagConstraints.HORIZONTAL);
-		panelButtons.addRow(b_config, null, GridBagConstraints.HORIZONTAL);
+		panelButtons.addRow(m_btnNew, null, GridBagConstraints.HORIZONTAL);
+		panelButtons.addRow(m_btnLoad, null, GridBagConstraints.HORIZONTAL);
+		panelButtons.addRow(m_btnConfigure, null, GridBagConstraints.HORIZONTAL);
 
 		constraints.anchor = GridBagConstraints.CENTER;
 		constraints.insets = new Insets(5, 5, 5, 5);
@@ -122,30 +107,29 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 		constraints.fill = GridBagConstraints.NONE;
 		panelCenter.add(panelButtons, constraints);
 
-
 		add(itemPanel, BorderLayout.CENTER);
 	}
 
 	public String getHelpContext()
 	{
-		return "start";
+		return getClass().getName();
 	}
 
 	public void actionPerformed(ActionEvent ae)
 	{
 		try
 		{
-			if (ae.getActionCommand().equals(CMD_NEW))
+			if (ae.getSource() == m_btnNew)
 			{
 				m_choicePanel.setWizardVisible();
 			}
-			else if (ae.getActionCommand().equals(CMD_LOAD))
+			else if (ae.getSource() == m_btnLoad)
 			{
 				m_choicePanel.getMenu().actionPerformed(
 								new ActionEvent(
 					this, ActionEvent.ACTION_PERFORMED, Menu.CMD_OPEN_FILE_WIZARD));
 			}
-			else if (ae.getActionCommand().equals(CMD_CONFIG))
+			else if (ae.getSource() == m_btnConfigure)
 			{
 				/*** NOT AKTIV ***/
                 //m_Parent.setJMenuBar( ( (ConfigFrame) m_mainPanel_expert).getMenuBar());
@@ -154,7 +138,7 @@ public class StartScreenPanel  extends WizardLayout implements ActionListener
 				//m_cardLayout.show(this, CARD_EXPERT);
 				//m_Parent.pack();
 			}
-			else if (ae.getActionCommand().equals(CMD_EXIT))
+			else if (ae.getSource() == getButtonCancel())
 			{
 				MixConfig.getMainWindow().dispose();
 			}

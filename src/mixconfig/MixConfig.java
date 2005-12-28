@@ -354,10 +354,10 @@ public class MixConfig extends JApplet
 			JAPDialog.showInfoDialog(getMainWindow(), a_title, "");
 
 		}
-		else if (a_message.length == 1)
+		else //if (a_message.length == 1)
 		{
 			JAPDialog.showInfoDialog(getMainWindow(), a_title, a_message[0]);
-		}
+		}/*
 		else
 		{
 			message += "<UL>";
@@ -371,7 +371,7 @@ public class MixConfig extends JApplet
 			}
 			message += "</UL>";
 			JAPDialog.showInfoDialog(getMainWindow(), a_title, message);
-		}
+		}*/
 	}
 
 	public static void about()

@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.Vector;
 
 import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -39,18 +38,17 @@ import java.awt.event.ActionListener;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import anon.crypto.JAPCertificate;
 import anon.infoservice.ListenerInterface;
-import gui.JAPHelp;
-import gui.JAPJIntField;
 import gui.JAPDialog;
+import gui.JAPHelpContext;
+import gui.JAPJIntField;
+import gui.TitledGridBagPanel;
 import logging.LogType;
-import gui.*;
 
 /**
  * The PaymentPanel is one page in the MixConfig TabbedPane and allows the user to specify
