@@ -32,6 +32,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Vector;
+import java.util.Locale;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -163,8 +164,8 @@ public final class JAPHelp extends JAPDialog
 		{
 			try
 			{
-				LanguageMapper lang =
-					new LanguageMapper(JAPMessages.getString(MSG_LANGUAGE_CODE + String.valueOf(i)));
+				String langCode = JAPMessages.getString(MSG_LANGUAGE_CODE + String.valueOf(i));
+				LanguageMapper lang = new LanguageMapper(langCode, new Locale(langCode, ""));
 				m_comBoxLanguage.addItem(lang);
 
 				if ((m_helpPath.equals(" ") && m_language.getISOCode().length() == 0) ||
