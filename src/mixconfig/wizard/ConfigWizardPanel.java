@@ -295,7 +295,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener, JAPHelp
 			m_errors = new String[errors.size()];
 			for (int i = 0; i < m_errors.length; i++)
 			{
-				m_errors[i] = (String) errors.elementAt(i) + " (" + m_pages[m_currentPage].getName() + ")";
+				m_errors[i] = (String) errors.elementAt(i);
 			}
 		}
 
