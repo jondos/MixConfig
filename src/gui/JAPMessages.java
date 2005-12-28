@@ -43,6 +43,7 @@ import logging.LogType;
 public final class JAPMessages
 {
 	private static ResourceBundle msg = null;
+	private static Locale ms_locale;
 
 	private JAPMessages()
 	{
@@ -52,7 +53,7 @@ public final class JAPMessages
 	public static void init(String a_resourceBundleFilename)
 	{
 		// Load Texts for Messages and Windows
-		init(Locale.getDefault(), a_resourceBundleFilename);
+		init(null, a_resourceBundleFilename);
 	}
 
 	/* Init with the specified Locale**/
@@ -67,18 +68,37 @@ public final class JAPMessages
 		{
 			try
 			{
-				msg = PropertyResourceBundle.getBundle(a_resourceBundleFilename);
+				if (locale == null || !locale.equals(Locale.getDefault()))
+				{
+					locale = Locale.getDefault();
+					msg = PropertyResourceBundle.getBundle(a_resourceBundleFilename, locale);
+				}
+				else
+				{
+					throw e1;
+				}
 			}
 			catch (Exception e)
 			{
 				JAPAWTMsgBox.MsgBox(new Frame(),
 									"File not found: " + a_resourceBundleFilename +
-									".properties\nYour package of JAP may be corrupted.\n"+
+									".properties\nYour package of JAP may be corrupted.\n" +
 									"Try again to download or install the package.",
 									"Error");
 				System.exit( -1);
 			}
 		}
+
+		ms_locale = locale;
+	}
+
+	/**
+	 * Returns the Locale that is used by this class to get the messages.
+	 * @return the Locale that is used by this class to get the messages
+	 */
+	public static Locale getLocale()
+	{
+		return ms_locale;
 	}
 
 	/**

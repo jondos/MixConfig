@@ -473,7 +473,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 						   m_txtCity.getText());
 			attributes.put(X509DistinguishedName.IDENTIFIER_C,
 						   ( (CountryMapper) m_cboxCountry.getSelectedItem()).
-						   getISOCountryCode());
+						   getISOCode());
 
 			return new X509DistinguishedName(attributes);
 		}
@@ -563,7 +563,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			attributes.put(X509DistinguishedName.IDENTIFIER_O, m_txtOperatorOrg.getText());
 			attributes.put(X509DistinguishedName.IDENTIFIER_E, m_txtOperatorEmail.getText());
 			attributes.put(X509DistinguishedName.IDENTIFIER_C,
-						   ( (CountryMapper) m_cbxOperatorCountry.getSelectedItem()).getISOCountryCode());
+						   ( (CountryMapper) m_cbxOperatorCountry.getSelectedItem()).getISOCode());
 			return new X509DistinguishedName(attributes);
 		}
 
@@ -602,7 +602,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		{
 			getConfiguration().setValue(a_comboBox.getName(),
 										( (CountryMapper) a_comboBox.
-										 getSelectedItem()).getISOCountryCode());
+										 getSelectedItem()).getISOCode());
 		}
 		else
 		{

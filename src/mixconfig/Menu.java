@@ -497,16 +497,26 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			{
 				LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Set Wizard Visible");
 				ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
+				boolean bSavedToFile = MixConfig.getMixConfiguration().isSavedToFile();
 				cp.setWizardVisible();
 				m_configWiz_Panel.load();
+				if (bSavedToFile)
+				{
+					MixConfig.getMixConfiguration().setSavedToFile();
+				}
 			}
 			else if (evt.getActionCommand().equals("ChangeViewToExpert"))
 			{
 				LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Set Expert Visible");
 				ChoicePanel cp = (ChoicePanel) m_configFrame_Panel.getParent();
+				boolean bSavedToFile = MixConfig.getMixConfiguration().isSavedToFile();
 				cp.setExpertVisible();
 				m_configFrame_Panel.load();
 				m_configFrame_Panel.setActivePanel(m_configWiz_Panel.getCurrentPageClass());
+				if (bSavedToFile)
+				{
+					MixConfig.getMixConfiguration().setSavedToFile();
+				}
 			}
 
 		}

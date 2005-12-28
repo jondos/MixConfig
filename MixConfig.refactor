@@ -421,4 +421,44 @@
     <declared-field-type>Ljava/lang/String;</declared-field-type>
     <new-field-name>MSG_HELP_MENU_ITEM</new-field-name>
   </rename-field>
+  <rename-method id="6AP09ESZOQHE9H7P366YS6Y0" creation-time="Tue Dec 27 22:08:18.237 CET 2005">
+    <declaring-class-name>gui.CountryMapper</declaring-class-name>
+    <declared-method-signature>()Ljava/lang/String;</declared-method-signature>
+    <old-method-name>getISOCountryCode</old-method-name>
+    <new-method-name>getISOCode</new-method-name>
+  </rename-method>
+  <rename-method id="4AP09ESZOQHE9H7P366YS6Y0" creation-time="Tue Dec 27 22:34:14.244 CET 2005">
+    <declaring-class-name>gui.CountryMapper</declaring-class-name>
+    <declared-method-signature>(Ljava/lang/String;Ljava/util/Locale;)Ljava/lang/String;</declared-method-signature>
+    <old-method-name>getJRETransaltionOfCountryCode</old-method-name>
+    <new-method-name>getJRETransaltionOfISOCode</new-method-name>
+  </rename-method>
+  <rename-class id="2AP09ESZOQHE9H7P366YS6Y0" creation-time="Wed Dec 28 00:51:23.848 CET 2005">
+    <old-class-name>gui.AbstractLocaleMapper</old-class-name>
+    <new-class-name>gui.AbstractISOCodeMapper</new-class-name>
+  </rename-class>
+  <rename-method id="0AP09ESZOQHE9H7P366YS6Y0" creation-time="Wed Dec 28 01:14:08.330 CET 2005">
+    <declaring-class-name>gui.LanguageMapper</declaring-class-name>
+    <declared-method-signature>()Ljava/util/Vector;</declared-method-signature>
+    <old-method-name>getLocalisedCountries</old-method-name>
+    <new-method-name>getLocalisedLanguages</new-method-name>
+  </rename-method>
+  <rename-method id="Y9P09ESZOQHE9H7P366YS6Y0" creation-time="Wed Dec 28 01:14:14.829 CET 2005">
+    <declaring-class-name>gui.LanguageMapper</declaring-class-name>
+    <declared-method-signature>(Ljava/util/Locale;)Ljava/util/Vector;</declared-method-signature>
+    <old-method-name>getLocalisedCountries</old-method-name>
+    <new-method-name>getLocalisedLanguages</new-method-name>
+  </rename-method>
+  <rename-method id="W9P09ESZOQHE9H7P366YS6Y0" creation-time="Wed Dec 28 01:14:25.805 CET 2005">
+    <declaring-class-name>gui.LanguageMapper</declaring-class-name>
+    <declared-method-signature>(I)Ljava/util/Vector;</declared-method-signature>
+    <old-method-name>getLocalisedCountries</old-method-name>
+    <new-method-name>getLocalisedLanguages</new-method-name>
+  </rename-method>
+  <rename-method id="U9P09ESZOQHE9H7P366YS6Y0" creation-time="Wed Dec 28 01:14:32.014 CET 2005">
+    <declaring-class-name>gui.LanguageMapper</declaring-class-name>
+    <declared-method-signature>(ILjava/util/Locale;)Ljava/util/Vector;</declared-method-signature>
+    <old-method-name>getLocalisedCountries</old-method-name>
+    <new-method-name>getLocalisedLanguages</new-method-name>
+  </rename-method>
 </refactor>

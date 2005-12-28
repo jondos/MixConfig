@@ -138,7 +138,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_combxConfiguration.setToolTipText(JAPMessages.getString(MSG_EXPERIMENTAL_FEATURE));
 
 		m_cbxDynamicFallback = new JCheckBox(JAPMessages.getString(MSG_ALLOW_DYNAMIC_FALLBACK));
-		m_cbxDynamicFallback.setToolTipText(JAPMessages.getString("experimental_feature"));
+		m_cbxDynamicFallback.setToolTipText(JAPMessages.getString(MSG_EXPERIMENTAL_FEATURE));
 		m_cbxDynamicFallback.setName(XMLPATH_AUTOCONFIGURATION + "/" + XML_ATTRIBUTE_FALLBACK );
 		m_cbxDynamicFallback.addItemListener(this);
 
