@@ -282,10 +282,9 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener, JAPHelp
 		}
 		Vector errors = null;
 
-		if (m_pages[m_currentPage].isEnabled() &&
-			m_pages[m_currentPage] instanceof MixConfigPanel)
+		if (m_pages[m_currentPage].isEnabled())
 		{
-			errors = ( (MixConfigPanel) m_pages[m_currentPage]).check();
+			errors = m_pages[m_currentPage].check();
 		}
 		if (errors != null && errors.size() > 0)
 		{
@@ -296,7 +295,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener, JAPHelp
 			m_errors = new String[errors.size()];
 			for (int i = 0; i < m_errors.length; i++)
 			{
-				m_errors[i] = (String) errors.elementAt(i);
+				m_errors[i] = (String) errors.elementAt(i) + " (" + m_pages[m_currentPage].getName() + ")";
 			}
 		}
 
