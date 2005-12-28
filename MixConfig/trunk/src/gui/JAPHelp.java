@@ -86,7 +86,7 @@ public final class JAPHelp extends JAPDialog
 	private static final String MSG_HELP_WINDOW = JAPHelp.class.getName() + ("_helpWindow");
 	private static final String MSG_HELP_PATH = JAPHelp.class.getName() + ("_helpPath");
 	private static final String MSG_LANGUAGE_CODE = JAPHelp.class.getName() + ("_languageCode");
-	private static final String MSG_ERROR_EXT_URL = JAPHelp.class.getName() + ("_error_ext_URL");
+	private static final String MSG_ERROR_EXT_URL = JAPHelp.class.getName() + ("_errorExtURL");
 
 	// images
 	private static final String IMG_HOME = JAPHelp.class.getName() + "_home.gif";
