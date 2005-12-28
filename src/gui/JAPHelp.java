@@ -633,7 +633,7 @@ public final class JAPHelp extends JAPDialog
 					}
 				}
 				else
-				{System.out.println(url.getProtocol());
+				{
 					if (!m_urlCaller.openURL(url))
 					{
 						html.setCursor(cursor);
