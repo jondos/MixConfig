@@ -88,7 +88,7 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 		m_pane = new DialogContentPane(this, new DialogContentPane.Layout("Key to convert"),
 									   new DialogContentPane.Options(DialogContentPane.OPTION_TYPE_OK_CANCEL,
 			JAPHelpContext.INDEX));
-
+		m_pane.setDefaultButtonOperation(DialogContentPane.ON_CANCEL_DISPOSE_DIALOG);
 		m_Parent = parent;
 
 
@@ -132,7 +132,6 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 
 		m_pane.getButtonYesOK().setText("Convert and Save");
 		m_pane.getButtonYesOK().addActionListener(this);
-		m_pane.getButtonCancel().addActionListener(this);
 
 		m_pane.updateDialog();
 		pack();
@@ -145,10 +144,6 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 		if (e.getSource() == m_pane.getButtonYesOK())
 		{
 			doConvert();
-		}
-		else if (e.getSource() == m_pane.getButtonCancel())
-		{
-			dispose();
 		}
 		else if (e.getSource() == m_btnImport)
 		{

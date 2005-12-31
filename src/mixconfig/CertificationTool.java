@@ -42,7 +42,7 @@ import javax.swing.event.ChangeListener;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
 import gui.JAPMessages;
-import gui.ValidityDialog;
+import gui.ValidityContentPane;
 import gui.JAPDialog;
 import gui.JAPHelp;
 import gui.JAPHelpContext;
@@ -129,16 +129,20 @@ public class CertificationTool extends JAPDialog
 	{
 		if (m_publicCertPanel.getCert() != null && m_privateCertPanel.getCert() != null)
 		{
-			ValidityDialog dialog = new ValidityDialog(this, "Set a new certificate validity.");
+			JAPDialog dialog = new JAPDialog(this, "Set a new certificate validity.", true);
+			ValidityContentPane contentPane = new ValidityContentPane(dialog);
+			contentPane.updateDialog();
+			dialog.pack();
+			dialog.setResizable(false);
 			dialog.setVisible(true);
 
 
-			if (dialog.getValidity() != null)
+			if (contentPane.getValidity() != null)
 			{
 				JAPCertificate signedCertificate =
 					( (JAPCertificate) m_publicCertPanel.getCert()).sign(
 						( (PKCS12) m_privateCertPanel.getCert()),
-						dialog.getValidity(),
+						contentPane.getValidity(),
 						( (JAPCertificate) m_publicCertPanel.getCert()).getExtensions(), new BigInteger("0"));
 				m_publicCertPanel.setCert(signedCertificate);
 				JAPDialog.showMessageDialog(this, JAPMessages.getString(MSG_CONFIRMATION),

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000, The JAP-Team
+ Copyright (c) 2000-2005, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -25,12 +25,10 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-
 package gui;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -40,8 +38,6 @@ import java.awt.event.FocusListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -50,39 +46,21 @@ import javax.swing.JPanel;
 import anon.crypto.Validity;
 import gui.JAPJIntField;
 
-public class ValidityDialog extends JAPDialog
+public class ValidityContentPane extends DialogContentPane
 {
 	private DateTextField m_dateFrom, m_dateTo;
 
-	public ValidityDialog(JAPDialog a_parent, String a_title)
+	public ValidityContentPane(JAPDialog a_parent)
 	{
-		super(a_parent, a_title);
-		init();
+		this(a_parent, null);
 	}
 
-	public ValidityDialog(Component parent, String title)
+	public ValidityContentPane(JAPDialog a_parent, DialogContentPane a_nextContentPane)
 	{
-		super(parent, title);
-		init();
-	}
+		super(a_parent, new Layout("Please choose a validity", MESSAGE_TYPE_QUESTION),
+			  new Options(OPTION_TYPE_OK_CANCEL, a_nextContentPane));
+		setDefaultButtonOperation(ON_CANCEL_DISPOSE_DIALOG);
 
-	private void init()
-	{
-		setResizable(false);
-		createValidityDialog();
-	}
-
-	public Validity getValidity()
-	{
-		if (m_dateFrom == null || m_dateTo == null)
-		{
-			return null;
-		}
-		return new Validity(m_dateFrom.getDate(), m_dateTo.getDate());
-	}
-
-	private void createValidityDialog()
-	{
 		GridBagLayout layout = new GridBagLayout();
 		getContentPane().setLayout(layout);
 
@@ -93,9 +71,6 @@ public class ValidityDialog extends JAPDialog
 		gbc.gridy = 0;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		JLabel label;
-
-		addWindowListener(new WindowAdapter(){
-			public void windowClosing(WindowEvent e){m_dateFrom = null; m_dateTo = null; dispose();}});
 
 		label = new JLabel("Valid from:");
 		gbc.gridx = 0;
@@ -160,24 +135,17 @@ public class ValidityDialog extends JAPDialog
 		getContentPane().add(y1Button);
 		gbc.gridy++;
 
-		GridBagLayout keylayout = new GridBagLayout();
-		JPanel keys = new JPanel(keylayout);
-		GridBagConstraints kc = new GridBagConstraints();
-		kc.weightx = 1;
-		kc.gridx = 0;
-		kc.gridy = 0;
-		kc.gridwidth = 1;
-		kc.fill = GridBagConstraints.NONE;
-		kc.insets = new Insets(1, 1, 1, 1);
-		JButton key = new JButton("OK");
-		key.addActionListener(new ActionListener()
+		getButtonYesOK().addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent ev)
 			{
 				try
 				{
 					getValidity();
-					dispose();
+					if (!moveToNextContentPane())
+					{
+						closeDialog(true);
+					}
 				}
 				catch (NumberFormatException a_e)
 				{
@@ -185,33 +153,17 @@ public class ValidityDialog extends JAPDialog
 				}
 			}
 		});
-		keylayout.setConstraints(key, kc);
-		keys.add(key);
-		kc.gridx++;
-		key = new JButton("Cancel");
-		key.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent ev)
-			{
-				m_dateFrom = null;
-				m_dateTo = null;
-				dispose();
-			}
-		});
-		keylayout.setConstraints(key, kc);
-		keys.add(key);
-
-		gbc.gridx = 0;
-		gbc.gridwidth = 3;
-		gbc.anchor = GridBagConstraints.CENTER;
-		gbc.fill = GridBagConstraints.NONE;
-		layout.setConstraints(keys, gbc);
-		getContentPane().add(keys);
-
-		pack();
 	}
 
-
+	public Validity getValidity()
+	{
+		if (RETURN_VALUE_UNINITIALIZED == getValue() ||  RETURN_VALUE_CLOSED == getValue() ||
+			RETURN_VALUE_CANCEL == getValue() || m_dateFrom == null || m_dateTo == null)
+		{
+			return null;
+		}
+		return new Validity(m_dateFrom.getDate(), m_dateTo.getDate());
+	}
 
 	private class DateTextField extends JPanel implements ItemListener, FocusListener
 	{

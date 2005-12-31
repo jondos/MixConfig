@@ -677,4 +677,8 @@
     <old-method-name>showOptionDialog</old-method-name>
     <new-method-name>showConfirmDialog</new-method-name>
   </rename-method>
+  <rename-class id="6AP0JSF34WHEZOIK9UO0QKH0" creation-time="Sat Dec 31 17:09:53.597 CET 2005">
+    <old-class-name>gui.ValidityDialog</old-class-name>
+    <new-class-name>gui.ValidityContentPane</new-class-name>
+  </rename-class>
 </refactor>

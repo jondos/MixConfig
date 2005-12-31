@@ -58,23 +58,23 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import anon.crypto.ICertificate;
-import anon.crypto.JAPCertificate;
-import anon.crypto.PKCS12;
 import anon.crypto.IMyPublicKey;
+import anon.crypto.JAPCertificate;
 import anon.crypto.MyDSAPublicKey;
 import anon.crypto.MyRSAPublicKey;
+import anon.crypto.PKCS12;
 import anon.util.IMiscPasswordReader;
+import gui.CertDetailsDialog;
 import gui.ClipFrame;
 import gui.GUIUtils;
-import gui.PasswordBox;
-import gui.ValidityDialog;
-import gui.JAPMessages;
 import gui.JAPDialog;
-import logging.LogType;
+import gui.JAPMessages;
+import gui.PasswordBox;
+import gui.ValidityContentPane;
 import logging.LogHolder;
 import logging.LogLevel;
+import logging.LogType;
 import mixconfig.wizard.CannotContinueException;
-import gui.*;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -949,12 +949,16 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			throw new CannotContinueException(m_validator.getInvalidityMessages());
 		}
 
-		ValidityDialog vdialog = new ValidityDialog(this, "Certificate validity");
+		JAPDialog vdialog = new JAPDialog(this, "Create new certificate", true);
+		ValidityContentPane contentPane = new ValidityContentPane(vdialog);
+		contentPane.updateDialog();
+		vdialog.pack();
+		vdialog.setResizable(false);
 		vdialog.setVisible(true);
 		windowSize = vdialog.getSize();
 		windowLocation = vdialog.getLocation();
 
-		if (vdialog.getValidity() == null)
+		if (contentPane.getValidity() == null)
 		{
 			return false;
 		}
@@ -975,7 +979,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	    //Dialog which shows the progress
 	    CertificateGenerator worker = new CertificateGenerator(
 		   m_validator.getSigName(), m_validator.getExtensions(),
-		   vdialog.getValidity(), passwd, dialog, m_bCreateDSACerts);
+		   contentPane.getValidity(), passwd, dialog, m_bCreateDSACerts);
 
 		worker.addChangeListener(this);
 		worker.start();
