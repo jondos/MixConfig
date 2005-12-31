@@ -30,6 +30,7 @@ package gui;
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
 import java.util.EventListener;
+import java.util.Vector;
 
 import java.awt.AWTEvent;
 import java.awt.Component;
@@ -115,7 +116,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	private boolean m_bModal;
 	private boolean m_bBlockParentWindow = false;
 	private int m_defaultCloseOperation;
-	private WindowClosingAdapter m_windowClosingAdapter;
+	private Vector m_windowListeners = new Vector();
 
 	/**
 	 * Stores the instance of JDialog for internal use.
@@ -224,8 +225,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			m_internalDialog.removeWindowListener((WindowListener)listeners[i]);
 		}
-		m_windowClosingAdapter = new WindowClosingAdapter(this);
-		m_internalDialog.addWindowListener(m_windowClosingAdapter);
+
+		addWindowListener(new WindowClosingAdapter(this));
 		m_parentWindow = getParentWindow(a_dialog.getParent());
 		setModal(a_bModal);
 	}
@@ -238,6 +239,16 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	public static double getGoldenRatioDelta(Window a_window)
 	{
 		return a_window.getSize().height * GOLDEN_RATIO_PHI - a_window.getSize().width;
+	}
+
+	/**
+	 * Calculates the difference from a JAPDialog's size and the golden ratio.
+	 * @param a_dialog a JAPDialog
+	 * @return the difference from a JAPDialog's size and the golden ratio
+	 */
+	public static double getGoldenRatioDelta(JAPDialog a_dialog)
+	{
+		return a_dialog.getSize().height * GOLDEN_RATIO_PHI - a_dialog.getSize().width;
 	}
 
 	/**
@@ -631,8 +642,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 										int a_optionType, int a_messageType, Icon a_icon,
 										ILinkedInformation a_linkedInformation)
 	{
-		JDialog dialog;
-		JOptionPane pane;
+		JAPDialog dialog;
+		DialogContentPane dialogContentPane;
 		JComponent contentPane;
 		String message;
 		String strLinkedInformation;
@@ -669,8 +680,13 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		 * Set the dialog parameters and get its label and content pane.
 		 */
 		label = new JAPHtmlMultiLineLabel(message);
-		dialog = new JOptionPane(label, a_messageType, a_optionType, a_icon).
-			createDialog(a_parentComponent, a_title);
+		dialog = new JAPDialog(a_parentComponent, a_title, true);
+		dialogContentPane = new DialogContentPane(dialog,
+												  new DialogContentPane.Layout(null, a_messageType, a_icon),
+												  new DialogContentPane.Options(a_optionType));
+		dialogContentPane.setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
+		dialogContentPane.setContentPane(label);
+		dialogContentPane.updateDialog();
 		// trick: a dialog's content pane is always a JComponent; it is needed to set the min/max size
 		contentPane = (JComponent)dialog.getContentPane();
 
@@ -802,8 +818,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			dummyBox.add(linkLabel);
 		}
 
-		pane =  new JOptionPane(dummyBox, a_messageType, a_optionType, a_icon);
-		dialog = pane.createDialog(a_parentComponent, a_title);
+		dialogContentPane.setContentPane(dummyBox);
+		dialogContentPane.updateDialog();
 		if (strLinkedInformation != null)
 		{
 			linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation));
@@ -815,37 +831,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			LogHolder.log(LogLevel.NOTICE, LogType.GUI, "Calculated dialog size differs from real size!");
 		}
 		//System.out.println(getGoldenRatioDelta(dialog));
-		dialog.setLocationRelativeTo(a_parentComponent);
 		dialog.setResizable(false);
+		dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		dialog.setVisible(true);
 
-		if (strLinkedInformation != null && a_linkedInformation.isDialogSemiModal())
-		{
-			JAPDialog newDialog = new JAPDialog(dialog, true);
-			newDialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-			newDialog.setVisible(true);
-		}
-		else
-		{
-			dialog.setVisible(true);
-		}
-
-		try
-		{
-			value = ((Integer)pane.getValue()).intValue();
-		}
-		catch (Exception a_e)
-		{
-			if (pane.getValue() == null)
-			{
-				value = RETURN_VALUE_CLOSED;
-			}
-			else
-			{
-				value = RETURN_VALUE_UNINITIALIZED;
-			}
-		}
-
-		return value;
+		return dialogContentPane.getValue();
 	}
 
 	/**
@@ -1418,26 +1408,46 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * This is an example implementation of ILinkedInformation. It registers a help context in the
 	 * dialog that is opened when the user clicks on a "More info..." or a self-defined String.
 	 */
-	public static final class LinkedHelpContext implements ILinkedInformation
+	public static final class LinkedHelpContext implements ILinkedInformation, JAPHelpContext.IHelpContext
 	{
 		private static final String MSG_MORE_INFO = LinkedHelpContext.class.getName() + "_moreInfo";
 
 		private String m_strMessage;
-		private String m_strHelpContext;
+		private JAPHelpContext.IHelpContext m_helpContext;
 
-		public LinkedHelpContext(String a_strHelpContext, String a_strMessage)
+		public LinkedHelpContext(final String a_strHelpContext, String a_strMessage)
+		{
+			this(new JAPHelpContext.IHelpContext(){public String getHelpContext(){return a_strHelpContext;}},
+				a_strMessage);
+		}
+
+		public LinkedHelpContext(JAPHelpContext.IHelpContext a_helpContext, String a_strMessage)
 		{
 			if (a_strMessage == null || a_strMessage.trim().length() == 0)
 			{
 				a_strMessage = JAPMessages.getString(MSG_MORE_INFO);
 			}
-			m_strHelpContext = a_strHelpContext;
+			m_helpContext = a_helpContext;
 			m_strMessage = a_strMessage;
+		}
+
+		public LinkedHelpContext(JAPHelpContext.IHelpContext a_helpContext)
+		{
+			this(a_helpContext, null);
 		}
 
 		public LinkedHelpContext(String a_strHelpContext)
 		{
 			this(a_strHelpContext, null);
+		}
+
+		public String getHelpContext()
+		{
+			if (m_helpContext == null)
+			{
+				return null;
+			}
+			return m_helpContext.getHelpContext();
 		}
 
 		public String getMessage()
@@ -1449,7 +1459,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		 */
 		public void openLink()
 		{
-			JAPHelp.getInstance().getContextObj().setContext(m_strHelpContext);
+			JAPHelp.getInstance().getContextObj().setContext(m_helpContext);
 			JAPHelp.getInstance().setVisible(true);
 			JAPHelp.getInstance().requestFocus();
 		}
@@ -1868,6 +1878,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void addWindowListener(WindowListener a_listener)
 	{
+		m_windowListeners.addElement(a_listener);
 		m_internalDialog.addWindowListener(a_listener);
 	}
 
@@ -1878,6 +1889,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void removeWindowListener(WindowListener a_listener)
 	{
+		m_windowListeners.removeElement(a_listener);
 		m_internalDialog.removeWindowListener(a_listener);
 	}
 
@@ -2072,7 +2084,20 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 							if ( ( (WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSING ||
 								 ( (WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSED)
 							{
-								m_windowClosingAdapter.windowClosing((WindowEvent) event);
+								for (int i = 0; i < m_windowListeners.size(); i++)
+								{
+									if (((WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSING)
+									{
+										( (WindowListener) m_windowListeners.elementAt(i)).windowClosing(
+											(WindowEvent)event);
+									}
+									else
+									{
+										( (WindowListener) m_windowListeners.elementAt(i)).windowClosed(
+											(WindowEvent)event);
+									}
+								}
+
 								/*
 								 * Hide this event from the internal dialog. This removes the flimmering
 								 * effect that occurs when the internal dialog is closed before enabling

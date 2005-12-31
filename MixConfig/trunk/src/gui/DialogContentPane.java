@@ -66,7 +66,7 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 	private static final String MSG_CANCEL = DialogContentPane.class.getName() + "_cancel";
 
 	private RootPaneContainer m_parentDialog;
-	private JPanel m_contentPane;
+	private JComponent m_contentPane;
 	private JPanel m_rootPane;
 	private JLabel m_lblMessage;
 	private JPanel m_panelOptions;
@@ -277,8 +277,20 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 		return m_contentPane;
 	}
 
+	public final void setContentPane(JComponent a_contentPane)
+	{
+		m_rootPane.remove(m_contentPane);
+		m_rootPane.add(a_contentPane, BorderLayout.CENTER);
+		m_contentPane = a_contentPane;
+	}
+
 	public final String getHelpContext()
 	{
+		if (m_helpContext == null)
+		{
+			return null;
+		}
+
 		return m_helpContext.getHelpContext();
 	}
 
