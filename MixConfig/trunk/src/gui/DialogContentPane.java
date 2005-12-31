@@ -65,11 +65,11 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	public static final int ON_YESOK_SHOW_NEXT_CONTENT = 8;
 	public static final int ON_NO_SHOW_NEXT_CONTENT = 16;
 	public static final int ON_CANCEL_SHOW_NEXT_CONTENT = 32;
-	public static final int ON_YESOK_HIDE_DIALOG =64;
-	public static final int ON_NO_HIDE_DIALOG =128;
+	public static final int ON_YESOK_HIDE_DIALOG = 64;
+	public static final int ON_NO_HIDE_DIALOG = 128;
 	public static final int ON_CANCEL_HIDE_DIALOG = 256;
-	public static final int ON_YESOK_DISPOSE_DIALOG =512;
-	public static final int ON_NO_DISPOSE_DIALOG =1024;
+	public static final int ON_YESOK_DISPOSE_DIALOG = 512;
+	public static final int ON_NO_DISPOSE_DIALOG = 1024;
 	public static final int ON_CANCEL_DISPOSE_DIALOG = 2048;
 
 	private static final String MSG_OK = DialogContentPane.class.getName() + "_OK";
@@ -373,6 +373,8 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	/**
 	 * Shows the next content pane in the dialog if it exists. Otherwise, the dialog is closed according
 	 * to the default ON_CLICK operation.
+	 * @return if a move to the next content pane was done; false if no next content pane does exist or
+	 * if it refused to update the dialog
 	 */
 	public final boolean moveToNextContentPane()
 	{

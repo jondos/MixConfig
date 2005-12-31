@@ -40,8 +40,6 @@ import java.awt.EventQueue;
 import java.awt.MenuComponent;
 import java.awt.Point;
 import java.awt.Window;
-import java.awt.Label;
-import java.awt.Canvas;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -59,8 +57,6 @@ import javax.swing.JRootPane;
 import javax.swing.JTextPane;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
-import javax.swing.JLabel;
-import javax.swing.Box;
 import javax.swing.WindowConstants;
 import javax.swing.text.View;
 import javax.swing.text.SimpleAttributeSet;
@@ -638,6 +634,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 										ILinkedInformation a_linkedInformation)
 	{
 		JAPDialog dialog;
+		JAPHelpContext.IHelpContext helpContext = null;
 		DialogContentPane dialogContentPane;
 		JComponent contentPane;
 		String message;
@@ -655,6 +652,15 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		if (a_title == null)
 		{
 			a_title = JAPMessages.getString(MSG_TITLE_CONFIRMATION);
+		}
+
+		/*
+		 * If the linked information contains a help context, display the help button instead of a link
+		 */
+		if (a_linkedInformation instanceof JAPHelpContext.IHelpContext)
+		{
+			helpContext = (JAPHelpContext.IHelpContext)a_linkedInformation;
+			a_linkedInformation = null;
 		}
 
 		if (a_linkedInformation != null && a_linkedInformation.getMessage() != null &&
@@ -677,7 +683,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		dialog = new JAPDialog(a_parentComponent, a_title, true);
 		dialogContentPane = new DialogContentPane(dialog,
 												  new DialogContentPane.Layout(null, a_messageType, a_icon),
-												  new DialogContentPane.Options(a_optionType));
+												  new DialogContentPane.Options(a_optionType, helpContext));
 		dialogContentPane.setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
 		dialogContentPane.setContentPane(label);
 		dialogContentPane.updateDialog();
