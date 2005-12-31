@@ -249,7 +249,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		{
 			exit = JAPDialog.showConfirmDialog(MixConfig.getMainWindow(),
 											   JAPMessages.getString(MSG_REALLY_CONTINUE),
-											   JAPDialog.OPTION_TYPE_OK_CANCEL,
+											   JAPDialog.OPTION_TYPE_CANCEL_OK,
 											   JAPDialog.MESSAGE_TYPE_QUESTION);
 		}
 		if (JAPDialog.RETURN_VALUE_OK == exit)
@@ -279,7 +279,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			{
 				ok = JAPDialog.showConfirmDialog(MixConfig.getMainWindow(),
 												 JAPMessages.getString(MSG_REALLY_CONTINUE),
-												 JAPDialog.OPTION_TYPE_OK_CANCEL,
+												 JAPDialog.OPTION_TYPE_CANCEL_OK,
 												 JAPDialog.MESSAGE_TYPE_QUESTION);
 				bReset = JAPDialog.RETURN_VALUE_OK == ok;
 			}

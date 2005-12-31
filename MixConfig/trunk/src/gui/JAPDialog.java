@@ -40,6 +40,8 @@ import java.awt.EventQueue;
 import java.awt.MenuComponent;
 import java.awt.Point;
 import java.awt.Window;
+import java.awt.Label;
+import java.awt.Canvas;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -57,6 +59,8 @@ import javax.swing.JRootPane;
 import javax.swing.JTextPane;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
+import javax.swing.JLabel;
+import javax.swing.Box;
 import javax.swing.WindowConstants;
 import javax.swing.text.View;
 import javax.swing.text.SimpleAttributeSet;
@@ -2063,6 +2067,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		synchronized (m_internalDialog.getTreeLock())
 		{
 			m_internalDialog.setVisible(a_bVisible);
+			if (a_bVisible)
+			{
+				// fix for JDK 1.1.8 that does not auto-focus the first focusable component
+				requestFocusForFirstFocusableComponent(m_internalDialog.getContentPane());
+			}
 		}
 
 		if (m_bBlockParentWindow)
@@ -2178,5 +2187,41 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			m_internalDialog.getTreeLock().notify();
 		}
+	}
+
+	/**
+	 * Finds the first focusable Component in a Container and sets the focus on it.
+	 * @param a_container a Container
+	 * @return if a Component has been focused
+	 */
+	private static boolean requestFocusForFirstFocusableComponent(Container a_container)
+	{
+		// see if isFocusable() is available; then we do not need this patch
+		try
+		{
+			Container.class.getMethod("isFocusable", null).invoke(a_container, null);
+			return true;
+		}
+		catch (Exception a_e)
+		{
+		}
+
+		for (int i = 0; i < a_container.getComponentCount(); i++)
+		{
+			if (a_container.getComponent(i) instanceof Container)
+			{
+				if (requestFocusForFirstFocusableComponent((Container)a_container.getComponent(i)))
+				{
+					return true;
+				}
+			}
+
+			if (a_container.getComponent(i).isFocusTraversable())
+			{
+				a_container.getComponent(i).requestFocus();
+				return true;
+			}
+		}
+		return false;
 	}
 }
