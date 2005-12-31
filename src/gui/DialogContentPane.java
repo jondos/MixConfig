@@ -27,30 +27,30 @@
  */
 package gui;
 
-import java.awt.Container;
-import java.awt.Component;
+import java.awt.Color;
 import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.Icon;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.border.TitledBorder;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.RootPaneContainer;
-import logging.LogLevel;
+import javax.swing.border.TitledBorder;
+
 import logging.LogHolder;
+import logging.LogLevel;
 
 /**
  * This is a replacement for a dialog content pane. It defines an icon, buttons, a status bar for
  * info and error messages and a content pane where own components may be placed. The content pane
  * of the parent dialog is automatically replaced with this one by calling the method
- * <CODE>updateDialog()</CODE>.
+ * <CODE>updateDialog()</CODE>. Sometimes it is needed to call pack() afterwards.
  * @see gui.JAPDialog
  * @author Rolf Wendolsky
  */
@@ -67,6 +67,7 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 
 	private RootPaneContainer m_parentDialog;
 	private JComponent m_contentPane;
+	private JPanel m_titlePane;
 	private JPanel m_rootPane;
 	private JLabel m_lblMessage;
 	private JPanel m_panelOptions;
@@ -251,13 +252,16 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 		m_icon = a_icon;
 		m_helpContext = a_helpContext;
 		m_rootPane = new JPanel(new BorderLayout());
+		m_titlePane = new JPanel();
+		m_rootPane.add(m_titlePane, BorderLayout.CENTER);
 		m_contentPane = new JPanel();
-		m_rootPane.add(m_contentPane, BorderLayout.CENTER);
+		m_titlePane.add(m_contentPane);
+
 		if (a_title != null)
 		{
 			if (a_title.trim().length() > 0)
 			{
-				m_contentPane.setBorder(new TitledBorder(a_title));
+				m_titlePane.setBorder(new TitledBorder(a_title));
 			}
 			m_lblMessage = new JLabel();
 			clearStatusMessage();
@@ -311,6 +315,7 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 	{
 		if (m_lblMessage != null)
 		{
+			m_lblMessage.setForeground(Color.black);
 			m_lblMessage.setText(a_message);
 			m_lblMessage.revalidate();
 		}
@@ -336,6 +341,7 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 				// the exception is only shown in debug mode
 				LogHolder.log(LogLevel.DEBUG, a_logType, a_throwable);
 			}
+			m_lblMessage.setForeground(Color.red);
 			m_lblMessage.setText(a_message);
 			m_lblMessage.revalidate();
 		}
@@ -473,7 +479,7 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 				m_value = RETURN_VALUE_CLOSED;
 			}
 		}
-}
+	}
 
 	private class ButtonListener implements ActionListener
 	{

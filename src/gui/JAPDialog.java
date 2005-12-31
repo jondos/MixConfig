@@ -152,16 +152,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
-	 * Creates a new instance of JAPDialog.
-	 * @param a_dialog the dialog that is wrapped in this JAPDialog
-	 * @param a_bModal if the dialog should be modal
-	 */
-	private JAPDialog(JDialog a_dialog, boolean a_bModal)
-	{
-		init (a_dialog, a_bModal);
-	}
-
-	/**
 	 * Creates a new instance of JAPDialog. It is user-resizable and modal.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
@@ -625,6 +615,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 	/**
 	 * Displays a confirm dialog. Words are wrapped automatically if a message line is too long.
+	 * This method is the 'hear' of the show...Dialog() logic.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
@@ -650,7 +641,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		JAPHtmlMultiLineLabel label;
 		PreferredWidthBoxPanel dummyBox;
 		JComponent linkLabel;
-		int value;
 
 		if (a_message == null)
 		{
@@ -1248,6 +1238,42 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		showErrorDialog(a_parentComponent, a_message, a_title, a_logType, null);
 	}
+
+	/**
+	 * Displays a dialog showing an error message to the user and logs the error message
+	 * to the currently used Log.
+	 * @param a_parentDialog The parent dialog for this dialog. If it is null or the parent
+	 *                       dialog is not within a frame, the dialog's parent frame is the
+	 *                       default frame.
+	 * @param a_throwable a Throwable that has been caught (may be null)
+	 * @param a_logType the log type for this error
+	 * @see logging.LogHolder
+	 * @see logging.LogType
+	 * @see logging.Log
+	 */
+	public static void showErrorDialog(JAPDialog a_parentDialog, int a_logType, Throwable a_throwable)
+	{
+		showErrorDialog(getInternalDialog(a_parentDialog), null, null, a_logType, a_throwable);
+	}
+
+	/**
+	 * Displays a dialog showing an error message to the user and logs the error message
+	 * to the currently used Log.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_throwable a Throwable that has been caught (may be null)
+	 * @param a_logType the log type for this error
+	 * @see logging.LogHolder
+	 * @see logging.LogType
+	 * @see logging.Log
+	 */
+	public static void showErrorDialog(Component a_parentComponent,  int a_logType,
+									   Throwable a_throwable)
+	{
+		showErrorDialog(a_parentComponent, null, null, a_logType, a_throwable);
+	}
+
 
 	/**
 	 * Displays a dialog showing an error message to the user and logs the error message
@@ -1938,36 +1964,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			m_dialog = a_dialog;
 		}
-		public void windowClosed(WindowEvent a_event)
-		{
-			/** @todo In old JDKs, this method is not only called when the dialog is disposed, but also
-			 * when the dialog is closed with a click at the close icon. Therefore it does not seem
-			 * possible to call dispose() here or to really set the JAPDialog disposed. But, if the internal
-			 * dialog is disposed, and the JAPDialog is not, this would cause the method getDisplayable()
-			 * to return true, what is not correct. until now, I do not know a solution for this problem.
-			 */
-			//System.out.println(m_dialog.m_internalDialog.isDisplayable());
-			if (m_dialog.m_bBlockParentWindow && !m_dialog.getOwner().isEnabled())
-			{
-				m_dialog.getOwner().setEnabled(true);
-				m_dialog.getOwner().setVisible(true);
-			}
-			if (m_dialog.isVisible())
-			{
-				m_dialog.setVisible(false);
-			}
 
-			/*
-			synchronized (m_dialog.m_internalDialog.getTreeLock())
-			{
-			    m_dialog.m_internalDialog.getTreeLock().notify();
-			}*/
-
-			/*
-			m_dialog.m_bDisposed = true; // must be set as otherwise there could be a long event loop
-			m_dialog.dispose();
-		    */
-		}
 		public void windowClosing(WindowEvent a_event)
 		{
 			if (m_dialog.getDefaultCloseOperation() == DISPOSE_ON_CLOSE)
@@ -1982,9 +1979,18 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			{
 				/*
 				 * This covers the case that, in old JDKs, a click on the close icon will always close
-				 * th dialog. Make it visible again! Please refer to windowClosed().
+				 * the dialog, not regarding which closing pocily has been set. As it is not possible to
+				 * catch this event if we do not own the AWT event thread in the setVisible() method,
+				 * we have to make the internal dialog visible again in this place.
+				 * In never JDKs >= 1.3 all WindowListeners are removed from the internal dialog, so this
+				 * problem does not come up there.
+				 * Notice: This bug causes a little flickering, but this should not harm.
 				 */
-				m_dialog.setVisible(true);
+				if (!m_dialog.isVisible())
+				{
+					m_dialog.m_internalDialog.setVisible(true);
+					LogHolder.log(LogLevel.INFO, LogType.GUI, "Fixed old JRE dialog closing bug.");
+				}
 			}
 		}
 	}

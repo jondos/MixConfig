@@ -78,7 +78,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.044"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.046"; //NEVER change the layout of this line!!
 
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -221,14 +221,14 @@ public class MixConfig extends JApplet
 
 			LogHolder.log(LogLevel.INFO, LogType.MISC,
 						  "Startup time: " + (System.currentTimeMillis() - startTime));
-/*
-			JAPDialog dialog = new JAPDialog(getMainWindow(), "Test", true);
+
+/*			JAPDialog dialog = new JAPDialog(getMainWindow(), "Test", true);
 			//javax.swing.JDialog dialog = new javax.swing.JDialog(getMainWindow(), "Test", true);
 			dialog.setDefaultCloseOperation(JAPDialog.DO_NOTHING_ON_CLOSE);
 
 			DialogContentPane pane =
-				new DialogContentPane(dialog, "Title", JAPDialog.OPTION_TYPE_OK_CANCEL, JAPDialog.MESSAGE_TYPE_QUESTION,
-									  "index");
+				new DialogContentPane(dialog, new DialogContentPane.Layout("Title", JAPDialog.MESSAGE_TYPE_QUESTION),
+									  new DialogContentPane.Options(JAPDialog.OPTION_TYPE_OK_CANCEL, "index"));
 			pane.setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
 			pane.updateDialog();
 			dialog.pack();

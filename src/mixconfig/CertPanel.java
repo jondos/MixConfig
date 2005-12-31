@@ -485,7 +485,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorDialog(this, "Certificate action failed!", LogType.GUI, ex);
+			JAPDialog.showErrorDialog(this, LogType.GUI, ex);
 		}
 	}
 
@@ -505,7 +505,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorDialog(this, "Certificate creation failed", LogType.MISC, ex);
+			JAPDialog.showErrorDialog(this, LogType.MISC, ex);
 		}
 	}
 
