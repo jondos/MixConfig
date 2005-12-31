@@ -1753,6 +1753,14 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
+	 * Validates the dialog. Should be called after changing the content pane when the dialog is visible.
+	 */
+	public void validate()
+	{
+		m_internalDialog.validate();
+	}
+
+	/**
 	 * Try to get the focus.
 	 */
 	public void requestFocus()

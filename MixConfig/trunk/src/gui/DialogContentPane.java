@@ -51,20 +51,33 @@ import logging.LogLevel;
  * info and error messages and a content pane where own components may be placed. The content pane
  * of the parent dialog is automatically replaced with this one by calling the method
  * <CODE>updateDialog()</CODE>. Sometimes it is needed to call pack() afterwards.
+ * Dialog content panes can be implemented as a forward chained list, so that if someone clicks on
+ * "OK" or "Yes", the next content pane in the list is displayed in the dialog.
  * @see gui.JAPDialog
  * @author Rolf Wendolsky
  */
-public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOptions
+public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOptions
 {
 	public static final int ON_CLICK_DO_NOTHING = 0;
 	public static final int ON_CLICK_HIDE_DIALOG = 1;
 	public static final int ON_CLICK_DISPOSE_DIALOG = 2;
+	public static final int ON_CLICK_SHOW_NEXT_CONTENT = 4;
+	public static final int ON_YESOK_SHOW_NEXT_CONTENT = 8;
+	public static final int ON_NO_SHOW_NEXT_CONTENT = 16;
+	public static final int ON_CANCEL_SHOW_NEXT_CONTENT = 32;
+	public static final int ON_YESOK_HIDE_DIALOG =64;
+	public static final int ON_NO_HIDE_DIALOG =128;
+	public static final int ON_CANCEL_HIDE_DIALOG = 256;
+	public static final int ON_YESOK_DISPOSE_DIALOG =512;
+	public static final int ON_NO_DISPOSE_DIALOG =1024;
+	public static final int ON_CANCEL_DISPOSE_DIALOG = 2048;
 
 	private static final String MSG_OK = DialogContentPane.class.getName() + "_OK";
 	private static final String MSG_YES = DialogContentPane.class.getName() + "_yes";
 	private static final String MSG_NO = DialogContentPane.class.getName() + "_no";
 	private static final String MSG_CANCEL = DialogContentPane.class.getName() + "_cancel";
 
+	private DialogContentPane m_nextContentPane;
 	private RootPaneContainer m_parentDialog;
 	private JComponent m_contentPane;
 	private JPanel m_titlePane;
@@ -80,104 +93,6 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 	private int m_defaultButtonOperation;
 	private int m_value;
 	private Icon m_icon;
-
-
-	public static final class Options
-	{
-		private int m_optionType;
-		private JAPHelpContext.IHelpContext m_helpContext;
-
-		public Options(int a_optionType)
-		{
-			this(a_optionType, (JAPHelpContext.IHelpContext)null);
-		}
-
-		public Options(String a_strHelpContext)
-		{
-			this(OPTION_TYPE_EMPTY, a_strHelpContext);
-		}
-
-		public Options(int a_optionType, final String a_strHelpContext)
-		{
-			this(a_optionType,
-				 new JAPHelpContext.IHelpContext(){public String getHelpContext(){return a_strHelpContext;}});
-		}
-
-		public Options(int a_optionType,JAPHelpContext.IHelpContext a_helpContext)
-		{
-			m_optionType = a_optionType;
-			m_helpContext = a_helpContext;
-		}
-
-		public int getOptionType()
-		{
-			return m_optionType;
-		}
-
-		public JAPHelpContext.IHelpContext getHelpContext()
-		{
-			return m_helpContext;
-		}
-	}
-
-	public static final class Layout
-	{
-		private String m_title;
-		private int m_messageType;
-		private Icon m_icon;
-
-		public Layout(int a_messageType)
-		{
-			this("", a_messageType, null);
-		}
-
-		public Layout(String a_title)
-		{
-			this(a_title, MESSAGE_TYPE_PLAIN, null);
-		}
-
-		public Layout(Icon a_icon)
-		{
-			this("", MESSAGE_TYPE_PLAIN, a_icon);
-		}
-
-		public Layout(int a_messageType, Icon a_icon)
-		{
-			this("", a_messageType, a_icon);
-		}
-
-		public Layout(String a_title, int a_messageType)
-		{
-			this(a_title, a_messageType, null);
-		}
-
-		public Layout(String a_title, Icon a_icon)
-		{
-			this(a_title, MESSAGE_TYPE_PLAIN, a_icon);
-		}
-
-		public Layout(String a_title, int a_messageType, Icon a_icon)
-		{
-			m_title = a_title;
-			m_messageType = a_messageType;
-			m_icon = a_icon;
-		}
-
-		public String getTitle()
-		{
-			return m_title;
-		}
-
-		public int getMessageType()
-		{
-			return m_messageType;
-		}
-
-		public Icon getIcon()
-		{
-			return m_icon;
-		}
-	}
 
 	public DialogContentPane(JDialog a_parentDialog)
 	{
@@ -231,12 +146,19 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 		}
 
 		init(a_parentDialog, a_layout.getTitle(), a_options.getOptionType(),
-			 a_layout.getMessageType(), a_layout.getIcon(), a_options.getHelpContext());
+			 a_layout.getMessageType(), a_layout.getIcon(), a_options.getHelpContext(),
+			 a_options.getNextContentPane());
 	}
 
     private void init(RootPaneContainer a_parentDialog, String a_title, int a_optionType,
-					  int a_messageType, Icon a_icon, JAPHelpContext.IHelpContext a_helpContext)
+					  int a_messageType, Icon a_icon, JAPHelpContext.IHelpContext a_helpContext,
+					  DialogContentPane a_nextContentPane)
 	{
+		if (a_parentDialog == null)
+		{
+			throw new IllegalArgumentException("The parent dialog must not be null!");
+		}
+
 		if (a_parentDialog instanceof JDialog)
 		{
 			((JDialog)a_parentDialog).addWindowListener(new DialogWindowListener());
@@ -246,6 +168,12 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 			((JAPDialog)a_parentDialog).addWindowListener(new DialogWindowListener());
 		}
 
+		if (a_nextContentPane != null && a_nextContentPane.m_parentDialog != a_parentDialog)
+		{
+			throw new IllegalArgumentException("Chained content panes must refer to the same dialog!");
+		}
+
+		m_nextContentPane = a_nextContentPane;
 		m_parentDialog = a_parentDialog;
 		m_messageType = a_messageType;
 		m_optionType = a_optionType;
@@ -270,6 +198,201 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 		setDefaultButtonOperation(ON_CLICK_DO_NOTHING);
 		m_value = RETURN_VALUE_UNINITIALIZED;
 		createOptions();
+	}
+
+	/**
+	 * Defines the buttons that are available in a dialog.
+	 */
+	public static final class Options
+	{
+		private int m_optionType;
+		private DialogContentPane m_nextContentPane;
+		private JAPHelpContext.IHelpContext m_helpContext;
+
+		public Options(int a_optionType)
+		{
+			this(a_optionType, (JAPHelpContext.IHelpContext)null, null);
+		}
+
+		public Options(String a_strHelpContext)
+		{
+			this(OPTION_TYPE_EMPTY, a_strHelpContext, null);
+		}
+
+		public Options(String a_strHelpContext, DialogContentPane a_nextContentPane)
+		{
+			this(OPTION_TYPE_EMPTY, a_strHelpContext, a_nextContentPane);
+		}
+
+		public Options(JAPHelpContext.IHelpContext a_helpContext, DialogContentPane a_nextContentPane)
+		{
+			this(OPTION_TYPE_EMPTY, a_helpContext, a_nextContentPane);
+		}
+
+		public Options(int a_optionType, DialogContentPane a_nextContentPane)
+		{
+			this(a_optionType, (JAPHelpContext.IHelpContext)null, a_nextContentPane);
+		}
+
+		public Options(int a_optionType, JAPHelpContext.IHelpContext a_helpContext)
+		{
+			this(a_optionType, a_helpContext, null);
+		}
+
+		public Options(int a_optionType, String a_strHelpContext)
+		{
+			this(a_optionType, a_strHelpContext, null);
+		}
+
+
+		public Options(int a_optionType, final String a_strHelpContext, DialogContentPane a_nextContentPane)
+		{
+			this(a_optionType,
+				 new JAPHelpContext.IHelpContext(){public String getHelpContext(){return a_strHelpContext;}},
+				a_nextContentPane);
+		}
+
+		public Options(int a_optionType,JAPHelpContext.IHelpContext a_helpContext,
+					   DialogContentPane a_nextContentPane)
+		{
+			m_optionType = a_optionType;
+			m_helpContext = a_helpContext;
+			m_nextContentPane = a_nextContentPane;
+		}
+
+		public int getOptionType()
+		{
+			return m_optionType;
+		}
+
+		public JAPHelpContext.IHelpContext getHelpContext()
+		{
+			return m_helpContext;
+		}
+
+		public DialogContentPane getNextContentPane()
+		{
+			return m_nextContentPane;
+		}
+	}
+
+	/**
+	 * Defines the general layout of a dialog.
+	 */
+	public static final class Layout
+	{
+		private String m_title;
+		private int m_messageType;
+		private Icon m_icon;
+
+		public Layout(int a_messageType)
+		{
+			this("", a_messageType, null);
+		}
+
+		public Layout(String a_title)
+		{
+			this(a_title, MESSAGE_TYPE_PLAIN, null);
+		}
+
+		public Layout(Icon a_icon)
+		{
+			this("", MESSAGE_TYPE_PLAIN, a_icon);
+		}
+
+		public Layout(int a_messageType, Icon a_icon)
+		{
+			this("", a_messageType, a_icon);
+		}
+
+		public Layout(String a_title, int a_messageType)
+		{
+			this(a_title, a_messageType, null);
+		}
+
+		public Layout(String a_title, Icon a_icon)
+		{
+			this(a_title, MESSAGE_TYPE_PLAIN, a_icon);
+		}
+
+		/**
+		 * Creates a new Layout for the dialog content pane.
+		 * @param a_title The title of the dialog content pane. If it is empty or null, the content pane won't
+		 * have a border. If it is null, the status message field will be replaced by modal dialogs.
+		 * @param a_messageType The content pane's message type,
+		 * e.g. MESSAGE_TYPE_PLAIN, MESSAGE_TYPE_ERROR, ...
+		 * @param a_icon The icon for the content pane. If is is null, the icon will be automatically chosen
+		 * depending on the message type.
+		 */
+		public Layout(String a_title, int a_messageType, Icon a_icon)
+		{
+			m_title = a_title;
+			m_messageType = a_messageType;
+			m_icon = a_icon;
+		}
+
+		/**
+		 * Returns the title of the dialog content pane. If it is empty or null, the content pane won't have a
+		 * border. If it is null, the status message field will be replaced by modal dialogs.
+		 * @return the title of the dialog content pane
+		 */
+		public String getTitle()
+		{
+			return m_title;
+		}
+
+		/**
+		 * The content pane's message type, e.g. MESSAGE_TYPE_PLAIN, MESSAGE_TYPE_ERROR, ...
+		 * @return content pane's message type
+		 */
+		public int getMessageType()
+		{
+			return m_messageType;
+		}
+
+		/**
+		 * Returns the icon for the content pane. If is is null, the icon will be automatically chosen
+		 * depending on the message type.
+		 * @return icon for the content pane.
+		 */
+		public Icon getIcon()
+		{
+			return m_icon;
+		}
+	}
+
+	/**
+	 * Returns the next content pane in the list of chained content panes.
+	 * @return the next content pane in the list of chained content panes
+	 */
+	public final DialogContentPane getNextContentPane()
+	{
+		return m_nextContentPane;
+	}
+
+	/**
+	 * Shows the next content pane in the dialog if it exists. Otherwise, the dialog is closed according
+	 * to the default ON_CLICK operation.
+	 */
+	public final boolean moveToNextContentPane()
+	{
+		if (m_nextContentPane != null)
+		{
+			m_nextContentPane.updateDialog();
+			return true;
+		}
+		else
+		{
+			if ((getDefaultButtonOperation() & ON_CLICK_DISPOSE_DIALOG) > 0)
+			{
+				closeDialog(true);
+			}
+			else if ((getDefaultButtonOperation() & ON_CLICK_HIDE_DIALOG) > 0)
+			{
+				closeDialog(false);
+			}
+			return false;
+		}
 	}
 
 	/**
@@ -311,7 +434,7 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 		}
 	}
 
-	public void printStatusMessage(String a_message)
+	public final void printStatusMessage(String a_message)
 	{
 		if (m_lblMessage != null)
 		{
@@ -325,12 +448,12 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 		}
 	}
 
-	public void printErrorStatusMessage(String a_message, int a_logType)
+	public final void printErrorStatusMessage(String a_message, int a_logType)
 	{
 		printErrorStatusMessage(a_message, a_logType, null);
 	}
 
-	public void printErrorStatusMessage(String a_message, int a_logType, Throwable a_throwable)
+	public final void printErrorStatusMessage(String a_message, int a_logType, Throwable a_throwable)
 	{
 		if (m_lblMessage != null)
 		{
@@ -360,13 +483,21 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 		options[0] = m_panelOptions;
 		JOptionPane pane = new JOptionPane(m_rootPane, m_messageType, 0, m_icon, options );
 		m_parentDialog.setContentPane(pane.createDialog(null, "").getContentPane());
+		if (m_parentDialog instanceof JAPDialog)
+		{
+			((JAPDialog) m_parentDialog).validate();
+		}
+		else
+		{
+			((JDialog) m_parentDialog).validate();
+		}
 	}
 
 	/**
 	 * Returns the "Cancel" button.
 	 * @return the "Cancel" button
 	 */
-	public JButton getButtonCancel()
+	public final JButton getButtonCancel()
 	{
 		return m_btnCancel;
 	}
@@ -375,7 +506,7 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 	 * Returns the "Yes" or "OK" button.
 	 * @return the "Yes" or "OK" button
 	 */
-	public JButton getButtonYesOK()
+	public final JButton getButtonYesOK()
 	{
 		return m_btnYesOK;
 	}
@@ -384,7 +515,7 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 	 * Returns the "No" button.
 	 * @return the "No" button
 	 */
-	public JButton getButtonNo()
+	public final JButton getButtonNo()
 	{
 		return m_btnNo;
 	}
@@ -394,6 +525,13 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 		return m_defaultButtonOperation;
 	}
 
+	/**
+	 * Defines what happens if one of the buttons is clicked. Several actions can be combined,
+	 * for example ON_CLICK_DISPOSE_DIALOG + ON_YESOK_SHOW_NEXT_CONTENT will dispose the dialog on
+	 * "Cancel" and "No" but will show the next content pane on "Yes" or "OK". The ON_CLICK operation
+	 * definitions are always weaker than the button-specific operation definitions.
+	 * @param a_defaultButtonOperation int
+	 */
 	public final void setDefaultButtonOperation(int a_defaultButtonOperation)
 	{
 		m_defaultButtonOperation = a_defaultButtonOperation;
@@ -403,12 +541,12 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 	 * Returns the button value the user has selected.
 	 * @return the button value the user has selected
 	 */
-	public int getValue()
+	public final int getValue()
 	{
 		return m_value;
 	}
 
-	public void closeDialog(boolean a_bDispose)
+	public final void closeDialog(boolean a_bDispose)
 	{
 		if (a_bDispose)
 		{
@@ -485,9 +623,18 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 	{
 		public void actionPerformed(ActionEvent a_event)
 		{
-			if (m_btnCancel != null && a_event.getSource() == m_btnCancel)
+			boolean bActionDone = false;
+
+			if (a_event == null || a_event.getSource() == null)
+			{
+				return;
+			}
+
+			if (a_event.getSource() == m_btnCancel)
 			{
 				m_value = RETURN_VALUE_CANCEL;
+				bActionDone = doDefaultButtonOperation(ON_CANCEL_SHOW_NEXT_CONTENT,
+					ON_CANCEL_HIDE_DIALOG, ON_CANCEL_DISPOSE_DIALOG);
 			}
 			else if (a_event.getSource() == m_btnYesOK)
 			{
@@ -499,20 +646,44 @@ public final class DialogContentPane implements JAPHelpContext.IHelpContext, IDi
 				{
 					m_value = RETURN_VALUE_OK;
 				}
+				bActionDone = doDefaultButtonOperation(ON_YESOK_SHOW_NEXT_CONTENT,
+					ON_YESOK_HIDE_DIALOG, ON_YESOK_DISPOSE_DIALOG);
 			}
-			else if (m_btnNo != null && a_event.getSource() == m_btnNo)
+			else if (a_event.getSource() == m_btnNo)
 			{
 				m_value = RETURN_VALUE_NO;
+				bActionDone = doDefaultButtonOperation(ON_NO_SHOW_NEXT_CONTENT,
+					ON_NO_HIDE_DIALOG, ON_NO_DISPOSE_DIALOG);
 			}
 
-			if (getDefaultButtonOperation() == ON_CLICK_DISPOSE_DIALOG)
+			if (!bActionDone)
 			{
-				closeDialog(true);
-			}
-			else if (getDefaultButtonOperation() == ON_CLICK_HIDE_DIALOG)
-			{
-				closeDialog(false);
+				doDefaultButtonOperation(ON_CLICK_SHOW_NEXT_CONTENT, ON_CLICK_HIDE_DIALOG,
+										 ON_CLICK_DISPOSE_DIALOG);
 			}
 		}
+	}
+
+	private boolean doDefaultButtonOperation(int a_opNext, int a_opHide, int a_opDispose)
+	{
+		if (m_nextContentPane != null && (getDefaultButtonOperation() & a_opNext) > 0)
+		{
+			m_nextContentPane.updateDialog();
+			return true;
+		}
+
+		if ((getDefaultButtonOperation() & a_opDispose) > 0)
+		{
+			closeDialog(true);
+			return true;
+		}
+
+		if ((getDefaultButtonOperation() & a_opHide) > 0)
+		{
+			closeDialog(false);
+			return true;
+		}
+
+		return false;
 	}
 }
