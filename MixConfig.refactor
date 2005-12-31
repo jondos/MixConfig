@@ -681,4 +681,16 @@
     <old-class-name>gui.ValidityDialog</old-class-name>
     <new-class-name>gui.ValidityContentPane</new-class-name>
   </rename-class>
+  <rename-field id="4AP0JSF34WHEZOIK9UO0QKH0" creation-time="Sat Dec 31 17:37:07.576 CET 2005">
+    <declaring-class-name>gui.IDialogOptions</declaring-class-name>
+    <old-field-name>OPTION_TYPE_OK_CANCEL</old-field-name>
+    <declared-field-type>I</declared-field-type>
+    <new-field-name>OPTION_TYPE_CANCEL_OK</new-field-name>
+  </rename-field>
+  <rename-field id="2AP0JSF34WHEZOIK9UO0QKH0" creation-time="Sat Dec 31 17:37:18.742 CET 2005">
+    <declaring-class-name>gui.IDialogOptions</declaring-class-name>
+    <old-field-name>OPTION_TYPE_YES_NO_CANCEL</old-field-name>
+    <declared-field-type>I</declared-field-type>
+    <new-field-name>OPTION_TYPE_CANCEL_YES_NO</new-field-name>
+  </rename-field>
 </refactor>

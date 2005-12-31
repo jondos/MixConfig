@@ -44,6 +44,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import anon.crypto.Validity;
+import logging.LogType;
 import gui.JAPJIntField;
 
 public class ValidityContentPane extends DialogContentPane
@@ -58,7 +59,7 @@ public class ValidityContentPane extends DialogContentPane
 	public ValidityContentPane(JAPDialog a_parent, DialogContentPane a_nextContentPane)
 	{
 		super(a_parent, new Layout("Please choose a validity", MESSAGE_TYPE_QUESTION),
-			  new Options(OPTION_TYPE_OK_CANCEL, a_nextContentPane));
+			  new Options(OPTION_TYPE_CANCEL_OK, a_nextContentPane));
 		setDefaultButtonOperation(ON_CANCEL_DISPOSE_DIALOG);
 
 		GridBagLayout layout = new GridBagLayout();
@@ -149,7 +150,7 @@ public class ValidityContentPane extends DialogContentPane
 				}
 				catch (NumberFormatException a_e)
 				{
-					// there should be an error dialog here saying that one or more date fields are empty
+					printErrorStatusMessage("One or more date fields are empty", LogType.GUI);
 				}
 			}
 		});
@@ -157,8 +158,8 @@ public class ValidityContentPane extends DialogContentPane
 
 	public Validity getValidity()
 	{
-		if (RETURN_VALUE_UNINITIALIZED == getValue() ||  RETURN_VALUE_CLOSED == getValue() ||
-			RETURN_VALUE_CANCEL == getValue() || m_dateFrom == null || m_dateTo == null)
+		if (RETURN_VALUE_CLOSED == getValue() || RETURN_VALUE_CANCEL == getValue() ||
+			m_dateFrom == null || m_dateTo == null)
 		{
 			return null;
 		}

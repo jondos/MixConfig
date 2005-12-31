@@ -578,7 +578,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 
 		m_panelOptions = new JPanel();
 
-		if (OPTION_TYPE_YES_NO_CANCEL == m_optionType || OPTION_TYPE_OK_CANCEL == m_optionType)
+		if (OPTION_TYPE_CANCEL_YES_NO == m_optionType || OPTION_TYPE_CANCEL_OK == m_optionType)
 		{
 			m_btnCancel = new JButton(JAPMessages.getString(MSG_CANCEL));
 			m_btnCancel.addActionListener(listener);
@@ -586,7 +586,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			m_panelOptions.add(m_btnCancel);
 		}
 
-		if (OPTION_TYPE_YES_NO == m_optionType || OPTION_TYPE_YES_NO_CANCEL == m_optionType)
+		if (OPTION_TYPE_YES_NO == m_optionType || OPTION_TYPE_CANCEL_YES_NO == m_optionType)
 		{
 			m_btnYesOK = new JButton(JAPMessages.getString(MSG_YES));
 			m_btnYesOK.addActionListener(listener);
@@ -595,7 +595,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			m_btnNo.addActionListener(listener);
 			m_panelOptions.add(m_btnNo);
 		}
-		else if (OPTION_TYPE_OK_CANCEL == m_optionType || OPTION_TYPE_DEFAULT == m_optionType)
+		else if (OPTION_TYPE_CANCEL_OK == m_optionType || OPTION_TYPE_DEFAULT == m_optionType)
 		{
 			m_btnYesOK = new JButton(JAPMessages.getString(MSG_OK));
 			m_btnYesOK.addActionListener(listener);
@@ -638,7 +638,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			}
 			else if (a_event.getSource() == m_btnYesOK)
 			{
-				if (OPTION_TYPE_YES_NO == m_optionType  || OPTION_TYPE_YES_NO_CANCEL == m_optionType)
+				if (OPTION_TYPE_YES_NO == m_optionType  || OPTION_TYPE_CANCEL_YES_NO == m_optionType)
 				{
 					m_value = RETURN_VALUE_YES;
 				}
