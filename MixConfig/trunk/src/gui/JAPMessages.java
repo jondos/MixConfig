@@ -29,6 +29,7 @@
 package gui;
 
 import java.util.Locale;
+import java.util.Hashtable;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
@@ -53,6 +54,7 @@ public final class JAPMessages
 	private static ResourceBundle ms_resourceBundle = null;
 	private static ResourceBundle ms_defaultResourceBundle = null;
 	private static Locale ms_locale;
+	private static Hashtable ms_cachedMessages;
 
 	private JAPMessages()
 	{
@@ -123,6 +125,7 @@ public final class JAPMessages
 			ms_resourceBundle = ms_defaultResourceBundle;
 		}
 
+		ms_cachedMessages = new Hashtable();
 		ms_locale = locale;
 	}
 
@@ -142,7 +145,12 @@ public final class JAPMessages
 	 */
 	public static String getString(String a_key)
 	{
-		String string = null;
+		String string = (String)ms_cachedMessages.get(a_key);
+
+		if (string != null)
+		{
+			return string;
+		}
 
 		try
 		{
@@ -174,9 +182,11 @@ public final class JAPMessages
 			if (string == null || string.trim().length() == 0)
 			{
 				LogHolder.log(LogLevel.INFO, LogType.GUI, "Could not load messsage string: " + a_key, true);
-				return a_key;
+				string = a_key;
 			}
 		}
+
+		ms_cachedMessages.put(a_key, string);
 		return string;
 	}
 

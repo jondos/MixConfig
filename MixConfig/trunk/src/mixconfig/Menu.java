@@ -243,16 +243,16 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 
 	public void exit()
 	{
-		boolean bExit = true;
-
-		//dispose();
+		int exit = JAPDialog.RETURN_VALUE_OK;
 
 		if (!MixConfig.getMixConfiguration().isSavedToFile())
 		{
-			bExit = JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
-											  JAPMessages.getString(MSG_REALLY_CONTINUE));
+			exit = JAPDialog.showConfirmDialog(MixConfig.getMainWindow(),
+											   JAPMessages.getString(MSG_REALLY_CONTINUE),
+											   JAPDialog.OPTION_TYPE_OK_CANCEL,
+											   JAPDialog.MESSAGE_TYPE_QUESTION);
 		}
-		if (bExit)
+		if (JAPDialog.RETURN_VALUE_OK == exit)
 		{
 			System.exit(0);
 		}
@@ -261,6 +261,8 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 	public void reset(boolean a_bStartNewConfiguration) throws XMLParseException, IOException
 	{
 		boolean bReset = false;
+		int ok;
+
 		ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
 		//if you choose "new", when the start-screen is in top, then start the expert-mode
 		if (cp.getActiveCard().equals(START))
@@ -275,8 +277,11 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			//if the start screen is not on top -> show the warning message
 			if (!bReset)
 			{
-				bReset = JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
-					JAPMessages.getString(MSG_REALLY_CONTINUE));
+				ok = JAPDialog.showConfirmDialog(MixConfig.getMainWindow(),
+												 JAPMessages.getString(MSG_REALLY_CONTINUE),
+												 JAPDialog.OPTION_TYPE_OK_CANCEL,
+												 JAPDialog.MESSAGE_TYPE_QUESTION);
+				bReset = JAPDialog.RETURN_VALUE_OK == ok;
 			}
 		}
 		if (bReset)
@@ -322,7 +327,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 				}
 				else
 				{
-					JAPDialog.showInfoDialog(MixConfig.getMainWindow(), "Check", "Configuration is valid.");
+					JAPDialog.showMessageDialog(MixConfig.getMainWindow(), "Configuration is valid.", "Check");
 				}
 			}
 			else if (evt.getActionCommand().equals("Save"))
@@ -438,9 +443,9 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 				}
 				catch (XMLParseException a_e)
 				{
-					JAPDialog.showErrorDialog(MixConfig.getMainWindow(), a_e,
-											  JAPMessages.getString(MSG_COULD_NOT_PARSE),
-											  JAPMessages.getString(MSG_NO_VALID_CLIPDOC), LogType.GUI);
+					JAPDialog.showErrorDialog(MixConfig.getMainWindow(),
+											  JAPMessages.getString(MSG_NO_VALID_CLIPDOC),
+											  JAPMessages.getString(MSG_COULD_NOT_PARSE), LogType.GUI, a_e);
 				}
 			}
 			else if (evt.getActionCommand().equals(CMD_OPEN_FILE) ||
@@ -524,7 +529,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), e, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, e);
 		}
 
 		//set MessageTitle
@@ -658,12 +663,12 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		if (m_configFrame_Panel.check().length > 0)
 		{
 			bIgnore = JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
-												"Inconsistencies found",
 												"The configuration is not consistent! " +
 												"The mix will not run properly if you do not " +
 												"correct the remaining errors." +
 												"Please choose '" + "" + "' for details. \n" +
-												"Do you really want to save this configuration?");
+												"Do you really want to save this configuration?",
+												"Inconsistencies found");
 		}
 
 		return bIgnore;

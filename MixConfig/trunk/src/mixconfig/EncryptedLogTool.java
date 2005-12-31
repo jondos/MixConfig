@@ -175,8 +175,8 @@ public class EncryptedLogTool extends JAPDialog
 				}
 				catch (Throwable a_e)
 				{
-					JAPDialog.showErrorDialog(this, a_e,
-											  JAPMessages.getString(MSG_CANNOT_DECRYPT), LogType.MISC);
+					JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_CANNOT_DECRYPT),
+											  LogType.MISC, a_e);
 				}
 			}
 		}

@@ -45,8 +45,9 @@ public final class LogHolder
 	/// the lowest detail level that is possible
 	public static final int DETAIL_LEVEL_LOWEST = 0;
 	public static final int DETAIL_LEVEL_HIGH = 1;
+	public static final int DETAIL_LEVEL_HIGHER = 2;
 	/// the highest detail level that is possible
-	public static final int DETAIL_LEVEL_HIGHEST = 2;
+	public static final int DETAIL_LEVEL_HIGHEST = 3;
 
 	/**
 	 * Stores the instance of LogHolder (Singleton).
@@ -131,11 +132,12 @@ public final class LogHolder
 			{
 				getInstance().getLogInstance().log(logLevel, logType, a_throwable.getMessage());
 			}
-			else if (m_messageDetailLevel == DETAIL_LEVEL_HIGH)
+			else if (m_messageDetailLevel > DETAIL_LEVEL_LOWEST &&
+					 m_messageDetailLevel < DETAIL_LEVEL_HIGHEST)
 			{
 				getInstance().getLogInstance().log(logLevel, logType, a_throwable.toString());
 			}
-			else
+			else if (m_messageDetailLevel == DETAIL_LEVEL_HIGHEST)
 			{
 				getInstance().getLogInstance().log(logLevel, logType, Util.getStackTrace(a_throwable));
 			}

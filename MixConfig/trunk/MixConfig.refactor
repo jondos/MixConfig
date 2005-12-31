@@ -461,4 +461,220 @@
     <old-method-name>getLocalisedCountries</old-method-name>
     <new-method-name>getLocalisedLanguages</new-method-name>
   </rename-method>
+  <rename-method id="6AP0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:37:24.053 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;[Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>showMessageDialog</old-method-name>
+    <new-method-name>showOptionDialog</new-method-name>
+  </rename-method>
+  <rename-method id="5AP0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:37:34.277 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;[Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>showMessageDialog</old-method-name>
+    <new-method-name>showOptionDialog</new-method-name>
+  </rename-method>
+  <rename-method id="3AP0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:37:45.864 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;[Ljava/lang/Object;)Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>showMessageDialog</old-method-name>
+    <new-method-name>showOptionDialog</new-method-name>
+  </rename-method>
+  <rename-method id="1AP0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:37:58.863 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;[Ljava/lang/Object;)Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>showMessageDialog</old-method-name>
+    <new-method-name>showOptionDialog</new-method-name>
+  </rename-method>
+  <rename-method id="Z9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:38:10.479 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;)Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>showMessageDialog</old-method-name>
+    <new-method-name>showOptionDialog</new-method-name>
+  </rename-method>
+  <rename-method id="X9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:38:22.086 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;)Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>showMessageDialog</old-method-name>
+    <new-method-name>showOptionDialog</new-method-name>
+  </rename-method>
+  <rename-method id="V9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:40:23.811 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;)Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>showMessageDialog</old-method-name>
+    <new-method-name>showOptionDialog</new-method-name>
+  </rename-method>
+  <rename-method id="T9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:40:34.356 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;)Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>showMessageDialog</old-method-name>
+    <new-method-name>showOptionDialog</new-method-name>
+  </rename-method>
+  <rename-method id="R9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:40:43.800 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;II)Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>showMessageDialog</old-method-name>
+    <new-method-name>showOptionDialog</new-method-name>
+  </rename-method>
+  <rename-method id="Q9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:40:53.674 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;II)Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>showMessageDialog</old-method-name>
+    <new-method-name>showOptionDialog</new-method-name>
+  </rename-method>
+  <rename-method id="O9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:42:48.669 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;Ljavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="N9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:42:54.708 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;Ljavax/swing/Icon;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="L9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:43:05.123 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;Ljavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="J9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:43:18.292 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;Ljavax/swing/Icon;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="I9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:43:27.365 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="G9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:43:35.447 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljavax/swing/Icon;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="E9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:43:41.826 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="C9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:43:48.455 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljavax/swing/Icon;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="A9P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:43:54.584 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;Lgui/JAPDialog$ILinkedInformation;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="89P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:44:01.083 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="69P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:44:08.124 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;Lgui/JAPDialog$ILinkedInformation;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="49P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:44:14.242 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="29P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:44:19.790 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Lgui/JAPDialog$ILinkedInformation;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="09P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:44:26.490 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="Z8P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:44:32.128 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Lgui/JAPDialog$ILinkedInformation;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="Y8P0Q75CXSHEPFHTH76YS6Y0" creation-time="Thu Dec 29 11:44:40.510 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;)V</declared-method-signature>
+    <old-method-name>showInfoDialog</old-method-name>
+    <new-method-name>showMessageDialog</new-method-name>
+  </rename-method>
+  <rename-method id="6AP08IZXHUHEMKUU176YS6Y0" creation-time="Fri Dec 30 14:02:01.492 CET 2005">
+    <declaring-class-name>gui.DialogContentPane</declaring-class-name>
+    <declared-method-signature>(I)V</declared-method-signature>
+    <old-method-name>setDefaultConfirmOperation</old-method-name>
+    <new-method-name>setDefaultButtonOperation</new-method-name>
+  </rename-method>
+  <rename-method id="5AP08IZXHUHEMKUU176YS6Y0" creation-time="Fri Dec 30 14:02:08.943 CET 2005">
+    <declaring-class-name>gui.DialogContentPane</declaring-class-name>
+    <declared-method-signature>()I</declared-method-signature>
+    <old-method-name>getDefaultConfirmOperation</old-method-name>
+    <new-method-name>getDefaultButtonOperation</new-method-name>
+  </rename-method>
+  <rename-method id="3AP08IZXHUHEMKUU176YS6Y0" creation-time="Fri Dec 30 18:11:25.680 CET 2005">
+    <declaring-class-name>gui.DialogContentPane</declaring-class-name>
+    <declared-method-signature>()V</declared-method-signature>
+    <old-method-name>clearMessage</old-method-name>
+    <new-method-name>clearStatusMessage</new-method-name>
+  </rename-method>
+  <rename-method id="1AP08IZXHUHEMKUU176YS6Y0" creation-time="Fri Dec 30 18:11:35.183 CET 2005">
+    <declaring-class-name>gui.DialogContentPane</declaring-class-name>
+    <declared-method-signature>(Ljava/lang/String;)V</declared-method-signature>
+    <old-method-name>printMessage</old-method-name>
+    <new-method-name>printStatusMessage</new-method-name>
+  </rename-method>
+  <rename-method id="Z9P08IZXHUHEMKUU176YS6Y0" creation-time="Fri Dec 30 18:11:45.708 CET 2005">
+    <declaring-class-name>gui.DialogContentPane</declaring-class-name>
+    <declared-method-signature>(Ljava/lang/String;I)V</declared-method-signature>
+    <old-method-name>printErrorMessage</old-method-name>
+    <new-method-name>printErrorStatusMessage</new-method-name>
+  </rename-method>
+  <rename-method id="Y9P08IZXHUHEMKUU176YS6Y0" creation-time="Fri Dec 30 18:11:59.428 CET 2005">
+    <declaring-class-name>gui.DialogContentPane</declaring-class-name>
+    <declared-method-signature>(Ljava/lang/String;ILjava/lang/Throwable;)V</declared-method-signature>
+    <old-method-name>printErrorMessage</old-method-name>
+    <new-method-name>printErrorStatusMessage</new-method-name>
+  </rename-method>
+  <rename-method id="6AP0M01B5VHEUTAZ576YS6Y0" creation-time="Sat Dec 31 00:56:01.146 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;)I</declared-method-signature>
+    <old-method-name>showOptionDialog</old-method-name>
+    <new-method-name>showConfirmDialog</new-method-name>
+  </rename-method>
+  <rename-method id="5AP0M01B5VHEUTAZ576YS6Y0" creation-time="Sat Dec 31 00:56:51.258 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;Lgui/JAPDialog$ILinkedInformation;)I</declared-method-signature>
+    <old-method-name>showOptionDialog</old-method-name>
+    <new-method-name>showConfirmDialog</new-method-name>
+  </rename-method>
+  <rename-method id="4AP0M01B5VHEUTAZ576YS6Y0" creation-time="Sat Dec 31 00:59:10.108 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Lgui/JAPDialog;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;)I</declared-method-signature>
+    <old-method-name>showOptionDialog</old-method-name>
+    <new-method-name>showConfirmDialog</new-method-name>
+  </rename-method>
+  <rename-method id="3AP0M01B5VHEUTAZ576YS6Y0" creation-time="Sat Dec 31 00:59:34.513 CET 2005">
+    <declaring-class-name>gui.JAPDialog</declaring-class-name>
+    <declared-method-signature>(Ljava/awt/Component;Ljava/lang/String;Ljava/lang/String;IILjavax/swing/Icon;)I</declared-method-signature>
+    <old-method-name>showOptionDialog</old-method-name>
+    <new-method-name>showConfirmDialog</new-method-name>
+  </rename-method>
 </refactor>

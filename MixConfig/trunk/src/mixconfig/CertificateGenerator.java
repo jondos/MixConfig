@@ -174,7 +174,7 @@ public class CertificateGenerator extends SwingWorker
 		{
 			if (!Thread.interrupted())
 			{
-				JAPDialog.showErrorDialog(MixConfig.getMainWindow(), e, null, LogType.THREAD);
+				JAPDialog.showErrorDialog(MixConfig.getMainWindow(), "Threading error!", LogType.THREAD, e);
 			}
 		}
 		return null;

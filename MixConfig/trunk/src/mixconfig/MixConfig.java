@@ -56,6 +56,7 @@ import anon.util.ResourceLoader;
 import anon.util.XMLUtil;
 import gui.GUIUtils;
 import gui.JAPDialog;
+import gui.DialogContentPane;
 import gui.JAPHelp;
 import gui.JAPMessages;
 import logging.LogHolder;
@@ -77,7 +78,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.042"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.044"; //NEVER change the layout of this line!!
 
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -178,10 +179,10 @@ public class MixConfig extends JApplet
 			{
 				if (m_currentFileName != null)
 				{
-					JAPDialog.showErrorDialog(getMainWindow(), null,
-											   JAPMessages.getString(MSG_CONFIG_FILE_NOT_FOUND,
+					JAPDialog.showErrorDialog(getMainWindow(),
+											  JAPMessages.getString(MSG_CONFIG_FILE_NOT_FOUND,
 						new File(m_currentFileName).toString()),
-											   LogType.MISC);
+											  LogType.MISC);
 				}
 
 				m_mixConfiguration = new MixConfiguration();
@@ -219,16 +220,30 @@ public class MixConfig extends JApplet
 			m_mixConfiguration.setSavedToFile(); // tell the GUI that this configuration has not changed
 
 			LogHolder.log(LogLevel.INFO, LogType.MISC,
-						  "Loading time: " + (System.currentTimeMillis() - startTime));
+						  "Startup time: " + (System.currentTimeMillis() - startTime));
+/*
+			JAPDialog dialog = new JAPDialog(getMainWindow(), "Test", true);
+			//javax.swing.JDialog dialog = new javax.swing.JDialog(getMainWindow(), "Test", true);
+			dialog.setDefaultCloseOperation(JAPDialog.DO_NOTHING_ON_CLOSE);
 
+			DialogContentPane pane =
+				new DialogContentPane(dialog, "Title", JAPDialog.OPTION_TYPE_OK_CANCEL, JAPDialog.MESSAGE_TYPE_QUESTION,
+									  "index");
+			pane.setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
+			pane.updateDialog();
+			dialog.pack();
+
+			dialog.setVisible(true);
+			System.out.println("hello");
+*/
 			LogHolder.log(LogLevel.INFO, LogType.CRYPTO, "Initialising secure random generator...");
 			new SecureRandom().nextDouble();
 			LogHolder.log(LogLevel.INFO, LogType.CRYPTO, "Secure random generator is initialised!");
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorDialog(getMainWindow(),e, JAPMessages.getString(MSG_COULD_NOT_INITIALISE),
-									   LogType.MISC);
+			JAPDialog.showErrorDialog(getMainWindow(), JAPMessages.getString(MSG_COULD_NOT_INITIALISE),
+									  LogType.MISC, e);
 			System.exit(1);
 		}
 	}
@@ -289,8 +304,8 @@ public class MixConfig extends JApplet
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorDialog(getMainWindow(),e, JAPMessages.getString("could_not_initialise"),
-									   LogType.MISC);
+			JAPDialog.showErrorDialog(getMainWindow(), JAPMessages.getString(MSG_COULD_NOT_INITIALISE),
+									  LogType.MISC, e);
 			System.exit(1);
 		}
 	}
@@ -341,12 +356,12 @@ public class MixConfig extends JApplet
 
 		if (a_message == null || a_message.length == 0)
 		{
-			JAPDialog.showInfoDialog(getMainWindow(), a_title, "");
+			JAPDialog.showMessageDialog(getMainWindow(), "", a_title);
 
 		}
 		else //if (a_message.length == 1)
 		{
-			JAPDialog.showInfoDialog(getMainWindow(), a_title, a_message[0]);
+			JAPDialog.showMessageDialog(getMainWindow(), a_message[0], a_title);
 		}/*
 		else
 		{
@@ -360,7 +375,7 @@ public class MixConfig extends JApplet
 				message +=  "<LI>" + a_message[i] + "</LI>";
 			}
 			message += "</UL>";
-			JAPDialog.showInfoDialog(getMainWindow(), a_title, message);
+			JAPDialog.showInfoDialog(getMainWindow(), message, a_title);
 		}*/
 	}
 
@@ -448,9 +463,9 @@ public class MixConfig extends JApplet
 			}
 			catch (IOException e)
 			{
-				JAPDialog.showErrorDialog(getMainWindow(),e,
+				JAPDialog.showErrorDialog(getMainWindow(),
 										   JAPMessages.getString(MSG_ERROR_OPEN_FILE, file.toString()),
-										   LogType.MISC);
+										   LogType.MISC, e);
 			}
 		}
 		return null;

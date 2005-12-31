@@ -141,8 +141,8 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 					File file;
 					if ((file = MixConfig.getMixConfiguration().saveToFile()) != null)
 					{
-						JAPDialog.showInfoDialog(MixConfig.getMainWindow(), "Configuration saved",
-												  "Configuration saved as " + file);
+						JAPDialog.showMessageDialog(MixConfig.getMainWindow(),
+												  "Configuration saved as " + file, "Configuration saved");
 						m_wizPanel.finish();
 						( (ChoicePanel)getParent()).getMenu().reset(false);
 						stateChanged(new ChangeEvent(this));
@@ -152,7 +152,7 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ex, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, ex);
 		}
 
 		//Set the title with steps
@@ -172,9 +172,9 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 		}
 		catch (Exception io)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), io,
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(),
 									   "Switching View to Wizard: Error on loading the MixConfiguration",
-									   LogType.MISC);
+									   LogType.MISC, io);
 		}
 	}
 
@@ -191,9 +191,9 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 		}
 		catch (Exception io)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), io,
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(),
 									   "Switching View to Wizard: Error on loading the MixConfiguration",
-									   LogType.MISC);
+									   LogType.MISC, io);
 		}
 	}
 

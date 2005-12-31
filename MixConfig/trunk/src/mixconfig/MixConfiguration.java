@@ -935,9 +935,9 @@ public class MixConfiguration
 		if (ver == null || ver.length() == 0)
 		{
 			if (!JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
-				"XML file version unknown",
 				"This file does not contain any version information,\n" +
-				"thus information may be lost.\nDo you want to continue?"))
+				"thus information may be lost.\nDo you want to continue?",
+				"XML file version unknown"))
 			{
 				return null;
 			}
@@ -948,10 +948,10 @@ public class MixConfiguration
 			if (Float.valueOf(ver).floatValue() > Float.valueOf(VERSION).floatValue())
 			{
 				if (!JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
-					"XML file version mismatch",
 					"The version of this file is newer than this utility,\n" +
 					"thus information may not be read properly.\n" +
-					"Do you want to continue?"))
+					"Do you want to continue?",
+					"XML file version mismatch"))
 				{
 					return null;
 				}
@@ -961,9 +961,9 @@ public class MixConfiguration
 		catch (NumberFormatException a_e)
 		{
 			if (!JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
-				"Invalid XML file version",
 				"This file contains an invalid version information,\n" +
-				"thus information may not be read properly.\nDo you want to continue?"))
+				"thus information may not be read properly.\nDo you want to continue?",
+				"Invalid XML file version"))
 			{
 				return null;
 			}

@@ -195,7 +195,7 @@ public class PasswordBox extends JAPDialog implements ActionListener, IMiscPassw
 				}
 				if (!eqv)
 				{
-					showErrorDialog(this, null, "Passwords do not match.", "Password Error", LogType.GUI);
+					showErrorDialog(this, "Passwords do not match.",  LogType.GUI, "Password Error");
 					return;
 				}
 				m_passwd = m_textNewPasswd.getPassword();

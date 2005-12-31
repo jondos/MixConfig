@@ -141,8 +141,8 @@ public class CertificationTool extends JAPDialog
 						dialog.getValidity(),
 						( (JAPCertificate) m_publicCertPanel.getCert()).getExtensions(), new BigInteger("0"));
 				m_publicCertPanel.setCert(signedCertificate);
-				JAPDialog.showInfoDialog(this,JAPMessages.getString(MSG_CONFIRMATION_TITLE),
-										  JAPMessages.getString(MSG_CONFIRMATION));
+				JAPDialog.showMessageDialog(this, JAPMessages.getString(MSG_CONFIRMATION),
+											JAPMessages.getString(MSG_CONFIRMATION_TITLE));
 			}
 		}
 	}

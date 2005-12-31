@@ -638,7 +638,7 @@ public final class JAPHelp extends JAPDialog
 					if (!m_urlCaller.openURL(url))
 					{
 						html.setCursor(cursor);
-						JAPDialog.showInfoDialog(html.getParent(), JAPMessages.getString(MSG_ERROR_EXT_URL),
+						JAPDialog.showMessageDialog(html.getParent(), JAPMessages.getString(MSG_ERROR_EXT_URL),
 												 new ExternalLinkedInformation(url));
 					}
 					if (m_historyPosition > 0)

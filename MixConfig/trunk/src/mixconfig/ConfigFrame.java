@@ -88,8 +88,8 @@ public class ConfigFrame extends JPanel
 		}
 		catch (Exception io)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), io,
-									   "Error on loading the MixConfiguration", LogType.MISC);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(),
+									   "Error on loading the MixConfiguration", LogType.MISC, io);
 		}
 		if (!m_tabbedPane.getSelectedComponent().isEnabled())
 		{
