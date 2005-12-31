@@ -89,7 +89,7 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 	{
 		super(parent, "PGP to X.509 key converter", true);
 		m_pane = new DialogContentPane(this, new DialogContentPane.Layout("Key to convert"),
-			new DialogContentPane.Options(DialogContentPane.OPTION_TYPE_DEFAULT, JAPHelpContext.INDEX));
+									   new DialogContentPane.Options(DialogContentPane.OPTION_TYPE_DEFAULT, JAPHelpContext.INDEX));
 
 		m_Parent = parent;
 
