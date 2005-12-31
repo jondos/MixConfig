@@ -44,7 +44,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
 
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.BCPGInputStream;
@@ -70,30 +69,36 @@ import anon.crypto.Validity;
 import anon.crypto.X509DistinguishedName;
 import gui.JAPDialog;
 import gui.JAPHelpContext;
-import gui.JAPHelp;
 import gui.PasswordBox;
+import gui.DialogContentPane;
 import logging.LogType;
 
 
 
 
-public class PGPtoX509Tool extends JAPDialog implements ActionListener, JAPHelpContext.IHelpContext
+public class PGPtoX509Tool extends JAPDialog implements ActionListener
 {
 
 	private JTextField m_textFile;
 	private File m_File;
 	private Frame m_Parent;
+	private DialogContentPane m_pane;
+	private JButton import1;
+
 	public PGPtoX509Tool(Frame parent)
 	{
 		super(parent, "PGP to X.509 key converter", true);
+		m_pane = new DialogContentPane(this, new DialogContentPane.Layout("Key to convert"),
+			new DialogContentPane.Options(DialogContentPane.OPTION_TYPE_DEFAULT, JAPHelpContext.INDEX));
+
 		m_Parent = parent;
+
+
 		GridBagLayout layout = new GridBagLayout();
-		getContentPane().setLayout(layout);
+		m_pane.getContentPane().setLayout(layout);
 		GridBagLayout layoutDecryptWith = new GridBagLayout();
-		GridBagLayout layoutBttns = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
-		c.insets = new Insets(10, 10, 10, 10);
 		c.fill = GridBagConstraints.HORIZONTAL;
 
 		c.gridx = 0;
@@ -103,16 +108,13 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener, JAPHelpC
 		e.anchor = GridBagConstraints.NORTHWEST;
 		e.insets = new Insets(5, 5, 5, 5);
 		e.fill = GridBagConstraints.HORIZONTAL;
-		panel2.setBorder(new TitledBorder("Key to convert"));
-		layout.setConstraints(panel2, c);
-		getContentPane().add(panel2);
+		m_pane.getContentPane().add(panel2, c);
 
-		JButton import1 = new JButton("Select...");
+		import1 = new JButton("Select...");
 		e.gridx = 1;
 		e.gridy = 0;
 		e.fill = GridBagConstraints.NONE;
 		import1.addActionListener(this);
-		import1.setActionCommand("selectKey");
 		layoutDecryptWith.setConstraints(import1, e);
 		panel2.add(import1);
 		e.fill = GridBagConstraints.HORIZONTAL;
@@ -130,49 +132,22 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener, JAPHelpC
 		layoutDecryptWith.setConstraints(m_textFile, e);
 		panel2.add(m_textFile);
 
-		JPanel panel3 = new JPanel(layoutBttns);
-		GridBagConstraints f = new GridBagConstraints();
-		f.anchor = GridBagConstraints.NORTHEAST;
-		f.insets = new Insets(5, 5, 5, 5);
+		m_pane.getButtonYesOK().setText("Convert and Save");
+		m_pane.getButtonYesOK().addActionListener(this);
 
-		JButton bttnSign = new JButton("Convert and Save");
-		bttnSign.setActionCommand("Convert");
-		bttnSign.addActionListener(this);
-		f.gridx = 0;
-		f.gridy = 0;
-		f.weightx = 0;
-		f.fill = f.NONE;
-		f.anchor = GridBagConstraints.WEST;
-		panel3.add(bttnSign, f);
-
-		f.gridx = 1;
-		f.gridy = 0;
-		panel3.add(JAPHelp.createHelpButton(this), f);
-
-		c.gridx = 0;
-		c.gridy = 2;
-		c.weightx = 1;
-		c.weighty = 1;
-		getContentPane().add(panel3, c);
-
+		m_pane.updateDialog();
 		pack();
 		setResizable(false);
 		setVisible(true, false);
 	}
 
-	public String getHelpContext()
-	{
-		return JAPHelpContext.INDEX;
-	}
-
 	public void actionPerformed(ActionEvent e)
 	{
-		String strCmd = e.getActionCommand();
-		if (strCmd.equals("Convert"))
+		if (e.getSource() == m_pane.getButtonYesOK())
 		{
 			doConvert();
 		}
-		else if (strCmd.equals("selectKey"))
+		else if (e.getSource() == import1)
 		{
 			JFileChooser fileChooser = MixConfig.showFileDialog(MixConfig.OPEN_DIALOG,
 				MixConfig.FILTER_ALL);
@@ -194,11 +169,11 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener, JAPHelpC
 		try
 		{
 			doPGPtoX509();
-			showInfoDialog(this, "Converted and saved successfully!");
+			showMessageDialog(this, "Converted and saved successfully!");
 		}
 		catch (Exception e)
 		{
-			showErrorDialog(this, e, "Ooops, error during transformation.", LogType.CRYPTO);
+			m_pane.printErrorStatusMessage("Ooops, error during transformation.", LogType.CRYPTO, e);
 		}
 	}
 

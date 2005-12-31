@@ -446,10 +446,10 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 
 		if (a_event.getSource() == m_cbxMixOnCD &&  m_cbxMixOnCD.isSelected())
 		{
-			JAPDialog.showInfoDialog(MixConfig.getMainWindow(),
-									 JAPMessages.getString(MSG_TITLE_DOWNLOAD_HINT),
-									 JAPMessages.getString(MSG_DOWNLOAD_HINT),
-									  new JAPDialog.LinkedHelpContext("livecd_deployment"));
+			JAPDialog.showMessageDialog(MixConfig.getMainWindow(),
+										JAPMessages.getString(MSG_DOWNLOAD_HINT),
+										JAPMessages.getString(MSG_TITLE_DOWNLOAD_HINT),
+										new JAPDialog.LinkedHelpContext("livecd_deployment"));
 		}
 	}
 

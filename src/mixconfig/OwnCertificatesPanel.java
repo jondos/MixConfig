@@ -265,7 +265,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), e, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, e);
 		}
 	}
 
@@ -404,7 +404,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ex, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, ex);
 		}
 	}
 

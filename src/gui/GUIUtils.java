@@ -27,22 +27,24 @@
  */
 package gui;
 
-import java.awt.Component;
-import javax.swing.ImageIcon;
-import javax.swing.JTextPane;
-import javax.swing.JLabel;
-import java.awt.Font;
-import java.awt.Window;
-import java.awt.Dimension;
-import java.awt.Point;
+import java.net.URL;
 import java.util.Hashtable;
+
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.MediaTracker;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.Window;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JTextPane;
+
+import anon.util.ResourceLoader;
 import logging.LogHolder;
 import logging.LogLevel;
-import java.awt.Image;
-import java.net.URL;
-import java.awt.Toolkit;
-import java.awt.MediaTracker;
-import anon.util.ResourceLoader;
 import logging.LogType;
 
 /**

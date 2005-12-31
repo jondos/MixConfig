@@ -33,8 +33,7 @@ import javax.swing.JLabel;
 import anon.util.ClassUtil;
 
 /**
- * This class provides support for labels with more than one line which can also display HTML
- * styled text.
+ * This class provides support for labels with more than one line which can also display HTML styled text.
  */
 public class JAPHtmlMultiLineLabel extends JLabel
 {
@@ -47,15 +46,13 @@ public class JAPHtmlMultiLineLabel extends JLabel
 	private static final String TAG_BODY_CLOSE = "</body>";
 
 	/**
-	 * Stores the HTML text displayed by this JAPHtmlMultiLineLabel without the header and the
-	 * trailer.
+	 * Stores the HTML text displayed by this JAPHtmlMultiLineLabel without the header and the trailer.
 	 */
 	private String m_rawText;
 	private Font m_font;
 
 	/**
 	 * Creates a new JAPHtmlMultiLineLabel.
-	 *
 	 * @param a_text Any HTML 3.2 conform text, which is allowed in the body of an HTML 3.2 structure
 	 *               (without the leading and trailing <html> and <body> tags).
 	 * @param a_defaultFont The font to use as the default font for the text (set in the HTML body
@@ -71,7 +68,6 @@ public class JAPHtmlMultiLineLabel extends JLabel
 
 	/**
 	 * Creates a new JAPHtmlMultiLineLabel.
-	 *
 	 * @param a_text Any HTML 3.2 conform text, which is allowed in the body of an HTML 3.2 structure
 	 *               (without the leading and trailing <html> and <body> tags).
 	 */
@@ -82,7 +78,6 @@ public class JAPHtmlMultiLineLabel extends JLabel
 
 	/**
 	 * Changes the text displayed by the JAPHtmlMultiLineLabel.
-	 *
 	 * @param a_newText Any HTML 3.2 conform text, which is allowed in the body of an HTML 3.2 structure
 	 *               (without the leading and trailing <html> and <body> tags).
 	 */
@@ -179,7 +174,7 @@ public class JAPHtmlMultiLineLabel extends JLabel
 	 */
 	public static String formatTextAsHTML(String a_HTMLtext, Font a_defaultFont)
 	{
-		if (a_HTMLtext == null || a_HTMLtext.trim().length() == 0)
+		if (a_HTMLtext == null)
 		{
 			return a_HTMLtext;
 		}

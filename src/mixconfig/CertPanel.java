@@ -479,13 +479,13 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 			if (bCertChanged && !isCertificateVerifyable() && m_strChangedCertNotVerifyable != null)
 			{
-				JAPDialog.showInfoDialog(this, m_strChangedCertNotVerifyable,
+				JAPDialog.showMessageDialog(this, m_strChangedCertNotVerifyable,
 										 GUIUtils.loadImageIcon(CERT_INVALID), m_linkedInformation);
 			}
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorDialog(this, ex, null, LogType.GUI);
+			JAPDialog.showErrorDialog(this, "Certificate action failed!", LogType.GUI, ex);
 		}
 	}
 
@@ -505,7 +505,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorDialog(this, ex, "Certificate creation failed", LogType.MISC);
+			JAPDialog.showErrorDialog(this, "Certificate creation failed", LogType.MISC, ex);
 		}
 	}
 
@@ -1078,7 +1078,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (IOException a_e)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), a_e, null, LogType.MISC);
+			JAPDialog.showErrorDialog(
+						 MixConfig.getMainWindow(), "Could not export cerificate", LogType.MISC, a_e);
 			ClipFrame save =
 				new ClipFrame(this,
 					"I/O error while saving, try clipboard. " +

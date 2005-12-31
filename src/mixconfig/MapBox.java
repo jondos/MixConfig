@@ -191,7 +191,7 @@ class MapBox extends JAPDialog implements ChangeListener
 		}
 		catch (IOException ioe)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ioe, null, LogType.GUI);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, ioe);
 		}
 	}
 
