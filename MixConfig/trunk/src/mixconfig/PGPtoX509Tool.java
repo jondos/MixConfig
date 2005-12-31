@@ -74,22 +74,20 @@ import gui.DialogContentPane;
 import logging.LogType;
 
 
-
-
 public class PGPtoX509Tool extends JAPDialog implements ActionListener
 {
-
 	private JTextField m_textFile;
 	private File m_File;
 	private Frame m_Parent;
 	private DialogContentPane m_pane;
-	private JButton import1;
+	private JButton m_btnImport;
 
 	public PGPtoX509Tool(Frame parent)
 	{
 		super(parent, "PGP to X.509 key converter", true);
 		m_pane = new DialogContentPane(this, new DialogContentPane.Layout("Key to convert"),
-									   new DialogContentPane.Options(DialogContentPane.OPTION_TYPE_DEFAULT, JAPHelpContext.INDEX));
+									   new DialogContentPane.Options(DialogContentPane.OPTION_TYPE_OK_CANCEL,
+			JAPHelpContext.INDEX));
 
 		m_Parent = parent;
 
@@ -110,13 +108,13 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 		e.fill = GridBagConstraints.HORIZONTAL;
 		m_pane.getContentPane().add(panel2, c);
 
-		import1 = new JButton("Select...");
+		m_btnImport = new JButton("Select...");
 		e.gridx = 1;
 		e.gridy = 0;
 		e.fill = GridBagConstraints.NONE;
-		import1.addActionListener(this);
-		layoutDecryptWith.setConstraints(import1, e);
-		panel2.add(import1);
+		m_btnImport.addActionListener(this);
+		layoutDecryptWith.setConstraints(m_btnImport, e);
+		panel2.add(m_btnImport);
 		e.fill = GridBagConstraints.HORIZONTAL;
 
 		JLabel name2 = new JLabel("File");
@@ -134,6 +132,7 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 
 		m_pane.getButtonYesOK().setText("Convert and Save");
 		m_pane.getButtonYesOK().addActionListener(this);
+		m_pane.getButtonCancel().addActionListener(this);
 
 		m_pane.updateDialog();
 		pack();
@@ -147,7 +146,11 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 		{
 			doConvert();
 		}
-		else if (e.getSource() == import1)
+		else if (e.getSource() == m_pane.getButtonCancel())
+		{
+			dispose();
+		}
+		else if (e.getSource() == m_btnImport)
 		{
 			JFileChooser fileChooser = MixConfig.showFileDialog(MixConfig.OPEN_DIALOG,
 				MixConfig.FILTER_ALL);
