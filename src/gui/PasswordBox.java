@@ -59,7 +59,7 @@ public class PasswordBox extends JAPDialog implements ActionListener, IMiscPassw
 
 	public PasswordBox(Frame parent, String title, int type, String msg)
 	{
-		super(parent, title);
+		super(parent, title, true);
 
 		m_Type = type;
 		GridBagLayout layout = new GridBagLayout();
@@ -195,7 +195,7 @@ public class PasswordBox extends JAPDialog implements ActionListener, IMiscPassw
 				}
 				if (!eqv)
 				{
-					showErrorDialog(this, "Passwords do not match.",  LogType.GUI, "Password Error");
+					JAPDialog.showErrorDialog(this, "Passwords do not match.",  LogType.GUI, "Password Error");
 					return;
 				}
 				m_passwd = m_textNewPasswd.getPassword();
