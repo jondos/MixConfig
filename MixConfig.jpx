@@ -251,7 +251,6 @@
   </node>
   <node name="anon" type="Package"/>
   <node name="gui" type="Package"/>
-  <node name="jcui.common" type="Package"/>
   <node name="junitx.framework.extension" type="Package"/>
   <node name="logging" type="Package"/>
   <node name="mixconfig" type="Package"/>
@@ -378,6 +377,11 @@
     <property category="archiving" name="targetCompressed" value="1"/>
     <property category="archiving" name="targetPath" value="MixConfig.jar"/>
     <property category="archiving" name="usingRules" value="1"/>
+  </node>
+  <node name="Standard-Doclet" type="Javadoc">
+    <property category="nodeJavadoc" name="buildWithProject" value="0"/>
+    <property category="nodeJavadoc" name="directory" value="doc"/>
+    <property category="nodeJavadoc" name="displayAllOutput" value="0"/>
   </node>
   <file path="MixConfig.doxy"/>
   <file path="src/MixConfigMessages_de.properties"/>
