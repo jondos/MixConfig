@@ -32,6 +32,12 @@ import javax.accessibility.AccessibleContext;
 import java.util.EventListener;
 import java.util.Vector;
 
+import java.awt.MenuContainer;
+import java.awt.MenuComponent;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.image.ImageObserver;
+import java.awt.Event;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Container;
@@ -45,6 +51,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.event.FocusListener;
+import java.awt.event.FocusEvent;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -97,7 +105,8 @@ import logging.LogType;
  *
  * @author Rolf Wendolsky
  */
-public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer, IDialogOptions
+public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer, MenuContainer,
+	ImageObserver, IDialogOptions
 {
 	public static final double GOLDEN_RATIO_PHI = (1.0 + Math.sqrt(5.0)) / 2.0;
 
@@ -148,7 +157,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		m_internalDialog.getContentPane().removeAll();
 		m_internalDialog.setResizable(true);
 		setDefaultCloseOperation(m_internalDialog.getDefaultCloseOperation());
-		init(m_internalDialog, a_bModal);
+		init(m_internalDialog, a_bModal, a_parentComponent);
 	}
 
 	/**
@@ -186,7 +195,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		this(getInternalDialog(a_parentDialog), a_strTitle);
 	}
 
-	private void init(JDialog a_dialog, boolean a_bModal)
+	private void init(JDialog a_dialog, boolean a_bModal, Component a_parentComponent)
 	{
 		EventListener[] listeners;
 
@@ -217,7 +226,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 
 		addWindowListener(new WindowClosingAdapter(this));
-		m_parentWindow = getParentWindow(a_dialog.getParent());
+		m_parentWindow = getParentWindow(a_parentComponent);
 		setModal(a_bModal);
 	}
 
@@ -830,7 +839,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			LogHolder.log(LogLevel.NOTICE, LogType.GUI, "Calculated dialog size differs from real size!");
 		}
-		//System.out.println(getGoldenRatioDelta(dialog));
+		LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Dialog golden ratio delta: " + getGoldenRatioDelta(dialog));
+
 		dialog.setResizable(false);
 		dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		dialog.setVisible(true);
@@ -1210,6 +1220,26 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		showErrorDialog(a_parentComponent, a_message, a_logType, (Throwable)null);
 	}
+
+	/**
+	 * Displays a dialog showing an error message to the user and logs the error message
+	 * to the currently used Log.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title a title for the error message (may be null)
+	 * @param a_message a message that is shown to the user (may be null)
+	 * @param a_logType the log type for this error
+	 * @see logging.LogHolder
+	 * @see logging.LogType
+	 * @see logging.Log
+	 */
+	public static void showErrorDialog(Component a_parentComponent, String a_message,  int a_logType,
+									   String a_title)
+	{
+		showErrorDialog(a_parentComponent, a_message, a_title, a_logType, null);
+	}
+
 
 	/**
 	 * Displays a dialog showing an error message to the user and logs the error message
@@ -1886,6 +1916,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		return m_internalDialog.getLocation();
 	}
 
+	public boolean imageUpdate(Image a_image, int a_infoflags, int a_x, int a_y, int a_width, int a_height)
+	{
+		return m_internalDialog.imageUpdate(a_image, a_infoflags, a_x, a_y, a_width, a_height);
+	}
+
 	/**
 	 * Returns the AccessibleContext associated with this dialog
 	 * @return the AccessibleContext associated with this dialog
@@ -1893,6 +1928,26 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	public final AccessibleContext getAccessibleContext()
 	{
 		return m_internalDialog.getAccessibleContext();
+	}
+
+	public Font getFont()
+	{
+		return m_internalDialog.getFont();
+	}
+
+	public void remove(MenuComponent a_component)
+	{
+		m_internalDialog.remove(a_component);
+	}
+
+	/**
+	 * @param a_event an Event
+	 * @return if the event has been dispatched successfully
+	 * @deprecated As of JDK version 1.1 replaced by dispatchEvent(AWTEvent).
+	 */
+	public boolean postEvent(Event a_event)
+	{
+		return m_internalDialog.postEvent(a_event);
 	}
 
 	/**
@@ -1967,11 +2022,13 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	private static Window getParentWindow(Component a_parentComponent)
 	{
-		while (a_parentComponent != null && ! (a_parentComponent instanceof Window))
+		Component parentComponent = a_parentComponent;
+		while (parentComponent != null && ! (parentComponent instanceof Window))
 		{
-			a_parentComponent = a_parentComponent.getParent();
+
+			parentComponent = parentComponent.getParent();
 		}
-		return (Window)a_parentComponent;
+		return (Window)parentComponent;
 	}
 
 	private static class WindowClosingAdapter extends WindowAdapter
@@ -2055,6 +2112,42 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 	}
 
+	/**
+	 * Finds the first focusable Component in a Container and sets the focus on it.
+	 * @param a_container a Container
+	 * @return if a Component has been focused
+	 */
+	private static boolean requestFocusForFirstFocusableComponent(Container a_container)
+	{
+		// see if isFocusable() is available; then we do not need this patch
+		try
+		{
+			Container.class.getMethod("isFocusable", null).invoke(a_container, null);
+			return true;
+		}
+		catch (Exception a_e)
+		{
+		}
+
+		for (int i = 0; i < a_container.getComponentCount(); i++)
+		{
+			if (a_container.getComponent(i) instanceof Container)
+			{
+				if (requestFocusForFirstFocusableComponent((Container)a_container.getComponent(i)))
+				{
+					return true;
+				}
+			}
+
+			if (a_container.getComponent(i).isFocusTraversable())
+			{
+				a_container.getComponent(i).requestFocus();
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private void setVisibleInternal(boolean a_bVisible)
 	{
 		if (isVisible() && m_bBlockParentWindow && !a_bVisible)
@@ -2084,6 +2177,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			try
 			{
+				BlockedWindowDeactivationAdapter windowDeactivationAdapter =
+					new BlockedWindowDeactivationAdapter();
+
+				m_parentWindow.addWindowListener(windowDeactivationAdapter);
+				m_parentWindow.addFocusListener(windowDeactivationAdapter);
+
 				if (SwingUtilities.isEventDispatchThread())
 				{
 					EventQueue theQueue = m_internalDialog.getToolkit().getSystemEventQueue();
@@ -2159,6 +2258,10 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 				}
 				else
 				{
+					/**
+					 * Dialogs going in here are less secure against 'conflicting' components that enable
+					 * the parent. These event are only handled by focusGained() and windowActivated().
+					 */
 					synchronized (m_internalDialog.getTreeLock())
 					{
 						while (isVisible())
@@ -2175,6 +2278,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 						m_internalDialog.getTreeLock().notifyAll();
 					}
 				}
+				m_parentWindow.removeWindowListener(windowDeactivationAdapter);
+				m_parentWindow.removeFocusListener(windowDeactivationAdapter);
 			}
 			catch (Exception a_e)
 			{
@@ -2195,39 +2300,32 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 	}
 
-	/**
-	 * Finds the first focusable Component in a Container and sets the focus on it.
-	 * @param a_container a Container
-	 * @return if a Component has been focused
-	 */
-	private static boolean requestFocusForFirstFocusableComponent(Container a_container)
+	private class BlockedWindowDeactivationAdapter extends WindowAdapter implements FocusListener
 	{
-		// see if isFocusable() is available; then we do not need this patch
-		try
+		public void windowActivated(WindowEvent e)
 		{
-			Container.class.getMethod("isFocusable", null).invoke(a_container, null);
-			return true;
+			deactivate(e.getWindow());
 		}
-		catch (Exception a_e)
+
+		public void focusGained(FocusEvent a_event)
+		{
+			deactivate((Window)a_event.getComponent());
+		}
+
+		public void focusLost(FocusEvent a_event)
 		{
 		}
 
-		for (int i = 0; i < a_container.getComponentCount(); i++)
+		private void deactivate(Window a_window)
 		{
-			if (a_container.getComponent(i) instanceof Container)
+			if (m_bBlockParentWindow)
 			{
-				if (requestFocusForFirstFocusableComponent((Container)a_container.getComponent(i)))
+				requestFocus();
+				if (a_window.isEnabled())
 				{
-					return true;
+					a_window.setEnabled(false);
 				}
 			}
-
-			if (a_container.getComponent(i).isFocusTraversable())
-			{
-				a_container.getComponent(i).requestFocus();
-				return true;
-			}
 		}
-		return false;
 	}
 }

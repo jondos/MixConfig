@@ -27,7 +27,6 @@
  */
 package mixconfig;
 
-import java.awt.Component;
 import java.security.SecureRandom;
 import java.util.Enumeration;
 import java.util.Hashtable;

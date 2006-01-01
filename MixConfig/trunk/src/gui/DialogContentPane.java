@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000 - 2005, The JAP-Team
+ Copyright (c) 2000 - 2006, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -48,12 +48,15 @@ import logging.LogLevel;
 
 /**
  * This is a replacement for a dialog content pane. It defines an icon, buttons, a status bar for
- * info and error messages and a content pane where own components may be placed. The content pane
- * of the parent dialog is automatically replaced with this one by calling the method
- * <CODE>updateDialog()</CODE>. Sometimes it is needed to call pack() afterwards.
- * Dialog content panes can be implemented as a forward chained list, so that if someone clicks on
- * "OK" or "Yes", the next content pane in the list is displayed in the dialog.
+ * information and error messages, an optional titled border around the content and a content pane
+ * where own components can be placed. The content pane of the parent dialog is automatically replaced
+ * with this one by calling the method <CODE>updateDialog()</CODE>. Sometimes it is needed to call pack()
+ * afterwards.
+ * Dialog content panes can be implemented as a forwardly chained list, so that if someone clicks on
+ * "OK" or "Yes", the next content pane in the list is displayed in the dialog. Of course, the foward
+ * operation can be done explicitly, too.
  * @see gui.JAPDialog
+ * @see javax.swing.JDialog
  * @author Rolf Wendolsky
  */
 public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOptions
@@ -82,16 +85,16 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	private JComponent m_contentPane;
 	private JPanel m_titlePane;
 	private JPanel m_rootPane;
-	private JLabel m_lblMessage;
 	private JPanel m_panelOptions;
+	private JLabel m_lblMessage;
 	private int m_messageType;
 	private int m_optionType;
+	private int m_defaultButtonOperation;
+	private int m_value;
 	private JAPHelpContext.IHelpContext m_helpContext;
 	private JButton m_btnYesOK;
 	private JButton m_btnNo;
 	private JButton m_btnCancel;
-	private int m_defaultButtonOperation;
-	private int m_value;
 	private Icon m_icon;
 
 	public DialogContentPane(JDialog a_parentDialog)
@@ -150,7 +153,17 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			 a_options.getNextContentPane());
 	}
 
-    private void init(RootPaneContainer a_parentDialog, String a_title, int a_optionType,
+	/**
+	 * Initialises this content pane.
+	 * @param a_parentDialog either a JDialog or a JAPDialog; <CODE>null</CODE> will lead to an Exception
+	 * @param a_title String
+	 * @param a_optionType int
+	 * @param a_messageType int
+	 * @param a_icon Icon
+	 * @param a_helpContext IHelpContext
+	 * @param a_nextContentPane DialogContentPane
+	 */
+	private void init(RootPaneContainer a_parentDialog, String a_title, int a_optionType,
 					  int a_messageType, Icon a_icon, JAPHelpContext.IHelpContext a_helpContext,
 					  DialogContentPane a_nextContentPane)
 	{
@@ -529,7 +542,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 
 	/**
 	 * Defines what happens if one of the buttons is clicked. Several actions can be combined,
-	 * for example ON_CLICK_DISPOSE_DIALOG + ON_YESOK_SHOW_NEXT_CONTENT will dispose the dialog on
+	 * for example ON_CLICK_DISPOSE_DIALOG | ON_YESOK_SHOW_NEXT_CONTENT will dispose the dialog on
 	 * "Cancel" and "No" but will show the next content pane on "Yes" or "OK". The ON_CLICK operation
 	 * definitions are always weaker than the button-specific operation definitions.
 	 * @param a_defaultButtonOperation int
