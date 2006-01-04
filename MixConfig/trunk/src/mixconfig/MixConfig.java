@@ -55,8 +55,8 @@ import anon.crypto.X509SubjectKeyIdentifier;
 import anon.util.ResourceLoader;
 import anon.util.XMLUtil;
 import gui.GUIUtils;
-import gui.JAPDialog;
-import gui.DialogContentPane;
+import gui.dialog.JAPDialog;
+import gui.dialog.DialogContentPane;
 import gui.JAPHelp;
 import gui.JAPMessages;
 import logging.LogHolder;
@@ -78,7 +78,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.050"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.051"; //NEVER change the layout of this line!!
 
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -221,14 +221,14 @@ public class MixConfig extends JApplet
 
 			LogHolder.log(LogLevel.INFO, LogType.MISC,
 						  "Startup time: " + (System.currentTimeMillis() - startTime));
-
-/*			JAPDialog dialog = new JAPDialog(getMainWindow(), "Test", true);
+/*
+			JAPDialog dialog = new JAPDialog(getMainWindow(), "Test", true);
 			//javax.swing.JDialog dialog = new javax.swing.JDialog(getMainWindow(), "Test", true);
 			dialog.setDefaultCloseOperation(JAPDialog.DO_NOTHING_ON_CLOSE);
 
 			DialogContentPane pane =
 				new DialogContentPane(dialog, new DialogContentPane.Layout("Title", JAPDialog.MESSAGE_TYPE_QUESTION),
-									  new DialogContentPane.Options(JAPDialog.OPTION_TYPE_OK_CANCEL, "index"));
+									  new DialogContentPane.Options(JAPDialog.OPTION_TYPE_CANCEL_OK, "index"));
 			pane.setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
 			pane.updateDialog();
 			dialog.pack();
@@ -479,9 +479,9 @@ public class MixConfig extends JApplet
 		// create mix certificate
 		X509DistinguishedName dn = new X509DistinguishedName("CN=");
 		CertificateGenerator certificateGenerator =
-			new CertificateGenerator(dn, null, new Validity(Calendar.getInstance(), 1), new char[0], null,
-			true);
-		PKCS12 privateCert = (PKCS12)certificateGenerator.construct();
+			new CertificateGenerator(dn, null, new Validity(Calendar.getInstance(), 1), true);
+		certificateGenerator.run();
+		PKCS12 privateCert = certificateGenerator.getCertificate();
 		configuration.setValue("Certificates/OwnCertificate/X509PKCS12", privateCert.toByteArray());
 		configuration.setValue("Certificates/OwnCertificate/X509Certificate",
 							   privateCert.getX509Certificate().toByteArray());

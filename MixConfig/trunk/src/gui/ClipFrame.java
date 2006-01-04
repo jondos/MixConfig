@@ -39,6 +39,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
+import gui.dialog.*;
 
 public class ClipFrame extends JAPDialog implements ActionListener, ItemListener
 {

@@ -25,7 +25,7 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-package gui;
+package gui.dialog;
 
 import javax.swing.JOptionPane;
 
@@ -46,8 +46,14 @@ public interface IDialogOptions
 	public static final int OPTION_TYPE_CANCEL_OK = JOptionPane.OK_CANCEL_OPTION;
 	public static final int OPTION_TYPE_CANCEL_YES_NO = JOptionPane.YES_NO_CANCEL_OPTION;
 	public static final int OPTION_TYPE_YES_NO = JOptionPane.YES_NO_OPTION;
-	/** This is an extra option type not available in JOptionPane. */
+	/**
+	 * This is an extra option type not available in JOptionPane. If set, no buttons are displayed.
+	 */
 	public static final int OPTION_TYPE_EMPTY = Integer.MIN_VALUE;
+	/**
+	 * This is an extra option type not available in JOptionPane. If set, only the cancel button is displayed.
+	 */
+	public static final int OPTION_TYPE_CANCEL = OPTION_TYPE_EMPTY + 1;
 	public static final int RETURN_VALUE_CANCEL = JOptionPane.CANCEL_OPTION;
 	public static final int RETURN_VALUE_OK = JOptionPane.OK_OPTION;
 	public static final int RETURN_VALUE_CLOSED = JOptionPane.CLOSED_OPTION;

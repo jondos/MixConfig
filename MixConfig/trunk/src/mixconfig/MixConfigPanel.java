@@ -56,7 +56,7 @@ import anon.crypto.ICertificate;
 import anon.crypto.PKCS12;
 import anon.util.Base64;
 import anon.util.ClassUtil;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPHelpContext;
 import logging.LogType;
 import mixconfig.networkpanel.IPTextField;

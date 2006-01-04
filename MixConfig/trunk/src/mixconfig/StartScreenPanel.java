@@ -37,7 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPHtmlMultiLineLabel;
 import gui.JAPMessages;
 import gui.TitledGridBagPanel;

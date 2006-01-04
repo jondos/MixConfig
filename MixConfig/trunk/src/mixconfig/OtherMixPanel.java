@@ -44,7 +44,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import anon.crypto.JAPCertificate;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPHelp;
 import gui.JAPMessages;
 import logging.LogType;

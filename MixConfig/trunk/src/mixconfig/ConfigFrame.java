@@ -37,7 +37,7 @@ import javax.swing.border.EmptyBorder;
 
 import mixconfig.networkpanel.NextMixProxyPanel;
 import logging.LogType;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 
 /**
  * The Frame of the MixConfig Application.

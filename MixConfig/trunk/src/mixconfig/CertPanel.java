@@ -41,7 +41,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -67,14 +66,16 @@ import anon.util.IMiscPasswordReader;
 import gui.CertDetailsDialog;
 import gui.ClipFrame;
 import gui.GUIUtils;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPMessages;
-import gui.PasswordBox;
-import gui.ValidityContentPane;
+import gui.dialog.PasswordContentPane;
+import gui.dialog.ValidityContentPane;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
+import mixconfig.CertificateGenerator;
 import mixconfig.wizard.CannotContinueException;
+import gui.dialog.*;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -84,7 +85,7 @@ import mixconfig.wizard.CannotContinueException;
  * are shown.<br>
  * @author ronin &lt;ronin2@web.de&gt;
  */
-public class CertPanel extends JPanel implements ActionListener, ChangeListener
+public class CertPanel extends JPanel implements ActionListener
 {
 	public static final int CERT_ALGORITHM_RSA = 1;
 	public static final int CERT_ALGORITHM_DSA = 2;
@@ -458,7 +459,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			}
 			else if (source == this.m_bttnRemoveCert)
 			{
-				if (JAPDialog.showYesNoDialog(this, JAPMessages.getString(MSG_CONFIRM_DELETION)))
+				if (JAPDialog.showConfirmDialog(this, JAPMessages.getString(MSG_CONFIRM_DELETION),
+												JAPDialog.OPTION_TYPE_CANCEL_OK,
+												JAPDialog.MESSAGE_TYPE_QUESTION) == JAPDialog.RETURN_VALUE_OK)
 				{
 					removeCert();
 				}
@@ -484,28 +487,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			}
 		}
 		catch (Exception ex)
-		{
+		{ex.printStackTrace();
 			JAPDialog.showErrorDialog(this, LogType.GUI, ex);
-		}
-	}
-
-	public void stateChanged(ChangeEvent a_event)
-	{
-		try
-		{
-			if (a_event.getSource() instanceof CertificateGenerator)
-			{
-				CertificateGenerator generator = (CertificateGenerator) a_event.getSource();
-				if (generator.getCertificate() == null)
-				{
-					throw new RuntimeException("Certificate creation failed for some unknown reason!");
-				}
-				setCertificate(generator.getCertificate(), generator.getPassword());
-			}
-		}
-		catch (Exception ex)
-		{
-			JAPDialog.showErrorDialog(this, LogType.MISC, ex);
 		}
 	}
 
@@ -576,8 +559,15 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			}
 			else
 			{
-				PasswordBox pb = new PasswordBox(MixConfig.getMainWindow(), "Enter the certificate password",
-												 PasswordBox.ENTER_PASSWORD, null);
+
+				JAPDialog dialog =
+					new JAPDialog(MixConfig.getMainWindow(), "Enter the certificate password", true);
+				dialog.setResizable(false);
+				PasswordContentPane pb = new PasswordContentPane(dialog,
+					PasswordContentPane.PASSWORD_ENTER, "");
+				pb.setDefaultButtonOperation(PasswordContentPane.ON_CLICK_HIDE_DIALOG);
+				pb.updateDialog();
+				dialog.pack();
 				CertPanelPasswordReader pwReader = new CertPanelPasswordReader(pb);
 				PKCS12 privateCertificate = PKCS12.getInstance(cert, pwReader);
 				bChanged = setCertificate(privateCertificate, pwReader.getPassword());
@@ -896,39 +886,26 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			strMessage = m_validator.getPasswordInfoMessage();
 		}
 
-		PasswordBox dialog =
-			new PasswordBox(MixConfig.getMainWindow(), "Change password",
-							PasswordBox.CHANGE_PASSWORD, strMessage);
-
-		while (true)
-		{
-			dialog.setVisible(true);
-			char[] passwd = dialog.getPassword();
-			char[] oldpasswd = dialog.getOldPassword();
-
-			if (passwd == null)
+		JAPDialog dialog = new JAPDialog(MixConfig.getMainWindow(), "Change password", true);
+		dialog.setResizable(false);
+		PasswordContentPane pb =
+			new PasswordContentPane(dialog, PasswordContentPane.PASSWORD_CHANGE, strMessage)
 			{
-				break;
-			}
-			try
-			{
-				if (!m_privCertPasswd.equals(new String(oldpasswd)))
+				public char[] getComparedPassword()
 				{
-					throw new SecurityException("Wrong password.");
+					return m_privCertPasswd.toCharArray();
 				}
-				m_privCertPasswd = new String(passwd);
-				break;
-			}
-			catch (SecurityException a_ex)
-			{
-				javax.swing.JOptionPane.showMessageDialog(
-					this,
-					a_ex.getMessage(),
-					"Password Error",
-					javax.swing.JOptionPane.ERROR_MESSAGE);
-			}
+			};
+
+		pb.updateDialog();
+		dialog.pack();
+		dialog.setVisible(true);
+
+		if (pb.hasValidValue())
+		{
+			m_privCertPasswd = new String(pb.getPassword());
+			fireStateChanged();
 		}
-		fireStateChanged();
 	}
 
 	/** Generates a new certificate. For this purpose, a new thread is started that
@@ -940,50 +917,34 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 */
 	private boolean generateNewCert() throws NullPointerException, CannotContinueException
 	{
-		Dimension windowSize;
-		Point windowLocation;
-		char[] passwd;
-
 		if (!m_validator.isValid())
 		{
 			throw new CannotContinueException(m_validator.getInvalidityMessages());
 		}
 
-		JAPDialog vdialog = new JAPDialog(this, "Create new certificate", true);
-		ValidityContentPane contentPane = new ValidityContentPane(vdialog);
-		contentPane.updateDialog();
-		vdialog.pack();
-		vdialog.setResizable(false);
-		vdialog.setVisible(true);
-		windowSize = vdialog.getSize();
-		windowLocation = vdialog.getLocation();
+		final JAPDialog dialog = new JAPDialog(this, "Create new certificate", true);
+		dialog.setDefaultCloseOperation(JAPDialog.DISPOSE_ON_CLOSE);
 
-		if (contentPane.getValidity() == null)
-		{
-			return false;
-		}
+		ValidityContentPane contentPane = new ValidityContentPane(dialog);
+		PasswordContentPane pb = new PasswordContentPane(dialog, contentPane,
+			PasswordContentPane.PASSWORD_NEW, m_validator.getPasswordInfoMessage());
+
+		CertificateGenerator.CertificateWorker worker = CertificateGenerator.createWorker(dialog, pb,
+			m_validator.getSigName(), m_validator.getExtensions(), m_bCreateDSACerts);
+		FinishedContentPane finished = new FinishedContentPane(dialog, worker);
 
 
-	    //Dialog for password
-		PasswordBox dialog = new PasswordBox(MixConfig.getMainWindow(), "New Password",
-											 PasswordBox.NEW_PASSWORD, m_validator.getPasswordInfoMessage());
-		dialog.setSize(windowSize);
-		dialog.setLocation(windowLocation);
+		ValidityContentPane.updateDialogOptimalSized(contentPane);
+		dialog.setResizable(false);
 		dialog.setVisible(true);
-		passwd = dialog.getPassword();
-		if (passwd == null)
+
+
+		if (!finished.hasValidValue() || worker.getCertificateGenerator().getCertificate() == null)
 		{
 			return false;
 		}
+		setCertificate(worker.getCertificateGenerator().getCertificate(), pb.getPassword());
 
-	    //Dialog which shows the progress
-	    CertificateGenerator worker = new CertificateGenerator(
-		   m_validator.getSigName(), m_validator.getExtensions(),
-		   contentPane.getValidity(), passwd, dialog, m_bCreateDSACerts);
-
-		worker.addChangeListener(this);
-		worker.start();
-		worker.showBussyWin();
 		return true;
 	}
 
@@ -1057,7 +1018,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 					}
 				}
 			} while (file != null && file.exists() &&
-					 !JAPDialog.showYesNoDialog(this, JAPMessages.getString(MSG_CONFIRM_OVERWRITE)));
+					 (JAPDialog.showConfirmDialog(
+								this, JAPMessages.getString(MSG_CONFIRM_OVERWRITE),
+								JAPDialog.OPTION_TYPE_CANCEL_OK,
+								JAPDialog.MESSAGE_TYPE_QUESTION) == JAPDialog.RETURN_VALUE_OK));
 
 			if (file != null)
 			{
@@ -1188,6 +1152,28 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		public char[] getPassword()
 		{
 			return m_password;
+		}
+	}
+
+	private class FinishedContentPane extends DialogContentPane implements
+		DialogContentPane.IWizardSuitable
+	{
+		public FinishedContentPane(JAPDialog a_parentDialog, DialogContentPane a_previousContentPane)
+		{
+			super(a_parentDialog, "You have successfully created your mix certificate!",
+				  new DialogContentPane.Layout(DialogContentPane.MESSAGE_TYPE_INFORMATION),
+				  new DialogContentPane.Options(a_previousContentPane));
+			setDefaultButtonOperation(DialogContentPane.ON_CANCEL_DISPOSE_DIALOG |
+									  DialogContentPane.ON_YESOK_DISPOSE_DIALOG);
+		}
+
+		public CheckError[] checkNo()
+		{
+			if (!getPreviousContentPane().moveToPreviousContentPane())
+			{
+				return new CheckError[]{new CheckError("Could not move back!")};
+			}
+			return null;
 		}
 	}
 }

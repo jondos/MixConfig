@@ -25,7 +25,7 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-package gui;
+package gui.dialog;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -44,10 +44,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import anon.crypto.Validity;
-import logging.LogType;
 import gui.JAPJIntField;
 
-public class ValidityContentPane extends DialogContentPane
+import gui.*;
+
+public class ValidityContentPane extends DialogContentPane implements
+	DialogContentPane.IWizardSuitable
 {
 	private DateTextField m_dateFrom, m_dateTo;
 
@@ -56,11 +58,12 @@ public class ValidityContentPane extends DialogContentPane
 		this(a_parent, null);
 	}
 
-	public ValidityContentPane(JAPDialog a_parent, DialogContentPane a_nextContentPane)
+	public ValidityContentPane(JAPDialog a_parent, DialogContentPane a_previousContentPane)
 	{
-		super(a_parent, new Layout("Please choose a validity", MESSAGE_TYPE_QUESTION),
-			  new Options(OPTION_TYPE_CANCEL_OK, a_nextContentPane));
-		setDefaultButtonOperation(ON_CANCEL_DISPOSE_DIALOG);
+		super(a_parent,
+			  new Layout("Please choose a validity", MESSAGE_TYPE_QUESTION),
+			  new Options(OPTION_TYPE_CANCEL_OK, a_previousContentPane));
+		setDefaultButtonOperation(BUTTON_OPERATION_WIZARD);
 
 		GridBagLayout layout = new GridBagLayout();
 		getContentPane().setLayout(layout);
@@ -134,26 +137,27 @@ public class ValidityContentPane extends DialogContentPane
 		});
 		layout.setConstraints(y1Button, gbc);
 		getContentPane().add(y1Button);
-		gbc.gridy++;
+/*		gbc.gridy++;
+		gbc.weighty = 10;
+		gbc.weightx = 10;
+		gbc.gridheight = 1;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.VERTICAL;
+		getContentPane().add(new JLabel(), gbc);
+	*/
+	}
 
-		getButtonYesOK().addActionListener(new ActionListener()
+	public CheckError[] checkYesOK()
+	{
+		try
 		{
-			public void actionPerformed(ActionEvent ev)
-			{
-				try
-				{
-					getValidity();
-					if (!moveToNextContentPane())
-					{
-						closeDialog(true);
-					}
-				}
-				catch (NumberFormatException a_e)
-				{
-					printErrorStatusMessage("One or more date fields are empty", LogType.GUI);
-				}
-			}
-		});
+			getValidity();
+		}
+		catch (NumberFormatException a_e)
+		{
+			return new CheckError[]{new CheckError("One or more date fields are empty")};
+		}
+		return null;
 	}
 
 	public Validity getValidity()

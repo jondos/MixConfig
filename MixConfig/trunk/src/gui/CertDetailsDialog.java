@@ -47,6 +47,7 @@ import anon.crypto.Validity;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509UnknownExtension;
+import gui.dialog.JAPDialog;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
@@ -55,10 +56,7 @@ import logging.LogType;
 /**
  * <p>CertDetails Dialog </p>
  * <p>Description: Displays any certificates</p>
- * <p>Copyright: Copyright (c) 2005</p>
- * <p>Organisation: </p>
  * @author Kuno G. Gruen
- * @version 3.1 / 14.12.2005
  */
 public class CertDetailsDialog extends JAPDialog
 {

@@ -693,4 +693,70 @@
     <declared-field-type>I</declared-field-type>
     <new-field-name>OPTION_TYPE_CANCEL_YES_NO</new-field-name>
   </rename-field>
+  <rename-method id="6AP0KRJZVXHEC5M6676YS6Y0" creation-time="Sun Jan 01 22:58:27.566 CET 2006">
+    <declaring-class-name>gui.DialogContentPane</declaring-class-name>
+    <declared-method-signature>(Lgui/DialogContentPane;)Ljava/awt/Dimension;</declared-method-signature>
+    <old-method-name>calculateOptimalDialogSize</old-method-name>
+    <new-method-name>updateDialogOptimalSized</new-method-name>
+  </rename-method>
+  <rename-class id="4AP0KRJZVXHEC5M6676YS6Y0" creation-time="Mon Jan 02 00:01:00.403 CET 2006">
+    <old-class-name>gui.PasswordBox</old-class-name>
+    <new-class-name>gui.PasswordContentPane</new-class-name>
+  </rename-class>
+  <rename-field id="6AP04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:02:07.212 CET 2006">
+    <declaring-class-name>gui.PasswordContentPane</declaring-class-name>
+    <old-field-name>NEW_PASSWORD</old-field-name>
+    <declared-field-type>I</declared-field-type>
+    <new-field-name>PASSWORD_NEW</new-field-name>
+  </rename-field>
+  <rename-field id="4AP04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:02:17.467 CET 2006">
+    <declaring-class-name>gui.PasswordContentPane</declaring-class-name>
+    <old-field-name>ENTER_PASSWORD</old-field-name>
+    <declared-field-type>I</declared-field-type>
+    <new-field-name>PASSWORD_ENTER</new-field-name>
+  </rename-field>
+  <rename-field id="2AP04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:02:25.268 CET 2006">
+    <declaring-class-name>gui.PasswordContentPane</declaring-class-name>
+    <old-field-name>CHANGE_PASSWORD</old-field-name>
+    <declared-field-type>I</declared-field-type>
+    <new-field-name>PASSWORD_CHANGE</new-field-name>
+  </rename-field>
+  <rename-class id="S9P04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:24:45.495 CET 2006">
+    <old-class-name>gui.IDialogOptions</old-class-name>
+    <new-class-name>gui.dialog.IDialogOptions</new-class-name>
+  </rename-class>
+  <rename-class id="Q9P04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:25:34.816 CET 2006">
+    <old-class-name>gui.DialogContentPane</old-class-name>
+    <new-class-name>gui.dialog.DialogContentPane</new-class-name>
+  </rename-class>
+  <rename-class id="O9P04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:26:02.175 CET 2006">
+    <old-class-name>gui.JAPDialog</old-class-name>
+    <new-class-name>gui.dialog.JAPDialog</new-class-name>
+  </rename-class>
+  <rename-class id="M9P04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:26:37.136 CET 2006">
+    <old-class-name>gui.WorkerContentPane</old-class-name>
+    <new-class-name>gui.dialog.WorkerContentPane</new-class-name>
+  </rename-class>
+  <rename-class id="K9P04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:27:02.212 CET 2006">
+    <old-class-name>gui.PasswordContentPane</old-class-name>
+    <new-class-name>gui.dialog.PasswordContentPane</new-class-name>
+  </rename-class>
+  <rename-class id="I9P04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:27:24.333 CET 2006">
+    <old-class-name>gui.ValidityContentPane</old-class-name>
+    <new-class-name>gui.dialog.ValidityContentPane</new-class-name>
+  </rename-class>
+  <rename-class id="G9P04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:30:42.478 CET 2006">
+    <old-class-name>gui.CertDetailsDialog</old-class-name>
+    <new-class-name>gui.dialog.CertDetailsDialog</new-class-name>
+  </rename-class>
+  <rename-class id="E9P04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 13:31:03.338 CET 2006">
+    <old-class-name>gui.dialog.CertDetailsDialog</old-class-name>
+    <new-class-name>gui.CertDetailsDialog</new-class-name>
+  </rename-class>
+  <rename-method id="C9P04H70L1IE3Q1N1TO0QKH0" creation-time="Wed Jan 04 14:03:17.751 CET 2006">
+    <declaring-class-name>gui.dialog.DialogContentPane</declaring-class-name>
+    <declared-method-signature>()Ljavax/swing/RootPaneContainer;</declared-method-signature>
+    <old-method-name>getParentDialog</old-method-name>
+    <new-method-name>getDialog</new-method-name>
+  </rename-method>
 </refactor>
