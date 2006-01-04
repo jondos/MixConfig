@@ -45,7 +45,7 @@ import javax.swing.JTextField;
 
 import anon.crypto.DESCrypt;
 import anon.crypto.MD5Crypt;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPMessages;
 import gui.TitledGridBagPanel;
 import mixconfig.networkpanel.IPTextField;

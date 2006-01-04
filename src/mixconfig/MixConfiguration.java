@@ -54,7 +54,7 @@ import mixconfig.networkpanel.OutgoingConnectionTableModel;
 import java.io.File;
 import java.io.FileWriter;
 import javax.swing.JFileChooser;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 
 /** This class provides unified access to the Mix configuration. The configuration
  * is stored as a DOM document.

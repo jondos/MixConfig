@@ -42,11 +42,12 @@ import javax.swing.event.ChangeListener;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
 import gui.JAPMessages;
-import gui.ValidityContentPane;
-import gui.JAPDialog;
+import gui.dialog.ValidityContentPane;
+import gui.dialog.JAPDialog;
 import gui.JAPHelp;
 import gui.JAPHelpContext;
 import javax.swing.JPanel;
+import gui.dialog.*;
 
 public class CertificationTool extends JAPDialog
 	implements ActionListener, ChangeListener, JAPHelpContext.IHelpContext

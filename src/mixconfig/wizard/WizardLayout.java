@@ -36,12 +36,10 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.ImageIcon;
 
 import gui.AutoScaleImage;
 import gui.JAPHelp;
 import gui.JAPHelpContext;
-import mixconfig.MixConfig;
 import gui.GUIUtils;
 
 public abstract class WizardLayout extends JPanel implements JAPHelpContext.IHelpContext

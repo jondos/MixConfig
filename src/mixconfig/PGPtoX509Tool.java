@@ -67,18 +67,18 @@ import anon.crypto.MyRSAPrivateKey;
 import anon.crypto.PKCS12;
 import anon.crypto.Validity;
 import anon.crypto.X509DistinguishedName;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPHelpContext;
-import gui.PasswordBox;
-import gui.DialogContentPane;
+import gui.dialog.PasswordContentPane;
+import gui.dialog.DialogContentPane;
 import logging.LogType;
+import gui.dialog.*;
 
 
 public class PGPtoX509Tool extends JAPDialog implements ActionListener
 {
 	private JTextField m_textFile;
 	private File m_File;
-	private Frame m_Parent;
 	private DialogContentPane m_pane;
 	private JButton m_btnImport;
 
@@ -89,8 +89,6 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 									   new DialogContentPane.Options(DialogContentPane.OPTION_TYPE_CANCEL_OK,
 			JAPHelpContext.INDEX));
 		m_pane.setDefaultButtonOperation(DialogContentPane.ON_CANCEL_DISPOSE_DIALOG);
-		m_Parent = parent;
-
 
 		GridBagLayout layout = new GridBagLayout();
 		m_pane.getContentPane().setLayout(layout);
@@ -167,7 +165,7 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 		try
 		{
 			doPGPtoX509();
-			showMessageDialog(this, "Converted and saved successfully!");
+			m_pane.printStatusMessage("Converted and saved successfully!");
 		}
 		catch (Exception e)
 		{
@@ -255,10 +253,12 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 			}
 		}
 		RSAPublicBCPGKey pubKey = (RSAPublicBCPGKey) skp.getPublicKeyPacket().getKey();
-		PasswordBox pb = new PasswordBox(m_Parent, "Passphrase for reading PGP Key",
-										 PasswordBox.ENTER_PASSWORD,
+		JAPDialog dialog = new JAPDialog(this, "Passphrase for reading PGP Key", true);
+		PasswordContentPane pb = new PasswordContentPane(dialog, PasswordContentPane.PASSWORD_ENTER,
 										 "Please enter the passphrase for the PGP key:");
-		pb.setVisible(true);
+		pb.updateDialog();
+		dialog.setResizable(false);
+		dialog.setVisible(true);
 		char[] passPhrase = pb.getPassword();
 
 		byte[] key = makeKeyFromPassPhrase(skp.getEncAlgorithm(),
@@ -302,9 +302,12 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 		fout.close();
 
 		fout = new FileOutputStream(new File(fileDir, m_File.getName() + ".pfx"));
-		pb = new PasswordBox(m_Parent, "Password for X.509 key", PasswordBox.NEW_PASSWORD,
+		dialog = new JAPDialog(this, "Password for X.509 key", true);
+		dialog.setResizable(false);
+		pb = new PasswordContentPane(dialog, PasswordContentPane.PASSWORD_NEW,
 							 "Please enter a password for the X.509 key:");
-		pb.setVisible(true);
+		pb.updateDialog();
+		dialog.setVisible(true);
 		passPhrase = pb.getPassword();
 		privateCertificate.store(fout, passPhrase);
 	}

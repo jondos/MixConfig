@@ -55,7 +55,7 @@ import javax.swing.event.ChangeEvent;
 
 import anon.util.XMLParseException;
 import gui.ClipFrame;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPHelp;
 import gui.JAPHelpContext;
 import gui.JAPMessages;
@@ -63,6 +63,7 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import mixconfig.wizard.ConfigWizard;
+import gui.dialog.*;
 
 public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 {

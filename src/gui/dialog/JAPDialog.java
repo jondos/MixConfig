@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000 - 2005, The JAP-Team
+ Copyright (c) 2000 - 2006, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -25,7 +25,7 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-package gui;
+package gui.dialog;
 
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
@@ -51,6 +51,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusListener;
 import java.awt.event.FocusEvent;
 import javax.swing.BoxLayout;
@@ -66,13 +67,14 @@ import javax.swing.JTextPane;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import javax.swing.text.View;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants.CharacterConstants;
 
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
+
+import gui.*;
 
 /**
  * This is the generic implementation for an optionally modal, resizable a dialog. Use the root pane and
@@ -99,8 +101,23 @@ import logging.LogType;
  * link to a JAPHelp window, for example, there is a class named LinkedHelpContext. Its implementation
  * should cover most needs.
  *
+ * <P> Warning: This is a really complex class handling many bugs and differences in different JDKs.
+ * If you change something here, be sure you know what you are doing and test the class at least with
+ * the following JDKs: </P>
+ *
+ * <UL>
+ * <LI> Microsoft JView </LI>
+ * <LI> 1.1.8 </LI>
+ * <LI> 1.2.2 </LI>
+ * <LI> 1.3.x </LI>
+ * <LI> 1.4.x </LI>
+ * <LI> 1.5.x </LI>
+ * </UL>
+
+ *
  * @see javax.swing.JDialog
  * @see javax.swing.JOptionPane
+ * @see gui.dialog.DialogContentPane
  * @see ILinkedInformation
  *
  * @author Rolf Wendolsky
@@ -110,17 +127,15 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 {
 	public static final double GOLDEN_RATIO_PHI = (1.0 + Math.sqrt(5.0)) / 2.0;
 
-	private static final int UNLIMITED_HEIGHT = 1000;
+	public static final String MSG_ERROR_UNKNOWN = JAPDialog.class.getName() + "_errorUnknown";
+	public static final String MSG_TITLE_INFO = JAPDialog.class.getName() + "_titleInfo";
+	public static final String MSG_TITLE_CONFIRMATION = JAPDialog.class.getName() + "_titleConfirmation";
+	public static final String MSG_TITLE_WARNING = JAPDialog.class.getName() + "_titleWarning";
+	public static final String MSG_TITLE_ERROR = JAPDialog.class.getName() + "_titleError";
+	public static final String MSG_ERROR_UNDISPLAYABLE = JAPDialog.class.getName() + "_errorUndisplayable";
+
 	private static final int NUMBER_OF_HEURISTIC_ITERATIONS = 5;
 
-	private static final String MSG_TITLE_INFO = JAPDialog.class.getName() + "_titleInfo";
-	private static final String MSG_TITLE_CONFIRMATION = JAPDialog.class.getName() + "_titleConfirmation";
-	private static final String MSG_TITLE_WARNING = JAPDialog.class.getName() + "_titleWarning";
-	private static final String MSG_TITLE_ERROR = JAPDialog.class.getName() + "_titleError";
-	private static final String MSG_ERROR_UNKNOWN = JAPDialog.class.getName() + "_errorUnknown";
-	private static final String MSG_ERROR_UNDISPLAYABLE = JAPDialog.class.getName() + "_errorUndisplayable";
-
-	private boolean m_bDisposed = false;
 	private boolean m_bLocationSetManually = false;
 	private boolean m_bModal;
 	private boolean m_bBlockParentWindow = false;
@@ -199,7 +214,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		EventListener[] listeners;
 
-		m_parentComponent = a_dialog.getParent();
+		m_parentComponent = a_parentComponent;
 		m_internalDialog = a_dialog;
 		m_internalDialog.setModal(false);
 		m_internalDialog.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -226,7 +241,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 
 		addWindowListener(new WindowClosingAdapter(this));
-		m_parentWindow = getParentWindow(a_parentComponent);
+		m_parentWindow = getParentWindow(getParentComponent());
 		setModal(a_bModal);
 	}
 
@@ -254,7 +269,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 */
 	public static void showMessageDialog(JAPDialog a_parentDialog, String a_message)
 	{
@@ -265,7 +282,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
 	public static void showMessageDialog(JAPDialog a_parentDialog, String a_message,
@@ -279,7 +298,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 */
 	public static void showMessageDialog(Component a_parentComponent, String a_message)
 	{
@@ -291,7 +312,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
 	public static void showMessageDialog(Component a_parentComponent, String a_message,
@@ -306,7 +329,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 */
 	public static void showMessageDialog(JAPDialog a_parentDialog, String a_message, String a_title)
 	{
@@ -318,7 +343,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
 	public static void showMessageDialog(JAPDialog a_parentDialog, String a_message, String a_title,
@@ -333,7 +360,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 */
 	public static void showMessageDialog(Component a_parentComponent, String a_message, String a_title)
 	{
@@ -346,7 +375,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
 	public static void showMessageDialog(Component a_parentComponent, String a_message, String a_title,
@@ -359,7 +390,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 */
 	public static void showMessageDialog(JAPDialog a_parentDialog, String a_message, Icon a_icon)
@@ -371,7 +404,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Displays an info message dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
@@ -386,7 +421,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 */
 	public static void showMessageDialog(Component a_parentComponent, String a_message, Icon a_icon)
@@ -399,7 +436,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
@@ -415,7 +454,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 */
 	public static void showMessageDialog(JAPDialog a_parentDialog, String a_message, String a_title,
@@ -429,7 +470,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
@@ -445,7 +488,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 */
 	public static void showMessageDialog(Component a_parentComponent, String a_message, String a_title,
@@ -460,7 +505,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
@@ -480,7 +527,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Displays a warning message dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 */
 	public static void showWarningDialog(JAPDialog a_parentDialog, String a_message)
 	{
@@ -492,7 +541,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 */
 	public static void showWarningDialog(Component a_parentComponent, String a_message)
 	{
@@ -504,7 +555,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 */
 	public static void showWarningDialog(JAPDialog a_parentDialog, String a_message, String a_title)
 	{
@@ -517,7 +570,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 */
 	public static void showWarningDialog(Component a_parentComponent, String a_message, String a_title)
 	{
@@ -529,7 +584,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
 	public static void showWarningDialog(JAPDialog a_parentDialog, String a_message, String a_title,
@@ -544,7 +601,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 */
 	public static void showWarningDialog(Component a_parentComponent, String a_message, String a_title,
@@ -564,7 +623,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
@@ -585,7 +646,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
@@ -605,7 +668,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
@@ -629,7 +694,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_icon an icon that will be displayed on the dialog
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
@@ -689,6 +756,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		 * Set the dialog parameters and get its label and content pane.
 		 */
 		label = new JAPHtmlMultiLineLabel(message);
+		label.setFontStyle(JAPHtmlMultiLineLabel.FONT_STYLE_PLAIN);
 		dialog = new JAPDialog(a_parentComponent, a_title, true);
 		dialogContentPane = new DialogContentPane(dialog,
 												  new DialogContentPane.Layout(null, a_messageType, a_icon),
@@ -753,11 +821,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			 * @see javax.swing.plaf.basic.BasicHTML
 			 * @see javax.swing.text.html.HTMLEditorKit
 			 */
-			contentPane.setMaximumSize(new Dimension(currentWidth, UNLIMITED_HEIGHT));
+			contentPane.setMaximumSize(
+						 new Dimension(currentWidth, JAPHtmlMultiLineLabel.UNLIMITED_LABEL_HEIGHT));
 			dummyBox.setPreferredWidth(currentWidth);
 			dialog.setContentPane(dummyBox);
 			dialog.pack();
-			( (View) label.getClientProperty("html")).setSize((float) label.getWidth(), UNLIMITED_HEIGHT);
+			label.setPreferredWidth(label.getWidth());
 			dialog.pack();
 
 			currentWidth = dummyBox.getWidth();
@@ -796,7 +865,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		 * Recreate the dialog and set its final size.
 		 */
 		dummyBox = new PreferredWidthBoxPanel();
-		label = new JAPHtmlMultiLineLabel(a_message);
+		label = new JAPHtmlMultiLineLabel("<font color=#000000>" + a_message + "</font>");
+		label.setFontStyle(JAPHtmlMultiLineLabel.FONT_STYLE_PLAIN);
 		dummyBox.add(label);
 		linkLabel = null;
 		if (strLinkedInformation != null)
@@ -853,7 +923,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
 	public static boolean showYesNoDialog(JAPDialog a_parentDialog, String a_message)
@@ -866,7 +938,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
@@ -882,7 +956,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
 	public static boolean showYesNoDialog(Component a_parentComponent, String a_message)
@@ -896,7 +972,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
@@ -912,7 +990,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
 	public static boolean showYesNoDialog(JAPDialog a_parentDialog,  String a_message, String a_title)
@@ -926,7 +1006,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
@@ -943,7 +1025,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
 	public static boolean showYesNoDialog(Component a_parentComponent, String a_message, String a_title)
@@ -958,7 +1042,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 * @return true if the answer was 'yes'; fale otherwise
 	 */
@@ -983,7 +1069,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
 	 * @param a_icon an icon that will be displayed on the dialog
@@ -1004,7 +1092,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
 	 * @param a_icon an icon that will be displayed on the dialog
@@ -1024,7 +1114,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
 	 * @return an int indicating the option selected by the user
@@ -1044,7 +1136,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
 	 * @return an int indicating the option selected by the user
@@ -1063,7 +1157,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Words are wrapped automatically if a message line is too long.
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
 	 * @param a_linkedInformation a clickable information message that is appended to the text
@@ -1085,7 +1181,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
 	 * @param a_linkedInformation a clickable information message that is appended to the text
@@ -1107,7 +1205,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
 	 * @return an int indicating the option selected by the user
@@ -1128,7 +1228,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
 	 * @return an int indicating the option selected by the user
@@ -1149,7 +1251,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_parentDialog The parent dialog for this dialog. If it is null,
 	 *                       the dialog's parent frame is the default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
 	 * @param a_linkedInformation a clickable information message that is appended to the text
@@ -1172,7 +1276,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
 	 * @param a_title The title of the message dialog
-	 * @param a_message The message to be displayed
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
 	 * @param a_messageType use the message types from JOptionPane
 	 * @param a_optionType use the option types from JOptionPane
 	 * @param a_linkedInformation a clickable information message that is appended to the text
@@ -1390,12 +1496,27 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	public static void showErrorDialog(Component a_parentComponent, String a_message, String a_title,
 									   int a_logType, Throwable a_throwable)
 	{
-		a_message = retrieveErrorMessage(a_throwable, a_message);
+		boolean bPossibleApplicationError = false;
+
+		a_message = retrieveErrorMessage(a_message, a_throwable);
+		if (a_message == null)
+		{
+			a_message = JAPMessages.getString(MSG_ERROR_UNKNOWN);
+			bPossibleApplicationError = true;
+		}
+
 		LogHolder.log(LogLevel.ERR, a_logType, a_message, true);
 		if (a_throwable != null)
 		{
-			// the exception is only shown in debug mode
-			LogHolder.log(LogLevel.DEBUG, a_logType, a_throwable);
+			// the exception is only shown in debug mode or in case of an application error
+			if (bPossibleApplicationError)
+			{
+				LogHolder.log(LogLevel.ERR, a_logType, a_throwable);
+			}
+			else
+			{
+				LogHolder.log(LogLevel.DEBUG, a_logType, a_throwable);
+			}
 		}
 
 		try
@@ -1417,22 +1538,28 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	/**
 	 * Retrieves an error message from a Throwable and a message String that may be shown to the
 	 * user. By default, this is the given message. If no message is given, it is tried to get the error
-	 * message from the Throwable.
-	 * @param a_e a Throwable (may be null)
+	 * message from the Throwable. A log message for the error is written automatically.
+	 * @param a_throwable a Throwable (may be null)
 	 * @param a_message an error message (may be null)
-	 * @return the retrieved error message
+	 * @return the retrieved error message or null if no error message could be found; this would
+	 * indicate a serious application error
 	 */
-	public static String retrieveErrorMessage(Throwable a_e, String a_message)
+	public static String retrieveErrorMessage(String a_message, Throwable a_throwable)
 	{
-		if (a_message == null)
+		if (a_message == null || a_message.trim().length() == 0)
 		{
-			if (a_e == null || a_e.getMessage() == null)
+			if (a_throwable == null || a_throwable.getMessage() == null)
 			{
-				a_message = JAPMessages.getString(MSG_ERROR_UNKNOWN);
+				a_message = null;
+
 			}
 			else
 			{
-				a_message = a_e.getMessage();
+				a_message = a_throwable.getMessage();
+				if (a_message == null || a_message.trim().length() == 0)
+				{
+					a_message = null;
+				}
 			}
 		}
 
@@ -1658,24 +1785,18 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		if (a_bVisible)
 		{
-			if (m_bDisposed)
+			if (!m_bLocationSetManually && !isVisible())
 			{
-				throw new RuntimeException("Dialog has been disposed and cannot be made visible!");
-			}
-			else
-			{
-				if (!m_bLocationSetManually && !isVisible())
+				if (a_bCenterOnParentComponent)
 				{
-					if (a_bCenterOnParentComponent)
-					{
-						m_internalDialog.setLocationRelativeTo(m_parentComponent);
-					}
-					else
-					{
-						GUIUtils.positionRightUnderWindow(m_internalDialog, getOwner());
-					}
+					m_internalDialog.setLocationRelativeTo(getParentComponent());
+				}
+				else
+				{
+					GUIUtils.positionRightUnderWindow(m_internalDialog, getOwner());
 				}
 			}
+
 		}
 		setVisibleInternal(a_bVisible);
 	}
@@ -1756,18 +1877,13 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
-	 * Returns if the dialog has not been disposed yet. If yes, it cannot be made visible.
-	 * @return if the dialog has not been disposed yet.
-	 */
-	public final boolean isDisplayable()
-	{
-		return !m_bDisposed;
-	}
-
-	/**
 	 * Disposes the dialog (set it to invisible and releases all resources).
+	 * @todo Causes a Thread deadlock if called from Threads other than the main Thread or the
+	 * AWT Event Thread. Removing the setVisible(false) would solve this problem, but causes a
+	 * java.lang.IllegalMonitorStateException with JDK 1.2.2.
+	 * If Threads are startet with gui.dialog.WorkerContentPane, everything is OK, so don't worry.
 	 */
-	public final synchronized void dispose()
+	public final void dispose()
 	{
 		if (m_bBlockParentWindow)
 		{
@@ -1776,19 +1892,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			m_parentWindow.setVisible(true);
 		}
 
+		m_internalDialog.setVisible(false);
+		m_internalDialog.dispose();
+
 		synchronized (m_internalDialog.getTreeLock())
 		{
-			if (isDisplayable())
-			{
-				m_bDisposed = true;
-				m_internalDialog.dispose();
-			}
-			else if (isVisible())
-			{
-				m_internalDialog.setVisible(false);
-			}
-
-			m_internalDialog.getTreeLock().notify();
+			m_internalDialog.getTreeLock().notifyAll();
 		}
 	}
 
@@ -1849,12 +1958,13 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
-     * The dialog is centered on the parent Component.
+	 * The dialog is centered on the parent Component.
 	 * Sets the location of the dialog 'manually'. After that, no automatic alignment is done by this dialog.
 	 */
 	public final void setLocationCenteredOnParent()
 	{
-		setLocationCenteredOn(getParentComponent());
+		m_bLocationSetManually = true;
+		m_internalDialog.setLocationRelativeTo(getParentComponent());
 	}
 
 	/**
@@ -1982,6 +2092,26 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
+	 * Adds a Componentistener to the dialog.
+	 * @param a_listener a ComponentListener
+	 * @see java.awt.event.ComponentListener
+	 */
+	public final void addComponentListener(ComponentListener a_listener)
+	{
+		m_internalDialog.addComponentListener(a_listener);
+	}
+
+	/**
+	 * Removes a specific ComponentListener from the dialog.
+	 * @param a_listener a ComponentListener
+	 * @see java.awt.event.ComponentListener
+	 */
+	public final void removeComponentListener(ComponentListener a_listener)
+	{
+		m_internalDialog.removeComponentListener(a_listener);
+	}
+
+	/**
 	 * Removes a specific WindowListener from the dialog.
 	 * @param a_listener a WindowListener
 	 * @see java.awt.event.WindowListener
@@ -2044,7 +2174,14 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			if (m_dialog.getDefaultCloseOperation() == DISPOSE_ON_CLOSE)
 			{
-				m_dialog.dispose();
+				try
+				{
+					m_dialog.dispose();
+				}
+				catch (IllegalMonitorStateException a_e)
+				{
+					LogHolder.log(LogLevel.DEBUG, LogType.GUI, a_e);
+				}
 			}
 			else if (m_dialog.getDefaultCloseOperation() == HIDE_ON_CLOSE)
 			{
@@ -2171,6 +2308,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 				// fix for JDK 1.1.8 that does not auto-focus the first focusable component
 				requestFocusForFirstFocusableComponent(m_internalDialog.getContentPane());
 			}
+			m_internalDialog.getTreeLock().notifyAll();
 		}
 
 		if (m_bBlockParentWindow)
@@ -2209,21 +2347,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 						Object src = event.getSource();
 						if (src == m_internalDialog && event instanceof WindowEvent)
 						{
-							if ( ( (WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSING ||
-								 ( (WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSED)
+							if ( ( (WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSING)
 							{
 								for (int i = 0; i < m_windowListeners.size(); i++)
 								{
-									if (((WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSING)
-									{
-										( (WindowListener) m_windowListeners.elementAt(i)).windowClosing(
-											(WindowEvent)event);
-									}
-									else
-									{
-										( (WindowListener) m_windowListeners.elementAt(i)).windowClosed(
-											(WindowEvent)event);
-									}
+									( (WindowListener) m_windowListeners.elementAt(i)).windowClosing(
+										(WindowEvent)event);
 								}
 
 								/*
@@ -2245,7 +2374,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 							{
 								( (Component) src).dispatchEvent(event);
 							}
-							catch (Error a_e)
+							catch (IllegalMonitorStateException a_e)
 							{
 								LogHolder.log(LogLevel.NOTICE, LogType.GUI, a_e);
 							}
@@ -2296,7 +2425,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 		synchronized (m_internalDialog.getTreeLock())
 		{
-			m_internalDialog.getTreeLock().notify();
+			m_internalDialog.getTreeLock().notifyAll();
 		}
 	}
 

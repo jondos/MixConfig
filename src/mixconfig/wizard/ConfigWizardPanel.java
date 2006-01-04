@@ -53,7 +53,7 @@ import mixconfig.MixOnCDPanel;
 import mixconfig.PreviousMixPanel;
 import gui.TitledGridBagPanel;
 import mixconfig.networkpanel.NextMixProxyPanel;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPHelpContext;
 
 /**

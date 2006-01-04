@@ -36,7 +36,7 @@ import java.awt.event.ActionListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import logging.LogType;
 import mixconfig.ChoicePanel;
 import mixconfig.Menu;

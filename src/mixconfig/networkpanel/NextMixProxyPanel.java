@@ -69,7 +69,7 @@ import mixconfig.MixConfiguration;
 import mixconfig.OtherMixPanel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPHelpContext;
 
 /** A panel that provides settings for configuring the Mix's network access:<br>

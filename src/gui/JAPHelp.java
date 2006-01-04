@@ -62,6 +62,7 @@ import gui.JAPHelpContext.IHelpContext;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
+import gui.dialog.*;
 
 /**
  * Help window for the JAP. This is a singleton meaning that there exists only one help window all the time.

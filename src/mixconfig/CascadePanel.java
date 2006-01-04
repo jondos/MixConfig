@@ -68,7 +68,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 import logging.LogType;
 import gui.JAPHelpContext;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.GUIUtils;
 
 /** The <CODE>CascadePanel</CODE> is a panel that lets the user edit settings concerning

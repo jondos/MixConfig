@@ -28,11 +28,8 @@
 package mixconfig;
 
 import java.security.SecureRandom;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import anon.crypto.DSAKeyPair;
 import anon.crypto.RSAKeyPair;
 import anon.crypto.AsymmetricCryptoKeyPair;
@@ -42,35 +39,26 @@ import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509SubjectKeyIdentifier;
 import logging.LogType;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
+import gui.dialog.WorkerContentPane;
+import gui.dialog.ValidityContentPane;
+import gui.dialog.DialogContentPane;
 
 
 /** A subclass of <CODE>SwingWorker</CODE> that starts a new thread that generates the new
  * certificate in the background.
  */
-public class CertificateGenerator extends SwingWorker
+public class CertificateGenerator implements Runnable
 {
+	private ValidityContentPane m_validityContentPane;
+
 	/** The the certificate's validity. */
 	private Validity m_validity;
-
-	/** The password for the certificate to be generated. */
-	private char[] m_passwd;
-
-	/** The overgiven Parent */
-	private JAPDialog m_parent;
-
-	/** A dialog to be shown as long as the certificate generation thread is busy. */
-	private BusyWindow m_notification;
 
 	/** The signer name for the certificate */
 	private X509DistinguishedName m_name;
 
 	private X509Extensions m_extensions;
-
-	/** A list of <CODE>ChangeListener</CODE>s that receive <CODE>ChangeEvent</CODE>s
-	 * from this object.
-	 */
-	private Vector m_changeListeners = new Vector();
 
 	private boolean m_bDSA;
 
@@ -81,27 +69,24 @@ public class CertificateGenerator extends SwingWorker
 	 * @param a_name The signer name
 	 * @param a_extensions the extensions for the certificate (optional, may be null)
 	 * @param a_validity the certificate's validity
-	 * @param a_passwd The password for the certificate
-	 * @param a_parent the BusyWindow is shown if this is not null
 	 * @param a_bDSA if true, DSA ist used; otherwise an RSA certificate is created
 	 */
 	public CertificateGenerator(X509DistinguishedName a_name, X509Extensions a_extensions,
-								Validity a_validity, char[] a_passwd, JAPDialog a_parent, boolean a_bDSA)
+								Validity a_validity, boolean a_bDSA)
 	{
 		m_name = a_name;
 		m_extensions = a_extensions;
 		m_validity = a_validity;
-		m_passwd = a_passwd;
-		m_parent = a_parent;
 		m_bDSA = a_bDSA;
 	}
 
-	/** Adds the specified <CODE>ChangeListener</CODE> to this object's listeners list.
-	 * @param a_cl A new <CODE>ChangeListener</CODE>
-	 */
-	public void addChangeListener(ChangeListener a_cl)
+	private CertificateGenerator(ValidityContentPane a_validityContentPane,  X509DistinguishedName a_name,
+								 X509Extensions a_extensions, boolean a_bDSA)
 	{
-		m_changeListeners.addElement(a_cl);
+		m_validityContentPane = a_validityContentPane;
+		m_name = a_name;
+		m_extensions = a_extensions;
+		m_bDSA = a_bDSA;
 	}
 
 	/** Retrieves the newly generated certificate.
@@ -112,23 +97,18 @@ public class CertificateGenerator extends SwingWorker
 		return m_cert;
 	}
 
-	/** Retrieves the password of the newly generated certificate.
-	 * @return The new password
-	 */
-	public char[] getPassword()
-	{
-		return m_passwd;
-	}
-
 	/** Generates the new certificate. This method is used internally and should not
 	 * be called directly.
-	 * @return The generated certificate.
 	 */
-	public Object construct()
+	public void run()
 	{
 		AsymmetricCryptoKeyPair keyPair;
 		Vector extensions = new Vector();
 		X509SubjectKeyIdentifier ski;
+		if (m_validity == null)
+		{
+			m_validity = m_validityContentPane.getValidity();
+		}
 
 		try
 		{
@@ -167,7 +147,7 @@ public class CertificateGenerator extends SwingWorker
 				m_name = new X509DistinguishedName(name);
 			}
 
-			return new PKCS12(m_name, keyPair, m_validity, new X509Extensions(extensions));
+			m_cert = new PKCS12(m_name, keyPair, m_validity, new X509Extensions(extensions));
 		}
 		catch (Exception e)
 		{
@@ -175,53 +155,75 @@ public class CertificateGenerator extends SwingWorker
 			{
 				JAPDialog.showErrorDialog(MixConfig.getMainWindow(), "Threading error!", LogType.THREAD, e);
 			}
-		}
-		return null;
-	}
-
-	/** Called internally when the certificate generation thread finishes. This method
-	 * should not be called directly.
-	 */
-	public void finished()
-	{
-		m_cert = (PKCS12) get();
-		if (m_cert != null)
-		{
-			fireStateChanged();
-		}
-		if (m_notification != null)
-		{
-			m_notification.dispose();
+			m_cert = null;
 		}
 	}
 
-	/** Sends a <CODE>ChangeEvent</CODE> to all <CODE>ChangeListener</CODE>s of this
-	 * object. This method is called when the process of certificate generation is
-	 * aborted or complete.
-	 */
-	protected void fireStateChanged()
+	public static CertificateWorker createWorker(JAPDialog a_parentDialog,
+												 DialogContentPane a_previousContentPane,
+												 X509DistinguishedName a_name,
+												 X509Extensions a_extensions,
+												 boolean a_bDSA)
 	{
-		Object cl;
-		Enumeration e = m_changeListeners.elements();
-		for (cl = e.nextElement(); e.hasMoreElements(); cl = e.nextElement())
+		ValidityContentPane validityContentPane = null;
+		DialogContentPane contentPane;
+
+		contentPane = a_previousContentPane;
+		while (contentPane != null && validityContentPane == null)
 		{
-			;
+			if (contentPane instanceof ValidityContentPane)
+			{
+				validityContentPane = (ValidityContentPane)contentPane;
+			}
+			contentPane = contentPane.getPreviousContentPane();
 		}
+		if (validityContentPane == null)
 		{
-			( (ChangeListener) cl).stateChanged(new ChangeEvent(this));
+			throw new IllegalArgumentException(
+						 CertificateGenerator.class.getName() + " needs one " +
+						 ValidityContentPane.class.getName() + "as previous content pane!");
 		}
+
+		CertificateWorker worker =
+			new CertificateWorker(a_parentDialog, validityContentPane,
+								  a_previousContentPane,
+								  new CertificateGenerator(validityContentPane, a_name,
+			a_extensions, a_bDSA));
+
+		return worker;
 	}
 
-	protected void showBussyWin()
+	public static class CertificateWorker extends WorkerContentPane
 	{
-		if (m_parent != null)
-		{
-			m_notification = new BusyWindow(MixConfig.getMainWindow(), "Generating Key Pair.");
-			m_notification.setSwingWorker(this);
-			m_notification.setSize(m_parent.getSize());
-			m_notification.setLocation(m_parent.getLocation());
-			m_notification.setVisible(true);
+		private ValidityContentPane m_validityContentPane;
+		private CertificateGenerator m_generator;
+
+		private CertificateWorker(JAPDialog a_parentDialog, ValidityContentPane a_validityContentPane,
+								 DialogContentPane a_previousContentPane,
+								 CertificateGenerator a_generator)
+		 {
+			 super(a_parentDialog, "Generating key pair.", a_previousContentPane, a_generator);
+			 m_validityContentPane = a_validityContentPane;
+			 m_generator = a_generator;
 		}
 
+		public CertificateGenerator getCertificateGenerator()
+		{
+			return m_generator;
+		}
+
+		public CheckError[] checkDialog()
+		{
+			// this error should never happen
+			if (m_validityContentPane.getValidity() == null)
+			{
+				return new CheckError[]
+					{
+					new CheckError("No validity given!")
+				};
+			}
+
+			return null;
+		}
 	}
 }

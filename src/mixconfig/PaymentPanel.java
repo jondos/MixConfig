@@ -44,7 +44,7 @@ import javax.swing.event.ChangeListener;
 
 import anon.crypto.JAPCertificate;
 import anon.infoservice.ListenerInterface;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPHelpContext;
 import gui.JAPJIntField;
 import gui.TitledGridBagPanel;

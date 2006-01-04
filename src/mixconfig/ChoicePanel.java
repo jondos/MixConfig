@@ -35,7 +35,7 @@ import javax.swing.JPanel;
 import logging.LogType;
 import mixconfig.wizard.ConfigWizard;
 import javax.swing.JRootPane;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 
 /**
  * Shows the StartScreen when you run the "Mix Configuration Tool" in a CardLayout.

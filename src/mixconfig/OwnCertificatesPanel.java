@@ -54,7 +54,7 @@ import gui.CountryMapper;
 import gui.JAPHelp;
 import gui.JAPMessages;
 import logging.LogType;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.*;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener,

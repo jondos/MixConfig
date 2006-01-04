@@ -52,7 +52,7 @@ import anon.crypto.X509Extensions;
 import anon.util.Base64;
 import gui.JAPMessages;
 import logging.LogType;
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import gui.JAPHelpContext;
 import gui.JAPHelp;
 

@@ -55,7 +55,7 @@ import javax.swing.text.html.HTMLEditorKit.ParserCallback;
 import javax.swing.text.html.parser.DTD;
 import javax.swing.text.html.parser.DocumentParser;
 
-import gui.JAPDialog;
+import gui.dialog.JAPDialog;
 import logging.LogType;
 import gui.GUIUtils;
 
