@@ -487,7 +487,7 @@ public class CertPanel extends JPanel implements ActionListener
 			}
 		}
 		catch (Exception ex)
-		{ex.printStackTrace();
+		{
 			JAPDialog.showErrorDialog(this, LogType.GUI, ex);
 		}
 	}
