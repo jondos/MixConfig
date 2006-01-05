@@ -40,6 +40,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -56,6 +57,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
+import javax.swing.JViewport;
 
 import anon.util.ResourceLoader;
 import gui.JAPHelpContext.IHelpContext;
@@ -399,6 +401,7 @@ public final class JAPHelp extends JAPDialog
 		private URL url;
 		private Cursor cursor;
 		private Vector m_history;
+		private Vector m_historyViewports;
 		private int m_historyPosition;
 
 		public HtmlPane(ExternalURLCaller a_urlCaller)
@@ -412,6 +415,7 @@ public final class JAPHelp extends JAPDialog
 			html.setEditable(false);
 			html.addHyperlinkListener(this);
 			m_history = new Vector();
+			m_historyViewports = new Vector();
 			m_historyPosition = -1;
 
 			getViewport().add(html);
@@ -430,6 +434,8 @@ public final class JAPHelp extends JAPDialog
 		{
 			m_historyPosition--;
 			this.loadURL( (URL) m_history.elementAt(m_historyPosition));
+			//getViewport().setViewPosition((Point)m_historyViewports.elementAt(m_historyPosition));
+
 		}
 
 		/**
@@ -439,6 +445,8 @@ public final class JAPHelp extends JAPDialog
 		{
 			m_historyPosition++;
 			this.loadURL( (URL) m_history.elementAt(m_historyPosition));
+			//getViewport().setViewPosition((Point)m_historyViewports.elementAt(m_historyPosition));
+
 		}
 
 		/**

@@ -32,23 +32,22 @@ import java.util.Vector;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-
-import gui.JAPMessages;
-import anon.crypto.JAPCertificate;
-import logging.LogType;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.event.FocusEvent;
+
+import anon.crypto.JAPCertificate;
 import anon.util.Base64;
-import javax.swing.JLabel;
+import gui.JAPHelpContext;
 import gui.JAPJIntField;
-import gui.*;
+import gui.JAPMessages;
+import gui.TitledGridBagPanel;
 
 /**
  * The panel for advanced settings
@@ -61,8 +60,8 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 	private static final String XMLPATH_TRAFFIC_SHAPING_INTERVAL = XMLPATH_TRAFFIC_SHAPING + "/Intervall";
 
 	private static final String MSG_TRAFFIC_SHAPING = AdvancedPanel.class.getName() + "_TS";
-	private static final String MSG_LATENCY = AdvancedPanel.class.getName() + "_TS_latency";
-	private static final String MSG_INTERVAL = AdvancedPanel.class.getName() + "_TS_interval";
+	private static final String MSG_LATENCY = AdvancedPanel.class.getName() + "_tsLatency";
+	private static final String MSG_INTERVAL = AdvancedPanel.class.getName() + "_tsInterval";
 
 	private static final String MSG_SET_UID = AdvancedPanel.class.getName() + "_setUID";
 	private static final String MSG_SET_FD = AdvancedPanel.class.getName() + "_setFD";

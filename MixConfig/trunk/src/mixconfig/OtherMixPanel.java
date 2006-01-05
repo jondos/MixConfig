@@ -60,7 +60,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	public static final String MIX_TYPE_NEXT = "Next Mix";
 
 	private static final String MSG_CERT_NOT_VERIFYABLE =
-		OtherMixPanel.class.getName() + "_cert_not_verifyable";
+		OtherMixPanel.class.getName() + "_certNotVerifyable";
 
 	private String m_type;
 

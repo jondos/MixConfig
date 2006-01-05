@@ -77,9 +77,9 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 	private static final String EXPERT = "expert";
 	private static final String START = "start";
 
-	private static final String MSG_NO_VALID_CLIPDOC = Menu.class.getName() + "_no_valid_clipdoc";
-	private static final String MSG_COULD_NOT_PARSE = Menu.class.getName() + "_could_not_parse";
-	private static final String MSG_REALLY_CONTINUE = Menu.class.getName() + "_really_continue";
+	private static final String MSG_NO_VALID_CLIPDOC = Menu.class.getName() + "_noValidClipdoc";
+	private static final String MSG_COULD_NOT_PARSE = Menu.class.getName() + "_couldNotParse";
+	private static final String MSG_REALLY_CONTINUE = Menu.class.getName() + "_reallyContinue";
 	private static final String MSG_FILE = Menu.class.getName() + "_file";
 	private static final String MSG_TOOLS = Menu.class.getName() + "_tools";
 	private static final String MSG_VIEW = Menu.class.getName() + "_view";

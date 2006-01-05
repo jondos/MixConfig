@@ -27,33 +27,32 @@
  */
 package gui.dialog;
 
-import javax.accessibility.Accessible;
-import javax.accessibility.AccessibleContext;
 import java.util.EventListener;
 import java.util.Vector;
+import javax.accessibility.Accessible;
+import javax.accessibility.AccessibleContext;
 
-import java.awt.MenuContainer;
-import java.awt.MenuComponent;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.image.ImageObserver;
-import java.awt.Event;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Image;
 import java.awt.MenuComponent;
+import java.awt.MenuContainer;
 import java.awt.Point;
 import java.awt.Window;
+import java.awt.event.ComponentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.event.ComponentListener;
-import java.awt.event.FocusListener;
-import java.awt.event.FocusEvent;
+import java.awt.image.ImageObserver;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -67,14 +66,15 @@ import javax.swing.JTextPane;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants.CharacterConstants;
 
+import gui.GUIUtils;
+import gui.JAPHelp;
+import gui.JAPHelpContext;
+import gui.JAPHtmlMultiLineLabel;
+import gui.JAPMessages;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
-
-import gui.*;
 
 /**
  * This is the generic implementation for an optionally modal, resizable a dialog. Use the root pane and

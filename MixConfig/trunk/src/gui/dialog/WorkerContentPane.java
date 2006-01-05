@@ -27,12 +27,12 @@
  */
 package gui.dialog;
 
-import javax.swing.JLabel;
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.JLabel;
 
-import gui.*;
+import gui.GUIUtils;
 
 /**
  * This is a dialog that executes a given Thread or Runnable if it is shown on screen. It has an optional
@@ -52,6 +52,7 @@ public class WorkerContentPane extends DialogContentPane implements
 	private Runnable m_workerRunnable;
 	private Thread m_internalThread;
 	private boolean m_workerInterrupted;
+	private boolean m_bInterruptThreadSafe = true;
 
 	public WorkerContentPane(JAPDialog a_parentDialog, String a_strText, Runnable a_workerRunnable)
 	{
@@ -96,7 +97,6 @@ public class WorkerContentPane extends DialogContentPane implements
 				}
 			}
 		});
-
 	}
 
 	/**
@@ -118,12 +118,64 @@ public class WorkerContentPane extends DialogContentPane implements
 	}
 
 	/**
+	 * Returns true if the content pane only does a close or move operation if the thread has stopped.
+	 * Otherwise, the close or move operation is performed if the thread has been interrupted by closing the
+	 * dialog window or clicking on the cancel button. If you want this, the calling thread is recommended to
+	 * call <CODE> joinThread() </CODE> to safely wait for the end of the thread before starting a new one.
+	 * Remember that a call to updateDialog() of this content pane gives an undefined result if the previously
+	 * startet thread has not stopped yet.
+	 * @return true if the content pane only does a close or move operation if thetThread has stopped.
+	 * Otherwise, the close or move operation is performed if the thread has been interrupted by closing the
+	 * dialog window or clicking on the cancel button
+	 */
+	public final boolean isInterruptThreadSafe()
+	{
+		return m_bInterruptThreadSafe;
+	}
+
+	/**
+	 * Defines this content pane should interrupt the wrapped thread safe or not if the user closed the parent
+	 * dialog or clicked cancel.
+	 * @param a_bInterruptThreadSafe true if the content pane only does a close or move operation if the
+	 * thread has stopped. Otherwise, the close or move operation is performed if the thread has been
+	 * interrupted by closing the dialog window or clicking on the cancel button. If you want this, the
+	 * calling thread is recommended to call <CODE> joinThread() </CODE> to safely wait for the end of the
+	 * thread before starting a new one. Remember that a call to updateDialog() of this content pane
+	 * gives an undefined result if the previously started thread has not stopped yet.
+	 */
+	public final void setInterruptThreadSafe(boolean a_bInterruptThreadSafe)
+	{
+		m_bInterruptThreadSafe = a_bInterruptThreadSafe;
+	}
+
+	/**
+	 * The caller waits until the thread has stopped. This is only needed if isInterruptThreadSafe()
+	 * returns false and the user closes the dialog or clicks cancel, otherwise this is done automatically.
+	 * Remember that a call to updateDialog() of this content pane gives an undefined result if the previously
+	 * started thread has not stopped yet.
+	 */
+	public final void joinThread()
+	{
+		try
+		{
+			if (m_workerThread != null)
+			{
+				m_workerThread.join();
+			}
+		}
+		catch (InterruptedException a_e)
+		{
+		}
+	}
+
+	/**
 	 * Interrupts the Thread.
 	 * @return CheckError[]
 	 */
 	public CheckError[] checkCancel()
 	{
 		interruptWorkerThread();
+	//	javax.swing.SwingUtilities.invokeLater(new Runnable(){ public void run(){closeDialog(true);}});
 		return null;
 	}
 
@@ -159,12 +211,9 @@ public class WorkerContentPane extends DialogContentPane implements
 		{
 			m_workerInterrupted = true;
 			m_workerThread.interrupt();
-			try
+			if (isInterruptThreadSafe())
 			{
-				m_workerThread.join();
-			}
-			catch (InterruptedException a_e)
-			{
+				joinThread();
 			}
 		}
 	}
@@ -202,8 +251,9 @@ public class WorkerContentPane extends DialogContentPane implements
 				}
 				catch (InterruptedException a_e)
 				{
-					m_workerThread.interrupt();
+					interruptWorkerThread();
 				}
+				m_workerThread.interrupt();
 				m_workerThread = null;
 
 				if (!m_workerInterrupted)

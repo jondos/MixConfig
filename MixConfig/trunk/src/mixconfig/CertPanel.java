@@ -104,10 +104,10 @@ public class CertPanel extends JPanel implements ActionListener
 	private static final String CERT_INVALID_INACTIVE = "certinvalidinactive.gif";
 	private static final String CERT_DISABLED = "certdisabled.gif";
 
-	private static final String MSG_MANDATORY_ALGO = CertPanel.class.getName() + "_mandatory_algorithm";
-	private static final String MSG_CERT_TYPE_UNKNOWN = CertPanel.class.getName() + "_cert_type_unknown";
-	private static final String MSG_CONFIRM_OVERWRITE = CertPanel.class.getName() + "_confirm_overwriting";
-	private static final String MSG_CONFIRM_DELETION = CertPanel.class.getName() + "_confirm_deletion";
+	private static final String MSG_MANDATORY_ALGO = CertPanel.class.getName() + "_mandatoryAlgorithm";
+	private static final String MSG_CERT_TYPE_UNKNOWN = CertPanel.class.getName() + "_certTypeUnknown";
+	private static final String MSG_CONFIRM_OVERWRITE = CertPanel.class.getName() + "_confirmOverwriting";
+	private static final String MSG_CONFIRM_DELETION = CertPanel.class.getName() + "_confirmDeletion";
 
 
 	// holds a Vector with all instanciated CertPanels

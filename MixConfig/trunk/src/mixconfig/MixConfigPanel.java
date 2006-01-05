@@ -93,8 +93,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	public static final String CN_ANON_OPERATOR_CERTIFICATE = "AN.ON Operator Certificate";
 
 	public static final String MSG_WARNING_NO_MIX_CERT = MixConfigPanel.class.getName() +
-		"_warning_no_mix_cert";
-	public static final String MSG_ERROR_BLANK_FIELD = MixConfigPanel.class.getName() + "_error_blank_field";
+		"_warningNoMixCert";
+	public static final String MSG_ERROR_BLANK_FIELD = MixConfigPanel.class.getName() + "_errorBlankField";
 
 	/**
 	 * Indicates whether changes in configuration controls should automatically

@@ -759,4 +759,16 @@
     <old-method-name>getParentDialog</old-method-name>
     <new-method-name>getDialog</new-method-name>
   </rename-method>
+  <rename-method id="6AP0LD4IU2IE8HA6G56YS6Y0" creation-time="Thu Jan 05 10:15:45.745 CET 2006">
+    <declaring-class-name>gui.dialog.WorkerContentPane</declaring-class-name>
+    <declared-method-signature>()Z</declared-method-signature>
+    <old-method-name>isCanceledThreadSafe</old-method-name>
+    <new-method-name>isInterruptThreadSafe</new-method-name>
+  </rename-method>
+  <rename-method id="4AP0LD4IU2IE8HA6G56YS6Y0" creation-time="Thu Jan 05 10:15:58.784 CET 2006">
+    <declaring-class-name>gui.dialog.WorkerContentPane</declaring-class-name>
+    <declared-method-signature>(Z)V</declared-method-signature>
+    <old-method-name>cancelThreadSafe</old-method-name>
+    <new-method-name>setInterruptThreadSafe</new-method-name>
+  </rename-method>
 </refactor>
