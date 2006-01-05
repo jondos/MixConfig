@@ -773,7 +773,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		 * The width defines the longer side.
 		 */
 		Dimension bestDimension = null;
-		Dimension minDimension;
+		int  minWidth;
 		double currentDelta;
 		double bestDelta;
 		int currentWidth;
@@ -781,21 +781,20 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		int failed;
 
 		// get the minimum width and height that is needed to display this dialog without any text
-		minDimension =
+		minWidth =
 			new JOptionPane("", a_messageType, a_optionType, a_icon).
-			createDialog(a_parentComponent, a_title).getContentPane().getSize();
+			createDialog(a_parentComponent, a_title).getContentPane().getSize().width / 2;
 
 		// set the maximum width that is allowed for the content pane
 		int maxWidth = (int)getParentWindow(a_parentComponent).getSize().width;
-		if (maxWidth < (int)minDimension.width * 2)
+		if (maxWidth < minWidth * 4)
 		{
-			maxWidth = (int)minDimension.width * 2;
+			maxWidth = minWidth * 4;
 		}
 		// if the text in the content pane is short, reduce the max width to the text length
 		maxWidth = Math.min(contentPane.getWidth(), maxWidth);
 
 		// put the content pane in a box and the box in the dialog
-		contentPane.setMinimumSize(minDimension);
 		dummyBox = new PreferredWidthBoxPanel();
 		dummyBox.add(contentPane);
 
@@ -848,7 +847,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			// the objective function value
 			//System.out.println("bestDelta: " + bestDelta + "  currentDelta:" + currentDelta);
 
-			currentWidth = (int)Math.max(currentWidth, minDimension.width);
+			currentWidth = (int)Math.max(currentWidth, minWidth);
 			if (currentWidth == bestWidth)
 			{
 				break;
