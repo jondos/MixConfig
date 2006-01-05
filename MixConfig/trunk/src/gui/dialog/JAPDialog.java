@@ -2315,7 +2315,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			{
 				if (getContentPane() != null && getContentPane().isVisible())
 				{
-					// tell the content pane's component listener that is it shown
+					// needed for DialogContentPane's component listener (componentShown event is fired)
 					getContentPane().setVisible(false);
 					getContentPane().setVisible(true);
 				}
