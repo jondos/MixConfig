@@ -77,8 +77,8 @@ import logging.LogLevel;
 import logging.LogType;
 
 /**
- * This is the generic implementation for an optionally modal, resizable a dialog. Use the root pane and
- * content pane (getRootPane() and getContentPane() methods) for customization.
+ * This is the generic implementation for an optionally modal, resizable a dialog. Use the getRootPane()
+ * and getContentPane() methods for customization.
  * <BR>
  * The customizable dialogs show the same behaviour as the standard JDialog, except for the modality
  * attribute:
@@ -91,7 +91,7 @@ import logging.LogType;
  * JAPDialog option panes
  * <UL>
  * <LI> are auto-formatted in the golden ratio if possible by a quick heuristic </LI>
- * <LI> interpret the text message as HTML, without adding html or body tags </LI>
+ * <LI> interpret the text message as HTML, without the need to add html or body tags </LI>
  * <LI> may get an HTML link that triggers an arbitrary event, for example show a help window on clicking
  *      (interface ILinkedInformation) </LI>
  * </UL>

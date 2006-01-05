@@ -74,18 +74,18 @@ import logging.LogType;
  * the next or previous content pane in the list is displayed in the dialog. Use setDefaultButtonOperation()
  * and the ON_... events to activate this behaviour. Of course, the foward and back operations can be done
  * explicitly and without those events, too.</P>
- * If you have a chained list, you can display it as a Wizard, too. At least one of the content panes
- * must be of OPTION_TYPE_WIZARD, and each content pane that should be displayed as a Wizard pane must
- * at least support BUTTON_OPERATION_WIZARD. Otherwise, its "YES/OK" and "NO" buttons will not automatically
- * be transformed into "Next" or "Previous". Content panes that want to explicitly show that they are
- * suitable for use in a wizard should implement the interface DialogContentPane.WizardSuitable.
+ * If you have a chained list, you can display it as a Wizard, too. Every content pane in the list must
+ * implement the interface DialogContentPane.IWizardSuitable and each content pane is recommended to
+ * support BUTTON_OPERATION_WIZARD. Their "YES/OK" and "NO" buttons will automatically
+ * be transformed into "Next" and "Previous".
  *
  * @see gui.dialog.JAPDialog
  * @see javax.swing.JDialog
  * @see gui.dialog.DialogContentPane.Layout
  * @see gui.dialog.DialogContentPane.Options
  * @see gui.dialog.DialogContentPane.CheckError
- * @see gui.dialog.DialogContentPane.WizardSuitable
+ * @see gui.dialog.DialogContentPane.IWizardSuitable
+ * @see gui.dialog.DialogContentPane.IWizardSuitableNoWizardButtons
  * @author Rolf Wendolsky
  */
 public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOptions
