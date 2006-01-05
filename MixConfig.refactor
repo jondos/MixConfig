@@ -771,4 +771,8 @@
     <old-method-name>cancelThreadSafe</old-method-name>
     <new-method-name>setInterruptThreadSafe</new-method-name>
   </rename-method>
+  <rename-class id="2AP0LD4IU2IE8HA6G56YS6Y0" creation-time="Thu Jan 05 14:39:58.090 CET 2006">
+    <old-class-name>gui.FinishedContentPane</old-class-name>
+    <new-class-name>gui.dialog.FinishedContentPane</new-class-name>
+  </rename-class>
 </refactor>

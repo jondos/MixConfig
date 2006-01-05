@@ -374,7 +374,6 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	{
 	}
 
-
 	/**
 	 * A CheckError is used to set error conditions that prohibit operations. The error conditions may
 	 * contain a message that is dispayed to the user and may do some additional actions.
@@ -384,17 +383,33 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		private String m_strMessage;
 		private int m_logType;
 
+		/**
+		 * A new CheckError with an empty message String. No message will be displayed to the user and
+		 * no error will be logged.
+		 */
+		public CheckError()
+		{
+			this("", LogType.GUI);
+		}
+
+		/**
+		 * A new CheckError with a message for the user. The error is logged with LogType = GUI.
+		 * @param a_strMessage a message for the user; if empty, no message is displayed; if null,
+		 * an error message is auto-generated
+		 */
 		public CheckError(String a_strMessage)
 		{
 			this(a_strMessage, LogType.GUI);
 		}
 
+		/**
+		 * A new CheckError with a message for the user.
+		 * @param a_strMessage a message for the user; if empty, no message is displayed; if null,
+		 * an error message is auto-generated
+		 * @param a_logType the log type for that this error is logged
+		 */
 		public CheckError(String a_strMessage, int a_logType)
 		{
-			if (a_strMessage != null && a_strMessage.trim().length() == 0)
-			{
-				a_strMessage = null;
-			}
 			m_logType = a_logType;
 			m_strMessage = a_strMessage;
 		}
@@ -416,6 +431,10 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		{
 		}
 
+		/**
+		 * Gets the log type the error is logged for.
+		 * @return the log type the error is logged for
+		 */
 		public int getLogType()
 		{
 			return m_logType;
@@ -1685,8 +1704,15 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 
 			for (int i = 0; i < a_errors.length; i++)
 			{
-				if (errorMessage == null && a_errors[i].toString() != null &&
-					a_errors[i].toString().trim().length() > 0)
+				if (a_errors[i] == null)
+				{
+					LogHolder.log(LogLevel.ERR, LogType.GUI, "Found a " + CheckError.class.getName() + " " +
+								  "that is null! Ignoring it.");
+					continue;
+				}
+
+				if (a_errors[i].getMessage() != null &&
+					(errorMessage == null || (errorMessage != null && errorMessage.trim().length() == 0)))
 				{
 					errorMessage = a_errors[i].getMessage();
 					logType = a_errors[i].getLogType();
@@ -1698,8 +1724,10 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			{
 				errorMessage = JAPMessages.getString(MSG_OPERATION_FAILED);
 			}
-			printErrorStatusMessage(errorMessage, logType);
-
+			if (errorMessage.trim().length() > 0)
+			{
+				printErrorStatusMessage(errorMessage, logType);
+			}
 			return false;
 		}
 

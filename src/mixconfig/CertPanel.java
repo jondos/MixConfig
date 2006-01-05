@@ -70,6 +70,7 @@ import gui.dialog.JAPDialog;
 import gui.JAPMessages;
 import gui.dialog.PasswordContentPane;
 import gui.dialog.ValidityContentPane;
+import gui.dialog.FinishedContentPane;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
@@ -931,7 +932,7 @@ public class CertPanel extends JPanel implements ActionListener
 
 		CertificateGenerator.CertificateWorker worker = CertificateGenerator.createWorker(dialog, pb,
 			m_validator.getSigName(), m_validator.getExtensions(), m_bCreateDSACerts);
-		FinishedContentPane finished = new FinishedContentPane(dialog, worker);
+		FinishedContentPane finished = new CertPanelFinishedContentPane(dialog, worker);
 
 
 		ValidityContentPane.updateDialogOptimalSized(contentPane);
@@ -1155,25 +1156,56 @@ public class CertPanel extends JPanel implements ActionListener
 		}
 	}
 
-	private class FinishedContentPane extends DialogContentPane implements
+	private class CertPanelFinishedContentPane extends FinishedContentPane implements
 		DialogContentPane.IWizardSuitable
 	{
-		public FinishedContentPane(JAPDialog a_parentDialog, DialogContentPane a_previousContentPane)
+		public CertPanelFinishedContentPane(JAPDialog a_parentDialog, DialogContentPane a_previousContentPane)
 		{
-			super(a_parentDialog, "You have successfully created your mix certificate!",
-				  new DialogContentPane.Layout(DialogContentPane.MESSAGE_TYPE_INFORMATION),
-				  new DialogContentPane.Options(a_previousContentPane));
+			super(a_parentDialog, "You have successfully created the certificate!",
+				  a_previousContentPane);
 			setDefaultButtonOperation(DialogContentPane.ON_CANCEL_DISPOSE_DIALOG |
 									  DialogContentPane.ON_YESOK_DISPOSE_DIALOG);
 		}
 
+		public CheckError[] checkCancel()
+		{
+			CheckError[] errors = showConfirmDialog();
+
+			if (errors != null)
+			{
+				return errors;
+			}
+			return null;
+		}
+
 		public CheckError[] checkNo()
 		{
+			CheckError[] errors = showConfirmDialog();
+
+			if (errors != null)
+			{
+				return errors;
+			}
+
 			if (!getPreviousContentPane().moveToPreviousContentPane())
 			{
 				return new CheckError[]{new CheckError("Could not move back!")};
 			}
 			return null;
 		}
+
+		private CheckError[] showConfirmDialog()
+		{
+			int returnValue =
+				JAPDialog.showConfirmDialog( (JAPDialog) getDialog(),
+											"This will delete your newly created certificate. " +
+											"Do you really want to continue?",
+											JAPDialog.OPTION_TYPE_CANCEL_OK, JAPDialog.MESSAGE_TYPE_WARNING);
+		   if (returnValue != RETURN_VALUE_OK)
+		   {
+			   return new CheckError[]{new CheckError()};
+		   }
+		   return null;
+	   }
 	}
 }
