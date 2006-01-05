@@ -61,63 +61,60 @@ import logging.LogType;
 public class CertDetailsDialog extends JAPDialog
 {
 
-	private static final String MSG_CERTVALID = CertDetailsDialog.class.getName() + "_CERT_VALID";
-	private static final String MSG_CERTNOTVALID = CertDetailsDialog.class.getName() + "_CERT_NOTVALID";
-	private static final String MSG_X509Attribute_ST = CertDetailsDialog.class.getName() +
-		"_X509Attribute_ST";
-	private static final String MSG_X509Attribute_L = CertDetailsDialog.class.getName() + "_X509Attribute_L";
-	private static final String MSG_X509Attribute_C = CertDetailsDialog.class.getName() + "_X509Attribute_C";
-	private static final String MSG_X509Attribute_CN = CertDetailsDialog.class.getName() +
-		"_X509Attribute_CN";
-	private static final String MSG_X509Attribute_O = CertDetailsDialog.class.getName() + "_X509Attribute_O";
-	private static final String MSG_X509Attribute_OU = CertDetailsDialog.class.getName() +
-		"_X509Attribute_OU";
+	private static final String MSG_CERTVALID = CertDetailsDialog.class.getName() + "_certValid";
+	private static final String MSG_CERTNOTVALID = CertDetailsDialog.class.getName() + "_certNotValid";
+	private static final String MSG_X509Attribute_ST = CertDetailsDialog.class.getName() + "_attributeST";
+	private static final String MSG_X509Attribute_L = CertDetailsDialog.class.getName() + "_attributeL";
+	private static final String MSG_X509Attribute_C = CertDetailsDialog.class.getName() + "_attributeC";
+	private static final String MSG_X509Attribute_CN = CertDetailsDialog.class.getName() + "_attributeCN";
+	private static final String MSG_X509Attribute_O = CertDetailsDialog.class.getName() + "_attributeO";
+	private static final String MSG_X509Attribute_OU = CertDetailsDialog.class.getName() + "_attributeOU";
 	private static final String MSG_X509Attribute_EMAIL = CertDetailsDialog.class.getName() +
-		"_X509Attribute_EMAIL";
+		"_attributeEMAIL";
 	private static final String MSG_X509Attribute_EMAILADDRESS = CertDetailsDialog.class.getName() +
-		"_X509Attribute_EMAIL";
+		"_attributeEMAIL";
 	private static final String MSG_X509Attribute_SURNAME = CertDetailsDialog.class.getName() +
-		"_X509Attribute_SURNAME";
+		"_attributeSURNAME";
 	private static final String MSG_X509Attribute_GIVENNAME = CertDetailsDialog.class.getName() +
-		"_X509Attribute_GIVENNAME";
+		"_attributeGIVENNAME";
 	private static final String MSG_ALERT_CERTDATE_EXPIRED = CertDetailsDialog.class.getName() +
-		"_ALERT_CERTDATE_EXPIRED";
+		"_alertCertValidityExpired";
 	private static final String MSG_ALERT_CERTDATE_NOTYET = CertDetailsDialog.class.getName() +
-		"_ALERT_CERTDATE_NOTYET";
-	private static final String MSG_ALERT_UNSIGNED = CertDetailsDialog.class.getName() +
-		"_ALERT_SIGNATURE_NOVALIDSIGNATURE";
+		"_alertCertNotYetValid";
+	private static final String MSG_ALERT_NOT_TRUSTED = CertDetailsDialog.class.getName() +
+		"_alertSignatureNotTrusted";
 	private static final String UNKNOWN_EXTENSION = CertDetailsDialog.class.getName() +
-		"_ALERT_UNKNOWNEXTENSION";
+		"_alertUnknownExtension";
 	private static final String TITLE_DISTINGUISHEDNAME = CertDetailsDialog.class.getName() +
-		"_TITLE_DISTINGUISHEDNAME";
+		"_titleDistinguishedName";
 	private static final String TITLE_ISSUER = CertDetailsDialog.class.getName() +
-		"_TITLE_ISSUER";
+		"_titleIssuer";
 	private static final String TITLE_VALIDITY = CertDetailsDialog.class.getName() +
-		"_TITLE_VALIDITY";
+		"_titleValidity";
 	private static final String TITLE_VALIDITY_GENERAL = CertDetailsDialog.class.getName() +
-		"_TITLE_VALIDITY_GENERAL";
+		"_titleValidityGeneral";
 	private static final String TITLE_VALIDITY_TO = CertDetailsDialog.class.getName() +
-		"_TITLE_VALIDITY_TO";
+		"_titleValidityTo";
 	private static final String TITLE_VALIDITY_FROM = CertDetailsDialog.class.getName() +
-		"_TITLE_VALIDITY_FROM";
+		"_titleValidityFrom";
 	private static final String TITLE_EXTENSIONS = CertDetailsDialog.class.getName() +
-		"_TITLE_EXTENSIONS";
+		"_titleExtensions";
 	private static final String TITLE_IDENTIFICATION = CertDetailsDialog.class.getName() +
-		"_TITLE_IDENTIFICATION";
+		"_titleIdentification";
 	private static final String TITLE_IDENTIFICATION_SHA1 = CertDetailsDialog.class.getName() +
-		"_TITLE_IDENTIFICATION_SHA1";
+		"_titleIdentificationSHA1";
 	private static final String TITLE_IDENTIFICATION_MD5 = CertDetailsDialog.class.getName() +
-		"_TITLE_IDENTIFICATION_MD5";
+		"_titleIdentificationMD5";
 	private static final String TITLE_IDENTIFICATION_SERIAL = CertDetailsDialog.class.getName() +
-		"_TITLE_IDENTIFICATION_SERIAL";
+		"_titleIdentificationSerial";
 	private static final String TITLE_KEYS = CertDetailsDialog.class.getName() +
-		"_TITLE_KEYS";
+		"_titleKeys";
 	private static final String TITLE_KEYS_ALGORITHM = CertDetailsDialog.class.getName() +
-		"_TITLE_KEYS_ALGORITHM";
+		"_titleKeysAlgorithm";
 	private static final String TITLE_KEYS_KEYLENGTH = CertDetailsDialog.class.getName() +
-		"_TITLE_KEYS_KEYLENGTH";
+		"_titleKeysKeylength";
 	private static final String TITLE_KEYS_SIGNALGORITHM = CertDetailsDialog.class.getName() +
-		"_TITLE_KEYS_SIGNALGORITHM";
+		"_titleKeysSignatureAlgorithm";
 
 	private static final String CERT_VALID_INACTIVE = "certinactive.gif";
 	private static final String CERT_INVALID_INACTIVE = "certinvalidinactive.gif";
@@ -224,7 +221,7 @@ public class CertDetailsDialog extends JAPDialog
 
 		if (!a_bIsVerifyable)
 		{
-			String MSG = JAPMessages.getString(MSG_ALERT_UNSIGNED);
+			String MSG = JAPMessages.getString(MSG_ALERT_NOT_TRUSTED);
 			JLabel lbl_verifyAlert = new JLabel(MSG, JLabel.LEFT);
 			lbl_verifyAlert.setFont(ALERT_FONT);
 			lbl_verifyAlert.setForeground(ALERT_COLOR);
