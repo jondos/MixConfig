@@ -66,17 +66,16 @@ import anon.util.IMiscPasswordReader;
 import gui.CertDetailsDialog;
 import gui.ClipFrame;
 import gui.GUIUtils;
-import gui.dialog.JAPDialog;
 import gui.JAPMessages;
+import gui.dialog.DialogContentPane;
+import gui.dialog.FinishedContentPane;
+import gui.dialog.JAPDialog;
 import gui.dialog.PasswordContentPane;
 import gui.dialog.ValidityContentPane;
-import gui.dialog.FinishedContentPane;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
-import mixconfig.CertificateGenerator;
 import mixconfig.wizard.CannotContinueException;
-import gui.dialog.*;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
