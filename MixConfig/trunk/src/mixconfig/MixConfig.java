@@ -78,7 +78,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.056"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.057"; //NEVER change the layout of this line!!
 
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -191,9 +191,7 @@ public class MixConfig extends JApplet
 			m_startPanel = new ChoicePanel((JFrame)m_MainWindow,null);
 			((JFrame)m_MainWindow).setContentPane(m_startPanel);
 			m_MainWindow.pack();
-			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-			Dimension size = m_MainWindow.getSize();
-			m_MainWindow.setLocation( (d.width - size.width) / 2, (d.height - size.height) / 2);
+			GUIUtils.centerOnScreen(m_MainWindow);
 			LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Show the GUI startScreen...");
 			m_MainWindow.setVisible(true);
 
