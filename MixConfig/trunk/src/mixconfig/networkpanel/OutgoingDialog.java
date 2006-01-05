@@ -115,13 +115,11 @@ public class OutgoingDialog extends ConnectionDialog
 	{
 		super(parent, title);
 		createDialog(null, where);
-		this.setLocationRelativeTo(parent);
 	}
 
 	OutgoingDialog(Frame parent, String title, final OutgoingConnectionTableModel where, ConnectionData data)
 	{
 		super(parent, title);
 		createDialog(data, where);
-		this.setLocationRelativeTo(parent);
 	}
 }

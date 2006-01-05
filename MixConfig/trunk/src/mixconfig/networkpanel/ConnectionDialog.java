@@ -40,7 +40,6 @@ import java.awt.event.ActionListener;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -50,11 +49,12 @@ import javax.swing.border.TitledBorder;
 
 import anon.infoservice.ListenerInterface;
 import gui.JAPMessages;
+import gui.dialog.JAPDialog;
 import gui.JAPJIntField;
 import javax.swing.JComponent;
 import mixconfig.MixOnCDPanel;
 
-abstract class ConnectionDialog extends JDialog
+abstract class ConnectionDialog extends JAPDialog
 {
 	private JTextField nametext;
 	private JAPJIntField iptext;
