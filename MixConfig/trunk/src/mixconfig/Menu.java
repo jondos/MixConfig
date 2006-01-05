@@ -483,6 +483,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 					}
 					m_configFrame_Panel.reset(); //show the first leaf
 					m_configWiz_Panel.reset(); //show the first leaf
+					MixConfig.getMixConfiguration().setSavedToFile();
 				}
 			}
 			else if (evt.getActionCommand().equals("toolCertSigMenuItem"))

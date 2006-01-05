@@ -164,7 +164,12 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 		addComponentListener(new SetFocusComponentAdapter());
 	}
 
-
+	/**
+	 * Updates the content pane and shows the dialog. You will have to define the size of the
+	 * dialog before, for example by a pack() operation.
+	 * @param a_message a message (optional); if given, a_message.toString() will be shown to the user
+	 * @return the password entered by the user or null if the user canceled
+	 */
 	public String readPassword(Object a_message)
 	{
 		CheckError[] errors;
@@ -175,12 +180,12 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 			return null;
 		}
 
+		showDialog();
+
 		if (a_message != null)
 		{
 			printStatusMessage(a_message.toString());
 		}
-
-		showDialog();
 
 		if (getValue() != RETURN_VALUE_OK || getPassword() == null)
 		{

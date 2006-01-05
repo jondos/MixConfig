@@ -2319,7 +2319,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 					getContentPane().setVisible(false);
 					getContentPane().setVisible(true);
 				}
-				// fix for JDK 1.1.8 that does not auto-focus the first focusable component
+				// fix for old JDKs, e.g. 1.1.8, that do not auto-focus the first focusable component
 				requestFocusForFirstFocusableComponent(m_internalDialog.getContentPane());
 			}
 			m_internalDialog.getTreeLock().notifyAll();

@@ -563,13 +563,32 @@ public class CertPanel extends JPanel implements ActionListener
 				JAPDialog dialog =
 					new JAPDialog(MixConfig.getMainWindow(), "Enter the certificate password", true);
 				dialog.setResizable(false);
+				dialog.setDefaultCloseOperation(JAPDialog.DISPOSE_ON_CLOSE);
 				PasswordContentPane pb = new PasswordContentPane(dialog,
-					PasswordContentPane.PASSWORD_ENTER, "");
-				pb.setDefaultButtonOperation(PasswordContentPane.ON_CLICK_HIDE_DIALOG);
+					PasswordContentPane.PASSWORD_ENTER, "Please enter your certificate password.");
+				pb.setDefaultButtonOperation(PasswordContentPane.ON_CLICK_DISPOSE_DIALOG);
 				pb.updateDialog();
 				dialog.pack();
 				CertPanelPasswordReader pwReader = new CertPanelPasswordReader(pb);
-				PKCS12 privateCertificate = PKCS12.getInstance(cert, pwReader);
+				PKCS12 privateCertificate = null;
+
+				while (privateCertificate == null)
+				{
+					privateCertificate = PKCS12.getInstance(cert, pwReader);
+					if (privateCertificate == null && !pb.hasValidValue())
+					{
+						int returnValue =
+							JAPDialog.showConfirmDialog(MixConfig.getMainWindow(),
+							"Are you sure you want to cancel? " +
+							"Your certificate will not be loaded!",
+							"Certificate not loaded",
+							JAPDialog.OPTION_TYPE_CANCEL_OK, JAPDialog.MESSAGE_TYPE_WARNING);
+						if (returnValue == JAPDialog.RETURN_VALUE_OK)
+						{
+							break;
+						}
+					}
+				}
 				bChanged = setCertificate(privateCertificate, pwReader.getPassword());
 			}
 		}
@@ -863,12 +882,12 @@ public class CertPanel extends JPanel implements ActionListener
 				}
 				else
 				{
-					JOptionPane.showMessageDialog(
+					JAPDialog.showErrorDialog(
 						this,
-						"This public key certificate does not\n" +
+						"This public key certificate does not" +
 						"belong to your private key!",
 						"Wrong certificate!",
-						JOptionPane.ERROR_MESSAGE);
+						LogType.GUI);
 					return false;
 				}
 			}
