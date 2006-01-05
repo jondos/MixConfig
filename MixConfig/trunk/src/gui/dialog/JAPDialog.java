@@ -912,6 +912,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 		dialog.setResizable(false);
 		dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		dialog.addWindowListener(new SimpleDialogButtonFocusWindowAdapter(dialogContentPane));
 		dialog.setVisible(true);
 
 		return dialogContentPane.getValue();
@@ -2088,11 +2089,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		if (a_listener != null)
 		{
-			synchronized (m_windowListeners)
-			{
-				m_windowListeners.addElement(a_listener);
-				m_internalDialog.addWindowListener(a_listener);
-			}
+			m_windowListeners.addElement(a_listener);
+			m_internalDialog.addWindowListener(a_listener);
+
 		}
 	}
 
@@ -2123,11 +2122,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void removeWindowListener(WindowListener a_listener)
 	{
-		synchronized (m_windowListeners)
-		{
-			m_windowListeners.removeElement(a_listener);
-			m_internalDialog.removeWindowListener(a_listener);
-		}
+		m_windowListeners.removeElement(a_listener);
+		m_internalDialog.removeWindowListener(a_listener);
 	}
 
 	/**
@@ -2214,6 +2210,34 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			}
 		}
 	}
+
+	private static class SimpleDialogButtonFocusWindowAdapter extends WindowAdapter
+	{
+		private DialogContentPane m_contentPane;
+
+		public SimpleDialogButtonFocusWindowAdapter(DialogContentPane a_contentPane)
+		{
+			m_contentPane = a_contentPane;
+		}
+
+		public void windowOpened(WindowEvent a_event)
+		{
+			if (m_contentPane.getButtonCancel() != null)
+			{
+				m_contentPane.getButtonCancel().requestFocus();
+			}
+			else if (m_contentPane.getButtonYesOK() != null)
+			{
+				m_contentPane.getButtonYesOK().requestFocus();
+			}
+			else if (m_contentPane.getButtonHelp() != null)
+			{
+				m_contentPane.getButtonHelp().requestFocus();
+			}
+		}
+	}
+
+
 
 	private static class LinkedInformationClickListener extends MouseAdapter
 	{
@@ -2363,11 +2387,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 						{
 							if ( ( (WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSING)
 							{
-								synchronized (m_windowListeners)
+								Vector listeners = (Vector)m_windowListeners.clone();
 								{
-									for (int i = 0; i < m_windowListeners.size(); i++)
+									for (int i = 0; i < listeners.size(); i++)
 									{
-										( (WindowListener) m_windowListeners.elementAt(i)).windowClosing(
+										( (WindowListener) listeners.elementAt(i)).windowClosing(
 											(WindowEvent) event);
 									}
 								}
