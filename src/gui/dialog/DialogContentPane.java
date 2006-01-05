@@ -43,6 +43,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.Insets;
 import java.awt.event.WindowListener;
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -347,6 +348,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		m_constraints.gridy = 0;
 		m_constraints.weighty = 0;
 		m_constraints.fill = GridBagConstraints.HORIZONTAL;
+		m_constraints.insets = new Insets(5, 5, 5, 5);
 
 		// construct the chain of content panes
 		if (m_previousContentPane != null)
@@ -1021,8 +1023,11 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			}
 			else
 			{
-				// the width of the label must be restricted to make the pack() operation possible
-				m_lblText.setPreferredWidth(Math.max(m_contentPane.getWidth() - 20, MIN_TEXT_LENGTH));
+				if (m_lblText.getPreferredSize().width > (m_contentPane.getWidth() - 10))
+				{
+					// the width of the label must be restricted to make the pack() operation possible
+					m_lblText.setPreferredWidth(Math.max(m_contentPane.getWidth() - 10, MIN_TEXT_LENGTH));
+				}
 			}
 
 			m_titlePane.add(m_lblText, m_constraints);
@@ -1673,15 +1678,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 				}
 			}
 
-			if (m_lblText != null)
-			{
-				// enable automatic resizing
-				m_titlePane.remove(m_lblText);
-				m_lblText = new JAPHtmlMultiLineLabel(m_lblText.getText(), m_lblText.getFont(),
-					SwingConstants.CENTER);
-				m_titlePane.add(m_lblText, m_constraints);
-				m_titlePane.revalidate();
-			}
+
 		}
 	}
 
@@ -1725,6 +1722,16 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		{
 			if (isVisible())
 			{
+				if (m_lblText != null)
+				{
+					// enable automatic resizing
+					m_titlePane.remove(m_lblText);
+					m_lblText = new JAPHtmlMultiLineLabel(m_lblText.getText(), m_lblText.getFont(),
+						SwingConstants.CENTER);
+					m_titlePane.add(m_lblText, m_constraints);
+					m_titlePane.revalidate();
+				}
+
 				synchronized (m_componentListeners)
 				{
 					for (int i = 0; i < m_componentListeners.size(); i++)
