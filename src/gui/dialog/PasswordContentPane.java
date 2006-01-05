@@ -31,6 +31,8 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JLabel;
@@ -64,7 +66,7 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 	private JPasswordField m_textOldPasswd, m_textNewPasswd, m_textConfirmPasswd;
 	private char[] m_passwd = null;
 	private char[] m_oldPasswd = null;
-	private int m_Type;
+	private int m_type;
 	private int m_minLength;
 	private JLabel m_lblNew1;
 	private JLabel m_lblNew2;
@@ -98,7 +100,7 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 		{
 			throw new IllegalArgumentException("Unknown type!");
 		}
-		m_Type = a_type;
+		m_type = a_type;
 		if (a_minLength < NO_MINIMUM_LENGTH)
 		{
 			a_minLength = NO_MINIMUM_LENGTH;
@@ -159,6 +161,7 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 
 		ButtonListener listener = new ButtonListener();
 		m_textConfirmPasswd.addKeyListener(listener);
+		addComponentListener(new SetFocusComponentAdapter());
 	}
 
 
@@ -239,7 +242,7 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 	{
 		CheckError[] errors = new CheckError[0];
 
-		if (m_Type == PASSWORD_NEW || m_Type == PASSWORD_CHANGE)
+		if (m_type == PASSWORD_NEW || m_type == PASSWORD_CHANGE)
 		{
 			if (m_minLength > NO_MINIMUM_LENGTH &&
 				(m_textNewPasswd.getPassword() == null ||
@@ -291,12 +294,12 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 				m_passwd = m_textNewPasswd.getPassword();
 			}
 		}
-		else if (m_Type == PASSWORD_ENTER)
+		else if (m_type == PASSWORD_ENTER)
 		{
 			m_passwd = m_textConfirmPasswd.getPassword();
 		}
 
-		if (m_Type == PASSWORD_CHANGE)
+		if (m_type == PASSWORD_CHANGE)
 		{
 			if (getComparedPassword() != null &&
 				!Util.arraysEqual(getComparedPassword(), m_textOldPasswd.getPassword()))
@@ -335,6 +338,28 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 		}
 
 		return errors;
+	}
+
+	private class SetFocusComponentAdapter extends ComponentAdapter
+	{
+		public void componentShown(ComponentEvent a_event)
+		{
+			if (!hasWizardLayout())
+			{
+				if (m_type == PASSWORD_CHANGE)
+				{
+					m_textOldPasswd.requestFocus();
+				}
+				else if (m_type == PASSWORD_NEW)
+				{
+					m_textNewPasswd.requestFocus();
+				}
+				else
+				{
+					m_textConfirmPasswd.requestDefaultFocus();
+				}
+			}
+		}
 	}
 
 	private class ButtonListener extends KeyAdapter
