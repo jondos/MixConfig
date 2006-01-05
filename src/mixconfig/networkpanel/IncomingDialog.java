@@ -77,12 +77,10 @@ public class IncomingDialog extends ConnectionDialog
 	{
 		super(parent, title);
 		createDialog(null, where, a_mixOnCD);
-		this.setLocationRelativeTo(parent);
 	}
 	public IncomingDialog(Frame parent, String title, final IncomingConnectionTableModel where, ConnectionData data, boolean a_mixOnCD)
 	{
 		super(parent, title);
 		createDialog(data, where, a_mixOnCD);
-		this.setLocationRelativeTo(parent);
 	}
 }
