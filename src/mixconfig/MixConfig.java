@@ -78,12 +78,12 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.052"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.054"; //NEVER change the layout of this line!!
 
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
 	private static final String MSG_COULD_NOT_INITIALISE =
-		MixConfig.class.getName() + "_could_not_initialise";
+		MixConfig.class.getName() + "_couldNotInitialise";
 	private static final String MSG_CONFIG_FILE_NOT_FOUND =
 		MixConfig.class.getName() + "_configFileNotFound";
 	private static final String MSG_ERROR_OPEN_FILE =

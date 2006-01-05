@@ -52,8 +52,8 @@ import gui.dialog.*;
 public class CertificationTool extends JAPDialog
 	implements ActionListener, ChangeListener, JAPHelpContext.IHelpContext
 {
-	private static final String MSG_CONFIRMATION_TITLE = CertificationTool.class.getName() + "_Confirmation_title";
-	private static final String MSG_CONFIRMATION = CertificationTool.class.getName() + "_Confirmation_message";
+	private static final String MSG_CONFIRMATION_TITLE = CertificationTool.class.getName() + "_confirmationTitle";
+	private static final String MSG_CONFIRMATION = CertificationTool.class.getName() + "_confirmationMessage";
 
 	private CertPanel m_publicCertPanel;
 	private CertPanel m_privateCertPanel;

@@ -60,12 +60,12 @@ public class EncryptedLogTool extends JAPDialog
 	implements ActionListener, ChangeListener, JAPHelpContext.IHelpContext
 {
 	private static final String MSG_PASSWD_INFO_MSG = EncryptedLogTool.class.getName() +
-		"_password_info_message";
+		"_passwordInfoMessage";
 	private static final String MSG_CERT_HEADLINE = EncryptedLogTool.class.getName() +
-		"_certificate_headline";
-	private static final String MSG_CANNOT_DECRYPT = EncryptedLogTool.class.getName() + "_cannot_decrypt";
-	private static final String MSG_NO_CERT = EncryptedLogTool.class.getName() + "_no_cert";
-	private static final String MSG_NO_LOG = EncryptedLogTool.class.getName() + "_no_log";
+		"_certificateHeadline";
+	private static final String MSG_CANNOT_DECRYPT = EncryptedLogTool.class.getName() + "_cannotDecrypt";
+	private static final String MSG_NO_CERT = EncryptedLogTool.class.getName() + "_noCert";
+	private static final String MSG_NO_LOG = EncryptedLogTool.class.getName() + "_noLog";
 
 	private JTextArea m_textLogFile;
 	private byte[] m_arLog;

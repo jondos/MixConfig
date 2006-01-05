@@ -32,7 +32,6 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -48,14 +47,13 @@ import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509SubjectAlternativeName;
-import anon.util.Util;
 import anon.util.ClassUtil;
+import anon.util.Util;
 import gui.CountryMapper;
-import gui.JAPHelp;
 import gui.JAPMessages;
-import logging.LogType;
+import gui.TitledGridBagPanel;
 import gui.dialog.JAPDialog;
-import gui.*;
+import logging.LogType;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener,
 	ChangeListener
@@ -86,11 +84,11 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		"/OrganisationalUnit";
 
 	public static final String MSG_INVALID_POSITION = OwnCertificatesPanel.class.getName() +
-		"_invalid_position";
-	public static final String MSG_INVALID_EMAIL = OwnCertificatesPanel.class.getName() + "_invalid_email";
-	public static final String MSG_INVALID_URL = OwnCertificatesPanel.class.getName() + "_invalid_url";
+		"_invalidPosition";
+	public static final String MSG_INVALID_EMAIL = OwnCertificatesPanel.class.getName() + "_invalidEmail";
+	public static final String MSG_INVALID_URL = OwnCertificatesPanel.class.getName() + "_invalidUrl";
 	private static final String MSG_CERT_NOT_VERIFYABLE =
-		OwnCertificatesPanel.class.getName() + "_cert_not_verifyable";
+		OwnCertificatesPanel.class.getName() + "_certNotVerifyable";
 
 	private static final String HELP_CONTEXT = ClassUtil.getShortClassName(OwnCertificatesPanel.class);
 
