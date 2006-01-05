@@ -1219,8 +1219,8 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 * Adds a component listener. It it called in the following situations:
 	 * <UL>
 	 * <LI> componentShown: 1) Dialog window is opened or set to visible and the content pane is its
-	 * current content pane. (Please note that this only works with a JAPDialog,
-	 * not a JDialog as parent.)
+	 * current content pane. (Please note that with a JAPDialog no event is generated when the dialog is
+	 * closed and made visible a second time.)
 	 * 2) The Dialog window is already visible and is successfully updated with the
 	 * current content pane. </LI>
 	 * <LI> componentHidden: Dialog window is closed or set invisible, the content pane is set invisible
@@ -1233,6 +1233,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 * pane is shown to the user, for example setting a focus on a special component or starting a thread.
 	 * @param a_listener a ComponentListener
 	 * @todo Find a way so that the componentShown method has full functionality in JDialogs; is there a way?
+	 * I propose to use JAPDialog if you want this...
 	 */
 	public void addComponentListener(ComponentListener a_listener)
 	{
@@ -1655,6 +1656,21 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			if (isVisible() && hasWizardLayout() && getButtonYesOK() != null)
 			{
 				getButtonYesOK().requestFocus();
+			}
+
+			if (getDialog() instanceof JDialog)
+			{
+				/**
+				 * This is a patch for JDialog; componentShown at least called on the first opening.
+				 * Alas, it is not possible to generate this event when the dialog is closed and
+				 * opened a second time.
+				 */
+				ComponentListener listener = m_currentlyActiveContentPaneComponentListener;
+				if (listener != null)
+				{
+					listener.componentShown(new ComponentEvent(
+						m_currentlyActiveContentPane, ComponentEvent.COMPONENT_SHOWN));
+				}
 			}
 
 			if (m_lblText != null)
