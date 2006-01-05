@@ -154,6 +154,8 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	private Vector m_rememberedErrors = new Vector();
 	private Vector m_rememberedUpdateErrors = new Vector();
 	private Container m_currentlyActiveContentPane;
+	private Vector m_componentListeners = new Vector();
+	private ComponentListener m_currentlyActiveContentPaneComponentListener;
 
 
 	public DialogContentPane(JDialog a_parentDialog, String a_strText)
@@ -696,9 +698,10 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	}
 
 	/**
-	 * Returns if one of the content panes in the chained list has OPTION_TYPE_WIZARD set. This will cause
-	 * this option pane to set a wizard layout, too.
-	 * @return if one of the content panes in the chained list has OPTION_TYPE_WIZARD set
+	 * Returns if this content pane is formatted with the wizard layout. The "Yes" and "OK" buttons will
+	 * be transformed to "Next", the "No" button is replaced by "Previous". If the dialog window is opened,
+	 * the focus will automatically be set on "Next".
+	 * @return if this content pane is formatted with the wizard layout
 	 */
 	public final boolean hasWizardLayout()
 	{
@@ -984,7 +987,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 * @return the errors returned by checkUpdate() or null or an empty array if no errors occured and
 	 * the update has been done
 	 */
-	public synchronized CheckError[] updateDialog()
+	public final synchronized CheckError[] updateDialog()
 	{
 		JDialog dialog;
 		JOptionPane pane;
@@ -1026,8 +1029,31 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		}
 
 		clearStatusMessage();
+
+		// initialize the new content pane
+		if (m_currentlyActiveContentPane != null)
+		{
+			m_currentlyActiveContentPane.removeComponentListener(
+						 m_currentlyActiveContentPaneComponentListener);
+		}
 		m_currentlyActiveContentPane = dialog.getContentPane();
+		m_currentlyActiveContentPaneComponentListener = new ContentPaneComponentListener();
+		m_currentlyActiveContentPane.addComponentListener(m_currentlyActiveContentPaneComponentListener);
 		m_parentDialog.setContentPane(m_currentlyActiveContentPane);
+
+		if (isDialogVisible())
+		{
+			// tell the listeners that the content pane is visible
+			synchronized (m_componentListeners)
+			{
+				for (int i = 0; i < m_componentListeners.size(); i++)
+				{
+					( (ComponentListener) m_componentListeners.elementAt(i)).componentShown(
+						new ComponentEvent(m_currentlyActiveContentPane,
+										   ComponentEvent.COMPONENT_SHOWN));
+				}
+			}
+		}
 
 		m_titlePane.invalidate();
 		if (m_lblText != null)
@@ -1186,6 +1212,47 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		else
 		{
 			((JAPDialog)m_parentDialog).addWindowListener(a_listener);
+		}
+	}
+
+	/**
+	 * Adds a component listener. It it called in the following situations:
+	 * <UL>
+	 * <LI> componentShown: 1) Dialog window is opened or set to visible and the content pane is its
+	 * current content pane. (Please note that if the dialog window is opened a second time, only a JAPDialog,
+	 * not a JDialog, will fire the componentShown event.)
+	 * 2) The Dialog window is already visible and is successfully updated with the
+	 * current content pane. </LI>
+	 * <LI> componentHidden: Dialog window is closed or set invisible, the content pane is set invisible
+	 * while the dialog is visible, or the contentPane is shown in a JAPDialog (this is a hack to
+	 * generate the componentShown event). </LI>
+	 * <LI> componentResized: componentResized is called on the content pane </LI>
+	 * <LI> componentMoved: componentMoved is called on the content pane </LI>
+	 * </UL>
+	 * The componentShown method is extremely useful if you wnat to to a specific action when the content
+	 * pane is shown to the user, for example setting a focus on a special component or starting a thread.
+	 * @param a_listener a ComponentListener
+	 */
+	public void addComponentListener(ComponentListener a_listener)
+	{
+		if (a_listener != null)
+		{
+			synchronized (m_componentListeners)
+			{
+				m_componentListeners.addElement(a_listener);
+			}
+		}
+	}
+
+	/**
+	 * Removes a component listener.
+	 * @param a_listener a ComponentListener
+	 */
+	public void removeComponentListener(ComponentListener a_listener)
+	{
+		synchronized (m_componentListeners)
+		{
+			m_componentListeners.removeElement(a_listener);
 		}
 	}
 
@@ -1574,6 +1641,13 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			{
 				m_value = RETURN_VALUE_CLOSED;
 			}
+
+			ComponentListener listener = m_currentlyActiveContentPaneComponentListener;
+			if (listener != null)
+			{
+				listener.componentHidden(new ComponentEvent(
+								m_currentlyActiveContentPane, ComponentEvent.COMPONENT_HIDDEN));
+			}
 		}
 		public void windowOpened(WindowEvent a_event)
 		{
@@ -1601,6 +1675,68 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			if (m_value == RETURN_VALUE_UNINITIALIZED)
 			{
 				m_value = RETURN_VALUE_CLOSED;
+			}
+
+			ComponentListener listener = m_currentlyActiveContentPaneComponentListener;
+			if (listener != null)
+			{
+				listener.componentHidden(new ComponentEvent(
+								m_currentlyActiveContentPane, ComponentEvent.COMPONENT_HIDDEN));
+			}
+		}
+
+		public void componentShown(ComponentEvent a_event)
+		{
+			// does not work for the dialog in old JDKs and is therefore not used
+		}
+	}
+
+	private class ContentPaneComponentListener extends ComponentAdapter
+	{
+		public void componentHidden(ComponentEvent a_event)
+		{
+			synchronized (m_componentListeners)
+			{
+				for (int i = 0; i < m_componentListeners.size(); i++)
+				{
+					( (ComponentListener) m_componentListeners.elementAt(i)).componentHidden(a_event);
+				}
+			}
+		}
+
+		public void componentShown(ComponentEvent a_event)
+		{
+			if (isVisible())
+			{
+				synchronized (m_componentListeners)
+				{
+					for (int i = 0; i < m_componentListeners.size(); i++)
+					{
+						( (ComponentListener) m_componentListeners.elementAt(i)).componentShown(a_event);
+					}
+				}
+			}
+		}
+
+		public void componentResized(ComponentEvent a_event)
+		{
+			synchronized (m_componentListeners)
+			{
+				for (int i = 0; i < m_componentListeners.size(); i++)
+				{
+					( (ComponentListener) m_componentListeners.elementAt(i)).componentResized(a_event);
+				}
+			}
+		}
+
+		public void componentMoved(ComponentEvent a_event)
+		{
+			synchronized (m_componentListeners)
+			{
+				for (int i = 0; i < m_componentListeners.size(); i++)
+				{
+					( (ComponentListener) m_componentListeners.elementAt(i)).componentMoved(a_event);
+				}
 			}
 		}
 	}

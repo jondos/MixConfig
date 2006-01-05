@@ -2086,8 +2086,14 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void addWindowListener(WindowListener a_listener)
 	{
-		m_windowListeners.addElement(a_listener);
-		m_internalDialog.addWindowListener(a_listener);
+		if (a_listener != null)
+		{
+			synchronized (m_windowListeners)
+			{
+				m_windowListeners.addElement(a_listener);
+				m_internalDialog.addWindowListener(a_listener);
+			}
+		}
 	}
 
 	/**
@@ -2117,8 +2123,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void removeWindowListener(WindowListener a_listener)
 	{
-		m_windowListeners.removeElement(a_listener);
-		m_internalDialog.removeWindowListener(a_listener);
+		synchronized (m_windowListeners)
+		{
+			m_windowListeners.removeElement(a_listener);
+			m_internalDialog.removeWindowListener(a_listener);
+		}
 	}
 
 	/**
@@ -2304,6 +2313,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			m_internalDialog.setVisible(a_bVisible);
 			if (a_bVisible)
 			{
+				if (getContentPane() != null && getContentPane().isVisible())
+				{
+					// tell the content pane's component listener that is it shown
+					getContentPane().setVisible(false);
+					getContentPane().setVisible(true);
+				}
 				// fix for JDK 1.1.8 that does not auto-focus the first focusable component
 				requestFocusForFirstFocusableComponent(m_internalDialog.getContentPane());
 			}
@@ -2348,10 +2363,13 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 						{
 							if ( ( (WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSING)
 							{
-								for (int i = 0; i < m_windowListeners.size(); i++)
+								synchronized (m_windowListeners)
 								{
-									( (WindowListener) m_windowListeners.elementAt(i)).windowClosing(
-										(WindowEvent)event);
+									for (int i = 0; i < m_windowListeners.size(); i++)
+									{
+										( (WindowListener) m_windowListeners.elementAt(i)).windowClosing(
+											(WindowEvent) event);
+									}
 								}
 
 								/*

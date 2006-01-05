@@ -28,8 +28,8 @@
 package gui.dialog;
 
 import java.awt.BorderLayout;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import javax.swing.JLabel;
 
 import gui.GUIUtils;
@@ -82,39 +82,7 @@ public class WorkerContentPane extends DialogContentPane implements
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(new JLabel(GUIUtils.loadImageIcon(IMG_BUSY, true)), BorderLayout.CENTER);
 
-		addDialogWindowListener(new WindowAdapter()
-		{
-			public void windowClosed(WindowEvent a_event)
-			{
-				interruptWorkerThread();
-			}
-
-			public void windowOpened(WindowEvent a_event)
-			{
-				if (isVisible())
-				{
-					start();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Method is overwritten to start the internal Thread if the content pane is visible.
-	 * If the Thread starts, the return value is reset to RETURN_VALUE_UNINITIALIZED. If the
-	 * Thread is finished without interruption, the return value is set to RETURN_VALUE_OK.
-	 * @return CheckError
-	 */
-	public synchronized CheckError[] updateDialog()
-	{
-		CheckError[] error = super.updateDialog();
-
-		if ((error == null || error.length == 0) && isVisible())
-		{
-			start();
-		}
-
-		return error;
+		addComponentListener(new WorkerComponentListener());
 	}
 
 	/**
@@ -151,8 +119,8 @@ public class WorkerContentPane extends DialogContentPane implements
 	/**
 	 * The caller waits until the thread has stopped. This is only needed if isInterruptThreadSafe()
 	 * returns false and the user closes the dialog or clicks cancel, otherwise this is done automatically.
-	 * Remember that a call to updateDialog() of this content pane gives an undefined result if the previously
-	 * started thread has not stopped yet.
+	 * Remember that a new thread started by this content pane is blocked until the old thread has stopped
+	 * and, if startet, it will overwrite the getValue() result of the old thread.
 	 */
 	public final void joinThread()
 	{
@@ -175,7 +143,6 @@ public class WorkerContentPane extends DialogContentPane implements
 	public CheckError[] checkCancel()
 	{
 		interruptWorkerThread();
-	//	javax.swing.SwingUtilities.invokeLater(new Runnable(){ public void run(){closeDialog(true);}});
 		return null;
 	}
 
@@ -218,52 +185,69 @@ public class WorkerContentPane extends DialogContentPane implements
 		}
 	}
 
-	private void start()
+	private class WorkerComponentListener extends ComponentAdapter implements Runnable
 	{
-		m_internalThread = new Thread()
+		public void componentHidden(ComponentEvent a_event)
 		{
-			public void run()
+			interruptWorkerThread();
+		}
+
+		/**
+		 * Starts the internal Thread if the content pane becomes visible.
+		 * If the Thread starts, the return value is reset to RETURN_VALUE_UNINITIALIZED. If the
+		 * Thread is finished without interruption, the return value is set to RETURN_VALUE_OK.
+		 * @param a_event ComponentEvent
+		 */
+		public void componentShown(ComponentEvent a_event)
+		{
+			if (isVisible())
 			{
-				setValue(RETURN_VALUE_UNINITIALIZED);
-
-				// clear interrupted flag
-				m_workerInterrupted = false;
-				m_workerThread = new InternalThread(m_workerRunnable);
-
-				try
-				{
-					// give the GUI some extra time to show up
-					Thread.sleep(200);
-				}
-				catch (InterruptedException a_e)
-				{
-					interruptWorkerThread();
-					m_workerThread = null;
-					moveToPreviousContentPane();
-					return;
-				}
-
-				m_workerThread.start();
-
-				try
-				{
-					m_workerThread.join();
-				}
-				catch (InterruptedException a_e)
-				{
-					interruptWorkerThread();
-				}
-				m_workerThread.interrupt();
-				m_workerThread = null;
-
-				if (!m_workerInterrupted)
-				{
-					setValue(RETURN_VALUE_OK);
-					moveToNextContentPane();
-				}
+				m_internalThread = new Thread(this);
+				m_internalThread.start();
 			}
-		};
+		}
 
-		m_internalThread.start();
+		public synchronized void run()
+		{
+			setValue(RETURN_VALUE_UNINITIALIZED);
+
+			// clear interrupted flag
+			m_workerInterrupted = false;
+			m_workerThread = new InternalThread(m_workerRunnable);
+
+			try
+			{
+				// give the GUI some extra time to show up
+				Thread.sleep(200);
+			}
+			catch (InterruptedException a_e)
+			{
+				interruptWorkerThread();
+				m_workerThread = null;
+				moveToPreviousContentPane();
+				notifyAll();
+				return;
+			}
+
+			m_workerThread.start();
+
+			try
+			{
+				m_workerThread.join();
+			}
+			catch (InterruptedException a_e)
+			{
+				interruptWorkerThread();
+			}
+			m_workerThread.interrupt();
+			m_workerThread = null;
+
+			if (!m_workerInterrupted)
+			{
+				setValue(RETURN_VALUE_OK);
+				moveToNextContentPane();
+			}
+			notifyAll();
+		}
 	}
 }
