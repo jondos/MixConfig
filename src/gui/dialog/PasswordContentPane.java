@@ -179,7 +179,7 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 		{
 			return null;
 		}
-
+		setValue(RETURN_VALUE_UNINITIALIZED);
 		showDialog();
 
 		if (a_message != null)

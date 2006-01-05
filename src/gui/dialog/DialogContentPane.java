@@ -145,6 +145,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	private int m_defaultButtonOperation;
 	private int m_value;
 	private JAPHelpContext.IHelpContext m_helpContext;
+	private JButton m_btnHelp;
 	private JButton m_btnYesOK;
 	private JButton m_btnNo;
 	private JButton m_btnCancel;
@@ -1049,14 +1050,12 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		if (isDialogVisible())
 		{
 			// tell the listeners that the content pane is visible
-			synchronized (m_componentListeners)
+			Vector listeners = (Vector)m_componentListeners.clone();
+			for (int i = 0; i < listeners.size(); i++)
 			{
-				for (int i = 0; i < m_componentListeners.size(); i++)
-				{
-					( (ComponentListener) m_componentListeners.elementAt(i)).componentShown(
-						new ComponentEvent(m_currentlyActiveContentPane,
-										   ComponentEvent.COMPONENT_SHOWN));
-				}
+				( (ComponentListener) listeners.elementAt(i)).componentShown(
+					new ComponentEvent(m_currentlyActiveContentPane,
+									   ComponentEvent.COMPONENT_SHOWN));
 			}
 		}
 
@@ -1077,6 +1076,15 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			((JDialog) m_parentDialog).validate();
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the "Help" button.
+	 * @return the "Help" button
+	 */
+	public final JButton getButtonHelp()
+	{
+		return m_btnHelp;
 	}
 
 	/**
@@ -1244,10 +1252,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	{
 		if (a_listener != null)
 		{
-			synchronized (m_componentListeners)
-			{
-				m_componentListeners.addElement(a_listener);
-			}
+			m_componentListeners.addElement(a_listener);
 		}
 	}
 
@@ -1257,10 +1262,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 */
 	public void removeComponentListener(ComponentListener a_listener)
 	{
-		synchronized (m_componentListeners)
-		{
-			m_componentListeners.removeElement(a_listener);
-		}
+		m_componentListeners.removeElement(a_listener);
 	}
 
 	/**
@@ -1566,7 +1568,8 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 
 		if (getHelpContext() != null)
 		{
-			m_panelOptions.add(JAPHelp.createHelpButton(this));
+			m_btnHelp = JAPHelp.createHelpButton(this);
+			m_panelOptions.add(m_btnHelp);
 		}
 	}
 
@@ -1610,7 +1613,11 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 
 		if (getHelpContext() != null)
 		{
-			m_panelOptions.add(JAPHelp.createHelpButton(this));
+			if ( m_btnHelp == null)
+			{
+				m_btnHelp = JAPHelp.createHelpButton(this);
+			}
+			m_panelOptions.add(m_btnHelp);
 		}
 }
 
@@ -1677,8 +1684,6 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 						m_currentlyActiveContentPane, ComponentEvent.COMPONENT_SHOWN));
 				}
 			}
-
-
 		}
 	}
 
@@ -1709,12 +1714,10 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	{
 		public void componentHidden(ComponentEvent a_event)
 		{
-			synchronized (m_componentListeners)
+			Vector listeners = (Vector)m_componentListeners.clone();
+			for (int i = 0; i < listeners.size(); i++)
 			{
-				for (int i = 0; i < m_componentListeners.size(); i++)
-				{
-					( (ComponentListener) m_componentListeners.elementAt(i)).componentHidden(a_event);
-				}
+				( (ComponentListener) listeners.elementAt(i)).componentHidden(a_event);
 			}
 		}
 
@@ -1732,35 +1735,29 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 					m_titlePane.revalidate();
 				}
 
-				synchronized (m_componentListeners)
+				Vector listeners = (Vector)m_componentListeners.clone();
+				for (int i = 0; i < listeners.size(); i++)
 				{
-					for (int i = 0; i < m_componentListeners.size(); i++)
-					{
-						( (ComponentListener) m_componentListeners.elementAt(i)).componentShown(a_event);
-					}
+					( (ComponentListener) listeners.elementAt(i)).componentShown(a_event);
 				}
 			}
 		}
 
 		public void componentResized(ComponentEvent a_event)
 		{
-			synchronized (m_componentListeners)
+			Vector listeners = (Vector)m_componentListeners.clone();
+			for (int i = 0; i < listeners.size(); i++)
 			{
-				for (int i = 0; i < m_componentListeners.size(); i++)
-				{
-					( (ComponentListener) m_componentListeners.elementAt(i)).componentResized(a_event);
-				}
+				( (ComponentListener) listeners.elementAt(i)).componentResized(a_event);
 			}
 		}
 
 		public void componentMoved(ComponentEvent a_event)
 		{
-			synchronized (m_componentListeners)
+			Vector listeners = (Vector)m_componentListeners.clone();
+			for (int i = 0; i < listeners.size(); i++)
 			{
-				for (int i = 0; i < m_componentListeners.size(); i++)
-				{
-					( (ComponentListener) m_componentListeners.elementAt(i)).componentMoved(a_event);
-				}
+				( (ComponentListener) listeners.elementAt(i)).componentMoved(a_event);
 			}
 		}
 	}
