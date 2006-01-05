@@ -1161,8 +1161,7 @@ public class CertPanel extends JPanel implements ActionListener
 	{
 		public CertPanelFinishedContentPane(JAPDialog a_parentDialog, DialogContentPane a_previousContentPane)
 		{
-			super(a_parentDialog, "You have successfully created the certificate!",
-				  a_previousContentPane);
+			super(a_parentDialog, "You have successfully created the certificate!", a_previousContentPane);
 			setDefaultButtonOperation(DialogContentPane.ON_CANCEL_DISPOSE_DIALOG |
 									  DialogContentPane.ON_YESOK_DISPOSE_DIALOG);
 		}
