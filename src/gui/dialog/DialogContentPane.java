@@ -351,8 +351,6 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			m_rootPane.add(m_lblMessage, BorderLayout.SOUTH);
 		}
 
-		m_value = RETURN_VALUE_UNINITIALIZED;
-
 		if (a_strText != null && a_strText.trim().length() > 0)
 		{
 			m_lblText = new JAPHtmlMultiLineLabel("<font color=#000000>" + a_strText + "</font>",
@@ -372,6 +370,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		}
 
 		m_bHasHadWizardLayout = false;
+		m_value = RETURN_VALUE_UNINITIALIZED;
 		createOptions();
 	}
 
@@ -1176,12 +1175,20 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	}
 
 	/**
-	 * Sets the button value
+	 * Sets the button value. If the type is unknown, it is set to RETURN_VALUE_UNINITIALIZED.
 	 * @param a_value the new button value
 	 */
 	public final void setValue(int a_value)
 	{
-		m_value = a_value;
+		if (RETURN_VALUE_CANCEL == a_value || RETURN_VALUE_OK == a_value ||
+			RETURN_VALUE_CLOSED == a_value || RETURN_VALUE_YES == a_value || RETURN_VALUE_NO == a_value)
+		{
+			m_value = a_value;
+		}
+		else
+		{
+			m_value = RETURN_VALUE_UNINITIALIZED;
+		}
 	}
 
 	/**
