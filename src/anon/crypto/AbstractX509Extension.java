@@ -37,6 +37,9 @@ import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
 
 import anon.util.ClassUtil;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
 
 /**
  * Represents and creates an X509 V3 extensions. The concrete extensions are subclasses of this
@@ -50,7 +53,7 @@ public abstract class AbstractX509Extension
 	/** Each subclass must contain this individual identifier. */
 	public static final String IDENTIFIER = null;
 
-	private static Vector m_classExtensions;
+	private static Vector ms_classExtensions;
 
 	private DERObjectIdentifier m_identifier;
 	private boolean m_critical;
@@ -123,12 +126,38 @@ public abstract class AbstractX509Extension
 		Class[] derEncodable = new Class[1];
 		derEncodable[0] = DERSequence.class;
 
-		if (m_classExtensions == null)
+		if (ms_classExtensions == null)
 		{
-			m_classExtensions = ClassUtil.findSubclasses(ClassUtil.getClassStatic());
+			try
+			{
+				ms_classExtensions = ClassUtil.findSubclasses(ClassUtil.getClassStatic());
+			}
+			catch (Throwable a_throwable)
+			{
+				LogHolder.log(LogLevel.EXCEPTION, LogType.CRYPTO, a_throwable);
+			}
+			if (ms_classExtensions == null)
+			{
+				ms_classExtensions = new Vector();
+			}
+
+			if (ms_classExtensions == null || ms_classExtensions.size() < 4)
+			{
+				LogHolder.log(LogLevel.EXCEPTION, LogType.CRYPTO,
+							  "X509 extension classes have not been loaded automatically!");
+				// load them manually and prevent double references
+				ms_classExtensions.removeElement(X509UnknownExtension.class);
+				ms_classExtensions.removeElement(X509SubjectKeyIdentifier.class);
+				ms_classExtensions.removeElement(X509SubjectAlternativeName.class);
+				ms_classExtensions.removeElement(X509IssuerAlternativeName.class);
+				ms_classExtensions.addElement(X509UnknownExtension.class);
+				ms_classExtensions.addElement(X509SubjectKeyIdentifier.class);
+				ms_classExtensions.addElement(X509SubjectAlternativeName.class);
+				ms_classExtensions.addElement(X509IssuerAlternativeName.class);
+			}
 		}
 
-		classes = m_classExtensions.elements();
+		classes = ms_classExtensions.elements();
 		while (classes.hasMoreElements())
 		{
 			classExtension = (Class)classes.nextElement();
