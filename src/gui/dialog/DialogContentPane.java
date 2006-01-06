@@ -161,87 +161,242 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	private Vector m_componentListeners = new Vector();
 	private ComponentListener m_currentlyActiveContentPaneComponentListener;
 
-
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_strText A text that is shown withing the content pane. The text is interpreted as HTML. If
+	 * you call pack() on the dialog when it is updated with this content pane, the text length is
+	 * auto-formatted so that its width is not bigger than the content with respect to a minimum size.
+	 * Notice: this only works correctly if you call pack() on an invisible dialog.
+	 */
 	public DialogContentPane(JDialog a_parentDialog, String a_strText)
 	{
 		this((RootPaneContainer)a_parentDialog, a_strText, new Layout(""), null);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_strText A text that is shown withing the content pane. The text is interpreted as HTML. If
+	 * you call pack() on the dialog when it is updated with this content pane, the text length is
+	 * auto-formatted so that its width is not bigger than the content with respect to a minimum size.
+	 * Notice: this only works correctly if you call pack() on an invisible dialog.
+	 */
 	public DialogContentPane(JAPDialog a_parentDialog, String a_strText)
 	{
 		this((RootPaneContainer)a_parentDialog, a_strText, new Layout(""), null);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_strText A text that is shown withing the content pane. The text is interpreted as HTML. If
+	 * you call pack() on the dialog when it is updated with this content pane, the text length is
+	 * auto-formatted so that its width is not bigger than the content with respect to a minimum size.
+	 * Notice: this only works correctly if you call pack() on an invisible dialog.
+	 * @param a_layout the general layout of the content pane (icon, title, border, ...)
+	 */
 	public DialogContentPane(JDialog a_parentDialog, String a_strText, Layout a_layout)
 	{
 		this((RootPaneContainer)a_parentDialog, a_strText, a_layout, null);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_strText A text that is shown withing the content pane. The text is interpreted as HTML. If
+	 * you call pack() on the dialog when it is updated with this content pane, the text length is
+	 * auto-formatted so that its width is not bigger than the content with respect to a minimum size.
+	 * Notice: this only works correctly if you call pack() on an invisible dialog.
+	 * @param a_layout the general layout of the content pane (icon, title, border, ...)
+	 */
 	public DialogContentPane(JAPDialog a_parentDialog, String a_strText, Layout a_layout)
 	{
 		this((RootPaneContainer)a_parentDialog, a_strText, a_layout, null);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_strText A text that is shown withing the content pane. The text is interpreted as HTML. If
+	 * you call pack() on the dialog when it is updated with this content pane, the text length is
+	 * auto-formatted so that its width is not bigger than the content with respect to a minimum size.
+	 * Notice: this only works correctly if you call pack() on an invisible dialog.
+	 * @param a_options the button definitions
+	 */
 	public DialogContentPane(JDialog a_parentDialog, String a_strText, Options a_options)
 	{
 		this((RootPaneContainer)a_parentDialog, a_strText, new Layout(""), a_options);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_strText A text that is shown withing the content pane. The text is interpreted as HTML. If
+	 * you call pack() on the dialog when it is updated with this content pane, the text length is
+	 * auto-formatted so that its width is not bigger than the content with respect to a minimum size.
+	 * Notice: this only works correctly if you call pack() on an invisible dialog.
+	 * @param a_options the button definitions
+	 */
 	public DialogContentPane(JAPDialog a_parentDialog, String a_strText, Options a_options)
 	{
 		this((RootPaneContainer)a_parentDialog, a_strText, new Layout(""), a_options);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_strText A text that is shown withing the content pane. The text is interpreted as HTML. If
+	 * you call pack() on the dialog when it is updated with this content pane, the text length is
+	 * auto-formatted so that its width is not bigger than the content with respect to a minimum size.
+	 * Notice: this only works correctly if you call pack() on an invisible dialog.
+	 * @param a_layout the general layout of the content pane (icon, title, border, ...)
+	 * @param a_options the button definitions
+	 */
 	public DialogContentPane(JDialog a_parentDialog, String a_strText, Layout a_layout, Options a_options)
 	{
 		this((RootPaneContainer)a_parentDialog, a_strText, a_layout, a_options);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_strText A text that is shown withing the content pane. The text is interpreted as HTML. If
+	 * you call pack() on the dialog when it is updated with this content pane, the text length is
+	 * auto-formatted so that its width is not bigger than the content with respect to a minimum size.
+	 * Notice: this only works correctly if you call pack() on an invisible dialog.
+	 * @param a_layout the general layout of the content pane (icon, title, border, ...)
+	 * @param a_options the button definitions
+	 */
 	public DialogContentPane(JAPDialog a_parentDialog, String a_strText, Layout a_layout, Options a_options)
 	{
 		this((RootPaneContainer)a_parentDialog, a_strText, a_layout, a_options);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 */
 	public DialogContentPane(JDialog a_parentDialog)
 	{
 		this((RootPaneContainer)a_parentDialog, null, new Layout(""), null);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 */
 	public DialogContentPane(JAPDialog a_parentDialog)
 	{
 		this((RootPaneContainer)a_parentDialog, null, new Layout(""), null);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_layout the general layout of the content pane (icon, title, border, ...)
+	 */
 	public DialogContentPane(JDialog a_parentDialog, Layout a_layout)
 	{
 		this((RootPaneContainer)a_parentDialog, null, a_layout, null);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_layout the general layout of the content pane (icon, title, border, ...)
+	 */
 	public DialogContentPane(JAPDialog a_parentDialog, Layout a_layout)
 	{
 		this((RootPaneContainer)a_parentDialog, null, a_layout, null);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_options the button definitions
+	 */
 	public DialogContentPane(JDialog a_parentDialog, Options a_options)
 	{
 		this((RootPaneContainer)a_parentDialog, null, new Layout(""), a_options);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_options the button definitions
+	 */
 	public DialogContentPane(JAPDialog a_parentDialog, Options a_options)
 	{
 		this((RootPaneContainer)a_parentDialog, null, new Layout(""), a_options);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_layout the general layout of the content pane (icon, title, border, ...)
+	 * @param a_options the button definitions
+	 */
 	public DialogContentPane(JDialog a_parentDialog, Layout a_layout, Options a_options)
 	{
 		this((RootPaneContainer)a_parentDialog, null, a_layout, a_options);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_layout the general layout of the content pane (icon, title, border, ...)
+	 * @param a_options the button definitions
+	 */
 	public DialogContentPane(JAPDialog a_parentDialog, Layout a_layout, Options a_options)
 	{
 		this((RootPaneContainer)a_parentDialog, null, a_layout, a_options);
 	}
 
+	/**
+	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
+	 * is part of a wizard.
+	 * @param a_parentDialog the parent dialog; a content pane is always registered to a dialog, and
+	 * may not change it in lifetime.
+	 * @param a_strText A text that is shown withing the content pane. The text is interpreted as HTML. If
+	 * you call pack() on the dialog when it is updated with this content pane, the text length is
+	 * auto-formatted so that its width is not bigger than the content with respect to a minimum size.
+	 * Notice: this only works correctly if you call pack() on an invisible dialog.
+	 * @param a_layout the general layout of the content pane (icon, title, border, ...)
+	 * @param a_options the button definitions
+	 */
 	private DialogContentPane(RootPaneContainer a_parentDialog, String a_strText,
 							  Layout a_layout, Options a_options)
 	{
