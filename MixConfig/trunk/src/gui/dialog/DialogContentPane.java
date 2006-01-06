@@ -287,6 +287,20 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			throw new IllegalArgumentException("Chained content panes must refer to the same dialog!");
 		}
 
+		if (!(a_optionType == OPTION_TYPE_EMPTY || a_optionType == OPTION_TYPE_DEFAULT ||
+			a_optionType == OPTION_TYPE_CANCEL || a_optionType == OPTION_TYPE_CANCEL_OK ||
+			a_optionType == OPTION_TYPE_CANCEL_YES_NO || a_optionType == OPTION_TYPE_YES_NO))
+		{
+			throw new IllegalArgumentException("Unknown option type!");
+		}
+
+		if (!(a_messageType == MESSAGE_TYPE_PLAIN || a_messageType == MESSAGE_TYPE_QUESTION ||
+			a_messageType == MESSAGE_TYPE_ERROR || a_messageType == MESSAGE_TYPE_WARNING ||
+			a_messageType == MESSAGE_TYPE_INFORMATION))
+		{
+			throw new IllegalArgumentException("Unknown message type!");
+		}
+
 		if (this instanceof IWizardSuitable)
 		{
 			m_defaultButtonOperation = BUTTON_OPERATION_WIZARD;
@@ -1203,7 +1217,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	}
 
 	/**
-	 * Returns if the parent dialog is visible.
+	 * Returns if the parent dialog is visible. If your content pane contains a text, please do not
+	 * perform a pack() operation on a visible dialog as there is a high possibility that the
+	 * auto-formatting feature will not work. Packing is recommended on invisible dialogs only.
 	 * @return if the parent dialog is visible
 	 */
 	public final boolean isDialogVisible()
