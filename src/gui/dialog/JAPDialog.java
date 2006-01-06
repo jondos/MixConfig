@@ -141,6 +141,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	private boolean m_bBlockParentWindow = false;
 	private int m_defaultCloseOperation;
 	private Vector m_windowListeners = new Vector();
+	private boolean m_bForceApplicationModality;
 
 	/**
 	 * Stores the instance of JDialog for internal use.
@@ -167,12 +168,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public JAPDialog(Component a_parentComponent, String a_strTitle, boolean a_bModal)
 	{
-		JOptionPane optionPane = new JOptionPane();
-		m_internalDialog = optionPane.createDialog(a_parentComponent, a_strTitle);
-		m_internalDialog.getContentPane().removeAll();
-		m_internalDialog.setResizable(true);
-		setDefaultCloseOperation(m_internalDialog.getDefaultCloseOperation());
-		init(m_internalDialog, a_bModal, a_parentComponent);
+		this(a_parentComponent, a_strTitle, a_bModal, false);
 	}
 
 	/**
@@ -210,12 +206,36 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		this(getInternalDialog(a_parentDialog), a_strTitle);
 	}
 
-	private void init(JDialog a_dialog, boolean a_bModal, Component a_parentComponent)
+
+	/**
+	 * Creates a new instance of JAPDialog. It is user-resizable.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_strTitle The title String for this dialog.
+	 * @param a_bModal if the dialog should be modal
+	 * @param a_bForceApplicationModality Force the JAPDialog to behave like a JDialog and block all
+	 * application windows. This should not be available for the public, only for internal use!
+	 */
+	private JAPDialog(Component a_parentComponent, String a_strTitle, boolean a_bModal,
+					  boolean a_bForceApplicationModality)
+	{
+		JOptionPane optionPane = new JOptionPane();
+		m_internalDialog = optionPane.createDialog(a_parentComponent, a_strTitle);
+		m_internalDialog.getContentPane().removeAll();
+		m_internalDialog.setResizable(true);
+		setDefaultCloseOperation(m_internalDialog.getDefaultCloseOperation());
+		init(m_internalDialog, a_bModal, a_parentComponent, a_bForceApplicationModality);
+	}
+
+	private void init(JDialog a_dialog, boolean a_bModal, Component a_parentComponent,
+					  boolean a_bForceApplicationModality)
 	{
 		EventListener[] listeners;
 
 		m_parentComponent = a_parentComponent;
 		m_internalDialog = a_dialog;
+		m_bForceApplicationModality = a_bForceApplicationModality;
 		m_internalDialog.setModal(false);
 		m_internalDialog.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
@@ -1851,11 +1871,19 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void setModal(boolean a_bModal)
 	{
-		if (!isVisible())
+		if (m_bForceApplicationModality)
 		{
-			m_bModal = a_bModal;
+			m_bModal = false;
+			m_internalDialog.setModal(a_bModal);
 		}
-		// the internal dialog is always non-modal
+		else
+		{
+			if (!isVisible())
+			{
+				m_bModal = a_bModal;
+			}
+			// the internal dialog is always non-modal
+		}
 	}
 
 	/**
@@ -1864,6 +1892,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public boolean isModal()
 	{
+		if (m_bForceApplicationModality)
+		{
+			return m_internalDialog.isModal();
+		}
+
 		return m_bModal;
 	}
 
@@ -2330,6 +2363,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			// must be set disabled before showing the dialog
 			m_parentWindow.setEnabled(false);
+		}
+
+		if (m_bForceApplicationModality)
+		{
+			m_internalDialog.setVisible(a_bVisible);
+			return;
 		}
 
 		synchronized (m_internalDialog.getTreeLock())
