@@ -31,8 +31,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Vector;
 import java.util.Locale;
+import java.util.Vector;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -40,7 +40,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -57,14 +56,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
-import javax.swing.JViewport;
 
 import anon.util.ResourceLoader;
 import gui.JAPHelpContext.IHelpContext;
+import gui.dialog.JAPDialog;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
-import gui.dialog.*;
 
 /**
  * Help window for the JAP. This is a singleton meaning that there exists only one help window all the time.

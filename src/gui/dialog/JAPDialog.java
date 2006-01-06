@@ -220,24 +220,19 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	private JAPDialog(Component a_parentComponent, String a_strTitle, boolean a_bModal,
 					  boolean a_bForceApplicationModality)
 	{
-		JOptionPane optionPane = new JOptionPane();
-		m_internalDialog = optionPane.createDialog(a_parentComponent, a_strTitle);
-		m_internalDialog.getContentPane().removeAll();
-		m_internalDialog.setResizable(true);
-		setDefaultCloseOperation(m_internalDialog.getDefaultCloseOperation());
-		init(m_internalDialog, a_bModal, a_parentComponent, a_bForceApplicationModality);
-	}
-
-	private void init(JDialog a_dialog, boolean a_bModal, Component a_parentComponent,
-					  boolean a_bForceApplicationModality)
-	{
 		EventListener[] listeners;
 
 		m_parentComponent = a_parentComponent;
-		m_internalDialog = a_dialog;
 		m_bForceApplicationModality = a_bForceApplicationModality;
+
+		m_internalDialog = new JOptionPane().createDialog(a_parentComponent, a_strTitle);
+		m_internalDialog.getContentPane().removeAll();
+		m_internalDialog.setResizable(true);
 		m_internalDialog.setModal(false);
 		m_internalDialog.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		//setDefaultCloseOperation(m_internalDialog.getDefaultCloseOperation());
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
 
 		/* Old JDKs ignore the default closing operation, therefore it is tried to remove the window listener.
 		 * This removes the flimmering effect that occurs when the internal dialog is closed before enabling
@@ -263,6 +258,114 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		addWindowListener(new WindowClosingAdapter(this));
 		m_parentWindow = getParentWindow(getParentComponent());
 		setModal(a_bModal);
+	}
+
+	/**
+	 * Classes of this type are used to append a clickable message at the end of a dialog message.
+	 * You may also allow to copy the message to the cip board and define any after-click-action
+	 * that you want.
+	 */
+	public static interface ILinkedInformation
+	{
+		/**
+		 * Returns the information message. This must be normal text, HTML is not allowed and
+		 * tags are filtered out.
+		 * @return the information message
+		 */
+		public String getMessage();
+		/**
+		 * The action that is performed when the link is clicked, for example opening a browser
+		 * window, an E-Mail client or a help page.
+		 */
+		public void openLink();
+		/**
+		 * Returns if the user is allowed to copy the link text.
+		 * @return if the user is allowed to copy the link text
+		 */
+		public boolean isCopyAllowed();
+		/**
+		 * Returns if the dialog should only be modal for its direct parent. This would means
+		 * that other application windows will still be accessible if the dialog is modal.
+		 * @return if the dialog should only be modal for its direct parent
+		 */
+		public boolean isDialogSemiModal();
+	}
+
+	/**
+	 * This is an example implementation of ILinkedInformation. It registers a help context in the
+	 * dialog that is opened when the user clicks on a "More info..." or a self-defined String.
+	 */
+	public static final class LinkedHelpContext implements ILinkedInformation, JAPHelpContext.IHelpContext
+	{
+		private static final String MSG_MORE_INFO = LinkedHelpContext.class.getName() + "_moreInfo";
+
+		private String m_strMessage;
+		private JAPHelpContext.IHelpContext m_helpContext;
+
+		public LinkedHelpContext(final String a_strHelpContext, String a_strMessage)
+		{
+			this(new JAPHelpContext.IHelpContext(){public String getHelpContext(){return a_strHelpContext;}},
+				a_strMessage);
+		}
+
+		public LinkedHelpContext(JAPHelpContext.IHelpContext a_helpContext, String a_strMessage)
+		{
+			if (a_strMessage == null || a_strMessage.trim().length() == 0)
+			{
+				a_strMessage = JAPMessages.getString(MSG_MORE_INFO);
+			}
+			m_helpContext = a_helpContext;
+			m_strMessage = a_strMessage;
+		}
+
+		public LinkedHelpContext(JAPHelpContext.IHelpContext a_helpContext)
+		{
+			this(a_helpContext, null);
+		}
+
+		public LinkedHelpContext(String a_strHelpContext)
+		{
+			this(a_strHelpContext, null);
+		}
+
+		public String getHelpContext()
+		{
+			if (m_helpContext == null)
+			{
+				return null;
+			}
+			return m_helpContext.getHelpContext();
+		}
+
+		public String getMessage()
+		{
+			return m_strMessage;
+		}
+		/**
+		 * Opens a help window with the registered context.
+		 */
+		public void openLink()
+		{
+			JAPHelp.getInstance().getContextObj().setContext(m_helpContext);
+			JAPHelp.getInstance().setVisible(true);
+			JAPHelp.getInstance().requestFocus();
+		}
+		/**
+		 * This makes no sense and is not allowed.
+		 * @return false
+		 */
+		public boolean isCopyAllowed()
+		{
+			return false;
+		}
+		/**
+		 * Returns true as otherwise the help window would not be accessible.
+		 * @return true
+		 */
+		public boolean isDialogSemiModal()
+		{
+			return true;
+		}
 	}
 
 	/**
@@ -707,9 +810,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 								a_messageType, a_icon, a_linkedInformation);
 	}
 
+
 	/**
 	 * Displays a confirm dialog. Words are wrapped automatically if a message line is too long.
-	 * This method is the 'hear' of the show...Dialog() logic.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
 	 *                          component is not within a frame, the dialog's parent frame is the
 	 *                          default frame.
@@ -729,213 +832,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 										int a_optionType, int a_messageType, Icon a_icon,
 										ILinkedInformation a_linkedInformation)
 	{
-		JAPDialog dialog;
-		JAPHelpContext.IHelpContext helpContext = null;
-		DialogContentPane dialogContentPane;
-		JComponent contentPane;
-		String message;
-		String strLinkedInformation;
-		JAPHtmlMultiLineLabel label;
-		PreferredWidthBoxPanel dummyBox;
-		JComponent linkLabel;
-
-		if (a_message == null)
-		{
-			a_message = "";
-		}
-		message = a_message;
-
-		if (a_title == null)
-		{
-			a_title = JAPMessages.getString(MSG_TITLE_CONFIRMATION);
-		}
-
-		/*
-		 * If the linked information contains a help context, display the help button instead of a link
-		 */
-		if (a_linkedInformation instanceof JAPHelpContext.IHelpContext)
-		{
-			helpContext = (JAPHelpContext.IHelpContext)a_linkedInformation;
-			a_linkedInformation = null;
-		}
-
-		if (a_linkedInformation != null && a_linkedInformation.getMessage() != null &&
-			a_linkedInformation.getMessage().trim().length() > 0)
-		{
-			strLinkedInformation =
-				JAPHtmlMultiLineLabel.removeTagsAndNewLines(a_linkedInformation.getMessage());
-			message += JAPHtmlMultiLineLabel.TAG_BREAK + JAPHtmlMultiLineLabel.TAG_A_OPEN +
-				strLinkedInformation + JAPHtmlMultiLineLabel.TAG_A_CLOSE;
-		}
-		else
-		{
-			strLinkedInformation = null;
-		}
-
-		/*
-		 * Set the dialog parameters and get its label and content pane.
-		 */
-		label = new JAPHtmlMultiLineLabel(message);
-		label.setFontStyle(JAPHtmlMultiLineLabel.FONT_STYLE_PLAIN);
-		dialog = new JAPDialog(a_parentComponent, a_title, true);
-		dialogContentPane = new DialogContentPane(dialog,
-												  new DialogContentPane.Layout(null, a_messageType, a_icon),
-												  new DialogContentPane.Options(a_optionType, helpContext));
-		dialogContentPane.setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
-		dialogContentPane.setContentPane(label);
-		dialogContentPane.updateDialog();
-		// trick: a dialog's content pane is always a JComponent; it is needed to set the min/max size
-		contentPane = (JComponent)dialog.getContentPane();
-
-
-		/**
-		 * Calculate the optimal dialog size with respect to the golden ratio.
-		 * The width defines the longer side.
-		 */
-		Dimension bestDimension = null;
-		int  minWidth;
-		double currentDelta;
-		double bestDelta;
-		int currentWidth;
-		int bestWidth;
-		int failed;
-
-		// get the minimum width and height that is needed to display this dialog without any text
-		minWidth =
-			new JOptionPane("", a_messageType, a_optionType, a_icon).
-			createDialog(a_parentComponent, a_title).getContentPane().getSize().width / 2;
-
-		// set the maximum width that is allowed for the content pane
-		int maxWidth = (int)getParentWindow(a_parentComponent).getSize().width;
-		if (maxWidth < minWidth * 4)
-		{
-			maxWidth = minWidth * 4;
-		}
-		// if the text in the content pane is short, reduce the max width to the text length
-		maxWidth = Math.min(contentPane.getWidth(), maxWidth);
-
-		// put the content pane in a box and the box in the dialog
-		dummyBox = new PreferredWidthBoxPanel();
-		dummyBox.add(contentPane);
-
-		/**
-		 * Do a quick heuristic to approximate the golden ratio for the dialog size.
-		 */
-		bestDelta = Double.MAX_VALUE;
-		currentWidth = maxWidth;
-		bestWidth =  currentWidth;
-		failed = 0;
-		for (int i = 0; i < NUMBER_OF_HEURISTIC_ITERATIONS; i++)
-		{
-			/**
-			 * Set the exact width of the frame.
-			 * The following trick must be explained:
-			 * Get the HTML view of the label and set its width to the current width of the label that is
-			 * defined by the total width of the surrounding content pane. The height of the view may be
-			 * unlimited, as the view will adapt its height automatically so that the whole text is
-			 * displayed respecting the width that has been set.
-			 * @see javax.swing.JLabel.Bounds()
-			 * @see javax.swing.JLabel.getTextRectangle()
-			 * @see javax.swing.SwingUtilities
-			 * @see javax.swing.plaf.basic.BasicHTML
-			 * @see javax.swing.text.html.HTMLEditorKit
-			 */
-			contentPane.setMaximumSize(
-						 new Dimension(currentWidth, JAPHtmlMultiLineLabel.UNLIMITED_LABEL_HEIGHT));
-			dummyBox.setPreferredWidth(currentWidth);
-			dialog.setContentPane(dummyBox);
-			dialog.pack();
-			label.setPreferredWidth(label.getWidth());
-			dialog.pack();
-
-			currentWidth = dummyBox.getWidth();
-			currentDelta = getGoldenRatioDelta(dialog);
-			if (Math.abs(currentDelta) < Math.abs(bestDelta))
-			{
-				bestDimension = new Dimension(dummyBox.getSize());
-				bestDelta = currentDelta;
-				bestWidth = currentWidth;
-				currentWidth += bestDelta / 2.0;
-				failed = 0;
-			}
-			else
-			{
-				currentWidth = bestWidth + (int)(bestDelta / (3.0 * (failed + 1.0)));
-				failed++;
-			}
-
-			// the objective function value
-			//System.out.println("bestDelta: " + bestDelta + "  currentDelta:" + currentDelta);
-
-			currentWidth = (int)Math.max(currentWidth, minWidth);
-			if (currentWidth == bestWidth)
-			{
-				break;
-			}
-		}
-
-		/*
-		System.out.println("CurrentSize: " + dummyBox.getSize() + "_" + contentPane.getSize());
-		System.out.println("MaximumSize: " + dummyBox.getMaximumSize() + "_" + contentPane.getMaximumSize());
-		System.out.println("PreferredSize: " + dummyBox.getPreferredSize() + "_" + contentPane.getPreferredSize());
-		*/
-
-		/**
-		 * Recreate the dialog and set its final size.
-		 */
-		dummyBox = new PreferredWidthBoxPanel();
-		label = new JAPHtmlMultiLineLabel("<font color=#000000>" + a_message + "</font>");
-		label.setFontStyle(JAPHtmlMultiLineLabel.FONT_STYLE_PLAIN);
-		dummyBox.add(label);
-		linkLabel = null;
-		if (strLinkedInformation != null)
-		{
-			if (a_linkedInformation.isCopyAllowed())
-			{   /** @todo this is not nice in most of the old JDKs) */
-				JTextPane textPane = GUIUtils.createSelectableAndResizeableLabel(dummyBox);
-				/*
-				SimpleAttributeSet attributes;
-				attributes = new SimpleAttributeSet(textPane.getCharacterAttributes());
-				attributes.addAttribute(CharacterConstants.Underline, Boolean.TRUE);
-				textPane.setCharacterAttributes(attributes, true);
-			*/
-
-				textPane.setText(strLinkedInformation);
-				textPane.setFont(label.getFont());
-				textPane.setMargin(new java.awt.Insets(0,0,0,0));
-				textPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,1,0));
-				textPane.setForeground(java.awt.Color.blue);
-				linkLabel = textPane;
-			}
-			else
-			{
-				linkLabel = new JAPHtmlMultiLineLabel(JAPHtmlMultiLineLabel.TAG_A_OPEN +
-					strLinkedInformation + JAPHtmlMultiLineLabel.TAG_A_CLOSE);
-			}
-
-			dummyBox.add(linkLabel);
-		}
-
-		dialogContentPane.setContentPane(dummyBox);
-		dialogContentPane.updateDialog();
-		if (strLinkedInformation != null)
-		{
-			linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation));
-		}
-		((JComponent)dialog.getContentPane()).setPreferredSize(bestDimension);
-		dialog.pack();
-		if (bestDelta != getGoldenRatioDelta(dialog))
-		{
-			LogHolder.log(LogLevel.NOTICE, LogType.GUI, "Calculated dialog size differs from real size!");
-		}
-		LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Dialog golden ratio delta: " + getGoldenRatioDelta(dialog));
-
-		dialog.setResizable(false);
-		dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		dialog.addWindowListener(new SimpleDialogButtonFocusWindowAdapter(dialogContentPane));
-		dialog.setVisible(true);
-
-		return dialogContentPane.getValue();
+		return showConfirmDialog(a_parentComponent, a_message, a_title, a_optionType, a_messageType, a_icon,
+								 a_linkedInformation, false);
 	}
 
 	/**
@@ -1587,114 +1485,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
-	 * Classes of this type are used to append a clickable message at the end of a dialog message.
-	 * You may also allow to copy the message to the cip board and define any after-click-action
-	 * that you want.
-	 */
-	public static interface ILinkedInformation
-	{
-		/**
-		 * Returns the information message. This must be normal text, HTML is not allowed and
-		 * tags are filtered out.
-		 * @return the information message
-		 */
-		public String getMessage();
-		/**
-		 * The action that is performed when the link is clicked, for example opening a browser
-		 * window, an E-Mail client or a help page.
-		 */
-		public void openLink();
-		/**
-		 * Returns if the user is allowed to copy the link text.
-		 * @return if the user is allowed to copy the link text
-		 */
-		public boolean isCopyAllowed();
-		/**
-		 * Returns if the dialog should only be modal for its direct parent. This would means
-		 * that other application windows will still be accessible if the dialog is modal.
-		 * @return if the dialog should only be modal for its direct parent
-		 */
-		public boolean isDialogSemiModal();
-	}
-
-	/**
-	 * This is an example implementation of ILinkedInformation. It registers a help context in the
-	 * dialog that is opened when the user clicks on a "More info..." or a self-defined String.
-	 */
-	public static final class LinkedHelpContext implements ILinkedInformation, JAPHelpContext.IHelpContext
-	{
-		private static final String MSG_MORE_INFO = LinkedHelpContext.class.getName() + "_moreInfo";
-
-		private String m_strMessage;
-		private JAPHelpContext.IHelpContext m_helpContext;
-
-		public LinkedHelpContext(final String a_strHelpContext, String a_strMessage)
-		{
-			this(new JAPHelpContext.IHelpContext(){public String getHelpContext(){return a_strHelpContext;}},
-				a_strMessage);
-		}
-
-		public LinkedHelpContext(JAPHelpContext.IHelpContext a_helpContext, String a_strMessage)
-		{
-			if (a_strMessage == null || a_strMessage.trim().length() == 0)
-			{
-				a_strMessage = JAPMessages.getString(MSG_MORE_INFO);
-			}
-			m_helpContext = a_helpContext;
-			m_strMessage = a_strMessage;
-		}
-
-		public LinkedHelpContext(JAPHelpContext.IHelpContext a_helpContext)
-		{
-			this(a_helpContext, null);
-		}
-
-		public LinkedHelpContext(String a_strHelpContext)
-		{
-			this(a_strHelpContext, null);
-		}
-
-		public String getHelpContext()
-		{
-			if (m_helpContext == null)
-			{
-				return null;
-			}
-			return m_helpContext.getHelpContext();
-		}
-
-		public String getMessage()
-		{
-			return m_strMessage;
-		}
-		/**
-		 * Opens a help window with the registered context.
-		 */
-		public void openLink()
-		{
-			JAPHelp.getInstance().getContextObj().setContext(m_helpContext);
-			JAPHelp.getInstance().setVisible(true);
-			JAPHelp.getInstance().requestFocus();
-		}
-		/**
-		 * This makes no sense and is not allowed.
-		 * @return false
-		 */
-		public boolean isCopyAllowed()
-		{
-			return false;
-		}
-		/**
-		 * Returns true as otherwise the help window would not be accessible.
-		 * @return true
-		 */
-		public boolean isDialogSemiModal()
-		{
-			return true;
-		}
-	}
-
-	/**
 	 * Returns the glass pane.
 	 * @return the glass pane
 	 */
@@ -2084,6 +1874,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
+	 * This method is not needed and only implemented to fulfill interface requirements.
 	 * @param a_event an Event
 	 * @return if the event has been dispatched successfully
 	 * @deprecated As of JDK version 1.1 replaced by dispatchEvent(AWTEvent).
@@ -2167,37 +1958,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		m_internalDialog.pack();
 	}
 
-	/**
-	 * Returns the internal dialog of a JAPDialog or null if there is none.
-	 * @param a_dialog a JAPDialog
-	 * @return the internal dialog of a JAPDialog or null if there is none
-	 */
-	private static Window getInternalDialog(JAPDialog a_dialog)
-	{
-		if (a_dialog == null)
-		{
-			return null;
-		}
-
-		return a_dialog.m_internalDialog;
-	}
-
-	/**
-	 * Finds the first parent that is a window.
-	 * @param a_parentComponent a Component
-	 * @return the first parent that is a window
-	 */
-	private static Window getParentWindow(Component a_parentComponent)
-	{
-		Component parentComponent = a_parentComponent;
-		while (parentComponent != null && ! (parentComponent instanceof Window))
-		{
-
-			parentComponent = parentComponent.getParent();
-		}
-		return (Window)parentComponent;
-	}
-
 	private static class WindowClosingAdapter extends WindowAdapter
 	{
 		private JAPDialog m_dialog;
@@ -2270,8 +2030,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 	}
 
-
-
 	private static class LinkedInformationClickListener extends MouseAdapter
 	{
 		private ILinkedInformation m_linkedInformation;
@@ -2314,6 +2072,273 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 	}
 
+
+	/**
+	 * Displays a confirm dialog. Words are wrapped automatically if a message line is too long.
+	 * This method is the 'heart' of the show...Dialog() logic.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
+	 * @param a_icon an icon that will be displayed on the dialog
+	 * @param a_messageType use the message types from JOptionPane
+	 * @param a_optionType use the option types from JOptionPane
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 * @param a_bForceApplicationModality Forces the dialog to behave lika a standard JOptionPane dialog
+	 * regarding modality. That means that the dialog is not only modal to its parent, but to every
+	 * window in the application.
+	 * @return The value the user has selected. RETURN_VALUE_UNINITIALIZED implies
+	 * the user has not yet made a choice.
+	 * @see javax.swing.JOptionPane
+	 */
+	private static int showConfirmDialog(Component a_parentComponent, String a_message, String a_title,
+										 int a_optionType, int a_messageType, Icon a_icon,
+										 ILinkedInformation a_linkedInformation,
+										 boolean a_bForceApplicationModality)
+	{
+		JAPDialog dialog;
+		JAPHelpContext.IHelpContext helpContext = null;
+		DialogContentPane dialogContentPane;
+		JComponent contentPane;
+		String message;
+		String strLinkedInformation;
+		JAPHtmlMultiLineLabel label;
+		PreferredWidthBoxPanel dummyBox;
+		JComponent linkLabel;
+
+		if (a_message == null)
+		{
+			a_message = "";
+		}
+		message = a_message;
+
+		if (a_title == null)
+		{
+			a_title = JAPMessages.getString(MSG_TITLE_CONFIRMATION);
+		}
+
+		/*
+		 * If the linked information contains a help context, display the help button instead of a link
+		 */
+		if (a_linkedInformation instanceof JAPHelpContext.IHelpContext)
+		{
+			helpContext = (JAPHelpContext.IHelpContext)a_linkedInformation;
+			a_linkedInformation = null;
+		}
+
+		if (a_linkedInformation != null && a_linkedInformation.getMessage() != null &&
+			a_linkedInformation.getMessage().trim().length() > 0)
+		{
+			strLinkedInformation =
+				JAPHtmlMultiLineLabel.removeTagsAndNewLines(a_linkedInformation.getMessage());
+			message += JAPHtmlMultiLineLabel.TAG_BREAK + JAPHtmlMultiLineLabel.TAG_A_OPEN +
+				strLinkedInformation + JAPHtmlMultiLineLabel.TAG_A_CLOSE;
+		}
+		else
+		{
+			strLinkedInformation = null;
+		}
+
+		/*
+		 * Set the dialog parameters and get its label and content pane.
+		 */
+		label = new JAPHtmlMultiLineLabel(message);
+		label.setFontStyle(JAPHtmlMultiLineLabel.FONT_STYLE_PLAIN);
+		dialog = new JAPDialog(a_parentComponent, a_title, true, a_bForceApplicationModality);
+		dialogContentPane = new DialogContentPane(dialog,
+												  new DialogContentPane.Layout(null, a_messageType, a_icon),
+												  new DialogContentPane.Options(a_optionType, helpContext));
+		dialogContentPane.setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
+		dialogContentPane.setContentPane(label);
+		dialogContentPane.updateDialog();
+		// trick: a dialog's content pane is always a JComponent; it is needed to set the min/max size
+		contentPane = (JComponent)dialog.getContentPane();
+
+
+		/**
+		 * Calculate the optimal dialog size with respect to the golden ratio.
+		 * The width defines the longer side.
+		 */
+		Dimension bestDimension = null;
+		int  minWidth;
+		double currentDelta;
+		double bestDelta;
+		int currentWidth;
+		int bestWidth;
+		int failed;
+
+		// get the minimum width and height that is needed to display this dialog without any text
+		minWidth =
+			new JOptionPane("", a_messageType, a_optionType, a_icon).
+			createDialog(a_parentComponent, a_title).getContentPane().getSize().width / 2;
+
+		// set the maximum width that is allowed for the content pane
+		int maxWidth = (int)getParentWindow(a_parentComponent).getSize().width;
+		if (maxWidth < minWidth * 4)
+		{
+			maxWidth = minWidth * 4;
+		}
+		// if the text in the content pane is short, reduce the max width to the text length
+		maxWidth = Math.min(contentPane.getWidth(), maxWidth);
+
+		// put the content pane in a box and the box in the dialog
+		dummyBox = new PreferredWidthBoxPanel();
+		dummyBox.add(contentPane);
+
+		/**
+		 * Do a quick heuristic to approximate the golden ratio for the dialog size.
+		 */
+		bestDelta = Double.MAX_VALUE;
+		currentWidth = maxWidth;
+		bestWidth =  currentWidth;
+		failed = 0;
+		for (int i = 0; i < NUMBER_OF_HEURISTIC_ITERATIONS; i++)
+		{
+			/**
+			 * Set the exact width of the frame.
+			 * The following trick must be explained:
+			 * Get the HTML view of the label and set its width to the current width of the label that is
+			 * defined by the total width of the surrounding content pane. The height of the view may be
+			 * unlimited, as the view will adapt its height automatically so that the whole text is
+			 * displayed respecting the width that has been set.
+			 * @see javax.swing.JLabel.Bounds()
+			 * @see javax.swing.JLabel.getTextRectangle()
+			 * @see javax.swing.SwingUtilities
+			 * @see javax.swing.plaf.basic.BasicHTML
+			 * @see javax.swing.text.html.HTMLEditorKit
+			 */
+			contentPane.setMaximumSize(
+						 new Dimension(currentWidth, JAPHtmlMultiLineLabel.UNLIMITED_LABEL_HEIGHT));
+			dummyBox.setPreferredWidth(currentWidth);
+			dialog.setContentPane(dummyBox);
+			dialog.pack();
+			label.setPreferredWidth(label.getWidth());
+			dialog.pack();
+
+			currentWidth = dummyBox.getWidth();
+			currentDelta = getGoldenRatioDelta(dialog);
+			if (Math.abs(currentDelta) < Math.abs(bestDelta))
+			{
+				bestDimension = new Dimension(dummyBox.getSize());
+				bestDelta = currentDelta;
+				bestWidth = currentWidth;
+				currentWidth += bestDelta / 2.0;
+				failed = 0;
+			}
+			else
+			{
+				currentWidth = bestWidth + (int)(bestDelta / (3.0 * (failed + 1.0)));
+				failed++;
+			}
+
+			// the objective function value
+			//System.out.println("bestDelta: " + bestDelta + "  currentDelta:" + currentDelta);
+
+			currentWidth = (int)Math.max(currentWidth, minWidth);
+			if (currentWidth == bestWidth)
+			{
+				break;
+			}
+		}
+
+		/*
+		System.out.println("CurrentSize: " + dummyBox.getSize() + "_" + contentPane.getSize());
+		System.out.println("MaximumSize: " + dummyBox.getMaximumSize() + "_" + contentPane.getMaximumSize());
+		System.out.println("PreferredSize: " + dummyBox.getPreferredSize() + "_" + contentPane.getPreferredSize());
+		*/
+
+		/**
+		 * Recreate the dialog and set its final size.
+		 */
+		dummyBox = new PreferredWidthBoxPanel();
+		label = new JAPHtmlMultiLineLabel("<font color=#000000>" + a_message + "</font>");
+		label.setFontStyle(JAPHtmlMultiLineLabel.FONT_STYLE_PLAIN);
+		dummyBox.add(label);
+		linkLabel = null;
+		if (strLinkedInformation != null)
+		{
+			if (a_linkedInformation.isCopyAllowed())
+			{   /** @todo this is not nice in most of the old JDKs) */
+				JTextPane textPane = GUIUtils.createSelectableAndResizeableLabel(dummyBox);
+				/*
+				SimpleAttributeSet attributes;
+				attributes = new SimpleAttributeSet(textPane.getCharacterAttributes());
+				attributes.addAttribute(CharacterConstants.Underline, Boolean.TRUE);
+				textPane.setCharacterAttributes(attributes, true);
+			*/
+
+				textPane.setText(strLinkedInformation);
+				textPane.setFont(label.getFont());
+				textPane.setMargin(new java.awt.Insets(0,0,0,0));
+				textPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,1,0));
+				textPane.setForeground(java.awt.Color.blue);
+				linkLabel = textPane;
+			}
+			else
+			{
+				linkLabel = new JAPHtmlMultiLineLabel(JAPHtmlMultiLineLabel.TAG_A_OPEN +
+					strLinkedInformation + JAPHtmlMultiLineLabel.TAG_A_CLOSE);
+			}
+
+			dummyBox.add(linkLabel);
+		}
+
+		dialogContentPane.setContentPane(dummyBox);
+		dialogContentPane.updateDialog();
+		if (strLinkedInformation != null)
+		{
+			linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation));
+		}
+		((JComponent)dialog.getContentPane()).setPreferredSize(bestDimension);
+		dialog.pack();
+		if (bestDelta != getGoldenRatioDelta(dialog))
+		{
+			LogHolder.log(LogLevel.NOTICE, LogType.GUI, "Calculated dialog size differs from real size!");
+		}
+		LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Dialog golden ratio delta: " + getGoldenRatioDelta(dialog));
+
+		dialog.setResizable(false);
+		dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		dialog.addWindowListener(new SimpleDialogButtonFocusWindowAdapter(dialogContentPane));
+		dialog.setVisible(true);
+
+		return dialogContentPane.getValue();
+	}
+
+	/**
+	 * Returns the internal dialog of a JAPDialog or null if there is none.
+	 * @param a_dialog a JAPDialog
+	 * @return the internal dialog of a JAPDialog or null if there is none
+	 */
+	private static Window getInternalDialog(JAPDialog a_dialog)
+	{
+		if (a_dialog == null)
+		{
+			return null;
+		}
+
+		return a_dialog.m_internalDialog;
+	}
+
+	/**
+	 * Finds the first parent that is a window.
+	 * @param a_parentComponent a Component
+	 * @return the first parent that is a window
+	 */
+	private static Window getParentWindow(Component a_parentComponent)
+	{
+		Component parentComponent = a_parentComponent;
+		while (parentComponent != null && ! (parentComponent instanceof Window))
+		{
+
+			parentComponent = parentComponent.getParent();
+		}
+		return (Window)parentComponent;
+	}
+
 	/**
 	 * Finds the first focusable Component in a Container and sets the focus on it.
 	 * @param a_container a Container
@@ -2350,6 +2375,43 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		return false;
 	}
 
+	/**
+	 * Keeps the blocked window in a disabled state and transfers the focus from it to the dialog,
+	 * even if some other part of the application set it to enabled or set the focus on it.
+	 */
+	private class BlockedWindowDeactivationAdapter extends WindowAdapter implements FocusListener
+	{
+		public void windowActivated(WindowEvent e)
+		{
+			deactivate(e.getWindow());
+		}
+
+		public void focusGained(FocusEvent a_event)
+		{
+			deactivate((Window)a_event.getComponent());
+		}
+
+		public void focusLost(FocusEvent a_event)
+		{
+		}
+
+		private void deactivate(Window a_window)
+		{
+			if (m_bBlockParentWindow)
+			{
+				requestFocus();
+				if (a_window.isEnabled())
+				{
+					a_window.setEnabled(false);
+				}
+			}
+		}
+	}
+
+	/**
+	 * JAPDialog's main logic.
+	 * @param a_bVisible true if the dialog is shown; false if it is hidden
+	 */
 	private void setVisibleInternal(boolean a_bVisible)
 	{
 		if (isVisible() && m_bBlockParentWindow && !a_bVisible)
@@ -2506,35 +2568,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		synchronized (m_internalDialog.getTreeLock())
 		{
 			m_internalDialog.getTreeLock().notifyAll();
-		}
-	}
-
-	private class BlockedWindowDeactivationAdapter extends WindowAdapter implements FocusListener
-	{
-		public void windowActivated(WindowEvent e)
-		{
-			deactivate(e.getWindow());
-		}
-
-		public void focusGained(FocusEvent a_event)
-		{
-			deactivate((Window)a_event.getComponent());
-		}
-
-		public void focusLost(FocusEvent a_event)
-		{
-		}
-
-		private void deactivate(Window a_window)
-		{
-			if (m_bBlockParentWindow)
-			{
-				requestFocus();
-				if (a_window.isEnabled())
-				{
-					a_window.setEnabled(false);
-				}
-			}
 		}
 	}
 }

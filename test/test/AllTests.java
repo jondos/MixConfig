@@ -29,6 +29,10 @@ package test;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import logging.SystemErrLog;
+import logging.LogLevel;
+import logging.LogHolder;
+import logging.LogType;
 
 /**
  * This is the test suite which combines all other JUnit tests of the project.
@@ -56,6 +60,9 @@ public class AllTests
 	 */
 	public static Test suite()
 	{
+		LogHolder.setLogInstance(new SystemErrLog(LogLevel.DEBUG, LogType.ALL));
+		LogHolder.setDetailLevel(LogHolder.DETAIL_LEVEL_HIGHEST);
+
 		TestSuite suite = new TestSuite("All tests.");
 		suite.addTest(anon.test.AllTests.suite());
 		return suite;
