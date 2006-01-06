@@ -78,7 +78,9 @@ import logging.LogType;
  * If you have a chained list, you can display it as a Wizard, too. Every content pane in the list must
  * implement the interface DialogContentPane.IWizardSuitable and each content pane is recommended to
  * support BUTTON_OPERATION_WIZARD. Their "YES/OK" and "NO" buttons will automatically
- * be transformed into "Next" and "Previous".
+ * be transformed into "Next" and "Previous", and all buttons are shown (Cancel, Previous, Next). If a class
+ * wants to keep its own buttons as defined by the option type but act in a wizard, it has to implement
+ * IWizardSuitableNoWizardButtons. This will prevent that is gets the wizard layout.
  *
  * @see gui.dialog.JAPDialog
  * @see javax.swing.JDialog
@@ -264,14 +266,17 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 * or empty, no border is shown around the content pane. If the title is not null
 	 * (may be an empty String), a status bar is shown between the content pane and the buttons.
 	 * @param a_strText A text that is shown withing the content pane. The text is interpreted as HTML. If
-	 * you call pack() on the dialog when it is updates with this conten pane, the text length is
+	 * you call pack() on the dialog when it is updated with this content pane, the text length is
 	 * auto-formatted so that its width is not bigger than the content with respect to a minimum size.
-	 * @param a_optionType one of the available option types
-	 * @param a_messageType one of the available message types
+	 * Notice: this only works correctly if you call pack() on an invisible dialog.
+	 * @param a_optionType one of the available option types the define the type and number of buttons
+	 * @param a_messageType one of the available message types that define the message layout
 	 * @param a_icon an Icon; if null, the icon will be chosen automatically depending on the message type
-	 * @param a_helpContext a IHelpContext; if it is not null, a help button is shown that opens the context
+	 * @param a_helpContext a IHelpContext; if it returns an other help context value than null,
+	 * a help button is shown that opens the context;
 	 * @param a_previousContentPane A DialogContentPane that will be linked with this one; it gets this
-	 * content pane as next content pane.
+	 * content pane as next content pane. Call moveToNextContentPane() and moveToPreviousContentPane() to
+	 * move between the panes.
 	 */
 	private void init(RootPaneContainer a_parentDialog, String a_strTitle, String a_strText, int a_optionType,
 					  int a_messageType, Icon a_icon, JAPHelpContext.IHelpContext a_helpContext,
@@ -379,6 +384,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 * If implemented, and the content pane is at least chained with one other content pane
 	 * (next or previous), the buttons are displayed in the style of a wizard: "No" -> "Previous",
 	 * "Yes" -> "Next", "Cancel". The last pane in the chain gets a "Finish" instead of "Next".
+	 * <P> A class that implements the wizard layout has the button operation
+	 * BUTTON_OPERATION_WIZARD by default. Of course, this may be altered by calling
+	 * setDefaultButtonOperation(int). </P>
 	 */
 	public static interface IWizardSuitable
 	{
@@ -477,52 +485,116 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		private DialogContentPane m_previousContentPane;
 		private JAPHelpContext.IHelpContext m_helpContext;
 
+		/**
+		 * Creates new button options.
+		 * @param a_optionType one of the available option types the define the type and number of buttons
+		 */
 		public Options(int a_optionType)
 		{
 			this(a_optionType, (JAPHelpContext.IHelpContext)null, null);
 		}
 
+		/**
+		 * Creates new button options. No buttons are shown by default.
+		 * @param a_strHelpContext a IHelpContext; if it returns an other help context value than null,
+		 * a help button is shown that opens the context;
+		 */
 		public Options(String a_strHelpContext)
 		{
 			this(OPTION_TYPE_EMPTY, a_strHelpContext, null);
 		}
 
+		/**
+		 * Creates new button options. No buttons are shown by default.
+		 * @param a_helpContext a IHelpContext; if it returns an other help context value than null,
+		 * a help button is shown that opens the context;
+		 */
 		public Options(JAPHelpContext.IHelpContext a_helpContext)
 		{
 			this(OPTION_TYPE_EMPTY, a_helpContext, null);
 		}
 
+		/**
+		 * Creates new button options. No buttons are shown by default.
+		 * @param a_previousContentPane A DialogContentPane that will be linked with this one; it gets this
+		 * content pane as next content pane. Call moveToNextContentPane() and moveToPreviousContentPane() to
+		 * move between the panes.
+		 */
 		public Options(DialogContentPane a_previousContentPane)
 		{
 			this(OPTION_TYPE_EMPTY, (JAPHelpContext.IHelpContext)null, a_previousContentPane);
 		}
 
+		/**
+		 * Creates new button options. No buttons are shown by default.
+		 * @param a_strHelpContext a IHelpContext; if it returns an other help context value than null,
+		 * a help button is shown that opens the context;
+		 * @param a_previousContentPane A DialogContentPane that will be linked with this one; it gets this
+		 * content pane as next content pane. Call moveToNextContentPane() and moveToPreviousContentPane() to
+		 * move between the panes.
+		 */
 		public Options(String a_strHelpContext, DialogContentPane a_previousContentPane)
 		{
 			this(OPTION_TYPE_EMPTY, a_strHelpContext, a_previousContentPane);
 		}
 
+		/**
+		 * Creates new button options. No buttons are shown by default.
+		 * @param a_helpContext a IHelpContext; if it returns an other help context value than null,
+		 * a help button is shown that opens the context;
+		 * @param a_previousContentPane A DialogContentPane that will be linked with this one; it gets this
+		 * content pane as next content pane. Call moveToNextContentPane() and moveToPreviousContentPane() to
+		 * move between the panes.
+		 */
 		public Options(JAPHelpContext.IHelpContext a_helpContext, DialogContentPane a_previousContentPane)
 		{
 			this(OPTION_TYPE_EMPTY, a_helpContext, a_previousContentPane);
 		}
 
+		/**
+		 * Creates new button options.
+		 * @param a_optionType one of the available option types the define the type and number of buttons
+		 * @param a_previousContentPane A DialogContentPane that will be linked with this one; it gets this
+		 * content pane as next content pane. Call moveToNextContentPane() and moveToPreviousContentPane() to
+		 * move between the panes.
+		 */
 		public Options(int a_optionType, DialogContentPane a_previousContentPane)
 		{
 			this(a_optionType, (JAPHelpContext.IHelpContext)null, a_previousContentPane);
 		}
 
+		/**
+		 * Creates new button options.
+		 * @param a_optionType one of the available option types the define the type and number of buttons
+		 * @param a_helpContext a IHelpContext; if it returns an other help context value than null,
+		 * a help button is shown that opens the context;
+		 */
 		public Options(int a_optionType, JAPHelpContext.IHelpContext a_helpContext)
 		{
 			this(a_optionType, a_helpContext, null);
 		}
 
+		/**
+		 * Creates new button options.
+		 * @param a_optionType one of the available option types the define the type and number of buttons
+		 * @param a_strHelpContext a IHelpContext; if it returns an other help context value than null,
+		 * a help button is shown that opens the context;
+		 */
 		public Options(int a_optionType, String a_strHelpContext)
 		{
 			this(a_optionType, a_strHelpContext, null);
 		}
 
 
+		/**
+		 * Creates new button options.
+		 * @param a_optionType one of the available option types the define the type and number of buttons
+		 * @param a_strHelpContext a IHelpContext; if it returns an other help context value than null,
+		 * a help button is shown that opens the context;
+		 * @param a_previousContentPane A DialogContentPane that will be linked with this one; it gets this
+		 * content pane as next content pane. Call moveToNextContentPane() and moveToPreviousContentPane() to
+		 * move between the panes.
+		 */
 		public Options(int a_optionType, final String a_strHelpContext, DialogContentPane a_previousContentPane)
 		{
 			this(a_optionType,
@@ -530,6 +602,15 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 				a_previousContentPane);
 		}
 
+		/**
+		 * Creates new button options.
+		 * @param a_optionType one of the available option types the define the type and number of buttons
+		 * @param a_helpContext a IHelpContext; if it returns an other help context value than null,
+		 * a help button is shown that opens the context;
+		 * @param a_previousContentPane A DialogContentPane that will be linked with this one; it gets this
+		 * content pane as next content pane. Call moveToNextContentPane() and moveToPreviousContentPane() to
+		 * move between the panes.
+		 */
 		public Options(int a_optionType, JAPHelpContext.IHelpContext a_helpContext,
 					   DialogContentPane a_previousContentPane)
 		{
@@ -559,64 +640,109 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 */
 	public static final class Layout
 	{
-		private String m_title;
+		private String m_strTitle;
 		private int m_messageType;
 		private Icon m_icon;
 
+		/**
+		 * Creates a new Layout for the dialog content pane. The title is empty, therefore a status bar
+		 * will be shown in the content pane.
+		 * @param a_messageType The content pane's message type,
+		 * e.g. MESSAGE_TYPE_PLAIN, MESSAGE_TYPE_ERROR, ...
+		 */
 		public Layout(int a_messageType)
 		{
 			this("", a_messageType, null);
 		}
 
-		public Layout(String a_title)
+		/**
+		 * Creates a new Layout for the dialog content pane.
+		 * @param a_strTitle A title for the content pane that is shown in a TitledBorder. If the title is
+		 * null or empty, no border is shown around the content pane. If the title is not null
+		 * (may be an empty String), a status bar is shown between the content pane and the buttons.
+		 */
+		public Layout(String a_strTitle)
 		{
-			this(a_title, MESSAGE_TYPE_PLAIN, null);
+			this(a_strTitle, MESSAGE_TYPE_PLAIN, null);
 		}
 
+		/**
+		 * Creates a new Layout for the dialog content pane. The title is empty, therefore a status bar
+		 * will be shown in the content pane.
+		 * @param a_icon The icon for the content pane. If is is null, the icon will be automatically chosen
+		 * depending on the message type.
+		 */
 		public Layout(Icon a_icon)
 		{
 			this("", MESSAGE_TYPE_PLAIN, a_icon);
 		}
 
-		public Layout(int a_messageType, Icon a_icon)
-		{
-			this("", a_messageType, a_icon);
-		}
-
-		public Layout(String a_title, int a_messageType)
-		{
-			this(a_title, a_messageType, null);
-		}
-
-		public Layout(String a_title, Icon a_icon)
-		{
-			this(a_title, MESSAGE_TYPE_PLAIN, a_icon);
-		}
-
 		/**
-		 * Creates a new Layout for the dialog content pane.
-		 * @param a_title The title of the dialog content pane. If it is empty or null, the content pane won't
-		 * have a border. If it is null, the status message field will be replaced by modal dialogs.
+		 * Creates a new Layout for the dialog content pane. The title is empty, therefore a status bar
+		 * will be shown in the content pane.
 		 * @param a_messageType The content pane's message type,
 		 * e.g. MESSAGE_TYPE_PLAIN, MESSAGE_TYPE_ERROR, ...
 		 * @param a_icon The icon for the content pane. If is is null, the icon will be automatically chosen
 		 * depending on the message type.
 		 */
-		public Layout(String a_title, int a_messageType, Icon a_icon)
+		public Layout(int a_messageType, Icon a_icon)
 		{
-			m_title = a_title;
+			this("", a_messageType, a_icon);
+		}
+
+		/**
+		 * Creates a new Layout for the dialog content pane.
+		 * @param a_strTitle A title for the content pane that is shown in a TitledBorder. If the title is
+		 * null or empty, no border is shown around the content pane. If the title is not null
+		 * (may be an empty String), a status bar is shown between the content pane and the buttons.
+		 * @param a_messageType The content pane's message type,
+		 * e.g. MESSAGE_TYPE_PLAIN, MESSAGE_TYPE_ERROR, ...
+		 * depending on the message type.
+		 */
+		public Layout(String a_strTitle, int a_messageType)
+		{
+			this(a_strTitle, a_messageType, null);
+		}
+
+		/**
+		 * Creates a new Layout for the dialog content pane.
+		 * @param a_strTitle A title for the content pane that is shown in a TitledBorder. If the title is
+		 * null or empty, no border is shown around the content pane. If the title is not null
+		 * (may be an empty String), a status bar is shown between the content pane and the buttons.
+		 * @param a_icon The icon for the content pane. If is is null, the icon will be automatically chosen
+		 * depending on the message type.
+		 */
+		public Layout(String a_strTitle, Icon a_icon)
+		{
+			this(a_strTitle, MESSAGE_TYPE_PLAIN, a_icon);
+		}
+
+		/**
+		 * Creates a new Layout for the dialog content pane.
+		 * @param a_strTitle A title for the content pane that is shown in a TitledBorder. If the title is
+		 * null or empty, no border is shown around the content pane. If the title is not null
+		 * (may be an empty String), a status bar is shown between the content pane and the buttons.
+		 * @param a_messageType The content pane's message type,
+		 * e.g. MESSAGE_TYPE_PLAIN, MESSAGE_TYPE_ERROR, ...
+		 * @param a_icon The icon for the content pane. If is is null, the icon will be automatically chosen
+		 * depending on the message type.
+		 */
+		public Layout(String a_strTitle, int a_messageType, Icon a_icon)
+		{
+			m_strTitle = a_strTitle;
 			m_messageType = a_messageType;
 			m_icon = a_icon;
 		}
 
 		/**
-		 * Returns the title of the dialog content pane. If it is empty or null, the content pane won't have a
-		 * border. If it is null, the status message field will be replaced by modal dialogs.
+		 * Returns the title of the content pane that is shown in a TitledBorder. If the title is
+		 * null or empty, no border is shown around the content pane. If the title is not null
+		 * (may be an empty String), a status bar is shown between the content pane and the buttons.
 		 * @return the title of the dialog content pane
 		 */
 		public String getTitle()
 		{
-			return m_title;
+			return m_strTitle;
 		}
 
 		/**
@@ -715,8 +841,12 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 
 	/**
 	 * Returns if this content pane is formatted with the wizard layout. The "Yes" and "OK" buttons will
-	 * be transformed to "Next", the "No" button is replaced by "Previous". If the dialog window is opened,
-	 * the focus will automatically be set on "Next".
+	 * be transformed to "Next", the "No" button is replaced by "Previous" and all buttons are shown
+	 * (Cancel, Previous, Next), not regarding what buttons have been defined by the option type.
+	 * If the dialog window is opened, the focus will automatically be set on "Next".
+	 * <P> If a class wants to keep its own buttons as defined by the option type but act in a wizard,
+	 * it has to implement IWizardSuitableNoWizardButtons.
+	 * This will prevent that is gets the wizard layout. </P>
 	 * @return if this content pane is formatted with the wizard layout
 	 */
 	public final boolean hasWizardLayout()
