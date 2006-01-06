@@ -68,6 +68,84 @@ public final class ClassUtil
 	}
 
 	/**
+	 * Represents a package name.
+	 * @see http://java.sun.com/docs/books/jls/second_edition/html/packages.doc.html
+	 */
+	public final static class Package
+	{
+		private String m_strPackage;
+
+		public Package(Class a_class)
+		{
+			if (a_class == null || a_class.getName().indexOf(".") < 0)
+			{
+				m_strPackage = "";
+			}
+			else
+			{
+				m_strPackage = a_class.getName().substring(0, a_class.getName().lastIndexOf("."));
+			}
+		}
+
+		public Package(String a_strPackage)
+		{
+			if (m_strPackage == null || m_strPackage.trim().length() == 0)
+			{
+				m_strPackage = "";
+
+			}
+			else
+			{
+				if (new StringTokenizer(m_strPackage).countTokens() > 1)
+				{
+					throw new IllegalArgumentException("Package names may not contain whitespaces!");
+				}
+				else
+				{
+					for (int i = 0; i < m_strPackage.length(); i++)
+					{
+						if (Character.isLetterOrDigit(m_strPackage.charAt(i)) ||
+							m_strPackage.charAt(i) == '.')
+						{
+							continue;
+						}
+						else if (m_strPackage.charAt(i) == '\\' && m_strPackage.length() > (i + 5) &&
+								 m_strPackage.charAt(i + 1) == 'u')
+						{
+							boolean bUnicode = true;
+
+							for (int j = i + 2; j < (i + 5); j++)
+							{
+								if (!Character.isDigit(m_strPackage.charAt(j)))
+								{
+									bUnicode = false;
+									break;
+								}
+							}
+
+							if (bUnicode)
+							{
+								// this seems to be a unicode mapping; skip the unicode; \\u -> @
+								i += 5;
+								continue;
+							}
+						}
+						throw new IllegalArgumentException("Illegal character in package name: " +
+							m_strPackage.charAt(i));
+					}
+
+					m_strPackage = a_strPackage;
+				}
+			}
+		}
+
+		public String getPackage()
+		{
+			return m_strPackage;
+		}
+	}
+
+	/**
 	 * Gets the name of a class without package (everything before the last "." is removed).
 	 * @param a_class a Class
 	 * @return the name of the class without package

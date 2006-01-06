@@ -203,6 +203,7 @@ public class CertificateGenerator implements Runnable
 								 CertificateGenerator a_generator)
 		 {
 			 super(a_parentDialog, "Generating key pair.", a_previousContentPane, a_generator);
+			 getButtonCancel().setVisible(false);
 			 m_validityContentPane = a_validityContentPane;
 			 m_generator = a_generator;
 		}
