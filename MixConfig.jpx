@@ -143,7 +143,7 @@
   <property category="runtime.0" name="applet.class" value="mixconfig.TheApplet"/>
   <property category="runtime.0" name="applet.html" value="src/TheApplet.html"/>
   <property category="runtime.0" name="application.class" value="mixconfig.MixConfig"/>
-  <property category="runtime.0" name="application.parameters" value="--loglevel Info --logdetail 2"/>
+  <property category="runtime.0" name="application.parameters" value="--loglevel Info --logdetail 3"/>
   <property category="runtime.0" name="jsprunner.launchuri" value="/"/>
   <property category="runtime.0" name="test.harness" value="junit.textui.TestRunner"/>
   <property category="runtime.1" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
@@ -206,7 +206,7 @@
   <property category="sys" name="Encoding" value="UTF8"/>
   <property category="sys" name="ExcludeClassEnabled" value="0"/>
   <property category="sys" name="IncludeTestPath" value="1"/>
-  <property category="sys" name="JDK" value="java version 1.5.0_02-b09"/>
+  <property category="sys" name="JDK" value="java version 1.2.2_017"/>
   <property category="sys" name="LastTag" value="36"/>
   <property category="sys" name="Libraries" value="Swing;BouncyCastleLightForMixConfig;JUnit;junitx;Log4j;XML-1.1"/>
   <property category="sys" name="MakeStable" value="0"/>
@@ -264,111 +264,125 @@
     <property category="archiving" name="archiverClass" value="com.borland.jbuilder.wizard.archive.ApplicationArchiver"/>
     <property category="archiving" name="buildWithProject" value="0"/>
     <property category="archiving" name="contentRules.1" value="I:**/*.*"/>
-    <property category="archiving" name="contentRules.10" value="F:images/certinvalidinactive.gif;images/certinvalidinactive.gif"/>
-    <property category="archiving" name="contentRules.100" value="F:images/server.gif;images/server.gif"/>
-    <property category="archiving" name="contentRules.101" value="F:images/serverfrominternet.gif;images/serverfrominternet.gif"/>
-    <property category="archiving" name="contentRules.102" value="F:images/servermanuell.gif;images/servermanuell.gif"/>
-    <property category="archiving" name="contentRules.103" value="F:images/splash.gif;images/splash.gif"/>
-    <property category="archiving" name="contentRules.104" value="F:images/warning.gif;images/warning.gif"/>
-    <property category="archiving" name="contentRules.105" value="F:images/west.gif;images/west.gif"/>
-    <property category="archiving" name="contentRules.106" value="F:src/MixConfigMessages_en.properties;MixConfigMessages_en.properties"/>
-    <property category="archiving" name="contentRules.11" value="F:help/debian_en.html;help/debian_en.html"/>
-    <property category="archiving" name="contentRules.12" value="F:help/suse_en.html;help/suse_en.html"/>
-    <property category="archiving" name="contentRules.13" value="F:help/livecd_en.html;help/livecd_en.html"/>
-    <property category="archiving" name="contentRules.14" value="F:help/livecd_booting_en.html;help/livecd_booting_en.html"/>
-    <property category="archiving" name="contentRules.15" value="F:help/livecd_usage_en.html;help/livecd_usage_en.html"/>
-    <property category="archiving" name="contentRules.16" value="F:help/livecd_deployment_en.html;help/livecd_deployment_en.html"/>
-    <property category="archiving" name="contentRules.17" value="F:help/credits_en.html;help/credits_en.html"/>
-    <property category="archiving" name="contentRules.18" value="F:help/configuration_en.html;help/configuration_en.html"/>
-    <property category="archiving" name="contentRules.19" value="F:help/GeneralPanel_en.html;help/GeneralPanel_en.html"/>
+    <property category="archiving" name="contentRules.10" value="F:images/arrow90.gif;images/arrow90.gif"/>
+    <property category="archiving" name="contentRules.100" value="F:help/operatorChooseServer_en.html;help/operatorChooseServer_en.html"/>
+    <property category="archiving" name="contentRules.101" value="F:help/operatorCommitment20030924_de.html;help/operatorCommitment20030924_de.html"/>
+    <property category="archiving" name="contentRules.102" value="F:help/operatorCommitment20030924_en.html;help/operatorCommitment20030924_en.html"/>
+    <property category="archiving" name="contentRules.103" value="F:help/operatorCommitment_de.html;help/operatorCommitment_de.html"/>
+    <property category="archiving" name="contentRules.104" value="F:help/operatorCommitment_en.html;help/operatorCommitment_en.html"/>
+    <property category="archiving" name="contentRules.105" value="F:help/operatorIntroduction_en.html;help/operatorIntroduction_en.html"/>
+    <property category="archiving" name="contentRules.106" value="F:help/operatorLawEnforcement_en.html;help/operatorLawEnforcement_en.html"/>
+    <property category="archiving" name="contentRules.107" value="F:help/operatorPutMixInCascade_en.html;help/operatorPutMixInCascade_en.html"/>
+    <property category="archiving" name="contentRules.108" value="F:help/operatorTrust_en.html;help/operatorTrust_en.html"/>
+    <property category="archiving" name="contentRules.109" value="F:help/OtherMixPanel_en.html;help/OtherMixPanel_en.html"/>
+    <property category="archiving" name="contentRules.11" value="F:images/arrow.gif;images/arrow.gif"/>
+    <property category="archiving" name="contentRules.110" value="F:help/OwnCertificatesPanel_en.html;help/OwnCertificatesPanel_en.html"/>
+    <property category="archiving" name="contentRules.111" value="F:help/view_en.html;help/view_en.html"/>
+    <property category="archiving" name="contentRules.112" value="F:help/xhelpfrms.css;help/xhelpfrms.css"/>
+    <property category="archiving" name="contentRules.113" value="F:help/adminscripts/firewall;help/adminscripts/firewall"/>
+    <property category="archiving" name="contentRules.114" value="F:help/adminscripts/manual_en.html;help/adminscripts/manual_en.html"/>
+    <property category="archiving" name="contentRules.115" value="F:help/adminscripts/rc.status.anon;help/adminscripts/rc.status.anon"/>
+    <property category="archiving" name="contentRules.116" value="F:help/adminscripts/runANONServer;help/adminscripts/runANONServer"/>
+    <property category="archiving" name="contentRules.117" value="F:help/adminscripts/InfoService/runInfoService;help/adminscripts/InfoService/runInfoService"/>
+    <property category="archiving" name="contentRules.118" value="F:help/adminscripts/Mixproxy/runMixproxy;help/adminscripts/Mixproxy/runMixproxy"/>
+    <property category="archiving" name="contentRules.119" value="F:help/adminscripts/Mixproxy/squid.conf;help/adminscripts/Mixproxy/squid.conf"/>
+    <property category="archiving" name="contentRules.12" value="F:images/arrowDown.gif;images/arrowDown.gif"/>
+    <property category="archiving" name="contentRules.120" value="F:help/adminscripts/Mixproxy/sysctl.conf;help/adminscripts/Mixproxy/sysctl.conf"/>
+    <property category="archiving" name="contentRules.13" value="F:images/arrowUp.gif;images/arrowUp.gif"/>
+    <property category="archiving" name="contentRules.14" value="F:images/busy.gif;images/busy.gif"/>
+    <property category="archiving" name="contentRules.15" value="F:images/cdisabled.gif;images/cdisabled.gif"/>
+    <property category="archiving" name="contentRules.16" value="F:images/cenabled.gif;images/cenabled.gif"/>
+    <property category="archiving" name="contentRules.17" value="F:images/cert.gif;images/cert.gif"/>
+    <property category="archiving" name="contentRules.18" value="F:images/certdisabled.gif;images/certdisabled.gif"/>
+    <property category="archiving" name="contentRules.19" value="F:images/certinactive.gif;images/certinactive.gif"/>
     <property category="archiving" name="contentRules.2" value="F:certificates/acceptedCAs/bi.cer;certificates/acceptedCAs/bi.cer"/>
-    <property category="archiving" name="contentRules.20" value="F:help/file_en.html;help/file_en.html"/>
-    <property category="archiving" name="contentRules.21" value="F:help/start_en.html;help/start_en.html"/>
-    <property category="archiving" name="contentRules.22" value="F:help/view_en.html;help/view_en.html"/>
-    <property category="archiving" name="contentRules.23" value="F:help/OwnCertificatesPanel_en.html;help/OwnCertificatesPanel_en.html"/>
-    <property category="archiving" name="contentRules.24" value="F:help/cmdjap_en.html;help/cmdjap_en.html"/>
-    <property category="archiving" name="contentRules.25" value="F:help/mixconfig_summary_en.html;help/mixconfig_summary_en.html"/>
-    <property category="archiving" name="contentRules.26" value="F:help/mixconfig.CertificationTool_en.html;help/mixconfig.CertificationTool_en.html"/>
-    <property category="archiving" name="contentRules.27" value="F:help/mixsetup_build_en.html;help/mixsetup_build_en.html"/>
-    <property category="archiving" name="contentRules.28" value="F:help/mixsetup_introduction_en.html;help/mixsetup_introduction_en.html"/>
-    <property category="archiving" name="contentRules.29" value="F:help/mixsetup_lastmix_en.html;help/mixsetup_lastmix_en.html"/>
+    <property category="archiving" name="contentRules.20" value="F:images/certinvalid.gif;images/certinvalid.gif"/>
+    <property category="archiving" name="contentRules.21" value="F:images/certinvalidinactive.gif;images/certinvalidinactive.gif"/>
+    <property category="archiving" name="contentRules.22" value="F:images/copyicon.gif;images/copyicon.gif"/>
+    <property category="archiving" name="contentRules.23" value="F:images/copyintoicon.gif;images/copyintoicon.gif"/>
+    <property category="archiving" name="contentRules.24" value="F:images/deleteicon.gif;images/deleteicon.gif"/>
+    <property category="archiving" name="contentRules.25" value="F:images/enlarge.gif;images/enlarge.gif"/>
+    <property category="archiving" name="contentRules.26" value="F:images/error.gif;images/error.gif"/>
+    <property category="archiving" name="contentRules.27" value="F:images/exiticon.gif;images/exiticon.gif"/>
+    <property category="archiving" name="contentRules.28" value="F:images/green.gif;images/green.gif"/>
+    <property category="archiving" name="contentRules.29" value="F:images/gui.JAPHelp_home.gif;images/gui.JAPHelp_home.gif"/>
     <property category="archiving" name="contentRules.3" value="F:certificates/acceptedCAs/japroot.cer;certificates/acceptedCAs/japroot.cer"/>
-    <property category="archiving" name="contentRules.30" value="F:help/mixsetup_prebuilt_en.html;help/mixsetup_prebuilt_en.html"/>
-    <property category="archiving" name="contentRules.31" value="F:help/mixsetup_scripts_en.html;help/mixsetup_scripts_en.html"/>
-    <property category="archiving" name="contentRules.32" value="F:help/mixsetup_settingup_en.html;help/mixsetup_settingup_en.html"/>
-    <property category="archiving" name="contentRules.33" value="F:help/otherlinux_en.html;help/otherlinux_en.html"/>
-    <property category="archiving" name="contentRules.34" value="F:help/OtherMixPanel_en.html;help/OtherMixPanel_en.html"/>
-    <property category="archiving" name="contentRules.35" value="F:help/squid.conf;help/squid.conf"/>
-    <property category="archiving" name="contentRules.36" value="F:src/MixConfigMessages_de.properties;MixConfigMessages_de.properties"/>
-    <property category="archiving" name="contentRules.37" value="F:images/gui.JAPHelp_next.gif;images/gui.JAPHelp_next.gif"/>
-    <property category="archiving" name="contentRules.38" value="F:images/mixconfig.MapBox_mapquest-logo.gif;images/mixconfig.MapBox_mapquest-logo.gif"/>
-    <property category="archiving" name="contentRules.39" value="F:images/mixconfig.wizard.WizardLayout_right.gif;images/mixconfig.wizard.WizardLayout_right.gif"/>
-    <property category="archiving" name="contentRules.4" value="F:help/index_en.html;help/index_en.html"/>
-    <property category="archiving" name="contentRules.40" value="F:images/mixconfig.wizard.WizardLayout_center.gif;images/mixconfig.wizard.WizardLayout_center.gif"/>
-    <property category="archiving" name="contentRules.41" value="F:images/gui.JAPHelp_home.gif;images/gui.JAPHelp_home.gif"/>
-    <property category="archiving" name="contentRules.42" value="F:images/mixconfig.CascadePanel_downarrow.gif;images/mixconfig.CascadePanel_downarrow.gif"/>
-    <property category="archiving" name="contentRules.43" value="F:images/mixconfig.wizard.WizardLayout_left.gif;images/mixconfig.wizard.WizardLayout_left.gif"/>
-    <property category="archiving" name="contentRules.44" value="F:images/mixconfig.CascadePanel_uparrow.gif;images/mixconfig.CascadePanel_uparrow.gif"/>
-    <property category="archiving" name="contentRules.45" value="F:images/gui.JAPHelp_previous.gif;images/gui.JAPHelp_previous.gif"/>
-    <property category="archiving" name="contentRules.46" value="F:images/mixconfig.MixConfig_icon.gif;images/mixconfig.MixConfig_icon.gif"/>
-    <property category="archiving" name="contentRules.47" value="F:images/accountBroken.gif;images/accountBroken.gif"/>
-    <property category="archiving" name="contentRules.48" value="F:images/accountDisabled.gif;images/accountDisabled.gif"/>
-    <property category="archiving" name="contentRules.49" value="F:images/accountOk.gif;images/accountOk.gif"/>
-    <property category="archiving" name="contentRules.5" value="F:help/xhelpfrms.css;help/xhelpfrms.css"/>
-    <property category="archiving" name="contentRules.50" value="F:images/arrow46.gif;images/arrow46.gif"/>
-    <property category="archiving" name="contentRules.51" value="F:images/arrow90.gif;images/arrow90.gif"/>
-    <property category="archiving" name="contentRules.52" value="F:images/arrow.gif;images/arrow.gif"/>
-    <property category="archiving" name="contentRules.53" value="F:images/arrowDown.gif;images/arrowDown.gif"/>
-    <property category="archiving" name="contentRules.54" value="F:images/arrowUp.gif;images/arrowUp.gif"/>
-    <property category="archiving" name="contentRules.55" value="F:images/busy.gif;images/busy.gif"/>
-    <property category="archiving" name="contentRules.56" value="F:images/cdisabled.gif;images/cdisabled.gif"/>
-    <property category="archiving" name="contentRules.57" value="F:images/cenabled.gif;images/cenabled.gif"/>
-    <property category="archiving" name="contentRules.58" value="F:images/copyicon.gif;images/copyicon.gif"/>
-    <property category="archiving" name="contentRules.59" value="F:images/copyintoicon.gif;images/copyintoicon.gif"/>
-    <property category="archiving" name="contentRules.6" value="F:images/cert.gif;images/cert.gif"/>
-    <property category="archiving" name="contentRules.60" value="F:images/deleteicon.gif;images/deleteicon.gif"/>
-    <property category="archiving" name="contentRules.61" value="F:images/enlarge.gif;images/enlarge.gif"/>
-    <property category="archiving" name="contentRules.62" value="F:images/error.gif;images/error.gif"/>
-    <property category="archiving" name="contentRules.63" value="F:images/exiticon.gif;images/exiticon.gif"/>
-    <property category="archiving" name="contentRules.64" value="F:images/green.gif;images/green.gif"/>
-    <property category="archiving" name="contentRules.65" value="F:images/haken.gif;images/haken.gif"/>
-    <property category="archiving" name="contentRules.66" value="F:images/host16.gif;images/host16.gif"/>
-    <property category="archiving" name="contentRules.67" value="F:images/icoc.gif;images/icoc.gif"/>
-    <property category="archiving" name="contentRules.68" value="F:images/icom.gif;images/icom.gif"/>
-    <property category="archiving" name="contentRules.69" value="F:images/icon16.gif;images/icon16.gif"/>
-    <property category="archiving" name="contentRules.7" value="F:images/certdisabled.gif;images/certdisabled.gif"/>
-    <property category="archiving" name="contentRules.70" value="F:images/icon32.gif;images/icon32.gif"/>
-    <property category="archiving" name="contentRules.71" value="F:images/icon.gif;images/icon.gif"/>
-    <property category="archiving" name="contentRules.72" value="F:images/iconify.gif;images/iconify.gif"/>
-    <property category="archiving" name="contentRules.73" value="F:images/info.gif;images/info.gif"/>
-    <property category="archiving" name="contentRules.74" value="F:images/information.gif;images/information.gif"/>
-    <property category="archiving" name="contentRules.75" value="F:images/infoservicefrominternet.gif;images/infoservicefrominternet.gif"/>
-    <property category="archiving" name="contentRules.76" value="F:images/infoservicemanuell.gif;images/infoservicemanuell.gif"/>
-    <property category="archiving" name="contentRules.77" value="F:images/install.gif;images/install.gif"/>
-    <property category="archiving" name="contentRules.78" value="F:images/jap.gif;images/jap.gif"/>
-    <property category="archiving" name="contentRules.79" value="F:images/japeye.gif;images/japeye.gif"/>
-    <property category="archiving" name="contentRules.8" value="F:images/certinvalid.gif;images/certinvalid.gif"/>
-    <property category="archiving" name="contentRules.80" value="F:images/japi.gif;images/japi.gif"/>
-    <property category="archiving" name="contentRules.81" value="F:images/japtxt.gif;images/japtxt.gif"/>
-    <property category="archiving" name="contentRules.82" value="F:images/meter1.gif;images/meter1.gif"/>
-    <property category="archiving" name="contentRules.83" value="F:images/meter2.gif;images/meter2.gif"/>
-    <property category="archiving" name="contentRules.84" value="F:images/meter3.gif;images/meter3.gif"/>
-    <property category="archiving" name="contentRules.85" value="F:images/meter4.gif;images/meter4.gif"/>
-    <property category="archiving" name="contentRules.86" value="F:images/meter5.gif;images/meter5.gif"/>
-    <property category="archiving" name="contentRules.87" value="F:images/meter6.gif;images/meter6.gif"/>
-    <property category="archiving" name="contentRules.88" value="F:images/meterD.gif;images/meterD.gif"/>
-    <property category="archiving" name="contentRules.89" value="F:images/meterN.gif;images/meterN.gif"/>
-    <property category="archiving" name="contentRules.9" value="F:images/certinactive.gif;images/certinactive.gif"/>
-    <property category="archiving" name="contentRules.90" value="F:images/meterNnew.gif;images/meterNnew.gif"/>
-    <property category="archiving" name="contentRules.91" value="F:images/north.gif;images/north.gif"/>
-    <property category="archiving" name="contentRules.92" value="F:images/red.gif;images/red.gif"/>
-    <property category="archiving" name="contentRules.93" value="F:images/reload.gif;images/reload.gif"/>
-    <property category="archiving" name="contentRules.94" value="F:images/reloaddisabled_anim.gif;images/reloaddisabled_anim.gif"/>
-    <property category="archiving" name="contentRules.95" value="F:images/reloadrollover.gif;images/reloadrollover.gif"/>
-    <property category="archiving" name="contentRules.96" value="F:images/saveicon.gif;images/saveicon.gif"/>
-    <property category="archiving" name="contentRules.97" value="F:images/server16.gif;images/server16.gif"/>
-    <property category="archiving" name="contentRules.98" value="F:images/server_blau.gif;images/server_blau.gif"/>
-    <property category="archiving" name="contentRules.99" value="F:images/server_rot.gif;images/server_rot.gif"/>
+    <property category="archiving" name="contentRules.30" value="F:images/gui.JAPHelp_next.gif;images/gui.JAPHelp_next.gif"/>
+    <property category="archiving" name="contentRules.31" value="F:images/gui.JAPHelp_previous.gif;images/gui.JAPHelp_previous.gif"/>
+    <property category="archiving" name="contentRules.32" value="F:images/haken.gif;images/haken.gif"/>
+    <property category="archiving" name="contentRules.33" value="F:images/host16.gif;images/host16.gif"/>
+    <property category="archiving" name="contentRules.34" value="F:images/icoc.gif;images/icoc.gif"/>
+    <property category="archiving" name="contentRules.35" value="F:images/icom.gif;images/icom.gif"/>
+    <property category="archiving" name="contentRules.36" value="F:images/icon16.gif;images/icon16.gif"/>
+    <property category="archiving" name="contentRules.37" value="F:images/icon32.gif;images/icon32.gif"/>
+    <property category="archiving" name="contentRules.38" value="F:images/icon.gif;images/icon.gif"/>
+    <property category="archiving" name="contentRules.39" value="F:images/iconify.gif;images/iconify.gif"/>
+    <property category="archiving" name="contentRules.4" value="F:src/MixConfigMessages_de.properties;MixConfigMessages_de.properties"/>
+    <property category="archiving" name="contentRules.40" value="F:images/info.gif;images/info.gif"/>
+    <property category="archiving" name="contentRules.41" value="F:images/information.gif;images/information.gif"/>
+    <property category="archiving" name="contentRules.42" value="F:images/infoservicefrominternet.gif;images/infoservicefrominternet.gif"/>
+    <property category="archiving" name="contentRules.43" value="F:images/infoservicemanuell.gif;images/infoservicemanuell.gif"/>
+    <property category="archiving" name="contentRules.44" value="F:images/install.gif;images/install.gif"/>
+    <property category="archiving" name="contentRules.45" value="F:images/jap.gif;images/jap.gif"/>
+    <property category="archiving" name="contentRules.46" value="F:images/japeye.gif;images/japeye.gif"/>
+    <property category="archiving" name="contentRules.47" value="F:images/japi.gif;images/japi.gif"/>
+    <property category="archiving" name="contentRules.48" value="F:images/japtxt.gif;images/japtxt.gif"/>
+    <property category="archiving" name="contentRules.49" value="F:images/meter1.gif;images/meter1.gif"/>
+    <property category="archiving" name="contentRules.5" value="F:src/MixConfigMessages_en.properties;MixConfigMessages_en.properties"/>
+    <property category="archiving" name="contentRules.50" value="F:images/meter2.gif;images/meter2.gif"/>
+    <property category="archiving" name="contentRules.51" value="F:images/meter3.gif;images/meter3.gif"/>
+    <property category="archiving" name="contentRules.52" value="F:images/meter4.gif;images/meter4.gif"/>
+    <property category="archiving" name="contentRules.53" value="F:images/meter5.gif;images/meter5.gif"/>
+    <property category="archiving" name="contentRules.54" value="F:images/meter6.gif;images/meter6.gif"/>
+    <property category="archiving" name="contentRules.55" value="F:images/meterD.gif;images/meterD.gif"/>
+    <property category="archiving" name="contentRules.56" value="F:images/meterN.gif;images/meterN.gif"/>
+    <property category="archiving" name="contentRules.57" value="F:images/meterNnew.gif;images/meterNnew.gif"/>
+    <property category="archiving" name="contentRules.58" value="F:images/mixconfig.CascadePanel_downarrow.gif;images/mixconfig.CascadePanel_downarrow.gif"/>
+    <property category="archiving" name="contentRules.59" value="F:images/mixconfig.CascadePanel_uparrow.gif;images/mixconfig.CascadePanel_uparrow.gif"/>
+    <property category="archiving" name="contentRules.6" value="F:images/accountBroken.gif;images/accountBroken.gif"/>
+    <property category="archiving" name="contentRules.60" value="F:images/mixconfig.MapBox_mapquest-logo.gif;images/mixconfig.MapBox_mapquest-logo.gif"/>
+    <property category="archiving" name="contentRules.61" value="F:images/mixconfig.MixConfig_icon.gif;images/mixconfig.MixConfig_icon.gif"/>
+    <property category="archiving" name="contentRules.62" value="F:images/mixconfig.wizard.WizardLayout_center.gif;images/mixconfig.wizard.WizardLayout_center.gif"/>
+    <property category="archiving" name="contentRules.63" value="F:images/mixconfig.wizard.WizardLayout_left.gif;images/mixconfig.wizard.WizardLayout_left.gif"/>
+    <property category="archiving" name="contentRules.64" value="F:images/mixconfig.wizard.WizardLayout_right.gif;images/mixconfig.wizard.WizardLayout_right.gif"/>
+    <property category="archiving" name="contentRules.65" value="F:images/north.gif;images/north.gif"/>
+    <property category="archiving" name="contentRules.66" value="F:images/red.gif;images/red.gif"/>
+    <property category="archiving" name="contentRules.67" value="F:images/reload.gif;images/reload.gif"/>
+    <property category="archiving" name="contentRules.68" value="F:images/reloaddisabled_anim.gif;images/reloaddisabled_anim.gif"/>
+    <property category="archiving" name="contentRules.69" value="F:images/reloadrollover.gif;images/reloadrollover.gif"/>
+    <property category="archiving" name="contentRules.7" value="F:images/accountDisabled.gif;images/accountDisabled.gif"/>
+    <property category="archiving" name="contentRules.70" value="F:images/saveicon.gif;images/saveicon.gif"/>
+    <property category="archiving" name="contentRules.71" value="F:images/server16.gif;images/server16.gif"/>
+    <property category="archiving" name="contentRules.72" value="F:images/server_blau.gif;images/server_blau.gif"/>
+    <property category="archiving" name="contentRules.73" value="F:images/server_rot.gif;images/server_rot.gif"/>
+    <property category="archiving" name="contentRules.74" value="F:images/server.gif;images/server.gif"/>
+    <property category="archiving" name="contentRules.75" value="F:images/serverfrominternet.gif;images/serverfrominternet.gif"/>
+    <property category="archiving" name="contentRules.76" value="F:images/servermanuell.gif;images/servermanuell.gif"/>
+    <property category="archiving" name="contentRules.77" value="F:images/splash.gif;images/splash.gif"/>
+    <property category="archiving" name="contentRules.78" value="F:images/warning.gif;images/warning.gif"/>
+    <property category="archiving" name="contentRules.79" value="F:images/west.gif;images/west.gif"/>
+    <property category="archiving" name="contentRules.8" value="F:images/accountOk.gif;images/accountOk.gif"/>
+    <property category="archiving" name="contentRules.80" value="F:help/cmdjap_en.html;help/cmdjap_en.html"/>
+    <property category="archiving" name="contentRules.81" value="F:help/credits_en.html;help/credits_en.html"/>
+    <property category="archiving" name="contentRules.82" value="F:help/file_en.html;help/file_en.html"/>
+    <property category="archiving" name="contentRules.83" value="F:help/index_en.html;help/index_en.html"/>
+    <property category="archiving" name="contentRules.84" value="F:help/mixconfig.CertificationTool_en.html;help/mixconfig.CertificationTool_en.html"/>
+    <property category="archiving" name="contentRules.85" value="F:help/mixconfig.GeneralPanel_en.html;help/mixconfig.GeneralPanel_en.html"/>
+    <property category="archiving" name="contentRules.86" value="F:help/mixconfig.MixOnCDPanel_en.html;help/mixconfig.MixOnCDPanel_en.html"/>
+    <property category="archiving" name="contentRules.87" value="F:help/mixconfig.StartScreenPanel_en.html;help/mixconfig.StartScreenPanel_en.html"/>
+    <property category="archiving" name="contentRules.88" value="F:help/mixsetupBuild_en.html;help/mixsetupBuild_en.html"/>
+    <property category="archiving" name="contentRules.89" value="F:help/mixsetupBuildCompile_en.html;help/mixsetupBuildCompile_en.html"/>
+    <property category="archiving" name="contentRules.9" value="F:images/arrow46.gif;images/arrow46.gif"/>
+    <property category="archiving" name="contentRules.90" value="F:help/mixsetupBuildGetLibraries_en.html;help/mixsetupBuildGetLibraries_en.html"/>
+    <property category="archiving" name="contentRules.91" value="F:help/mixsetupBuildGetSources_en.html;help/mixsetupBuildGetSources_en.html"/>
+    <property category="archiving" name="contentRules.92" value="F:help/mixsetupDebian_en.html;help/mixsetupDebian_en.html"/>
+    <property category="archiving" name="contentRules.93" value="F:help/mixsetupLiveCD_booting_en.html;help/mixsetupLiveCD_booting_en.html"/>
+    <property category="archiving" name="contentRules.94" value="F:help/mixsetupLiveCD_deployment_en.html;help/mixsetupLiveCD_deployment_en.html"/>
+    <property category="archiving" name="contentRules.95" value="F:help/mixsetupLiveCD_en.html;help/mixsetupLiveCD_en.html"/>
+    <property category="archiving" name="contentRules.96" value="F:help/mixsetupLiveCD_usage_en.html;help/mixsetupLiveCD_usage_en.html"/>
+    <property category="archiving" name="contentRules.97" value="F:help/mixsetupOtherLinux_en.html;help/mixsetupOtherLinux_en.html"/>
+    <property category="archiving" name="contentRules.98" value="F:help/mixsetupPrebuilt_en.html;help/mixsetupPrebuilt_en.html"/>
+    <property category="archiving" name="contentRules.99" value="F:help/mixsetupSuse_en.html;help/mixsetupSuse_en.html"/>
     <property category="archiving" name="libraryStates.1" value="1:BouncyCastleLightForMixConfig"/>
     <property category="archiving" name="libraryStates.2" value="1:Log4j"/>
     <property category="archiving" name="libraryStates.3" value="1:XML-1.1"/>
@@ -509,5 +523,16 @@
   <file path="src/MixConfigMessages_en.properties"/>
   <file path="MixConfiguration.dtd"/>
   <file path="MixConfiguration.xml"/>
+  <file path="help/mixsetupBuildCompile_en.html"/>
+  <file path="help/mixsetupBuildGetLibraries_en.html"/>
+  <file path="help/mixsetupBuildGetSources_en.html"/>
+  <file path="help/mixsetupLiveCD_en.html"/>
+  <file path="help/operatorChooseServer_en.html"/>
+  <file path="help/operatorCommitment_en.html"/>
+  <file path="help/operatorCommitment20030924_de.html"/>
+  <file path="help/operatorCommitment20030924_en.html"/>
+  <file path="help/operatorLawEnforcement_en.html"/>
+  <file path="help/operatorPutMixInCascade_en.html"/>
+  <file path="help/operatorTrust_en.html"/>
   <file path="TheApplet.html"/>
 </project>
