@@ -6,48 +6,12 @@
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<h2>Using the Mix-Software as 'command line JAP'</h2>
+<h2>Using the MIX executable as local anonymizer proxy</h2>
 
-The mix software can be used as a replacement for JAP. You can download a
-<a href="http://anon.inf.tu-dresden.de/develop/aktversions_en.html">
-precompiled binary for linux x86</a> or you have to get the sources and compile
-it on your own.
-Either download the nightly generated
-<a href="http://anon.inf.tu-dresden.de/develop/mix.src.tgz">Source Code Tarball</a>
-or use anonymous CVS to get the newest version.
+If you have successfully installed the MIX server binary, you may also use it as
+a local anonymizer proxy for your web browser instead of the graphical JAP client.
 
-<p></p>
-
-Use:
-
-	<blockquote>
-		<code>
-		cvs -d :pserver:anonymous@cvs.inf.tu-dresden.de:/home/sk13/cvssource co proxytest
-		</code>
-	</blockquote>
-
-Now you need to compile it:
-
-	<blockquote>
-		<code>
-			./configure<br></br>
-			make
-		</code>
-	</blockquote>
-
-You should get a executable file called 'mix'.
-
-
-Do a quick test to see if it starts:
-
-	<blockquote>
-		<code>
-			./mix -?
-		</code>
-	</blockquote>
-
-This should list a short description of the command line options.
-
+<h3>Choosing the cascade</h3>
 
 Before using the software as a local proxy you have to decide which mix-cascade to use.
 You can use JAP to get the addresses of all available mixes. The address of the
@@ -59,9 +23,21 @@ You can use JAP to get the addresses of all available mixes. The address of the
 		</code>
 	</blockquote>
 
+If you know the address of an InfoService, you can directly 'ask' it about
+cascade addresses, for example the Dresden InfoService:
+
+	<blockquote>
+		<code>http://infoservice.inf.tu-dresden.de/cascades</code>
+	</blockquote>
+There are some other commands it accepts, try <code>mixes</code>, and
+<code>status</code>.
+
+<h3>Starting the local proxy</h3>
+
 Now you are ready to start the program. The parameters are:
 
 	<blockquote>
+		<code>-?</code> --> list all parameters<br></br>
 		<code>-j</code> --> to tell the mix to act as local proxy (like JAP)<br></br>
 		<code>-p [IP:]Port</code> --> local port to use (and IP if given)<br></br>
 		<code>-n mix.inf.tu-dresden.de:6544</code>
@@ -78,13 +54,13 @@ optional parameters:
 If you have started the local proxy you should get messages like:
 
 	<blockquote>
-		<code>
-			[2001/05/03-11:54:26, info    ] Anon proxy started!<br>
-			[2001/05/03-11:54:26, info    ] Using: OpenSSL 0.9.6 24 Sep 2000!<br>
-			[2001/05/03-11:54:26, info    ] Starting MIX...<br>
-			[2001/05/03-11:54:26, info    ] Try connecting to next Mix...<br>
-			[2001/05/03-11:54:26, info    ]  connected!<br>
-			[2001/05/03-11:54:26, info    ] Chain-Length: 2<br>
+
+			<code>[2001/05/03-11:54:26, info    ] Anon proxy started!</code><br>
+			<code>[2001/05/03-11:54:26, info    ] Using: OpenSSL 0.9.6 24 Sep 2000!</code><br>
+			<code>[2001/05/03-11:54:26, info    ] Starting MIX...</code><br>
+			<code>[2001/05/03-11:54:26, info    ] Try connecting to next Mix...</code><br>
+			<code>[2001/05/03-11:54:26, info    ] connected!</code><br>
+			<code>[2001/05/03-11:54:26, info    ] Chain-Length: 2</code><br>
 		</code>
 	</blockquote>
 

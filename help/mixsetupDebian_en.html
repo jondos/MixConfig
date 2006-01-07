@@ -11,23 +11,19 @@
 Insert the package URL in your <code>/etc/apt/sources.list</code>:
 
 	<blockquote>
-		<code>
-			deb http://anon.inf.tu-dresden.de/develop/deb / 
-		</code>
+		<code>deb http://anon.inf.tu-dresden.de/develop/deb / </code>
 	</blockquote>
-	
+
 Then call:
-	
 	<blockquote>
+		<pre>
 		<code>
-			apt-get update<br></br>
-			apt-get install mix
-		</code>
+			apt-get update
+			apt-get install mix </code></pre>
 	</blockquote>
-	
-Copy the configuration file(s) created by the mix configuration tool in the directory <code>/etc/mix</code> 
-and start the mix by typing <code>sudo /etc/init.d/mix start</code>. 
-If you deploy more than one configuration file, a separate mix will be started for each of the files. 
+Copy the configuration file(s) created by the mix configuration tool in the directory <code>/etc/mix</code>
+and start the mix by typing <code>sudo /etc/init.d/mix start</code>.
+If you deploy more than one configuration file, a separate mix will be started for each of the files.
 To stop all running mixes, type <code>sudo /etc/init.d/mix stop</code>.
 
 <!--#include virtual="/footer_en.html"-->

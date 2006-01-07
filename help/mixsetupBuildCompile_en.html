@@ -7,28 +7,66 @@
 <!--#include virtual="/header_en.html"-->
 
 <h2>Using a self-compiled MIX executable on Linux/UNIX</h2>
-
+If you really want to compile the sources by yourself, perhaps the best way would be
+to use the <a href="adminscripts/manual_en.html">admin scripts</a>.
+If you do not want this, please follow these instructions:
 
 <h3>Compiling the sources</h3>
+
+Fisrt, go into the source directory:
+<blockquote>
+	<code>cd proxytest</code>
+</blockquote>
+
 There are several configuration options available to adapt the source configuration
 to you system. For detailed help run
+<blockquote>
+	<code>./configure --help</code>
+</blockquote>
+
+Now run the configure command:
+
+<blockquote>
+	<code>./configure [you may use one or more options here]</code>
+</blockquote>
+
+The output will be something like
+<blockquote>
+	<pre>
+<code>
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for gawk... no
+checking for mawk... mawk
+...
+checking for OpenSSL directory... (system)
+checking for dom/DOM.hpp... yes
+Xerces-C includes found
+XercesC-Lib found
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating popt/Makefile
+config.status: creating xml/Makefile
+config.status: creating aes/Makefile
+config.status: creating trio/Makefile
+config.status: creating config.h
+config.status: executing depfiles commands </code></pre>
+</blockquote>
+If configure didn't completely run through, you can check the config.log file for
+errors (e.g. using <code>less config.log</code>). Toward the end of that file you
+may find a clue as to what went wrong. Look for a line that contains the error message
+that you got from configure. Like this one:
+<blockquote>
+	<code>configure:5328: error: Xerces-C Lib NOT found - please use --with-xml-lib</code>
+</blockquote>
+<p>Above this error message you will find the test that caused the error and possibly
+a more detailed error message.</p>
+
+If configure didn't show any errors, you are ready to compile. Type
+
 	<blockquote>
-				<code>
-					cd proxytest<br>
-					./configure --help<br></br>
-				</code>
+			<code>make</code>
 	</blockquote>
-
-If not already done, go into the source directory and run the compilation commands:
-
-	<blockquote>
-			<code>
-				cd proxytest<br>
-				./configure<br>
-				make
-			</code>
-	</blockquote>
-
 
 You should now have an executable file called 'mix' in this directory.
 It is the MIX server component.
@@ -36,14 +74,12 @@ It is the MIX server component.
 Do a quick test to see if it starts:
 
 	<blockquote>
-		<code>
-			./mix -?
-		</code>
+		<code>./mix -?</code>
 	</blockquote>
 
-This should list a short description of the command line options.
+<p>This should list a short description of the command line options.</p>
 
-Start it for testing using a shipped configuration with:
+Now Start it for testing using a shipped configuration with:
 	<blockquote>
 		<code>
 			./mix config=./documentation/SampleConfiguration/FirstMix.xml
@@ -51,8 +87,31 @@ Start it for testing using a shipped configuration with:
 	</blockquote>
 You should see something like this
 <blockquote>
-
+<pre>
+<code>
+[2003/06/17-22:43:27, info ] Anon proxy started!
+[2003/06/17-22:43:27, info ] Version: 00.01.60
+[2003/06/17-22:43:27, info ] Using: OpenSSL 0.9.6c 21 dec 2001!
+[2003/06/17-22:43:27, info ] I am the First MIX..
+[2003/06/17-22:43:27, info ] Starting MIX...
+[2003/06/17-22:43:27, debug ] Starting FirstMix InitOnce
+[2003/06/17-22:43:27, info ] SOCKET Option SENDLOWWAT not set!
+[2003/06/17-22:43:27, info ] MUXOUT-SOCKET RecvBuffSize: 131070
+[2003/06/17-22:43:27, info ] MUXOUT-SOCKET SendBuffSize: 131070
+[2003/06/17-22:43:27, info ] MUXOUT-SOCKET SendLowWatSize: 1</code></pre>
 </blockquote>
+
+The mix will look for the next mix, but there is none, of course.
+Shut it down by pressing <code>CTRL+C</code>.
+Now you can use your own config file in the same way and start your mix.
+Be sure to let it run as daemon, as otherwise it will be shut down when
+you log out from the console:
+
+	<blockquote>
+		<code>
+			./mix config=config.xml &amp;
+		</code>
+	</blockquote>
 
 <!--#include virtual="/footer_en.html"-->
 </body>

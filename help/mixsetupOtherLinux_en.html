@@ -37,36 +37,34 @@ please see at the quoted websites above.<br></br>
 Before you get the binaries some preliminaries are recommended to be done.
 The MIX server and all other needed components should be run using it's own user account.
 To create a new user account you need to be logged in as root.
-	<blockquote>
-		<code>
-			su<br></br>
-			useradd -d /home/mix -m -G users mix<br></br>
-			passwd mix<br></br>
-			exit<br></br>
-			su mix<br></br>
-			cd ~
-		</code>
-	</blockquote>
+<blockquote>
+<pre>
+<code>
+		su
+		useradd -d /home/mix -m -G users mix
+		passwd mix
+		exit
+		su mix
+		cd ~
+</code>
+</pre>
+</blockquote>
 Download the binary package of the MIX server now from the above quoted website and save it in the mix folder.
 If you have no X Window system installed or you prefer the command line you can use wget which is normally
 installed by default on many Linux / Unix systems. Just change into into the mix folder and execute from
 command line:
 
 	<blockquote>
-			<code>
-			wget http://anon.inf.tu-dresden.de/develop/mix.tgz
-			</code>
+			<code>wget http://anon.inf.tu-dresden.de/develop/mix.tgz</code>
 	</blockquote>
 
 Unpack the the archive now with:
 
 	<blockquote>
-			<code>
-			tar xfvz mix.tgz
-			</code>
+			<code>tar xfvz mix.tgz</code>
 	</blockquote>
 
-The unpacked <b>./mix </b> file is the MIX server.
+The unpacked <code>./mix </code> file is the MIX server.
 You just cannot start it because there is no XML configuration file yet. Please see the <b>MixConfig Tool</b>
 documentation how to generate a configuration fitting your needs.
 
