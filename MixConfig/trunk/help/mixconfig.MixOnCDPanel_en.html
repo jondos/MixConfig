@@ -5,17 +5,21 @@
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<H2>Live-CD (MixOnCD)</H2>
+<H2>Live-CD (<i>MixOnCD</i>)</H2>
 
-<P>The AN.ON-Mix live-CD is a runtime environment for mixes. You won't need to install anything
-on your harddisk to use it, neither will it write or change any data on your harddisk. Just burn the CD 
-and boot from it.</P>
+The AN.ON MIX live CD is a runtime environment for mixes. You won't need to install anything
+on your harddisk to use it, neither will it write or change any data on your harddisk. Just burn the CD
+and boot from it. See <A HREF="mixsetupLiveCD_en.html">Using the Live-CD (<i>MixOnCD</i>)</A>
+for further installation details.
 
 <H3>Configuration</H3>
 
 <UL>
   <LI><B>Use bootable MixOnCD to create and install the mix (yes/no)</B><BR>
-                 Prepares the mix configuration for MixOnCD usage. This kind of configuration won't work with a harddisk installation, but you may switch back to "<I>no</I>" whenever you want.
+	  Prepares the mix configuration for MixOnCD usage. This kind of configuration won't
+	  work with a harddisk installation (<a href="mixsetupBuild_en.html">compiling from sources</a> or
+	  <a href="mixsetupPrebuilt_en.html"> using prebuilt binaries</a>), but
+	  you may switch back to "<I>no</I>" whenever you want.
  </LI>
   <LI><B>Local Network Settings</B><BR>
   Tells MixOnCD how to configure the computer's network settings in a way it can access the internet via the local area network (LAN) it is connected to. It is supposed that the LAN already has a running internet connection, for example via DSL router. cable modem or broadband. Please note that WLAN (wireless) access is currently not supported.
@@ -44,20 +48,17 @@ and boot from it.</P>
       The gateway by which you get access to the internet. Typically ends with 1, like 192.168.2.1.
       </LI>
       <LI><B>Interface</B><BR>
-      The Unix network interface that should be used to connect to the network.This value is optional, default is <I>eth0</I>. 
-      Possible values are, for example, eth0, eth1, eth2,... 
+      The Unix network interface that should be used to connect to the network.This value is optional, default is <I>eth0</I>.
+      Possible values are, for example, eth0, eth1, eth2,...
       </LI>
     </UL>
   </UL>
-</UL>
-
-
-<H3>Installation</H3>
-
-<UL>
-  <LI><B><A HREF="livecd_deployment_en.html">Download and configuration deployment</A></B></LI>
-  <LI><B><A HREF="livecd_booting_en.html">Booting and maintenance login</A></B></LI>
-  <LI><B><A HREF="livecd_usage_en.html">Usage and commands</A></B></LI>
+  <li><b>User passwords</b><br>
+	  As a default, the user accounts 'root' and 'mix' will be created on the CD system, but
+	  without any password set. A remote login on your system will only work with a user
+	  account that has a valid password. Here you have the chance to choose a password that
+	  will be stored in the confguration in an encrypted form.
+  </li>
 </UL>
 
 

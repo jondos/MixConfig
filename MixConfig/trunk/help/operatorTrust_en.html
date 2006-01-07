@@ -1,0 +1,74 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>Responsibilities of MIX Operators</h2>
+
+Due to the inherent insecurity of the Internet, all sent and received messages should be signed
+cryptographically.
+<h3>MIX certificates</h3>
+
+In the process of configuring your MIX with the MixConfig tool, you will create a cryptographic
+certificate that identifies your MIX and enables it to sign messages. This certificate must
+be sent to the operators of your neighbouring MIXes, and you must receive their certificates
+to get the MIXes connected. In the case of
+<a href="operatorResponsibilities_en.html#dynamicCascades">dynamic cascades</a>
+
+the certificate distribution is automatically done by the InfoService (but this is not fully
+functional yet). In a
+<a href="operatorResponsibilities_en.html#dynamicCascades">static configuration</a>
+
+,
+you will have to exchange the certificates by email or other means with the neighbouring
+operators.
+<h3>Trust</h3>
+
+<p>Certificates and keys itself don't provide communication security, as anyone who has a computer
+is able to create them. Therefore, so-called <i>certificate infrastructures</i>
+exist, where trusted
+authorities sign the certificates and keys of people or organisations that have proven their
+identity and the ownership of the certificate/key to them. Each MIX operator has to decide
+which authorities he will trust. If you operate a first mix, its certificate must be trusted by
+the JAP users as well. They need to, like in browsers, have the certificate of the authority
+that signed your certificate installed. At the moment, the JAP-Team is the only trusted authority,
+and its certificate is included in the MixConfig tool, the MIX code, the JAP client and the
+InfoService. But soon you will be able to add or remove trusted authorities from/to the MIX
+configuration. </p>
+
+Certificates and keys are uniquely identified by their hash values, too. If you get a
+certificate from someone that is not signed by an authority you trust in, you can still verify
+if it is really his/her certificate by comparing the SHA1/MD5 fingerprint with the fingerprint
+he/she will tell you. This is, for example, the SHA1 fingerprint of the JAP-Team certificate:
+<blockquote>
+4D CF 81 F5 92 4B 11 19 6B 44 2A CD 53 E2 46 E1 0D 9A 16 F6
+</blockquote>
+
+<h3>Secure communication with the JAP-Team</h3>
+The best way to contact us is by <a href="mailto:jap@inf.tu-dresden.de">email</a>
+There is no need to encrypt messages since we will not exchange any secret information.
+In fact it is better not to encrypt emails in this context but only to sign them, since
+signed emails will provide some transparency and reassurance in case of doubt.
+Here is the source of our PGP key and it's fingerprint (this key is only fo email
+communication and has nothing to do with the MIX network):
+<blockquote>
+  <code>
+    <li><a href="http://anon.inf.tu-dresden.de/jappgp.asc">http://anon-inf.tu-dresden.de/jappgp.asc</a></li>
+    <li><b>B965 99E4 05EB 4202 895C 27DC D022 60C9 73EE 1DD1</b></li>
+  </code>
+</blockquote>
+If you do not know how to sign or how to check the signature of digital documents with
+PGP/GPG, you will find a short manual
+<a href="http://anon.inf.tu-dresden.de/pgp/sigtest_en.html">here</a>.
+
+<p>
+If you don't trust this document itself you should confirm the key's fingerprint by some other
+means, e.g. calling us by phone. If you simply send us your public PGP or GPG key in an
+unsecured way (e.g. email), we will also not trust it until it has been confirmed by some other
+means, like a phone call, or a signature by an authority we trust in.</p>
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>

@@ -1,0 +1,72 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<H2>Live-CD (MixOnCD)</H2>
+
+This is the description of some useful commands for the MixOnCD console.
+
+<h3>Browse, view and edit files</h3>
+You may use the <I>norton commander</I> clone <I>midnight commander</I> by typing
+<blockquote>
+	<CODE>mc</CODE>
+</blockquote>
+on the command prompt to browse, view and edit files.
+As an alternative, you may use the programs <CODE>more</CODE> or <CODE>less</CODE>
+to view a file and the editor <CODE>pico</CODE> to edit files. For further
+information, please look in the manual pages of those programs by
+typing
+<blockquote>
+	<CODE>man PROGRAM_NAME</CODE>
+</blockquote>
+
+<h3>Logging</h3>
+
+If you did a local login to the mix (not via network), you can switch to the
+logging console by typing
+<blockquote>
+	<CODE>CTRL+ALT+F2</CODE>
+</blockquote>
+Furthermore, the syslog is stored in the file <CODE>/tmp/syslog.out</CODE>
+where you can access, manipulate and copy it directly, for example by typing
+<blockquote>
+	<CODE>pico /tmp/syslog.out</CODE>
+</blockquote>
+
+
+<h3>Access USB device / floppy disk</h3>
+
+If you like to read/move/copy/edit files on the removable medium where you
+have put the configuration files, you may do so by changing to the
+directory <I>/usbstick</I> by typing
+<blockquote>
+	<CODE>cd /usbstick</CODE>
+</blockquote>
+
+<h3>Update configuration files</h3>
+
+You may update the configuration files and restart the mix without rebooting.
+To do this, edit the configuration files on the USB device/floppy disk and type
+<blockquote>
+	<CODE>/usr/bin/reload_mixconfig</CODE>
+</blockquote>
+
+If the configuration files are not writeable (they are on CD, for example) or for
+any other reason you don't want to change the originals, you may also edit the
+corresponding files in <I>/etc/mix</I>. Those files are automatically generated
+during the boot process and are deleted when the mix computer is switched off.
+Afterwards, type
+<blockquote>
+	<CODE>/etc/init.d/mix stop</CODE><BR>
+	<CODE>/etc/init.d/mix start</CODE>
+</blockquote>
+
+ to restart all mixes.
+
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>

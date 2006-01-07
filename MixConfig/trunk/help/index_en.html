@@ -6,55 +6,73 @@
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<h1>Mix Config Tool Help System</h1>
-         Welcome to the Mix Config Tool help system. 
-         Please select one of the following topics.
+<h1>MixConfig Help System</h1>
+Welcome to the MixConfig help system. Please select one of the following topics:
 
-         	<h2>Topics</h2>
-			
-			<ul>	
-	  			<li><a href="mixsetup_introduction_en.html">Introduction to MIX</a></li>
-    			<li>Installing a MIX server</li>
-    				<ul>
-		    			<li><a href="mixsetup_prebuilt_en.html">Using the prebuilt binaries</a></li>
-		    				<ul>
-		    					<li><a href="livecd_en.html">Using the Live-CD ('Mix-on-CD')</a></li>
-			    				<li><a href="suse_en.html">Novell SuSE Linux</a></li>
-			               		<li><a href="debian_en.html">Debian GNU/Linux</a></li>
-			               		<li><a href="otherlinux_en.html">Other Linux distributions</a></li>
-			               		
-			           		</ul>
-			           		<li><a href="mixsetup_build_en.html">Building MIX from sources</a></li>
-		    				<ul>
-		    					<li><a href="mixsetup_scripts_en.html">Admin scripts for MIX</a></li>		    					
-		    				</ul>
-		    				<li><a href ="mixsetup_lastmix_en.html">Setting up a last MIX</a>
-		    				<ul>
-		    					<li><a href="squid.conf">Squid configuration file</a>
-		    				</ul>
-			     	</ul>
- 
-    				<li>MIX Config Tool</li>
-				    	<ul>
-				        	<li><a href="mixconfig.StartScreenPanel_en.html">Start Screen</a></li>
-				         	<li><a href="livecd_en.html">MixOnCD Panel</a></li>
-				         	<li><a href="mixconfig.GeneralPanel_en.html">General Panel</a></li>
-				         	<li><a href="OwnCertificatesPanel_en.html">Own Certificates Panel</a></li>
-				         	<li>Menu</li>
-				    			<ul>
-				         			<li><a href="file_en.html">File</a></li>
-				        			<li>Tools</li>
-				         			<li><a href="view_en.html">View</a></li>
-				         			<li>Help</li>
-				    			</ul>
-				        </ul>
-
-        		
-		        <li><a href="cmdjap_en.html">Using MIX as a command-line JAP</a></li>   	
-		    	<li><a href="credits_en.html">Credits</a></li>
-	    	
-			</ul>
-
+<h2>Topics</h2>
+<ul>
+	<li><a href="operatorIntroduction_en.html">Introduction to AN.ON MIX Servers</a></li>
+	<li>Responsibilities of MIX Operators</li>
+	<ul>
+		<li><a href="operatorChooseServer_en.html">Choosing the right server</a></li>
+		<li><a href="operatorPutMixInCascade_en.html">Putting the MIX into a cascade</a></li>
+		<li><a href="operatorTrust_en.html">Keys, Certificates and Trust</a></li>
+		<li><a href="operatorCommitment_en.html">Voluntary Commitment</a></li>
+		<li><a href="operatorLawEnforcement_en.html">Law Enforcement</a></li>
+	</ul>
+	<li>Installing a MIX server</li>
+	<ul>
+		<li><a href="mixsetupLiveCD_en.html">Using the Live-CD ('MixOnCD')</a></li>
+		<ul>
+			<li><a href="mixsetupLiveCD_deployment_en.html">Download and configuration deployment</a></li>
+			<li><a href="mixsetupLiveCD_booting_en.html">Booting from and login to MixOnCD</a></li>
+			<li><a href="mixsetupLiveCD_usage_en.html">Console usage and commands</a></li>
+		</ul>
+		<li><a href="mixsetupPrebuilt_en.html">Using the prebuilt binaries</a></li>
+		<ul>
+			<li><a href="mixsetupDebian_en.html">Debian GNU/Linux</a></li>
+			<li><a href="mixsetupSuse_en.html">Novell SuSE Linux</a></li>
+			<li><a href="mixsetupOtherLinux_en.html">Other Linux/UNIX distributions</a></li>
+		</ul>
+		<li><a href="mixsetupBuild_en.html">Using a self-compiled MIX executable on Linux/UNIX</a></li>
+		<ul>
+			<li><a href="mixsetupBuildGetLibraries_en.html">Installing the libraries</a></li>
+			<li><a href="mixsetupBuildGetSources_en.html">Getting the sources</a></li>
+			<li><a href="mixsetupBuildCompile_en.html">Compiling the sources</a></li>
+		</ul>
+		<li><a href="mixsetup_scripts_en.html">Admin scripts for Linux/UNIX</a></li>
+		<ul>
+			<li><a href="adminscripts/firewall">/home/mix/firewall</a>
+			<li><a href="adminscripts/rc.status.anon">/home/mix/rc.status.anon</a>
+			<li><a href="adminscripts/runANONServer">/home/mix/runANONServer</a>
+			<li><a href="adminscripts/Mixproxy/runMixproxy">/home/mix/Mixproxy/runMixproxy</a>
+			<li><a href="adminscripts/InfoService/runInfoService">/home/mix/InfoService/runInfoService</a>
+			<li><a href="adminscripts/Mixproxy/sysctl.conf">sysctl.conf</a>
+			<li><a href="adminscripts/Mixproxy/squid.conf">squid.conf</a>
+		</ul>
+		<li><a href="cmdjap_en.html">Using the MIX as a command line JAP</a></li>
+	</ul>
+	<li>MixConfig Tool</li>
+	<ul>
+		<li><a href="mixconfig.StartScreenPanel_en.html">Start Screen</a></li>
+		<li><a href="mixconfig.MixOnCDPanel_en.html">MixOnCD Panel</a></li>
+		<li><a href="mixconfig.GeneralPanel_en.html">General Panel</a></li>
+		<li><a href="OwnCertificatesPanel_en.html">Own Certificates Panel</a></li>
+		<li>Next Mix Panel</li>
+		<li>Previous mix Panel</li>
+		<li>Cascade Panel</li>
+		<li>Advanced Panel</li>
+		<li>Payment Panel</li>
+		<li>Menu</li>
+		<ul>
+			<li><a href="file_en.html">File</a></li>
+			<li>Tools</li>
+			<li><a href="view_en.html">View</a></li>
+			<li>Help</li>
+		</ul>
+	</ul>
+	<li><a href="credits_en.html">Credits</a></li>
+</ul>
 
 <!--#include virtual="/footer_en.html"-->
 </body>

@@ -1,0 +1,235 @@
+#!/bin/bash
+#. /etc/rc.status
+. /etc/rc.status.anon
+rc_reset
+
+
+case "$1" in
+  start)
+	echo "Starting $PROGRAM_NAME..."
+	cd $INSTALL_PATH
+	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS &
+	if [ ! "`$0 process`" ]
+	then
+		rc_failed 1
+	fi
+	rc_status -v
+	;;
+  stop)
+	echo "Shutting down $PROGRAM_NAME..."
+	ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep | awk '{ print $2 }' | xargs kill 2>/dev/null >/dev/null
+	sleep 3
+	if [ "`ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep`" ]
+	then
+		rc_failed 1
+	fi
+	true
+	rc_status -v
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  command)
+  	# executes the program with command line arguments
+	
+	if [ $# -lt 2 ]
+	then
+		$0
+	else
+		shift 1
+  		$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $*
+		while [ $# -gt 1 ]
+		do
+			shift 1
+		done
+	fi
+  	;;
+  status)
+	if [ ! "`$0 process`" ]
+	then
+		rc_failed 3
+	fi
+	rc_status -v
+	;;
+  process)
+	ps auxww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep
+	;;
+  log)
+	cat $LOGFILE
+	;;
+  version)
+	$0 command $VERSION_OPTION | grep -i version
+	;;
+  cvs)
+	cd $INSTALL_PATH
+	if [ ! -d cvs ]
+	then
+		mkdir cvs
+	fi
+	cd cvs
+	if [ -d $CVS_MODULE ]
+	then
+		#cvs update $CVS_MODULE
+		rm -R $CVS_MODULE
+	fi
+	mkdir $CVS_MODULE
+	cvs checkout $CVS_MODULE
+	cd $CVS_MODULE
+	if [ -e $PROGRAM ]
+	then
+		rm $PROGRAM
+	fi
+	rc_status -v
+	;;
+  update)
+	OLD_VERSION_OPTION=`$0 version`
+	NEW_VERSION_OPTION=`$EXECUTE_COMMAND $INSTALL_PATH/cvs/$CVS_MODULE/$PROGRAM $VERSION_OPTION | grep -i version`
+	echo "OLD_VERSION_OPTION: $OLD_VERSION_OPTION"
+	echo "NEW_VERSION_OPTION: $NEW_VERSION_OPTION"
+	rc_status
+	if [ "$?" -eq 0 ]
+	then
+		if [ "$NEW_VERSION_OPTION" \>  "$OLD_VERSION_OPTION" ]
+		then
+			if [ ! -d $INSTALL_PATH/backup ]
+			then
+				mkdir $INSTALL_PATH/backup
+			fi
+
+			if [ -e $INSTALL_PATH/$PROGRAM ]
+			then
+				VERSION_COUNT=1
+				while [ -e "$INSTALL_PATH/backup/$PROGRAM~$VERSION_COUNT" ]
+				do
+					VERSION_COUNT=`expr $VERSION_COUNT + 1`
+				done
+				
+				$0 stop
+				rc_failed $?
+				mv "$INSTALL_PATH/$PROGRAM" "$INSTALL_PATH/backup/$PROGRAM~$VERSION_COUNT"
+				if [ -e $LOGFILE ]
+				then
+					mv "$LOGFILE" "$INSTALL_PATH/backup/$PROGRAM.log~$VERSION_COUNT"
+				fi
+			fi
+			cp $INSTALL_PATH/cvs/$CVS_MODULE/$PROGRAM $INSTALL_PATH
+		else 
+			rc_failed 5
+		fi
+	fi
+	rc_status
+	case "$?" in
+	0)
+		echo "Update complete! Please restart $PROGRAM_NAME ."
+	;;
+	5)
+		echo "The current $PROGRAM_NAME is up-to-date. No update needed."
+	;;
+	*)
+		echo "Update of $PROGRAM_NAME failed!"
+	;;
+	esac
+
+	rc_status -v
+	;;
+
+  compile)
+	if [ $# -lt 2 ]
+	then 
+		COMPILE_DIR="$INSTALL_PATH/cvs/$CVS_MODULE"
+		echo "No arguments given. Compile in directory $COMPILE_DIR !"
+	else	
+		COMPILE_DIR="$2"
+	fi
+
+	if [ ! -d $COMPILE_DIR ]
+	then
+		rc_status 1
+		echo "Cannot compile - please specify a valid directory!"
+	else
+		echo "..compiling"	
+		cd $COMPILE_DIR
+	        if [ "$JAR_CLASSES" ] 
+	        then
+			# JAVA
+                	if [ -d classes ]
+	                then
+        	                rm -R classes
+                	fi
+	                mkdir classes
+        	        cd src
+                	javac -d ../classes $COMPILE_OPTIONS $PROGRAM_NAME.java
+	                rc_failed $?
+			if [ $? -ne 0 ]
+			then
+				rc_status -v
+				rc_exit
+			fi
+        	        cd ../classes
+                	JAR_EXEC=""
+	                for JAR in $JAR_CLASSES; do
+        	                JAR_EXEC="$JAR_EXEC `jar -xf $JAR`"
+                	done
+	                jar cvfm $PROGRAM ../MANIFEST.MF * $JAR_EXEC
+        	        rc_failed $?
+                	mv $PROGRAM ..
+			cd ..
+        	else
+			#C++
+	                ./configure $COMPILE_OPTIONS
+        	        rc_failed $?
+			if [ $? -ne 0 ]
+			then
+				rc_status -v
+				rc_exit
+			fi
+                	make
+	                rc_failed $?
+        	fi
+	fi
+	# remove a possible file argument
+	shift 1
+	rc_status -v
+	;;
+  *)
+  	echo ""
+  	echo "This script controls an AN.ON service."
+	echo ""
+	echo "Usage: service {start|stop|restart|update [directory]|compile [directory]|status|process|log|version|command {commands}}"
+	echo ""
+	echo "start|stop|restart:	basic control of $PROGRAM_NAME"
+	echo "cvs:			fetch a new version from CVS"
+	echo "update [directory]:	if the program version in the given directory is newer than the current version,"
+	echo "			make a backup of the old version and replace it; stop the service if update was successful;"
+	echo "			if no directory is given, the program will be compiled from the standard CVS directory"
+	echo "compile [directory]:	compile the program in the specified directory; if no directory is given,"
+	echo "			it will be compiled in the standard CVS directory"
+	echo "status:			checks if the $PROGRAM_NAME is running"
+	echo "process:		lists all $PROGRAM_NAME processes"
+	echo "log:			returns the $PROGRAM_NAME log"
+	echo "version:		returns the $PROGRAM_NAME version"
+	echo "command {commands}:	runs the program with the specified command line options"
+	echo ""
+	echo "Several arguments can be combined, for example 'version' and 'status'."
+	echo "If you only want to update the service from CVS, try:"
+	echo "		service cvs compile"
+	echo "		service update"
+	echo ""
+	exit 1
+	;;
+esac
+
+# apply further commands if given
+if [ $# -gt 1 ]
+then
+	shift 1
+	# the commands are only applied if everything was ok so far
+	rc_status
+	if [ $? -eq 0 ]
+	then
+		$0 $*
+	fi
+fi
+
+rc_exit

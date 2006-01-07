@@ -1,0 +1,71 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>Using a self-compiled MIX executable on Linux/UNIX</h2>
+There are several ways to get the MIX source code.
+You always get up-to-date sources from the official AN.ON websites:
+
+	<blockquote>
+		<a href="http://www.anon-online.de/">http://www.anon-online.de</a>
+			<br></br>
+		<a href="http://anon.inf.tu-dresden.de/">http://anon.inf.tu-dresden.de</a>
+	</blockquote>
+
+The first quoted URL is the official one registered to the AN.ON project. The
+second is the host where AN.ON is hosted since it's beginning days. This may some
+day change. The first URL will always work.
+On the website you will find a section '<i>Developer</i>'. This is the right place
+to start.
+
+
+<h3>Code snapshots</h3>
+In the developer section you can find some download links which lead to archives in the
+.tgz format which are generated automatically each night from the present CVS sourcecode.
+You can download them with your browser and unpack them to any directory.
+This is the direct link to the MIX source code:
+
+	<blockquote>
+		<a href="http://anon.inf.tu-dresden.de/develop/mix.src.tgz">
+			http://anon.inf.tu-dresden.de/develop/mix.src.tgz</a>
+	</blockquote>
+
+Download the archive to your home directory. Now unpack the archive.
+Unpacking will automatically generate a directory with same name as the archive.
+The following command will unpack the MIX source code into <code>./proxytest</code>
+
+	<blockquote>
+		<code>
+			tar xzvf proxytest.tgz
+		</code>
+	</blockquote>
+
+<h3>Developer CVS</h3>
+Another possibility to get the source code is the CVS server which is used for coordinating
+the development process of AN.ON. There you will find the most up to date version.
+We assume that you have just a command line version of a Linux CVS client in your console.
+If you prefer to use a graphical client you have to configure it yourself. In the following
+instructions  I presume that you have a bash shell installed. First login as the new creates
+user 'mix'. To download the sources of the MIX server you u have to follow this:
+
+	<blockquote>
+			<code>
+				cd /~<br></br>
+				mkdir mixsrc<br></br>
+				cd mixsrc<br></br>
+				export CVSROOT=":pserver:anonymous@cvs.inf.tu-dresden.de:/home/sk13/cvssource"<br></br>
+				cvs checkout proxytest
+			</code>
+		</blockquote>
+
+It may take a minute or two and than you should have the source code in the directory you have
+created before. Having downloaded the code you are ready now to compile the sources and install
+the binaries on your system.
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>

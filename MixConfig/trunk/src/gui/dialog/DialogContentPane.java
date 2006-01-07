@@ -562,7 +562,6 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	public static class CheckError
 	{
 		private String m_strMessage;
-		private int m_logType;
 
 		/**
 		 * A new CheckError with an empty message String. No message will be displayed to the user and
@@ -570,28 +569,16 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		 */
 		public CheckError()
 		{
-			this("", LogType.GUI);
-		}
-
-		/**
-		 * A new CheckError with a message for the user. The error is logged with LogType = GUI.
-		 * @param a_strMessage a message for the user; if empty, no message is displayed; if null,
-		 * an error message is auto-generated
-		 */
-		public CheckError(String a_strMessage)
-		{
-			this(a_strMessage, LogType.GUI);
+			this("");
 		}
 
 		/**
 		 * A new CheckError with a message for the user.
 		 * @param a_strMessage a message for the user; if empty, no message is displayed; if null,
 		 * an error message is auto-generated
-		 * @param a_logType the log type for that this error is logged
 		 */
-		public CheckError(String a_strMessage, int a_logType)
+		public CheckError(String a_strMessage)
 		{
-			m_logType = a_logType;
 			m_strMessage = a_strMessage;
 		}
 
@@ -610,15 +597,6 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		 */
 		public void undoErrorAction()
 		{
-		}
-
-		/**
-		 * Gets the log type the error is logged for.
-		 * @return the log type the error is logged for
-		 */
-		public int getLogType()
-		{
-			return m_logType;
 		}
 
 		/**
@@ -1208,13 +1186,26 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 */
 	public final void printStatusMessage(String a_message)
 	{
+		printStatusMessage(a_message, MESSAGE_TYPE_INFORMATION);
+	}
+
+	/**
+	 * Prints a status message in the status bar. If the status bar is not available, a dialog window
+	 * is opened. If the text is too long for the status bar, the text is cut and the user can see it by
+	 * clicking on the stauts bar (a dialog window opens).
+	 * @param a_message a status message
+	 * @param a_messageType the message type; this has a influence on how the message is displayed
+	 * (color, icon,...).
+	 */
+	public final void printStatusMessage(String a_message, int a_messageType)
+	{
 		if (m_lblMessage != null)
 		{
-			printStatusMessageInternal(a_message, false);
+			printStatusMessageInternal(a_message, a_messageType);
 		}
 		else
 		{
-			JAPDialog.showMessageDialog(getContentPane(), a_message);
+			JAPDialog.showConfirmDialog(getContentPane(), a_message, OPTION_TYPE_DEFAULT, a_messageType);
 		}
 	}
 
@@ -1254,7 +1245,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 
 			if (m_lblMessage != null)
 			{
-				printStatusMessageInternal(a_message, true);
+				printStatusMessageInternal(a_message, MESSAGE_TYPE_ERROR);
 
 				LogHolder.log(LogLevel.ERR, a_logType, a_message, true);
 				if (a_throwable != null)
@@ -1660,7 +1651,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	}
 
 
-	private final void printStatusMessageInternal(String a_strMessage, boolean a_bError)
+	private final void printStatusMessageInternal(String a_strMessage, int a_messageType)
 	{
 		String strMessage;
 		Dimension  newSize;
@@ -1671,7 +1662,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		// no HTML Tags are allowed in the message
 		strMessage = JAPHtmlMultiLineLabel.removeTagsAndNewLines(a_strMessage);
 
-		if (a_bError)
+		if (MESSAGE_TYPE_ERROR == a_messageType || MESSAGE_TYPE_WARNING == a_messageType)
 		{
 			strColor = "red";
 		}
@@ -1685,13 +1676,27 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 
 		if (newSize.width > m_lblMessage.getSize().width)
 		{
+			String strMessageTitle;
+			if (MESSAGE_TYPE_ERROR == a_messageType)
+			{
+				strMessageTitle = JAPMessages.getString(JAPDialog.MSG_TITLE_ERROR);
+			}
+			else if (MESSAGE_TYPE_WARNING == a_messageType)
+			{
+				strMessageTitle = JAPMessages.getString(JAPDialog.MSG_TITLE_WARNING);
+			}
+			else
+			{
+				strMessageTitle = JAPMessages.getString(JAPDialog.MSG_TITLE_INFO);
+			}
+
 			clearStatusMessage();
 			length = Math.min(strMessage.length(), MIN_TEXT_LENGTH);
 			strMessage = strMessage.substring(0, length) + "...";
 			strHref =  " href=\"\"";
 			m_lblMessage.setToolTipText(JAPMessages.getString(MSG_SEE_FULL_MESSAGE));
-			m_linkedDialog = new LinkedDialog(a_strMessage, JAPMessages.getString(JAPDialog.MSG_TITLE_ERROR),
-											  JAPDialog.OPTION_TYPE_DEFAULT, JAPDialog.MESSAGE_TYPE_ERROR);
+			m_linkedDialog = new LinkedDialog(a_strMessage, strMessageTitle,
+											  OPTION_TYPE_DEFAULT, a_messageType);
 			m_lblMessage.addMouseListener(m_linkedDialog);
 		}
 		else
@@ -1806,7 +1811,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			}
 			else
 			{
-				printErrorStatusMessage(error[0].getMessage(), error[0].getLogType());
+				printStatusMessage(error[0].getMessage(), MESSAGE_TYPE_ERROR);
 				for (int i = 0; i < error.length; i++)
 				{
 					m_rememberedUpdateErrors.addElement(error[i]);
@@ -2165,7 +2170,6 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		if (a_errors != null && a_errors.length > 0)
 		{
 			String errorMessage = null;
-			int logType = LogType.GUI;
 
 			for (int i = 0; i < a_errors.length; i++)
 			{
@@ -2180,7 +2184,6 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 					(errorMessage == null || (errorMessage != null && errorMessage.trim().length() == 0)))
 				{
 					errorMessage = a_errors[i].getMessage();
-					logType = a_errors[i].getLogType();
 				}
 				a_errors[i].doErrorAction();
 				m_rememberedErrors.addElement(a_errors[i]);
@@ -2191,7 +2194,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			}
 			if (errorMessage.trim().length() > 0)
 			{
-				printErrorStatusMessage(errorMessage, logType);
+				printStatusMessage(errorMessage, MESSAGE_TYPE_ERROR);
 			}
 			return false;
 		}

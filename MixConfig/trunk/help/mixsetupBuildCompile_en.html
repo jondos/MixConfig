@@ -1,0 +1,59 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>Using a self-compiled MIX executable on Linux/UNIX</h2>
+
+
+<h3>Compiling the sources</h3>
+There are several configuration options available to adapt the source configuration
+to you system. For detailed help run
+	<blockquote>
+				<code>
+					cd proxytest<br>
+					./configure --help<br></br>
+				</code>
+	</blockquote>
+
+If not already done, go into the source directory and run the compilation commands:
+
+	<blockquote>
+			<code>
+				cd proxytest<br>
+				./configure<br>
+				make
+			</code>
+	</blockquote>
+
+
+You should now have an executable file called 'mix' in this directory.
+It is the MIX server component.
+
+Do a quick test to see if it starts:
+
+	<blockquote>
+		<code>
+			./mix -?
+		</code>
+	</blockquote>
+
+This should list a short description of the command line options.
+
+Start it for testing using a shipped configuration with:
+	<blockquote>
+		<code>
+			./mix config=./documentation/SampleConfiguration/FirstMix.xml
+		</code>
+	</blockquote>
+You should see something like this
+<blockquote>
+
+</blockquote>
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>

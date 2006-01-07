@@ -449,13 +449,13 @@ public class MixOnCDPanel extends MixConfigPanel implements ActionListener
 			JAPDialog.showMessageDialog(MixConfig.getMainWindow(),
 										JAPMessages.getString(MSG_DOWNLOAD_HINT),
 										JAPMessages.getString(MSG_TITLE_DOWNLOAD_HINT),
-										new JAPDialog.LinkedHelpContext("livecd_deployment"));
+										new JAPDialog.LinkedHelpContext("mixsetupLiveCD_deployment"));
 		}
 	}
 
 	public String getHelpContext()
 	{
-		return "livecd";
+		return MixOnCDPanel.class.getName();
 	}
 
 	public void focusGained(FocusEvent a_event)

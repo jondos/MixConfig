@@ -37,8 +37,11 @@ import gui.GUIUtils;
 /**
  * This is a dialog that executes a given Thread or Runnable if it is shown on screen. It has an optional
  * cancel button. A click on the dialog close button or on the cancel button will interrupt the Thread.
- * The Thread has to watch for this event but does not need to.
- * <P>Warning: The Thread must not call dispose() on the dialog, as this will lead to a deadlock!</P>
+ * The Thread has to watch for this event but does not need to. The default behaviour is that, if the Thread
+ * is interrupted, the previous content pane is shown. If it is not interrupted and has finished, the next
+ * content pane is shown.
+ * <P>Warning: The Thread should not call dispose() on the dialog, as this will lead to a deadlock or
+ * an Exception!</P>
  *
  * @author Rolf Wendolsky
  */
