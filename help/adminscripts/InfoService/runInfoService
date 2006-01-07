@@ -1,0 +1,29 @@
+#!/bin/bash
+
+### Define the installation directory.
+export INSTALL_PATH="/home/mix/InfoService"
+### Script options. There should be no changes here.
+export PROGRAM_NAME="infoservice/InfoService"
+export PROGRAM="InfoService.jar"
+export PROGRAM_OPTIONS="$INSTALL_PATH/InfoService.properties"
+export COMPILE_OPTIONS=""
+export EXECUTE_COMMAND="java -jar"
+export LOGFILE="$INSTALL_PATH/InfoService.log"
+export VERSION_OPTION="--version"
+export CVS_MODULE="Jap"
+export CVSROOT=":pserver:anonymous@cvs.inf.tu-dresden.de:/home/sk13/cvssource"
+
+### Java libraries
+BC=$INSTALL_PATH/lib/BouncyCastleLightForJAP.jar
+LOG4J=$INSTALL_PATH/lib/log4j.jar
+XML=$INSTALL_PATH/lib/xml-1.1.jar
+HTTP=$INSTALL_PATH/lib/http.jar
+JAI=$INSTALL_PATH/lib/jai_core.jar
+JAMA=$INSTALL_PATH/lib/Jama.jar
+BZIP2=$INSTALL_PATH/lib/ApacheBzip2.jar
+export CLASSPATH=".:$BC:$LOG4J:$XML:$HTTP:$JAI:$JAMA:$BZIP2"
+export JAR_CLASSES="$BC $LOG4J $XML $HTTP $JAI $JAMA $BZIP2" 
+
+
+### Call the common start script
+$INSTALL_PATH/../runANONServer $*

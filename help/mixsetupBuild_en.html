@@ -1,0 +1,42 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>Using a self-compiled MIX executable on Linux/UNIX</h2>
+If you use precompiled binaries to run your MIX, you should keep in mind that you have to
+trust the provider of the binary files -in this case the
+AN.ON team - not to have evilly modified the sources. By compiling the server by your own
+and controlling the sources you can ensure, to a certain extent, that no backdoors are hidden
+in the program. Of course you may also
+have reason to trust the sources given on our official website, because other users could have
+checked and used it before, this is up to you. This manual will show you how to do the
+compilation on Linux/UNIX systems.
+
+Before you download the source code and the libraries, it is recommended to create
+a new user account for the MIX server:
+	<blockquote>
+		<code>
+			su<br></br>
+			useradd -d /home/mix -m -G users mix<br></br>
+			passwd mix<br></br>
+			exit<br></br>
+			su mix<br></br>
+			cd ~
+		</code>
+	</blockquote>
+
+Then proceed with the following steps:
+
+<ul>
+	<li><a href="mixsetupBuildGetLibraries_en.html">Installing the libraries</a></li>
+	<li><a href="mixsetupBuildGetSources_en.html">Getting the sources</a></li>
+	<li><a href="mixsetupBuildCompile_en.html">Compiling the sources</a></li>
+</ul>
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>

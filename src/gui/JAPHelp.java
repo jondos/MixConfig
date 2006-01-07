@@ -629,6 +629,7 @@ public final class JAPHelp extends JAPDialog
 					}
 					catch (IOException ioe)
 					{
+						/** @todo if this is a context page, try to load the english version */
 						html.setDocument(doc);
 						getToolkit().beep();
 					}
