@@ -194,6 +194,15 @@ public final class ClassUtil
 	}
 
 	/**
+	 * Returns the current java class path.
+	 * @return the current java class path
+	 */
+	public static String getClassPath()
+	{
+		return System.getProperty("java.class.path");
+	}
+
+	/**
 	 * Gets all classes that extend the given class or implement the given
 	 * interface, including the class itself. It is recommended to store this
 	 * information somewhere and reuse it instead of calling this method again,

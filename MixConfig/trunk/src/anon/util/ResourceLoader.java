@@ -64,7 +64,7 @@ public final class ResourceLoader
 	/// holds references to all files in the class path as File objects for caching purposes
 	private static Vector ms_classpathFiles;
 	/// holds absolute URLs to the resources as Strings; relative paths may be attached
-	private static Vector ms_classpathResourceURLs = new Vector();
+	private static Object ms_classpathResourceLock = new Object();
 	/// the resource types: either SYSTEM_RESOURCE_TYPE_ZIP or SYSTEM_RESOURCE_TYPE_FILE
 	private static Vector ms_classpathResourceTypes;
 	/// stores the parent directory of the jar file that holds this class for caching purposes
@@ -1080,25 +1080,24 @@ public final class ResourceLoader
 	 */
 	private static Vector readFilesFromClasspath()
 	{
-		String classpath = System.getProperty("java.class.path");
+		String classpath = ClassUtil.getClassPath();
 
 		if (ms_classpath == null || !ms_classpath.equals(classpath))
 		{
-			synchronized (ms_classpathResourceURLs)
+			/**@todo Ihis lock has almost no effect; or has it? Check the code!*/
+			synchronized (ms_classpathResourceLock)
 			{
 				StringTokenizer tokenizer;
 
 				ms_classpath = classpath;
 				ms_classpathFiles = new Vector();
-				ms_classpathResourceURLs = new Vector();
 				ms_classpathResourceTypes = new Vector();
 
-				tokenizer = new StringTokenizer(ms_classpath, System.getProperty("path.separator"));
+				tokenizer = new StringTokenizer(ms_classpath, File.pathSeparator);
 				while (tokenizer.hasMoreTokens())
 				{
 					ms_classpathFiles.addElement(
 						new File(new File(tokenizer.nextToken()).getAbsolutePath()));
-					ms_classpathResourceURLs.addElement( (Class)null);
 					ms_classpathResourceTypes.addElement( (String)null);
 				}
 			}
