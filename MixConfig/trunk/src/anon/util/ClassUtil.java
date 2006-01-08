@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000 - 2005, The JAP-Team
+ Copyright (c) 2000 - 2006, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -275,11 +275,15 @@ public final class ClassUtil
 
 		// temporarily deactivate standard error to suppress printStackStrace() messages
 		syserror = System.err;
-		System.setErr(dummyStream);
 		try
 		{
+			System.setErr(dummyStream);
+
 			// load all classes for the specified class
 			loadClassesInternal(a_rootClass);
+
+			// reactivate standard error
+			System.setErr(syserror);
 
 			// load all classes for this class
 			loadClassesInternal(thisClass);
@@ -299,8 +303,7 @@ public final class ClassUtil
 				a_e.printStackTrace();
 			}
 		}
-		// reactivate standard error
-		System.setErr(syserror);
+
 
 		return ms_loadedClasses.elements();
 	}

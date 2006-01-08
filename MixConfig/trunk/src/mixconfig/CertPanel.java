@@ -48,7 +48,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
@@ -854,12 +853,11 @@ public class CertPanel extends JPanel implements ActionListener
 		catch (Exception e)
 		{
 			/** @todo Find out which exception exactly is thrown, and catch only that */
-			JOptionPane.showMessageDialog(
+			JAPDialog.showErrorDialog(
 				this,
-				"Import of a private key with certificate\n" +
-				"is not supported when running as an applet.",
+				"Import of a private key with certificate is not supported when running as an applet.",
 				"Not supported!",
-				JOptionPane.ERROR_MESSAGE);
+				LogType.GUI);
 			m_bttnImportCert.setEnabled(false);
 			return false;
 		}

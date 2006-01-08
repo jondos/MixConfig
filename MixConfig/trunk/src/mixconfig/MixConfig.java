@@ -41,7 +41,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
@@ -76,7 +75,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.068"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.069"; //NEVER change the layout of this line!!
 
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -377,11 +376,10 @@ public class MixConfig extends JApplet
 
 	public static void about()
 	{
-		JOptionPane.showMessageDialog(
+		JAPDialog.showMessageDialog(
 			getMainWindow(),
-			"Mix Configuration Tool\nVersion: " + VERSION,
+			"Mix Configuration Tool<P>Version: " + VERSION + "</P>",
 			"About",
-			JOptionPane.INFORMATION_MESSAGE,
 			GUIUtils.loadImageIcon(IMG_MAIN));
 	}
 
