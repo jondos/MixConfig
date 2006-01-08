@@ -37,7 +37,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -332,11 +331,9 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 					!m_textSoftLimit.getText().equalsIgnoreCase(""))
 				{
 					//Ask user before deleting entries
-					int i = JOptionPane.showConfirmDialog(MixConfig.getMainWindow(),
-						"Really delete all entries and switch off payment function?",
-						"Question",
-						JOptionPane.YES_NO_OPTION);
-					if (i == JOptionPane.NO_OPTION)
+					boolean b = JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
+						"Really delete all entries and switch off payment function?");
+					if (!b)
 					{
 						delete = false;
 					}
