@@ -246,6 +246,11 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 	{
 		int exit = JAPDialog.RETURN_VALUE_OK;
 
+		if (!MixConfig.getMainWindow().isEnabled())
+		{
+			return;
+		}
+
 		if (!MixConfig.getMixConfiguration().isSavedToFile())
 		{
 			exit = JAPDialog.showConfirmDialog(MixConfig.getMainWindow(),
