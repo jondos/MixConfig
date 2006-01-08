@@ -940,7 +940,7 @@ public class CertPanel extends JPanel implements ActionListener
 		}
 
 		final JAPDialog dialog = new JAPDialog(this, "Create new certificate", true);
-		dialog.setDefaultCloseOperation(JAPDialog.DISPOSE_ON_CLOSE);
+		dialog.setDefaultCloseOperation(JAPDialog.DO_NOTHING_ON_CLOSE);
 
 		ValidityContentPane contentPane = new ValidityContentPane(dialog);
 		PasswordContentPane pb = new PasswordContentPane(dialog, contentPane,

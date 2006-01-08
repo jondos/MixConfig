@@ -141,6 +141,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	private boolean m_bBlockParentWindow = false;
 	private int m_defaultCloseOperation;
 	private Vector m_windowListeners = new Vector();
+	private DialogWindowAdapter m_dialogWindowAdapter;
 	private boolean m_bForceApplicationModality;
 
 	/**
@@ -255,7 +256,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			m_internalDialog.removeWindowListener((WindowListener)listeners[i]);
 		}
 
-		addWindowListener(new WindowClosingAdapter(this));
+		m_dialogWindowAdapter = new DialogWindowAdapter();
+		m_internalDialog.addWindowListener(m_dialogWindowAdapter);
 		m_parentWindow = getParentWindow(getParentComponent());
 		setModal(a_bModal);
 	}
@@ -1690,6 +1692,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		return m_bModal;
 	}
 
+	public boolean isEnabled()
+	{
+		return m_internalDialog.isEnabled();
+	}
+
 	/**
 	 * Returns if the dialog is resizable by the user.
 	 * @return if the dialog is resizable by the user
@@ -1914,7 +1921,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		if (a_listener != null)
 		{
 			m_windowListeners.addElement(a_listener);
-			m_internalDialog.addWindowListener(a_listener);
 
 		}
 	}
@@ -1947,7 +1953,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	public final void removeWindowListener(WindowListener a_listener)
 	{
 		m_windowListeners.removeElement(a_listener);
-		m_internalDialog.removeWindowListener(a_listener);
 	}
 
 	/**
@@ -1958,47 +1963,128 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		m_internalDialog.pack();
 	}
 
-	private static class WindowClosingAdapter extends WindowAdapter
+	/**
+	 * Catches all window events and informs the window listeners about them.
+	 */
+	private class DialogWindowAdapter implements WindowListener
 	{
-		private JAPDialog m_dialog;
-
-		public WindowClosingAdapter(JAPDialog a_dialog)
+		public void windowOpened(WindowEvent a_event)
 		{
-			m_dialog = a_dialog;
+			Vector listeners = (Vector) m_windowListeners.clone();
+			{
+				for (int i = 0; i < listeners.size(); i++)
+				{
+					( (WindowListener) listeners.elementAt(i)).windowOpened(a_event);
+				}
+			}
+		}
+		public void windowIconified(WindowEvent a_event)
+		{
+			Vector listeners = (Vector) m_windowListeners.clone();
+			{
+				for (int i = 0; i < listeners.size(); i++)
+				{
+					( (WindowListener) listeners.elementAt(i)).windowIconified(a_event);
+				}
+			}
+
+		}
+		public void windowDeiconified(WindowEvent a_event)
+		{
+			Vector listeners = (Vector) m_windowListeners.clone();
+			{
+				for (int i = 0; i < listeners.size(); i++)
+				{
+					( (WindowListener) listeners.elementAt(i)).windowDeiconified(a_event);
+				}
+			}
+		}
+		public void windowDeactivated(WindowEvent a_event)
+		{
+			Vector listeners = (Vector)m_windowListeners.clone();
+			{
+				for (int i = 0; i < listeners.size(); i++)
+				{
+					( (WindowListener) listeners.elementAt(i)).windowDeactivated(a_event);
+				}
+			}
+		}
+		public void windowActivated(WindowEvent a_event)
+		{
+			Vector listeners = (Vector) m_windowListeners.clone();
+			{
+				for (int i = 0; i < listeners.size(); i++)
+				{
+					( (WindowListener) listeners.elementAt(i)).windowActivated(a_event);
+				}
+			}
 		}
 
+
+		public void windowClosed(WindowEvent a_event)
+		{
+			Vector listeners = (Vector)m_windowListeners.clone();
+			{
+				for (int i = 0; i < listeners.size(); i++)
+				{
+					( (WindowListener) listeners.elementAt(i)).windowClosed(a_event);
+				}
+			}
+		}
+
+		/**
+		 * @todo There is a problem on Linux systems: although a window/dialog is disabled, its window buttons
+		 * are not. If the user clicks on the close button of the parent window, the child dialog may be
+		 * closed, for example, ignoring which behaviour is set for it by default.
+		 * For JAPDialogs as parent, the problem is solved by first checking if it is enabled and then
+		 * processing the windowClosing event and informing its listeners. Therefore it is recommended
+		 * only to use JAPDialogs, and, if it is really needed to use a JFrame, a JDialog or an other window,
+		 * to check for it if it is enabled before performing the windowClosing operation.
+		 * @param a_event WindowEvent
+		 */
 		public void windowClosing(WindowEvent a_event)
 		{
-			if (m_dialog.getDefaultCloseOperation() == DISPOSE_ON_CLOSE)
+			if (isEnabled())
 			{
-				try
+				if (getDefaultCloseOperation() == DISPOSE_ON_CLOSE)
 				{
-					m_dialog.dispose();
+					try
+					{
+						dispose();
+					}
+					catch (IllegalMonitorStateException a_e)
+					{
+						LogHolder.log(LogLevel.DEBUG, LogType.GUI, a_e);
+					}
 				}
-				catch (IllegalMonitorStateException a_e)
+				else if (getDefaultCloseOperation() == HIDE_ON_CLOSE)
 				{
-					LogHolder.log(LogLevel.DEBUG, LogType.GUI, a_e);
+					setVisible(false);
 				}
-			}
-			else if (m_dialog.getDefaultCloseOperation() == HIDE_ON_CLOSE)
-			{
-				m_dialog.setVisible(false);
-			}
-			else
-			{
-				/*
-				 * This covers the case that, in old JDKs, a click on the close icon will always close
-				 * the dialog, not regarding which closing pocily has been set. As it is not possible to
-				 * catch this event if we do not own the AWT event thread in the setVisible() method,
-				 * we have to make the internal dialog visible again in this place.
-				 * In never JDKs >= 1.3 all WindowListeners are removed from the internal dialog, so this
-				 * problem does not come up there.
-				 * Notice: This bug causes a little flickering, but this should not harm.
-				 */
-				if (!m_dialog.isVisible())
+				else
 				{
-					m_dialog.m_internalDialog.setVisible(true);
-					LogHolder.log(LogLevel.INFO, LogType.GUI, "Fixed old JRE dialog closing bug.");
+					/*
+					 * This covers the case that, in old JDKs, a click on the close icon will always close
+					 * the dialog, not regarding which closing pocily has been set. As it is not possible to
+					 * catch this event if we do not own the AWT event thread in the setVisible() method,
+					 * we have to make the internal dialog visible again in this place.
+					 * In never JDKs >= 1.3 all WindowListeners are removed from the internal dialog, so this
+					 * problem does not come up there.
+					 * Notice: This bug causes a little flickering, but this should not harm.
+					 */
+					if (!isVisible())
+					{
+						m_internalDialog.setVisible(true);
+						LogHolder.log(LogLevel.INFO, LogType.GUI, "Fixed old JRE dialog closing bug.");
+					}
+				}
+
+				Vector listeners = (Vector) m_windowListeners.clone();
+				{
+					for (int i = 0; i < listeners.size(); i++)
+					{
+						( (WindowListener) listeners.elementAt(i)).windowClosing(a_event);
+					}
 				}
 			}
 		}
@@ -2488,14 +2574,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 						{
 							if ( ( (WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSING)
 							{
-								Vector listeners = (Vector)m_windowListeners.clone();
-								{
-									for (int i = 0; i < listeners.size(); i++)
-									{
-										( (WindowListener) listeners.elementAt(i)).windowClosing(
-											(WindowEvent) event);
-									}
-								}
+								m_dialogWindowAdapter.windowClosing((WindowEvent) event);
 
 								/*
 								 * Hide this event from the internal dialog. This removes the flimmering
