@@ -165,6 +165,23 @@ public final class GUIUtils
 	}
 
 	/**
+	 * Finds the first parent that is a window.
+	 * @param a_parentComponent a Component
+	 * @return the first parent that is a window
+	 */
+	public static Window getParentWindow(Component a_parentComponent)
+	{
+		Component parentComponent = a_parentComponent;
+		while (parentComponent != null && ! (parentComponent instanceof Window))
+		{
+
+			parentComponent = parentComponent.getParent();
+		}
+		return (Window)parentComponent;
+	}
+
+
+	/**
 	 * Positions a window on the screen relative to a parent window so that its position is optimised.
 	 * @param a_window a Window
 	 * @param a_parent the Window's parent window

@@ -568,7 +568,7 @@ public class CertPanel extends JPanel implements ActionListener
 			{
 
 				JAPDialog dialog =
-					new JAPDialog(MixConfig.getMainWindow(), "Enter the certificate password", true);
+					new JAPDialog(GUIUtils.getParentWindow(this), "Enter the certificate password", true);
 				dialog.setResizable(false);
 				dialog.setDefaultCloseOperation(JAPDialog.DISPOSE_ON_CLOSE);
 				PasswordContentPane pb = new PasswordContentPane(dialog,
@@ -584,15 +584,26 @@ public class CertPanel extends JPanel implements ActionListener
 					privateCertificate = PKCS12.getInstance(cert, pwReader);
 					if (privateCertificate == null && !pb.hasValidValue())
 					{
-						int returnValue =
-							JAPDialog.showConfirmDialog(MixConfig.getMainWindow(),
-							"Are you sure you want to cancel? " +
-							"Your certificate will not be loaded!",
-							"Certificate not loaded",
-							JAPDialog.OPTION_TYPE_CANCEL_OK, JAPDialog.MESSAGE_TYPE_WARNING);
-						if (returnValue == JAPDialog.RETURN_VALUE_OK)
+						if (pb.getValue() == JAPDialog.RETURN_VALUE_UNINITIALIZED)
 						{
+							JAPDialog.showErrorDialog(GUIUtils.getParentWindow(this),
+								"Your private certificate was not loaded for some unknown reason! " +
+								"It might be damaged.",
+								LogType.CRYPTO);
 							break;
+						}
+						else
+						{
+							int returnValue =
+								JAPDialog.showConfirmDialog(GUIUtils.getParentWindow(this),
+								"Are you sure you want to cancel? " +
+								"Your private certificate will not be loaded!",
+								"Certificate not loaded",
+								JAPDialog.OPTION_TYPE_CANCEL_OK, JAPDialog.MESSAGE_TYPE_WARNING);
+							if (returnValue == JAPDialog.RETURN_VALUE_OK)
+							{
+								break;
+							}
 						}
 					}
 				}
@@ -912,7 +923,7 @@ public class CertPanel extends JPanel implements ActionListener
 			strMessage = m_validator.getPasswordInfoMessage();
 		}
 
-		JAPDialog dialog = new JAPDialog(MixConfig.getMainWindow(), "Change password", true);
+		JAPDialog dialog = new JAPDialog(this, "Change password", true);
 		dialog.setResizable(false);
 		PasswordContentPane pb =
 			new PasswordContentPane(dialog, PasswordContentPane.PASSWORD_CHANGE, strMessage)
@@ -955,7 +966,7 @@ public class CertPanel extends JPanel implements ActionListener
 		PasswordContentPane pb = new PasswordContentPane(dialog, contentPane,
 			PasswordContentPane.PASSWORD_NEW, m_validator.getPasswordInfoMessage());
 
-		CertificateGenerator.CertificateWorker worker = CertificateGenerator.createWorker(dialog, pb,
+		final CertificateGenerator.CertificateWorker worker = CertificateGenerator.createWorker(dialog, pb,
 			m_validator.getSigName(), m_validator.getExtensions(), m_bCreateDSACerts);
 		final FinishedContentPane finished = new CertPanelFinishedContentPane(dialog, worker);
 
@@ -963,7 +974,7 @@ public class CertPanel extends JPanel implements ActionListener
 		{
 			public void windowClosing(WindowEvent a_event)
 			{
-				if (finished.checkCancel() == null)
+				if (!worker.hasValidValue() || finished.checkCancel() == null)
 				{
 					dialog.dispose();
 				}
@@ -1085,8 +1096,7 @@ public class CertPanel extends JPanel implements ActionListener
 		}
 		catch (IOException a_e)
 		{
-			JAPDialog.showErrorDialog(
-						 MixConfig.getMainWindow(), "Could not export cerificate", LogType.MISC, a_e);
+			JAPDialog.showErrorDialog(this, "Could not export cerificate", LogType.MISC, a_e);
 			ClipFrame save =
 				new ClipFrame(this,
 					"I/O error while saving, try clipboard. " +
@@ -1228,6 +1238,7 @@ public class CertPanel extends JPanel implements ActionListener
 			{
 				return new CheckError[]{new CheckError("Could not move back!")};
 			}
+			getPreviousContentPane().setValue(RETURN_VALUE_UNINITIALIZED);
 			return null;
 		}
 
