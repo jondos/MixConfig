@@ -775,4 +775,16 @@
     <old-class-name>gui.FinishedContentPane</old-class-name>
     <new-class-name>gui.dialog.FinishedContentPane</new-class-name>
   </rename-class>
+  <rename-method id="6AP00KABM8IEOUE2436YS6Y0" creation-time="Mon Jan 09 11:13:07.318 CET 2006">
+    <declaring-class-name>gui.dialog.JAPDialog$ILinkedInformation</declaring-class-name>
+    <declared-method-signature>()Z</declared-method-signature>
+    <old-method-name>isDialogSemiModal</old-method-name>
+    <new-method-name>isForceApplicationModality</new-method-name>
+  </rename-method>
+  <rename-method id="4AP00KABM8IEOUE2436YS6Y0" creation-time="Mon Jan 09 11:16:50.869 CET 2006">
+    <declaring-class-name>gui.dialog.JAPDialog$ILinkedInformation</declaring-class-name>
+    <declared-method-signature>()Z</declared-method-signature>
+    <old-method-name>isForceApplicationModality</old-method-name>
+    <new-method-name>isApplicationModalityForced</new-method-name>
+  </rename-method>
 </refactor>
