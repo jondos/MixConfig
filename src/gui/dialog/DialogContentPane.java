@@ -132,6 +132,14 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	public static final String MSG_OPERATION_FAILED = DialogContentPane.class.getName() + "_operationFailed";
 	public static final String MSG_SEE_FULL_MESSAGE = DialogContentPane.class.getName() + "_seeFullMessage";
 
+	public static final int DEFAULT_BUTTON_EMPTY = 0;
+	public static final int DEFAULT_BUTTON_CANCEL = 1;
+	public static final int DEFAULT_BUTTON_YES = 2;
+	public static final int DEFAULT_BUTTON_OK = DEFAULT_BUTTON_YES;
+	public static final int DEFAULT_BUTTON_NO = 3;
+	public static final int DEFAULT_BUTTON_HELP = 4;
+	public static final int DEFAULT_BUTTON_KEEP = 5;
+
 	private DialogContentPane m_nextContentPane;
 	private DialogContentPane m_previousContentPane;
 	private RootPaneContainer m_parentDialog;
@@ -160,6 +168,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	private Container m_currentlyActiveContentPane;
 	private Vector m_componentListeners = new Vector();
 	private ComponentListener m_currentlyActiveContentPaneComponentListener;
+	private int m_defaultButton;
 
 	/**
 	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
@@ -531,7 +540,31 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 
 		m_bHasHadWizardLayout = false;
 		m_value = RETURN_VALUE_UNINITIALIZED;
+
+		// create the buttons
 		createOptions();
+
+		// set the default button; if possible, OK is chosen, otherwise cancel or help
+		if (a_optionType == OPTION_TYPE_DEFAULT || a_optionType == OPTION_TYPE_YES_NO ||
+			a_optionType == OPTION_TYPE_CANCEL_OK || a_optionType == OPTION_TYPE_CANCEL_YES_NO)
+		{
+			setDefaultButton(DEFAULT_BUTTON_OK);
+		}
+		else if (a_optionType == OPTION_TYPE_CANCEL)
+		{
+			setDefaultButton(DEFAULT_BUTTON_CANCEL);
+		}
+		else
+		{
+			if (getButtonHelp() != null)
+			{
+				setDefaultButton(DEFAULT_BUTTON_HELP);
+			}
+			else
+			{
+				setDefaultButton(DEFAULT_BUTTON_KEEP);
+			}
+		}
 	}
 
 	/**
@@ -1348,6 +1381,30 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			}
 		}
 
+
+		// set default button
+		if (m_defaultButton == DEFAULT_BUTTON_OK)
+		{
+			getDialog().getRootPane().setDefaultButton(getButtonYesOK());
+		}
+		else if (m_defaultButton == DEFAULT_BUTTON_CANCEL)
+		{
+			getDialog().getRootPane().setDefaultButton(getButtonCancel());
+		}
+		else if (m_defaultButton == DEFAULT_BUTTON_NO)
+		{
+			getDialog().getRootPane().setDefaultButton(getButtonNo());
+		}
+		else if (m_defaultButton == DEFAULT_BUTTON_HELP)
+		{
+			getDialog().getRootPane().setDefaultButton(getButtonHelp());
+		}
+		else if (m_defaultButton != DEFAULT_BUTTON_KEEP)
+		{
+			getDialog().getRootPane().setDefaultButton(null);
+		}
+
+
 		m_titlePane.invalidate();
 		if (m_lblText != null)
 		{
@@ -1364,6 +1421,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		{
 			((JDialog) m_parentDialog).validate();
 		}
+
 		return null;
 	}
 
@@ -1404,6 +1462,39 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	}
 
 	/**
+	 * Defines the button to be set as default button of the dialog when updateDialog() is called.
+	 * If the content pane has a wizard layout, this setting is ignored. The default behaviour (done by the
+	 * constructor) is that it is first tried to make the OK button the default button. If it is not
+	 * available, the CANCEL button and the HELP buttons are tried. If those are not available, too, then
+	 * no default button is set.
+	 * @param a_defaultButton the button to be set as default button of the dialog when updateDialog() is
+	 * called, e.g. DEFAULT_BUTTON_OK or DEFAULT_BUTTON_HELP;
+	 * DEFAULT_BUTTON_EMPTY will set no button as default (null), DEFAULT_BUTTON_KEEP will keep whatever
+	 * has been set before
+	 */
+	public final void setDefaultButton(int a_defaultButton)
+	{
+		if (a_defaultButton < DEFAULT_BUTTON_EMPTY || a_defaultButton > DEFAULT_BUTTON_KEEP)
+		{
+			m_defaultButton = DEFAULT_BUTTON_EMPTY;
+		}
+		else
+		{
+			m_defaultButton = a_defaultButton;
+		}
+	}
+
+	/**
+	 * Returns the button to be set as default button of the dialog when updateDialog() is called.
+	 * @return the button to be set as default button of the dialog when updateDialog() is called,
+	 * e.g. DEFAULT_BUTTON_OK
+	 */
+	public final int getDefaultButton()
+	{
+		return m_defaultButton;
+	}
+
+	/**
 	 * Returns what happens if one of the buttons is clicked. Several actions can be combined,
 	 * for example ON_CLICK_DISPOSE_DIALOG | ON_YESOK_SHOW_NEXT_CONTENT will dispose the dialog on
 	 * "Cancel" and "No" but will show the next content pane on "Yes" or "OK". The ON_CLICK operation
@@ -1435,7 +1526,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 * @throws java.lang.IllegalArgumentException if objects of this type do not support setting the default
 	 * button operation
 	 */
-	public void setDefaultButtonOperation(int a_defaultButtonOperation)
+	public final void setDefaultButtonOperation(int a_defaultButtonOperation)
 		throws IllegalArgumentException
 	{
 		m_defaultButtonOperation = a_defaultButtonOperation;
@@ -1780,30 +1871,38 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 				{
 					if (a_bFocusNextButton)
 					{
-						if (a_contentPane.getButtonYesOK() != null)
+						if (a_contentPane.getButtonYesOK() != null &&
+							a_contentPane.getButtonYesOK().isEnabled())
 						{
 							a_contentPane.getButtonYesOK().requestFocus();
+							getDialog().getRootPane().setDefaultButton(a_contentPane.getButtonYesOK());
 							bFocused = true;
 						}
 					}
 					else
 					{
-						if (a_contentPane.getButtonNo() != null)
+						if (a_contentPane.getButtonNo() != null &&
+							a_contentPane.getButtonNo().isEnabled())
 						{
 							a_contentPane.getButtonNo().requestFocus();
+							getDialog().getRootPane().setDefaultButton(a_contentPane.getButtonNo());
 							bFocused = true;
 						}
-						else if (a_contentPane.getButtonYesOK() != null)
+						else if (a_contentPane.getButtonYesOK() != null &&
+								 a_contentPane.getButtonYesOK().isEnabled())
 						{
 							a_contentPane.getButtonYesOK().requestFocus();
+							getDialog().getRootPane().setDefaultButton(a_contentPane.getButtonYesOK());
 							bFocused = true;
 						}
 					}
 					if (!bFocused)
 					{
-						if (a_contentPane.getButtonCancel() != null)
+						if (a_contentPane.getButtonCancel() != null &&
+							a_contentPane.getButtonCancel().isEnabled())
 						{
 							a_contentPane.getButtonCancel().requestFocus();
+							getDialog().getRootPane().setDefaultButton(a_contentPane.getButtonCancel());
 						}
 					}
 				}
@@ -1964,9 +2063,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	{
 		public void windowClosed(WindowEvent a_event)
 		{
-			if (m_value == RETURN_VALUE_UNINITIALIZED)
+			if (getValue() == RETURN_VALUE_UNINITIALIZED)
 			{
-				m_value = RETURN_VALUE_CLOSED;
+				setValue(RETURN_VALUE_CLOSED);
 			}
 
 			ComponentListener listener = m_currentlyActiveContentPaneComponentListener;
@@ -1981,6 +2080,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			if (isVisible() && hasWizardLayout() && getButtonYesOK() != null)
 			{
 				getButtonYesOK().requestFocus();
+				getDialog().getRootPane().setDefaultButton(getButtonYesOK());
 			}
 
 			if (getDialog() instanceof JDialog)

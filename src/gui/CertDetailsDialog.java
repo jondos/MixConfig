@@ -152,12 +152,6 @@ public class CertDetailsDialog extends JAPDialog
 		JLabel lbl_key;
 		JLabel lbl_val;
 
-		// Common Name
-		JLabel lbl_summaryName = new JLabel(a_cert.getDistinguishedName().getCommonName(), JLabel.LEFT);
-		lbl_summaryName.setForeground(TITLE_COLOR);
-		lbl_summaryName.setFont(TITLE_FONT);
-		detailsPanel.addRow(lbl_summaryName, null, null);
-
 		// Image
 		if (a_bIsVerifyable)
 		{
@@ -169,16 +163,28 @@ public class CertDetailsDialog extends JAPDialog
 		}
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridx = 0;
-		constraints.gridy = 1;
+		constraints.gridy = 0;
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.anchor = GridBagConstraints.EAST;
-		constraints.gridheight = 2;
-		constraints.insets = (new Insets(1, 20, 1, 0));
+		constraints.gridheight = 3;
+		constraints.insets = (new Insets(1, 10, 1, 10));
 		detailsPanel.add(lbl_summaryIcon, constraints);
+
+
 		constraints.anchor = GridBagConstraints.WEST;
 		constraints.gridheight = 1;
 		constraints.gridx = 1;
 		constraints.insets = inset;
+
+		// Common Name
+		JLabel lbl_summaryName = new JLabel(a_cert.getDistinguishedName().getCommonName(), JLabel.LEFT);
+		lbl_summaryName.setForeground(TITLE_COLOR);
+		lbl_summaryName.setFont(TITLE_FONT);
+		constraints.gridwidth = 2;
+		detailsPanel.add(lbl_summaryName, constraints);
+
+		constraints.gridy = 1;
+		constraints.gridwidth = 1;
 		detailsPanel.add(new JLabel(JAPMessages.getString(TITLE_ISSUER), JLabel.RIGHT), constraints);
 		constraints.gridx = 2;
 
@@ -192,10 +198,11 @@ public class CertDetailsDialog extends JAPDialog
 		detailsPanel.add(new JLabel(str), constraints);
 		constraints.gridx = 1;
 		constraints.gridy = 2;
-		detailsPanel.addDummyRows(3);
 		detailsPanel.add(new JLabel(JAPMessages.getString(TITLE_VALIDITY_TO), JLabel.RIGHT), constraints);
 		constraints.gridx = 2;
 		detailsPanel.add(new JLabel( (a_cert.getValidity().getValidTo()).toString()), constraints);
+
+		detailsPanel.addDummyRows(5);
 
 		// Display alert messages if necessary
 		Date today = new Date();

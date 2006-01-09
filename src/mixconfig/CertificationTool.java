@@ -36,18 +36,17 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
-import gui.JAPMessages;
-import gui.dialog.ValidityContentPane;
-import gui.dialog.JAPDialog;
 import gui.JAPHelp;
 import gui.JAPHelpContext;
-import javax.swing.JPanel;
-import gui.dialog.*;
+import gui.JAPMessages;
+import gui.dialog.JAPDialog;
+import gui.dialog.ValidityContentPane;
 
 public class CertificationTool extends JAPDialog
 	implements ActionListener, ChangeListener, JAPHelpContext.IHelpContext
