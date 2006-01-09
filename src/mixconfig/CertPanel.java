@@ -43,6 +43,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JButton;
@@ -147,6 +149,7 @@ public class CertPanel extends JPanel implements ActionListener
 	private int m_certAlgorithm;
 
 	private boolean m_bCreateDSACerts;
+	private boolean m_bCertificateSaved = true;
 
 	/** The certificate */
 	private ICertificate m_cert;
@@ -386,6 +389,11 @@ public class CertPanel extends JPanel implements ActionListener
 	{
 		this.m_validator = a_cg;
 		enableButtons();
+	}
+
+	public boolean isCertificateSaved()
+	{
+		return getCert() == null || !m_bCertIsPKCS12 || m_bCertificateSaved;
 	}
 
 	/**
@@ -698,6 +706,7 @@ public class CertPanel extends JPanel implements ActionListener
 			//passwds but are not equal!]
 			m_privCertPasswd = new String();
 		}
+		m_bCertificateSaved = true;
 		enableButtons();
 		fireStateChanged();
 		return true;
@@ -948,8 +957,18 @@ public class CertPanel extends JPanel implements ActionListener
 
 		CertificateGenerator.CertificateWorker worker = CertificateGenerator.createWorker(dialog, pb,
 			m_validator.getSigName(), m_validator.getExtensions(), m_bCreateDSACerts);
-		FinishedContentPane finished = new CertPanelFinishedContentPane(dialog, worker);
+		final FinishedContentPane finished = new CertPanelFinishedContentPane(dialog, worker);
 
+		dialog.addWindowListener(new WindowAdapter()
+		{
+			public void windowClosing(WindowEvent a_event)
+			{
+				if (finished.checkCancel() == null)
+				{
+					dialog.dispose();
+				}
+			}
+		});
 
 		ValidityContentPane.updateDialogOptimalSized(contentPane);
 		dialog.setResizable(false);
@@ -961,6 +980,8 @@ public class CertPanel extends JPanel implements ActionListener
 			return false;
 		}
 		setCertificate(worker.getCertificateGenerator().getCertificate(), pb.getPassword());
+		m_bCertificateSaved = false;
+
 
 		return true;
 	}
@@ -1038,7 +1059,7 @@ public class CertPanel extends JPanel implements ActionListener
 					 (JAPDialog.showConfirmDialog(
 								this, JAPMessages.getString(MSG_CONFIRM_OVERWRITE),
 								JAPDialog.OPTION_TYPE_CANCEL_OK,
-								JAPDialog.MESSAGE_TYPE_QUESTION) == JAPDialog.RETURN_VALUE_OK));
+								JAPDialog.MESSAGE_TYPE_QUESTION) != JAPDialog.RETURN_VALUE_OK));
 
 			if (file != null)
 			{
@@ -1047,6 +1068,7 @@ public class CertPanel extends JPanel implements ActionListener
 				{
 					case MixConfig.FILTER_PFX:
 						fout.write( ( (PKCS12) m_cert).toByteArray(getPrivateCertPassword()));
+						m_bCertificateSaved = true;
 						break;
 					case MixConfig.FILTER_CER:
 						fout.write(m_cert.getX509Certificate().toByteArray());

@@ -34,6 +34,8 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.event.ChangeListener;
@@ -66,6 +68,7 @@ public class EncryptedLogTool extends JAPDialog
 	private static final String MSG_CANNOT_DECRYPT = EncryptedLogTool.class.getName() + "_cannotDecrypt";
 	private static final String MSG_NO_CERT = EncryptedLogTool.class.getName() + "_noCert";
 	private static final String MSG_NO_LOG = EncryptedLogTool.class.getName() + "_noLog";
+	private static final String MSG_REALLY_CLOSE = EncryptedLogTool.class.getName() + "_reallyClose";
 
 	private JTextArea m_textLogFile;
 	private byte[] m_arLog;
@@ -137,6 +140,26 @@ public class EncryptedLogTool extends JAPDialog
 						  (PKCS12)null, CertPanel.CERT_ALGORITHM_RSA);
 		m_privateCertPanel.setCertCreationValidator(new LogCertCreationValidator());
 		m_privateCertPanel.addChangeListener(this);
+
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		final EncryptedLogTool thisTool = this;
+		addWindowListener(new WindowAdapter()
+		{
+			public void windowClosing(WindowEvent a_event)
+			{
+				boolean bClose = true;
+				if (!m_privateCertPanel.isCertificateSaved())
+				{
+					bClose = (JAPDialog.showConfirmDialog(thisTool, JAPMessages.getString(MSG_REALLY_CLOSE),
+						OPTION_TYPE_CANCEL_OK, MESSAGE_TYPE_QUESTION) == RETURN_VALUE_OK);
+				}
+				if (bClose)
+				{
+					dispose();
+				}
+			}
+		});
+
 		getContentPane().add(m_privateCertPanel, constraintsContentPane);
 		pack();
 		setVisible(true, false);
