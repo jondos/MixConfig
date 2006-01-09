@@ -2481,7 +2481,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		public void windowActivated(WindowEvent e)
 		{
+			if (m_bBlockParentWindow)
+			{
+				toFront();
+			}
 			deactivate(e.getWindow());
+
 		}
 
 		public void focusGained(FocusEvent a_event)
