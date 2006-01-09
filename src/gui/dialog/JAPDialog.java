@@ -258,7 +258,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 		m_dialogWindowAdapter = new DialogWindowAdapter();
 		m_internalDialog.addWindowListener(m_dialogWindowAdapter);
-		m_parentWindow = getParentWindow(getParentComponent());
+		m_parentWindow = GUIUtils.getParentWindow(getParentComponent());
 		setModal(a_bModal);
 	}
 
@@ -954,7 +954,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			createDialog(a_parentComponent, a_title).getContentPane().getSize().width / 2;
 
 		// set the maximum width that is allowed for the content pane
-		int maxWidth = (int)getParentWindow(a_parentComponent).getSize().width;
+		int maxWidth = (int)GUIUtils.getParentWindow(a_parentComponent).getSize().width;
 		if (maxWidth < minWidth * 4)
 		{
 			maxWidth = minWidth * 4;
@@ -2422,22 +2422,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
-	 * Finds the first parent that is a window.
-	 * @param a_parentComponent a Component
-	 * @return the first parent that is a window
-	 */
-	private static Window getParentWindow(Component a_parentComponent)
-	{
-		Component parentComponent = a_parentComponent;
-		while (parentComponent != null && ! (parentComponent instanceof Window))
-		{
-
-			parentComponent = parentComponent.getParent();
-		}
-		return (Window)parentComponent;
-	}
-
-	/**
 	 * Finds the first focusable Component in a Container and sets the focus on it.
 	 * @param a_container a Container
 	 * @return if a Component has been focused
@@ -2481,19 +2465,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		public void windowActivated(WindowEvent a_event)
 		{
-			if (m_bBlockParentWindow)
-			{//System.out.println(m_internalDialog.is);
-				// this is a patch for KDE/Linux; windows, that are disabled, may otherwise be activated
-	/*			Component focusOwner = m_internalDialog.getFocusOwner();
-				System.out.println(focusOwner);
-
-				toFront();
-				// restore the original focus owner
-				if (focusOwner != null)
-				{
-					focusOwner.requestFocus();
-				}*/
-			}
 			deactivate(a_event.getWindow());
 		}
 
@@ -2510,7 +2481,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			if (m_bBlockParentWindow)
 			{
-				requestFocus();
+				//requestFocus(); // this would delete a focus that has been set before...
+				toFront();
 				if (a_window.isEnabled())
 				{
 					a_window.setEnabled(false);
