@@ -962,35 +962,37 @@ public class CertPanel extends JPanel implements ActionListener
 		final JAPDialog dialog = new JAPDialog(this, "Create new certificate", true);
 		dialog.setDefaultCloseOperation(JAPDialog.DO_NOTHING_ON_CLOSE);
 
-		ValidityContentPane contentPane = new ValidityContentPane(dialog);
-		PasswordContentPane pb = new PasswordContentPane(dialog, contentPane,
+		ValidityContentPane validityContentPane = new ValidityContentPane(dialog);
+		PasswordContentPane passwordContentPane = new PasswordContentPane(dialog, validityContentPane,
 			PasswordContentPane.PASSWORD_NEW, m_validator.getPasswordInfoMessage());
 
-		final CertificateGenerator.CertificateWorker worker = CertificateGenerator.createWorker(dialog, pb,
-			m_validator.getSigName(), m_validator.getExtensions(), m_bCreateDSACerts);
-		final FinishedContentPane finished = new CertPanelFinishedContentPane(dialog, worker);
+		final CertificateGenerator.CertificateWorker worker =
+			CertificateGenerator.createWorker(dialog, passwordContentPane,
+											  m_validator.getSigName(), m_validator.getExtensions(),
+											  m_bCreateDSACerts);
+		final FinishedContentPane finishedContentPane = new CertPanelFinishedContentPane(dialog, worker);
 
 		dialog.addWindowListener(new WindowAdapter()
 		{
 			public void windowClosing(WindowEvent a_event)
 			{
-				if (!worker.hasValidValue() || finished.checkCancel() == null)
+				if (!worker.hasValidValue() || finishedContentPane.checkCancel() == null)
 				{
 					dialog.dispose();
 				}
 			}
 		});
 
-		ValidityContentPane.updateDialogOptimalSized(contentPane);
+		ValidityContentPane.updateDialogOptimalSized(validityContentPane);
 		dialog.setResizable(false);
 		dialog.setVisible(true);
 
 
-		if (!finished.hasValidValue() || worker.getCertificateGenerator().getCertificate() == null)
+		if (!finishedContentPane.hasValidValue() || worker.getCertificateGenerator().getCertificate() == null)
 		{
 			return false;
 		}
-		setCertificate(worker.getCertificateGenerator().getCertificate(), pb.getPassword());
+		setCertificate(worker.getCertificateGenerator().getCertificate(), passwordContentPane.getPassword());
 		m_bCertificateSaved = false;
 
 
