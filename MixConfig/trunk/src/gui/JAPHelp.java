@@ -695,12 +695,12 @@ public final class JAPHelp extends JAPDialog
 				}
 
 				/**
-				 * Returns false, as the dialog does not need to open an other window.
-				 * @return false
+				 * Returns true, as the dialog does not need to open an other window.
+				 * @return true
 				 */
-				public boolean isDialogSemiModal()
+				public boolean isApplicationModalityForced()
 				{
-					return false;
+					return true;
 				}
 			}
 		}
