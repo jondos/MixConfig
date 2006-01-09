@@ -2482,7 +2482,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		public void windowActivated(WindowEvent a_event)
 		{
 			if (m_bBlockParentWindow)
-			{
+			{//System.out.println(m_internalDialog.is);
 				// this is a patch for KDE/Linux; windows, that are disabled, may otherwise be activated
 	/*			Component focusOwner = m_internalDialog.getFocusOwner();
 				System.out.println(focusOwner);
