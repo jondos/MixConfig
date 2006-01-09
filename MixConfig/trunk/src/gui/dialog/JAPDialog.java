@@ -1065,6 +1065,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 
 		dialogContentPane.setContentPane(dummyBox);
+		if (a_optionType == OPTION_TYPE_CANCEL || a_optionType == OPTION_TYPE_CANCEL_OK ||
+			a_optionType == OPTION_TYPE_CANCEL_YES_NO)
+		{
+			dialogContentPane.setDefaultButton(DialogContentPane.DEFAULT_BUTTON_CANCEL);
+		}
+
 		dialogContentPane.updateDialog();
 		if (strLinkedInformation != null)
 		{

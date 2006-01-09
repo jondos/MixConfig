@@ -159,14 +159,14 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 		layout.setConstraints(m_textConfirmPasswd, c);
 		getContentPane().add(m_textConfirmPasswd);
 
-		ButtonListener listener = new ButtonListener();
-		m_textConfirmPasswd.addKeyListener(listener);
+
 		addComponentListener(new SetFocusComponentAdapter());
 	}
 
 	/**
 	 * Updates the content pane and shows the dialog. You will have to define the size of the
-	 * dialog before, for example by a pack() operation.
+	 * dialog before, for example by a pack() operation. getValue() will return RETURN_VALUE_CLOSED,
+	 * RETURN_VALUE_CANCEL or RETURN_VALUE_OK after this call.
 	 * @param a_message a message (optional); if given, a_message.toString() will be shown to the user
 	 * @return the password entered by the user or null if the user canceled
 	 */
@@ -179,7 +179,7 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 		{
 			return null;
 		}
-		setValue(RETURN_VALUE_UNINITIALIZED);
+		setValue(RETURN_VALUE_CLOSED);
 		showDialog();
 
 		if (a_message != null)
@@ -363,17 +363,6 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 				{
 					m_textConfirmPasswd.requestDefaultFocus();
 				}
-			}
-		}
-	}
-
-	private class ButtonListener extends KeyAdapter
-	{
-		public void keyReleased(KeyEvent a_event)
-		{
-			if (a_event.getKeyCode() == KeyEvent.VK_ENTER)
-			{
-				getButtonYesOK().doClick();
 			}
 		}
 	}
