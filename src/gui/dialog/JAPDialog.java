@@ -2479,14 +2479,22 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	private class BlockedWindowDeactivationAdapter extends WindowAdapter implements FocusListener
 	{
-		public void windowActivated(WindowEvent e)
+		public void windowActivated(WindowEvent a_event)
 		{
 			if (m_bBlockParentWindow)
 			{
-				toFront();
-			}
-			deactivate(e.getWindow());
+				// this is a patch for KDE/Linux; windows, that are disabled, may otherwise be activated
+	/*			Component focusOwner = m_internalDialog.getFocusOwner();
+				System.out.println(focusOwner);
 
+				toFront();
+				// restore the original focus owner
+				if (focusOwner != null)
+				{
+					focusOwner.requestFocus();
+				}*/
+			}
+			deactivate(a_event.getWindow());
 		}
 
 		public void focusGained(FocusEvent a_event)
