@@ -386,11 +386,6 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		return errors;
 	}
 
-	public String getHelpContext()
-		{
-			return JAPHelpContext.INDEX;
-	}
-
 	protected void enableComponents()
 	{
 		try

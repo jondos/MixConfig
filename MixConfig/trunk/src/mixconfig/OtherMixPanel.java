@@ -54,7 +54,8 @@ import gui.*;
  * This class is an abstract superclass for NextMixProxyPanel and PreviousMixPanel
  * @author Tobias Bayer
  */
-public abstract class OtherMixPanel extends MixConfigPanel implements ChangeListener
+public abstract class OtherMixPanel extends MixConfigPanel implements ChangeListener,
+	JAPHelpContext.IHelpContext
 {
 	public static final String MIX_TYPE_PREVIOUS = "Previous Mix";
 	public static final String MIX_TYPE_NEXT = "Next Mix";
@@ -154,6 +155,11 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	protected JPanel getLocationPanel()
 	{
 		return m_locationPanel;
+	}
+
+	public String getHelpContext()
+	{
+		return OtherMixPanel.class.getName();
 	}
 
 	public JPanel getOperatorPanel()

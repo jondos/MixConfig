@@ -90,8 +90,6 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	private static final String MSG_CERT_NOT_VERIFYABLE =
 		OwnCertificatesPanel.class.getName() + "_certNotVerifyable";
 
-	private static final String HELP_CONTEXT = ClassUtil.getShortClassName(OwnCertificatesPanel.class);
-
 	private CertPanel m_ownCert;
 	private CertPanel m_operatorCert;
 	private JButton map;
@@ -119,7 +117,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 								  "adjacent mixes", (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_ownCert.setName("Certificates/OwnCertificate");
 		m_ownCert.setChangedCertNotVerifyableMessage(JAPMessages.getString(MSG_CERT_NOT_VERIFYABLE),
-													 new JAPDialog.LinkedHelpContext(HELP_CONTEXT));
+													 new JAPDialog.LinkedHelpContext(this));
 		m_ownCert.setCertCreationValidator(new OwnCertCreationValidator());
 		m_ownCert.setCertificateView(new MixCertificateView());
 		m_ownCert.addChangeListener(this);
@@ -132,7 +130,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 									   (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_operatorCert.setName("Certificates/OperatorOwnCertificate");
 		m_operatorCert.setChangedCertNotVerifyableMessage(JAPMessages.getString(MSG_CERT_NOT_VERIFYABLE),
-			new JAPDialog.LinkedHelpContext(HELP_CONTEXT));
+			new JAPDialog.LinkedHelpContext(this));
 		m_operatorCert.setCertCreationValidator(new OperatorCertCreationValidator());
 		m_operatorCert.setCertificateView(new OperatorCertificateView());
 		m_operatorCert.addChangeListener(this);
@@ -269,7 +267,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 
 	public String getHelpContext()
 	{
-		return HELP_CONTEXT;
+		return OwnCertificatesPanel.class.getName();
 	}
 
 	public Vector check()
