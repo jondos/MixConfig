@@ -992,17 +992,13 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			strLinkedInformation =
 				JAPHtmlMultiLineLabel.removeTagsAndNewLines(a_linkedInformation.getMessage());
-			message += JAPHtmlMultiLineLabel.TAG_BREAK;
 
-
-			if (a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_TRUE ||
-				a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_FALSE)
+			if (a_linkedInformation.getType() != ILinkedInformation.TYPE_CHECKBOX_TRUE &&
+				a_linkedInformation.getType() != ILinkedInformation.TYPE_CHECKBOX_FALSE)
 			{
-				message += "Text";
-			}
-			else
-			{
-				message += JAPHtmlMultiLineLabel.TAG_A_OPEN + strLinkedInformation +
+				// this is not a checkbox
+				message += JAPHtmlMultiLineLabel.TAG_BREAK +
+					JAPHtmlMultiLineLabel.TAG_A_OPEN + strLinkedInformation +
 					JAPHtmlMultiLineLabel.TAG_A_CLOSE;
 			}
 		}
@@ -1014,14 +1010,26 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		/*
 		 * Set the dialog parameters and get its label and content pane.
 		 */
-		label = new JAPHtmlMultiLineLabel(message);
-		label.setFontStyle(JAPHtmlMultiLineLabel.FONT_STYLE_PLAIN);
 		dialog = new JAPDialog(a_parentComponent, a_title, true, bForceApplicationModality);
 		dialogContentPane = new DialogContentPane(dialog,
 												  new DialogContentPane.Layout(null, a_messageType, a_icon),
 												  new DialogContentPane.Options(a_optionType, helpContext));
 		dialogContentPane.setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
-		dialogContentPane.setContentPane(label);
+
+		label = new JAPHtmlMultiLineLabel(message);
+		label.setFontStyle(JAPHtmlMultiLineLabel.FONT_STYLE_PLAIN);
+		dummyBox = new PreferredWidthBoxPanel();
+		if (strLinkedInformation != null &&
+			(a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_TRUE ||
+			 a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_FALSE))
+		{
+			// add a dummy checkbox to get the needed additional height of it; the text field may not be empty
+			linkLabel = new JCheckBox("Text");
+			linkLabel.setFont(label.getFont());
+			dummyBox.add(linkLabel);
+		}
+		dummyBox.add(label);
+		dialogContentPane.setContentPane(dummyBox);
 		dialogContentPane.updateDialog();
 		// trick: a dialog's content pane is always a JComponent; it is needed to set the min/max size
 		contentPane = (JComponent)dialog.getContentPane();
@@ -1153,6 +1161,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 				linkLabel =
 					new JCheckBox(strLinkedInformation,
 								  a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_TRUE);
+				linkLabel.setFont(label.getFont());
 				((JCheckBox)linkLabel).addItemListener(
 								new LinkedInformationClickListener(a_linkedInformation));
 			}
