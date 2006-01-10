@@ -206,7 +206,7 @@
   <property category="sys" name="Encoding" value="UTF8"/>
   <property category="sys" name="ExcludeClassEnabled" value="0"/>
   <property category="sys" name="IncludeTestPath" value="1"/>
-  <property category="sys" name="JDK" value="java version 1.5.0_02-b09"/>
+  <property category="sys" name="JDK" value="java version 1.5.0_04-b05"/>
   <property category="sys" name="LastTag" value="36"/>
   <property category="sys" name="Libraries" value="Swing;BouncyCastleLightForMixConfig;JUnit;junitx;Log4j;XML-1.1"/>
   <property category="sys" name="MakeStable" value="0"/>
@@ -519,21 +519,9 @@
     <property category="nodeJavadoc" name="displayAllOutput" value="0"/>
   </node>
   <file path="MixConfig.doxy"/>
-  <file path="help/mixconfig.OwnCertificatesPanel_en.html"/>
   <file path="src/MixConfigMessages_de.properties"/>
   <file path="src/MixConfigMessages_en.properties"/>
   <file path="MixConfiguration.dtd"/>
   <file path="MixConfiguration.xml"/>
-  <file path="help/mixsetupBuildCompile_en.html"/>
-  <file path="help/mixsetupBuildGetLibraries_en.html"/>
-  <file path="help/mixsetupBuildGetSources_en.html"/>
-  <file path="help/mixsetupLiveCD_en.html"/>
-  <file path="help/operatorChooseServer_en.html"/>
-  <file path="help/operatorCommitment_en.html"/>
-  <file path="help/operatorCommitment20030924_de.html"/>
-  <file path="help/operatorCommitment20030924_en.html"/>
-  <file path="help/operatorLawEnforcement_en.html"/>
-  <file path="help/operatorPutMixInCascade_en.html"/>
-  <file path="help/operatorTrust_en.html"/>
   <file path="TheApplet.html"/>
 </project>
