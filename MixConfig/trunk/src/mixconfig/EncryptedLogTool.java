@@ -151,7 +151,7 @@ public class EncryptedLogTool extends JAPDialog
 				if (!m_privateCertPanel.isCertificateSaved())
 				{
 					bClose = (JAPDialog.showConfirmDialog(thisTool, JAPMessages.getString(MSG_REALLY_CLOSE),
-						OPTION_TYPE_CANCEL_OK, MESSAGE_TYPE_QUESTION) == RETURN_VALUE_OK);
+						OPTION_TYPE_OK_CANCEL, MESSAGE_TYPE_QUESTION) == RETURN_VALUE_OK);
 				}
 				if (bClose)
 				{

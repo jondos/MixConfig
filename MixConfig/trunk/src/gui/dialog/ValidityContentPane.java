@@ -62,7 +62,7 @@ public class ValidityContentPane extends DialogContentPane implements
 	{
 		super(a_parent,
 			  new Layout("Please choose a validity", MESSAGE_TYPE_QUESTION),
-			  new Options(OPTION_TYPE_CANCEL_OK, a_previousContentPane));
+			  new Options(OPTION_TYPE_OK_CANCEL, a_previousContentPane));
 		setDefaultButtonOperation(BUTTON_OPERATION_WIZARD);
 
 		GridBagLayout layout = new GridBagLayout();

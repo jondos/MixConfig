@@ -457,8 +457,8 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		}
 
 		if (!(a_optionType == OPTION_TYPE_EMPTY || a_optionType == OPTION_TYPE_DEFAULT ||
-			a_optionType == OPTION_TYPE_CANCEL || a_optionType == OPTION_TYPE_CANCEL_OK ||
-			a_optionType == OPTION_TYPE_CANCEL_YES_NO || a_optionType == OPTION_TYPE_YES_NO))
+			a_optionType == OPTION_TYPE_CANCEL || a_optionType == OPTION_TYPE_OK_CANCEL ||
+			a_optionType == OPTION_TYPE_YES_NO_CANCEL || a_optionType == OPTION_TYPE_YES_NO))
 		{
 			throw new IllegalArgumentException("Unknown option type!");
 		}
@@ -546,7 +546,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 
 		// set the default button; if possible, OK is chosen, otherwise cancel or help
 		if (a_optionType == OPTION_TYPE_DEFAULT || a_optionType == OPTION_TYPE_YES_NO ||
-			a_optionType == OPTION_TYPE_CANCEL_OK || a_optionType == OPTION_TYPE_CANCEL_YES_NO)
+			a_optionType == OPTION_TYPE_OK_CANCEL || a_optionType == OPTION_TYPE_YES_NO_CANCEL)
 		{
 			setDefaultButton(DEFAULT_BUTTON_OK);
 		}
@@ -1937,7 +1937,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	private void createDefaultOptions()
 	{
 		m_panelOptions = new JPanel();
-		if (OPTION_TYPE_CANCEL_YES_NO == m_optionType || OPTION_TYPE_CANCEL_OK == m_optionType ||
+		if (OPTION_TYPE_YES_NO_CANCEL == m_optionType || OPTION_TYPE_OK_CANCEL == m_optionType ||
 			OPTION_TYPE_CANCEL == m_optionType)
 		{
 			if (m_btnCancel == null)
@@ -1950,15 +1950,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			m_panelOptions.add(m_btnCancel);
 		}
 
-		if (OPTION_TYPE_YES_NO == m_optionType || OPTION_TYPE_CANCEL_YES_NO == m_optionType)
+		if (OPTION_TYPE_YES_NO == m_optionType || OPTION_TYPE_YES_NO_CANCEL == m_optionType)
 		{
-			if (m_btnYesOK == null)
-			{
-				m_btnYesOK = new JButton();
-				m_btnYesOK.addActionListener(m_buttonListener);
-			}
-			m_btnYesOK.setText(JAPMessages.getString(MSG_YES));
-			m_panelOptions.add(m_btnYesOK);
+			// Button No
 			if (m_btnNo == null)
 			{
 				m_btnNo = new JButton();
@@ -1966,8 +1960,18 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			}
 			m_btnNo.setText(JAPMessages.getString(MSG_NO));
 			m_panelOptions.add(m_btnNo);
+
+
+			// Button Yes/OK
+			if (m_btnYesOK == null)
+			{
+				m_btnYesOK = new JButton();
+				m_btnYesOK.addActionListener(m_buttonListener);
+			}
+			m_btnYesOK.setText(JAPMessages.getString(MSG_YES));
+			m_panelOptions.add(m_btnYesOK);
 		}
-		else if (OPTION_TYPE_CANCEL_OK == m_optionType || OPTION_TYPE_DEFAULT == m_optionType)
+		else if (OPTION_TYPE_OK_CANCEL == m_optionType || OPTION_TYPE_DEFAULT == m_optionType)
 		{
 			if (m_btnYesOK == null)
 			{
@@ -2206,7 +2210,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 				if (isSomethingDoneOnClick(errors, ON_YESOK_SHOW_NEXT_CONTENT, ON_YESOK_SHOW_PREVIOUS_CONTENT,
 										   ON_YESOK_HIDE_DIALOG, ON_YESOK_DISPOSE_DIALOG))
 				{
-					if (OPTION_TYPE_YES_NO == m_optionType || OPTION_TYPE_CANCEL_YES_NO == m_optionType)
+					if (OPTION_TYPE_YES_NO == m_optionType || OPTION_TYPE_YES_NO_CANCEL == m_optionType)
 					{
 						m_value = RETURN_VALUE_YES;
 					}

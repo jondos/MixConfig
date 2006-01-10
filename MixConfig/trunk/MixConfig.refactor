@@ -787,4 +787,8 @@
     <old-method-name>isForceApplicationModality</old-method-name>
     <new-method-name>isApplicationModalityForced</new-method-name>
   </rename-method>
+  <rename-class id="6AP09TYWDAIEDKN9B5M0QKH0" creation-time="Tue Jan 10 16:53:34.369 CET 2006">
+    <old-class-name>gui.dialog.JAPDialog$ApplicationModalityEnforcer</old-class-name>
+    <new-class-name>gui.dialog.JAPDialog$LinkedApplicationModalityEnforcer</new-class-name>
+  </rename-class>
 </refactor>
