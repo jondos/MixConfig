@@ -93,7 +93,7 @@ public class PasswordContentPane extends DialogContentPane implements IMiscPassw
 	{
 		super(a_parentDialog, (a_strMessage != null) ? a_strMessage : "",
 			  new Layout(JAPMessages.getString(MSG_ENTER_PASSWORD_TITLE), MESSAGE_TYPE_QUESTION),
-			  new Options(OPTION_TYPE_CANCEL_OK, a_previousContentPane));
+			  new Options(OPTION_TYPE_OK_CANCEL, a_previousContentPane));
 		setDefaultButtonOperation(BUTTON_OPERATION_WIZARD);
 
 		if (a_type < PASSWORD_NEW || a_type > PASSWORD_CHANGE)

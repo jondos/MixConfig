@@ -43,8 +43,8 @@ public interface IDialogOptions
 	public static final int MESSAGE_TYPE_WARNING = JOptionPane.WARNING_MESSAGE;
 	public static final int MESSAGE_TYPE_INFORMATION = JOptionPane.INFORMATION_MESSAGE;
 	public static final int OPTION_TYPE_DEFAULT = JOptionPane.DEFAULT_OPTION;
-	public static final int OPTION_TYPE_CANCEL_OK = JOptionPane.OK_CANCEL_OPTION;
-	public static final int OPTION_TYPE_CANCEL_YES_NO = JOptionPane.YES_NO_CANCEL_OPTION;
+	public static final int OPTION_TYPE_OK_CANCEL = JOptionPane.OK_CANCEL_OPTION;
+	public static final int OPTION_TYPE_YES_NO_CANCEL = JOptionPane.YES_NO_CANCEL_OPTION;
 	public static final int OPTION_TYPE_YES_NO = JOptionPane.YES_NO_OPTION;
 	/**
 	 * This is an extra option type not available in JOptionPane. If set, no buttons are displayed.

@@ -680,18 +680,19 @@ public final class JAPHelp extends JAPDialog
 
 				/**
 				 * No action is performed on clicking the link.
+				 * @param a_bState is ignored
 				 */
-				public void openLink()
+				public void clicked(boolean a_bState)
 				{
 				}
 
 				/**
-				 * Returns true.
-				 * @return true
+				 * Returns TYPE_SELECTABLE_LINK.
+				 * @return TYPE_SELECTABLE_LINK
 				 */
-				public boolean isCopyAllowed()
+				public int getType()
 				{
-					return true;
+					return TYPE_SELECTABLE_LINK;
 				}
 
 				/**

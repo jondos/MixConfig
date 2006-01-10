@@ -45,6 +45,8 @@ import java.awt.MenuContainer;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
@@ -63,6 +65,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JTextPane;
+import javax.swing.JCheckBox;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -263,28 +266,40 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
-	 * Classes of this type are used to append a clickable message at the end of a dialog message.
-	 * You may also allow to copy the message to the cip board and define any after-click-action
-	 * that you want.
+	 * Classes of this type are used to append a clickable and/or selectable message at the end of a
+	 * dialog message. You may define any after-click-action that you want, for example open a help window.
 	 */
 	public static interface ILinkedInformation
 	{
+		public static final String MSG_MORE_INFO = LinkedHelpContext.class.getName() + "_moreInfo";
+
+		public static final int TYPE_LINK = 0;
+		public static final int TYPE_SELECTABLE_LINK = 1;
+		public static final int TYPE_CHECKBOX_TRUE = 2;
+		public static final int TYPE_CHECKBOX_FALSE = 3;
+
 		/**
 		 * Returns the information message. This must be normal text, HTML is not allowed and
-		 * tags are filtered out.
+		 * tags are filtered out. If the message is <CODE>null</CODE> or empty,
+		 * no linked information will be displayed.
 		 * @return the information message
 		 */
 		public String getMessage();
 		/**
-		 * The action that is performed when the link is clicked, for example opening a browser
+		 * Performs an action when the link is clicked, for example opening a browser
 		 * window, an E-Mail client or a help page.
+		 * @param a_bState sets the current state if the linked information is defined as a checkbox.
 		 */
-		public void openLink();
+		public void clicked(boolean a_bState);
 		/**
-		 * Returns if the user is allowed to copy the link text.
+		 * Returns the type the the linked information. It may be a simple link in HTML style (TYPE_LINK),
+		 * a selectable link that may be copied to the clipboard (TYPE_SELECTABLE_LINK) or a
+		 * checkbox (TYPE_CHECKBOX_TRUE or TYPE_CHECKBOX_FALSE).
+		 * In case of a checkbox, the <CODE>clicked</CODE> method is called with the state of the checkbox.
+		 * You may initialise the checkbox with true (TYPE_CHECKBOX_TRUE) or false (TYPE_CHECKBOX_FALSE).
 		 * @return if the user is allowed to copy the link text
 		 */
-		public boolean isCopyAllowed();
+		public int getType();
 		/**
 		 * Returns if the dialog should block all other windows. This should not be the default
 		 * behaviour as, for example, no help window would be accessible.
@@ -294,10 +309,81 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
+	 * Shows a checkbox with a message on the dialog window.
+	 */
+	public static class LinkedCheckBox implements ILinkedInformation
+	{
+		private String m_strMessage;
+		private boolean m_bDefault;
+		private boolean m_bState;
+
+		/**
+		 * Creates a new linked checkbox.
+		 * @param a_strMessage a message to be displayed with the checkbox
+		 * @param a_bDefault the default value of the checkbox
+		 */
+		public LinkedCheckBox(String a_strMessage, boolean a_bDefault)
+		{
+			m_strMessage = a_strMessage;
+			m_bDefault = a_bDefault;
+			m_bState = m_bDefault;
+		}
+
+		/**
+		 * Returns the information message of the checkbox.
+		 * @return the information message of the checkbox
+		 */
+		public String getMessage()
+		{
+			return m_strMessage;
+		}
+
+		/**
+		 * Updates the state when the checkbox is clicked.
+		 * @param a_bState sets the current state of the checkbox
+		 */
+		public void clicked(boolean a_bState)
+		{
+			m_bState = a_bState;
+		}
+
+		/**
+		 * Returns the state of the checkbox.
+		 * @return the state of the checkbox
+		 */
+		public final boolean getState()
+		{
+			return m_bState;
+		}
+
+		/**
+		 * Returns, depending on the default value, either TYPE_CHECKBOX_TRUE or TYPE_CHECKBOX_FALSE.
+		 * @return if the user is allowed to copy the link text
+		 */
+		public final int getType()
+		{
+			if (m_bDefault)
+			{
+				return TYPE_CHECKBOX_TRUE;
+			}
+			return TYPE_CHECKBOX_FALSE;
+		}
+
+		/**
+		 * Returns <CODE>false</CODE> as default but may be overwritten.
+		 * @return <CODE>false</CODE>
+		 */
+		public boolean isApplicationModalityForced()
+		{
+			return false;
+		}
+	}
+
+	/**
 	 * This class does nothing else as enforcing the application modality of a dialog, that means the
 	 * dialog is modal for all other application windows.
 	 */
-	public static final class ApplicationModalityEnforcer implements ILinkedInformation
+	public static final class LinkedApplicationModalityEnforcer implements ILinkedInformation
 	{
 		/**
 		 * Returns null
@@ -309,17 +395,18 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 		/**
 		 * Does nothing.
+		 * @param a_bState is ignored
 		 */
-		public void openLink()
+		public void clicked(boolean a_bState)
 		{
 		}
 		/**
-		 * Returns false.
-		 * @return false
+		 * Returns TYPE_LINK.
+		 * @return TYPE_LINK
 		 */
-		public boolean isCopyAllowed()
+		public int getType()
 		{
-			return false;
+			return TYPE_LINK;
 		}
 		/**
 		 * Returns true.
@@ -332,40 +419,28 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
-	 * This is an example implementation of ILinkedInformation. It registers a help context in the
-	 * dialog that is opened when the user clicks on a "More info..." or a self-defined String.
+	 * This implementation of ILinkedInformation registers a help context in the dialog and displays a
+	 * help button that opens this context.
 	 */
 	public static final class LinkedHelpContext implements ILinkedInformation, JAPHelpContext.IHelpContext
 	{
-		private static final String MSG_MORE_INFO = LinkedHelpContext.class.getName() + "_moreInfo";
-
-		private String m_strMessage;
 		private JAPHelpContext.IHelpContext m_helpContext;
 
-		public LinkedHelpContext(final String a_strHelpContext, String a_strMessage)
-		{
-			this(new JAPHelpContext.IHelpContext(){public String getHelpContext(){return a_strHelpContext;}},
-				a_strMessage);
-		}
-
-		public LinkedHelpContext(JAPHelpContext.IHelpContext a_helpContext, String a_strMessage)
-		{
-			if (a_strMessage == null || a_strMessage.trim().length() == 0)
-			{
-				a_strMessage = JAPMessages.getString(MSG_MORE_INFO);
-			}
-			m_helpContext = a_helpContext;
-			m_strMessage = a_strMessage;
-		}
 
 		public LinkedHelpContext(JAPHelpContext.IHelpContext a_helpContext)
 		{
-			this(a_helpContext, null);
+			m_helpContext = a_helpContext;
 		}
 
-		public LinkedHelpContext(String a_strHelpContext)
+		public LinkedHelpContext(final String a_strHelpContext)
 		{
-			this(a_strHelpContext, null);
+			m_helpContext = new JAPHelpContext.IHelpContext()
+			{
+				public String getHelpContext()
+				{
+					return a_strHelpContext;
+				}
+			};
 		}
 
 		public String getHelpContext()
@@ -377,26 +452,31 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			return m_helpContext.getHelpContext();
 		}
 
+		/**
+		 * Returns <CODE>null</CODE> as no message is needed.
+		 * @return <CODE>null</CODE>
+		 */
 		public String getMessage()
 		{
-			return m_strMessage;
+			return null;
 		}
 		/**
 		 * Opens a help window with the registered context.
+		 * @param a_bState is ignored
 		 */
-		public void openLink()
+		public void clicked(boolean a_bState)
 		{
 			JAPHelp.getInstance().getContextObj().setContext(m_helpContext);
 			JAPHelp.getInstance().setVisible(true);
 			JAPHelp.getInstance().requestFocus();
 		}
 		/**
-		 * This makes no sense and is not allowed.
-		 * @return false
+		 * Returns TYPE_LINK.
+		 * @return TYPE_LINK
 		 */
-		public boolean isCopyAllowed()
+		public int getType()
 		{
-			return false;
+			return TYPE_LINK;
 		}
 		/**
 		 * Returns false as otherwise the help window would not be accessible.
@@ -912,8 +992,19 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			strLinkedInformation =
 				JAPHtmlMultiLineLabel.removeTagsAndNewLines(a_linkedInformation.getMessage());
-			message += JAPHtmlMultiLineLabel.TAG_BREAK + JAPHtmlMultiLineLabel.TAG_A_OPEN +
-				strLinkedInformation + JAPHtmlMultiLineLabel.TAG_A_CLOSE;
+			message += JAPHtmlMultiLineLabel.TAG_BREAK;
+
+
+			if (a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_TRUE ||
+				a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_FALSE)
+			{
+				message += "Text";
+			}
+			else
+			{
+				message += JAPHtmlMultiLineLabel.TAG_A_OPEN + strLinkedInformation +
+					JAPHtmlMultiLineLabel.TAG_A_CLOSE;
+			}
 		}
 		else
 		{
@@ -1038,7 +1129,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		linkLabel = null;
 		if (strLinkedInformation != null)
 		{
-			if (a_linkedInformation.isCopyAllowed())
+			if (a_linkedInformation.getType() == ILinkedInformation.TYPE_SELECTABLE_LINK)
 			{   /** @todo this is not nice in most of the old JDKs) */
 				JTextPane textPane = GUIUtils.createSelectableAndResizeableLabel(dummyBox);
 				/*
@@ -1054,28 +1145,40 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 				textPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,1,0));
 				textPane.setForeground(java.awt.Color.blue);
 				linkLabel = textPane;
+				linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation));
+			}
+			else if (a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_TRUE ||
+					 a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_FALSE)
+			{
+				linkLabel =
+					new JCheckBox(strLinkedInformation,
+								  a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_TRUE);
+				((JCheckBox)linkLabel).addItemListener(
+								new LinkedInformationClickListener(a_linkedInformation));
 			}
 			else
 			{
 				linkLabel = new JAPHtmlMultiLineLabel(JAPHtmlMultiLineLabel.TAG_A_OPEN +
 					strLinkedInformation + JAPHtmlMultiLineLabel.TAG_A_CLOSE);
+				linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation));
 			}
+
 
 			dummyBox.add(linkLabel);
 		}
 
 		dialogContentPane.setContentPane(dummyBox);
-		if (a_optionType == OPTION_TYPE_CANCEL || a_optionType == OPTION_TYPE_CANCEL_OK ||
-			a_optionType == OPTION_TYPE_CANCEL_YES_NO)
+		if (a_optionType == OPTION_TYPE_CANCEL || a_optionType == OPTION_TYPE_OK_CANCEL ||
+			a_optionType == OPTION_TYPE_YES_NO_CANCEL)
 		{
 			dialogContentPane.setDefaultButton(DialogContentPane.DEFAULT_BUTTON_CANCEL);
 		}
+		else if (a_optionType == OPTION_TYPE_YES_NO)
+		{
+			dialogContentPane.setDefaultButton(DialogContentPane.DEFAULT_BUTTON_NO);
+		}
 
 		dialogContentPane.updateDialog();
-		if (strLinkedInformation != null)
-		{
-			linkLabel.addMouseListener(new LinkedInformationClickListener(a_linkedInformation));
-		}
 		((JComponent)dialog.getContentPane()).setPreferredSize(bestDimension);
 		dialog.pack();
 		if (bestDelta != getGoldenRatioDelta(dialog))
@@ -2359,6 +2462,10 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			{
 				m_contentPane.getButtonCancel().requestFocus();
 			}
+			else if (m_contentPane.getButtonNo() != null)
+			{
+				m_contentPane.getButtonNo().requestFocus();
+			}
 			else if (m_contentPane.getButtonYesOK() != null)
 			{
 				m_contentPane.getButtonYesOK().requestFocus();
@@ -2370,7 +2477,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 	}
 
-	private static class LinkedInformationClickListener extends MouseAdapter
+
+	/**
+	 * Activates a LinkedInformation, if it is given as a link.
+	 */
+	private static class LinkedInformationClickListener extends MouseAdapter implements ItemListener
 	{
 		private ILinkedInformation m_linkedInformation;
 
@@ -2381,7 +2492,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 		public void mouseClicked(MouseEvent a_event)
 		{
-			m_linkedInformation.openLink();
+			m_linkedInformation.clicked(false);
+		}
+
+		public void itemStateChanged(ItemEvent a_event)
+		{
+			m_linkedInformation.clicked(((JCheckBox)a_event.getSource()).isSelected());
 		}
 	}
 

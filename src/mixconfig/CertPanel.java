@@ -467,7 +467,7 @@ public class CertPanel extends JPanel implements ActionListener
 			else if (source == this.m_bttnRemoveCert)
 			{
 				if (JAPDialog.showConfirmDialog(this, JAPMessages.getString(MSG_CONFIRM_DELETION),
-												JAPDialog.OPTION_TYPE_CANCEL_OK,
+												JAPDialog.OPTION_TYPE_OK_CANCEL,
 												JAPDialog.MESSAGE_TYPE_QUESTION) == JAPDialog.RETURN_VALUE_OK)
 				{
 					removeCert();
@@ -599,7 +599,7 @@ public class CertPanel extends JPanel implements ActionListener
 								"Are you sure you want to cancel? " +
 								"Your private certificate will not be loaded!",
 								"Certificate not loaded",
-								JAPDialog.OPTION_TYPE_CANCEL_OK, JAPDialog.MESSAGE_TYPE_WARNING);
+								JAPDialog.OPTION_TYPE_OK_CANCEL, JAPDialog.MESSAGE_TYPE_WARNING);
 							if (returnValue == JAPDialog.RETURN_VALUE_OK)
 							{
 								break;
@@ -1071,7 +1071,7 @@ public class CertPanel extends JPanel implements ActionListener
 			} while (file != null && file.exists() &&
 					 (JAPDialog.showConfirmDialog(
 								this, JAPMessages.getString(MSG_CONFIRM_OVERWRITE),
-								JAPDialog.OPTION_TYPE_CANCEL_OK,
+								JAPDialog.OPTION_TYPE_OK_CANCEL,
 								JAPDialog.MESSAGE_TYPE_QUESTION) != JAPDialog.RETURN_VALUE_OK));
 
 			if (file != null)
@@ -1250,7 +1250,7 @@ public class CertPanel extends JPanel implements ActionListener
 				JAPDialog.showConfirmDialog( (JAPDialog) getDialog(),
 											"This will delete your newly created certificate. " +
 											"Do you really want to continue?",
-											JAPDialog.OPTION_TYPE_CANCEL_OK, JAPDialog.MESSAGE_TYPE_WARNING);
+											JAPDialog.OPTION_TYPE_OK_CANCEL, JAPDialog.MESSAGE_TYPE_WARNING);
 		   if (returnValue != RETURN_VALUE_OK)
 		   {
 			   return new CheckError[]{new CheckError()};
