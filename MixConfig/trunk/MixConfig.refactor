@@ -791,4 +791,8 @@
     <old-class-name>gui.dialog.JAPDialog$ApplicationModalityEnforcer</old-class-name>
     <new-class-name>gui.dialog.JAPDialog$LinkedApplicationModalityEnforcer</new-class-name>
   </rename-class>
+  <rename-class id="6AP0AJBKJBIE0YKTA56YS6Y0" creation-time="Wed Jan 11 12:19:28.162 CET 2006">
+    <old-class-name>gui.JAPHelp$ExternalURLCaller</old-class-name>
+    <new-class-name>gui.JAPHelp$IExternalURLCaller</new-class-name>
+  </rename-class>
 </refactor>
