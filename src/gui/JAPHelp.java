@@ -110,7 +110,7 @@ public final class JAPHelp extends JAPDialog
 
 	private static JAPHelp ms_theJAPHelp = null;
 
-	private JAPHelp(Frame parent, ExternalURLCaller a_urlCaller)
+	private JAPHelp(Frame parent, IExternalURLCaller a_urlCaller)
 	{
 		super(parent, JAPMessages.getString(MSG_HELP_WINDOW), false);
 
@@ -196,7 +196,7 @@ public final class JAPHelp extends JAPDialog
 	 * @param a_parent the parent frame of the help object
 	 * @param a_urlCaller the caller that is used to open external URLs (may be null)
 	 */
-	public static void init(Frame a_parent, ExternalURLCaller a_urlCaller)
+	public static void init(Frame a_parent, IExternalURLCaller a_urlCaller)
 	{
 		if (ms_theJAPHelp == null)
 		{
@@ -216,7 +216,7 @@ public final class JAPHelp extends JAPDialog
 	/**
 	 * An instance of this interface is needed to open external URLs.
 	 */
-	public static interface ExternalURLCaller
+	public static interface IExternalURLCaller
 	{
 		/**
 		 * Returns if the caller was able to open the URL in the browser
@@ -394,7 +394,7 @@ public final class JAPHelp extends JAPDialog
 
 	private final class HtmlPane extends JScrollPane implements HyperlinkListener
 	{
-		private ExternalURLCaller m_urlCaller;
+		private IExternalURLCaller m_urlCaller;
 		private JEditorPane html;
 		private URL url;
 		private Cursor cursor;
@@ -402,11 +402,11 @@ public final class JAPHelp extends JAPDialog
 		private Vector m_historyViewports;
 		private int m_historyPosition;
 
-		public HtmlPane(ExternalURLCaller a_urlCaller)
+		public HtmlPane(IExternalURLCaller a_urlCaller)
 		{
 			if (a_urlCaller == null)
 			{
-				a_urlCaller = new ExternalURLCaller(){public boolean openURL(URL a_url) {return false;}};
+				a_urlCaller = new IExternalURLCaller(){public boolean openURL(URL a_url) {return false;}};
 			}
 			m_urlCaller = a_urlCaller;
 			html = new JEditorPane("text/html", "<html><body></body></html>");
