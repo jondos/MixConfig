@@ -409,6 +409,8 @@ public class CertPanel extends JPanel implements ActionListener
 	 * Sets the message that is displayed when the user creates or imports an certificate that cannot be
 	 * verified against one of the trusted certificates.
 	 * @param a_strChangedCertNotVerifyable String
+	 * @param a_linkedInformation an additional information, for example a help context, that is linked
+	 * in the displayed message
 	 */
 	public void setChangedCertNotVerifyableMessage(String a_strChangedCertNotVerifyable,
 		JAPDialog.ILinkedInformation a_linkedInformation)
@@ -976,7 +978,7 @@ public class CertPanel extends JPanel implements ActionListener
 		{
 			public void windowClosing(WindowEvent a_event)
 			{
-				if (!worker.hasValidValue() || finishedContentPane.checkCancel() == null)
+				if (!finishedContentPane.isVisible() || finishedContentPane.checkCancel() == null)
 				{
 					dialog.dispose();
 				}
@@ -987,8 +989,8 @@ public class CertPanel extends JPanel implements ActionListener
 		dialog.setResizable(false);
 		dialog.setVisible(true);
 
-
-		if (!finishedContentPane.hasValidValue() || worker.getCertificateGenerator().getCertificate() == null)
+		if (finishedContentPane.getValue() != DialogContentPane.RETURN_VALUE_OK ||
+			worker.getCertificateGenerator().getCertificate() == null)
 		{
 			return false;
 		}
@@ -1206,42 +1208,21 @@ public class CertPanel extends JPanel implements ActionListener
 		}
 	}
 
-	private class CertPanelFinishedContentPane extends FinishedContentPane implements
-		DialogContentPane.IWizardSuitable
+	private class CertPanelFinishedContentPane extends FinishedContentPane
 	{
 		public CertPanelFinishedContentPane(JAPDialog a_parentDialog, DialogContentPane a_previousContentPane)
 		{
 			super(a_parentDialog, "You have successfully created the certificate!", a_previousContentPane);
-			setDefaultButtonOperation(DialogContentPane.ON_CANCEL_DISPOSE_DIALOG |
-									  DialogContentPane.ON_YESOK_DISPOSE_DIALOG);
 		}
 
 		public CheckError[] checkCancel()
 		{
-			CheckError[] errors = showConfirmDialog();
-
-			if (errors != null)
-			{
-				return errors;
-			}
-			return null;
+			return showConfirmDialog();
 		}
 
 		public CheckError[] checkNo()
 		{
-			CheckError[] errors = showConfirmDialog();
-
-			if (errors != null)
-			{
-				return errors;
-			}
-
-			if (!getPreviousContentPane().moveToPreviousContentPane())
-			{
-				return new CheckError[]{new CheckError("Could not move back!")};
-			}
-			getPreviousContentPane().setValue(RETURN_VALUE_UNINITIALIZED);
-			return null;
+			return showConfirmDialog();
 		}
 
 		private CheckError[] showConfirmDialog()
@@ -1255,6 +1236,7 @@ public class CertPanel extends JPanel implements ActionListener
 		   {
 			   return new CheckError[]{new CheckError()};
 		   }
+
 		   return null;
 	   }
 	}
