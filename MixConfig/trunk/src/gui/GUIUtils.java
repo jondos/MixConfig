@@ -38,6 +38,9 @@ import java.awt.MediaTracker;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.GraphicsEnvironment;
+import java.awt.GraphicsDevice;
+import java.awt.Rectangle;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTextPane;
@@ -205,10 +208,15 @@ public final class GUIUtils
 	 */
 	public static void centerOnScreen(Window a_window)
 	{
-		Dimension screenSize = a_window.getToolkit().getScreenSize();
+		Rectangle screenBounds;
 		Dimension ownSize = a_window.getSize();
-		a_window.setLocation( (screenSize.width - ownSize.width) / 2,
-							 (screenSize.height - ownSize.height) / 2);
+
+		screenBounds = new Rectangle(new Point(0,0), a_window.getToolkit().getScreenSize());
+		//screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().
+			//getDefaultConfiguration().getBounds();
+
+		a_window.setLocation(screenBounds.x + ((screenBounds.width - ownSize.width) / 2),
+							 screenBounds.y + ((screenBounds.height - ownSize.height) / 2));
 	}
 
 	/**
