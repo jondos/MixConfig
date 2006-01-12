@@ -314,6 +314,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	public static class LinkedCheckBox implements ILinkedInformation
 	{
 		private static final String MSG_REMEMBER_ANSWER = LinkedCheckBox.class.getName() + "_rememberAnswer";
+		private static final String MSG_DO_NOT_SHOW_AGAIN = LinkedCheckBox.class.getName() + "_doNotShowAgain";
+
 		private String m_strMessage;
 		private boolean m_bDefault;
 		private boolean m_bState;
