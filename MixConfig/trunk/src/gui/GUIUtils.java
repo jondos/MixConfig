@@ -40,7 +40,7 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsDevice;
-import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
 import java.awt.Rectangle;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -222,13 +222,12 @@ public final class GUIUtils
 				 "getDefaultScreenDevice", null).invoke(graphicsEnvironment, null);
 			Object graphicsConfiguration = graphicsDevice.getClass().getMethod(
 				"getDefaultConfiguration", null).invoke(graphicsDevice, null);
-
 			screenBounds = (Rectangle)graphicsConfiguration.getClass().getMethod(
 				 "getBounds", null).invoke(graphicsConfiguration, null);
 		}
 		catch(Exception a_e)
-		{a_e.printStackTrace();
-			// the methods to get the default screen are not available in JDKs < 1.3
+		{
+			// not all methods to get the default screen are available in JDKs < 1.3
 			screenBounds = new Rectangle(new Point(0,0), a_window.getToolkit().getScreenSize());
 		}
 
