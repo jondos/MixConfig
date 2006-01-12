@@ -40,6 +40,7 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsDevice;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -211,9 +212,25 @@ public final class GUIUtils
 		Rectangle screenBounds;
 		Dimension ownSize = a_window.getSize();
 
-		screenBounds = new Rectangle(new Point(0,0), a_window.getToolkit().getScreenSize());
-		//screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().
-			//getDefaultConfiguration().getBounds();
+		try
+		{
+			// try to center the window on the default screen; useful if there is more than one screen
+			Object graphicsEnvironment =
+				Class.forName("java.awt.GraphicsEnvironment").getMethod(
+						"getLocalGraphicsEnvironment", null).invoke(null, null);
+			Object graphicsDevice = graphicsEnvironment.getClass().getMethod(
+				 "getDefaultScreenDevice", null).invoke(graphicsEnvironment, null);
+			Object graphicsConfiguration = graphicsDevice.getClass().getMethod(
+				"getDefaultConfiguration", null).invoke(graphicsDevice, null);
+
+			screenBounds = (Rectangle)graphicsConfiguration.getClass().getMethod(
+				 "getBounds", null).invoke(graphicsConfiguration, null);
+		}
+		catch(Exception a_e)
+		{a_e.printStackTrace();
+			// the methods to get the default screen are not available in JDKs < 1.3
+			screenBounds = new Rectangle(new Point(0,0), a_window.getToolkit().getScreenSize());
+		}
 
 		a_window.setLocation(screenBounds.x + ((screenBounds.width - ownSize.width) / 2),
 							 screenBounds.y + ((screenBounds.height - ownSize.height) / 2));
