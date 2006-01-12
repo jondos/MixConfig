@@ -321,12 +321,12 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		private boolean m_bState;
 
 		/**
-		 * Creates a new linked checkbox with the default text "Remember answer".
+		 * Creates a new linked checkbox with the default message MSG_DO_NOT_SHOW_AGAIN.
 		 * @param a_bDefault the default value of the checkbox
 		 */
 		public LinkedCheckBox(boolean a_bDefault)
 		{
-			this(JAPMessages.getString(MSG_REMEMBER_ANSWER), a_bDefault);
+			this(JAPMessages.getString(MSG_DO_NOT_SHOW_AGAIN), a_bDefault);
 		}
 
 		/**
