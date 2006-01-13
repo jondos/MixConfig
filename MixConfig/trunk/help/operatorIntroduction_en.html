@@ -8,51 +8,48 @@
 
 <h2>General introduction to AN.ON MIX Servers</h2>
 
-<p>The AN.ON anonymity service is based on so called MIX cascades: A cascade consists of several
-	consecutive single MIX servers (a first, zero or more middle MIXes and a last MIX) and one
+The AN.ON anonymity service is based on so called MIX cascades: A cascade consists of several
+	consecutive single MIX servers (a first MIX, zero or more middle MIXes and a last MIX) and one
 	terminating web-proxy. For a working MIX cascade at least two MIXes and the web-proxy are
 	needed. Each MIX opens a port where users (in case of the first MIX) or the previous MIX
 	(in case of a middle or last MIX) may connect to. The users send their web requests to the
-	first mix that passes them on to the next one and so on until they have reached the last
-	mix and the web proxy, respective. The web response takes the same way back. As many user
-	do this at the same time, and the packets are encrypted for each mix, no one, even the
-	MIXes itself, can link the requested information to the user. Only if the operators
-	of all MIXes work together, the interests of a user are identified. This provides a
-	high level of anonymity.</p>
+	first MIX that passes them on to the next one and so on until they have reached the last
+	mix and the web proxy, respective. The web response takes the same way back. As many users
+	send messages at the same time, and as the packets are encrypted for each mix, no one,
+	even the MIXes theirselves, know which user requests which information. Only if the
+	operators of all MIXes work together, the interests of a user are identified. This provides a
+	high level of anonymity.
 
-The AN.ON network provides information about presently working MIX cascades, the number of
+<p>The AN.ON network provides information about presently working MIX cascades, the number of
 connected users on a cascade and the amount of data they send. This is useful, as it gives the
 users the possibility to find active cacades to connect to and information about their relative
-anonymity. This information is distributed to the user clients by components called InfoService
-that collect the data from the MIXes and acts as a distributed information database.
+anonymity. This information is distributed to the user clients by components called
+<em><a name="infoservice">InfoService</a></em> that collect the data from the MIXes and act as a distributed
+information database.</p>
+
 
 <h3>What is this document about?</h3>
 
-Since the configuration of a MIX server has become more and more difficult and too complex to
-be maintained by hand, we developed a configuration tool called <i>MixConfig</i>. It is both a
-tool for creating the XML file that is later used by your MIX server, and a certificate
-management tool for the server's cryptographic keys. MixConfig is a Java application which
-will run on all Java Runtime Environments since 1.1.8 and on Microsoft JView.
+What you're reading right now is about how to run an AN.ON MIX as an anonymity provider,
+in the following called <em> Operator </em>.
 
 
 <h3>What this document is not about</h3>
-
-What you're reading right now is just about how to run a MIX as a provider in the MIX network.
 It's explicitly not an introduction or documentation about how to use the AN.ON service just
-as a user. If you're seeking just for how to use the client you're wrong here. For information
-about the client program called JAP, please refer to the
+as a user or with a client, respective. If you're seeking just for how to use the client
+you're wrong here. For information about the client program called JAP, please refer to the
 <a href="http://anon.inf.tu-dresden.de/fragen/index_en.html">Questions regarding JAP</a>
 or to the
 <a href="http://anon.inf.tu-dresden.de/help/index_en.html">JAP help section</a>.
-<br></br>
-If you are seeking for information about the source code of the project or you even want to
-participate in the further development you're also wrong here. You find detailed information
-about all development topics on the
+
+
+<p>If you want to participate in the further development you're also wrong here.
+	You find detailed information about all development topics on the
 <a href="http://anon.inf.tu-dresden.de/develop/sources_en.html">AN.ON developer sites</a>.
-There is also information about
+There is also information about the
 	<a href="http://anon.inf.tu-dresden.de/develop/codingstyle_en.html">General Coding Styles</a>
 and the <a href="http://anon.inf.tu-dresden.de/develop/ide_en.html">Development Environment</a>
-	used in the AN.ON project.
+	used in the AN.ON project.</p>
 
 <!--#include virtual="/footer_en.html"-->
 </body>

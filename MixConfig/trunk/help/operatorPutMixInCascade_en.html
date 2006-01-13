@@ -12,19 +12,24 @@ This text explains what a cascade is and how to get your MIX into one.
 
 <h3>Cascade architectures (static or dynamic)</h3>
 
-<p>In order to be able to forward and anonymize user web traffic, each MIX server must be
+In order to be able to forward and anonymize user web traffic, each MIX server must be
 	part of exactly one MIX cascade. The interconnection between the MIXes is
-	either static or dynamic. In a <a name="staticCascades">static cascade</a> each MIX is configured to listen on a certain port for
-incoming data from it's previous MIX (or the JAP clients in case of being the first MIX). On the
-other hand each MIX has to know how to connect to the following MIX (or the web-proxy in case of
-being the last MIX). So the host name and the port of the following MIX are needed. You get
-them for the next MIX' operator.</p>
+	either static or dynamic. In a <em><a name="staticCascades">static cascade</a></em> each MIX
+	is configured to listen on a certain port for incoming data from it's previous MIX (or the JAP
+	clients in case of being the first MIX). On the other hand, each MIX has to know how to connect
+	to the following MIX (or the web-proxy in case of being the last MIX). So the host name and the
+	port of the following MIX are needed. You get them from the next MIX' Operator, for example
+	by e-mail.
 
-In a <a name="dynamicCascades">dynamic cascade</a> (that is not fully functional yet) the MIXes have no
-static configuration, but  may get connection information about their next mix from the InfoService.
-Operators of last MIXes construct a cascade from not connected "free" MIXes, and the MIXes
-will connect automatically when they get the approriate command from the InfoService. Of course,
-all messages are cryptographically signed, so no one will be able to disturb the system.
+<p>In a <em><a name="dynamicCascades">dynamic cascade</a></em> (that is not fully functional yet)
+	the MIXes have no static configuration, but  may get connection information about their next
+	MIX from the <a href="operatorIntroduction_en.html#infoservice">InfoService</a>.
+	Operators of last MIXes construct a cascade by choosing currently unconnected "free"
+	MIXes and the chosen MIXes, together with the last MIX, will connect automatically when they
+	get the approriate command from the
+	<a href="operatorIntroduction_en.html#infoservice">InfoService</a>.
+	Of course, all messages are cryptographically signed, so no one will be able to fool
+	the system.</p>
 
 <h3>Planning a cascade</h3>
 
@@ -32,8 +37,8 @@ Initially it has to be clear with whom else and how a MIX cascade will be set up
 important to have fast data interconnections between the partners of a cascade. Planning a whole
 cascade by your own, you will later or earlier need adequate partners who also run MIX servers.
 If you are cannot find others or you maybe just need one more participant, you can write us an
-<a href="mailto:jap@inf.tu-dresden.de">email</a>. We will try to find other willing providers with
-similar interests or we will ourself run a server. In any case it's necessary that the partners
+<a href="mailto:jap@inf.tu-dresden.de">email</a>. We will try to find other willing Operators with
+similar interests or we will, ourselves, run a server. In any case it's necessary that the partners
 of a cascade coordinate with each other so that finally a working cascade can be set up properly.
 
 <!--#include virtual="/footer_en.html"-->

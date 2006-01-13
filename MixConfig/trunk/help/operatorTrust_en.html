@@ -15,44 +15,43 @@ In the process of configuring your MIX with the MixConfig tool, you will create 
 certificate that identifies your MIX and enables it to sign messages. This certificate must
 be sent to the operators of your neighbouring MIXes, and you must receive their certificates
 to get the MIXes connected. In the case of
-<a href="operatorResponsibilities_en.html#dynamicCascades">dynamic cascades</a>
+<a href="operatorResponsibilities_en.html#dynamicCascades">dynamic cascades</a>,
 
 the certificate distribution is automatically done by the InfoService (but this is not fully
 functional yet). In a
-<a href="operatorResponsibilities_en.html#dynamicCascades">static configuration</a>
+<a href="operatorResponsibilities_en.html#dynamicCascades">static configuration</a>,
+you will have to exchange the certificates by e-mail or other means with the neighbouring
+Operators.
 
-,
-you will have to exchange the certificates by email or other means with the neighbouring
-operators.
 <h3>Trust</h3>
-
-<p>Certificates and keys itself don't provide communication security, as anyone who has a computer
+Certificates and keys itself don't provide communication security, as anyone who has a computer
 is able to create them. Therefore, so-called <i>certificate infrastructures</i>
 exist, where trusted
 authorities sign the certificates and keys of people or organisations that have proven their
-identity and the ownership of the certificate/key to them. Each MIX operator has to decide
-which authorities he will trust. If you operate a first mix, its certificate must be trusted by
+identity and the ownership of the certificate/key to them. Each MIX Operator has to decide
+which authorities he will trust. If you operate a first MIX, its certificate must be trusted by
 the JAP users as well. They need to, like in browsers, have the certificate of the authority
-that signed your certificate installed. At the moment, the JAP-Team is the only trusted authority,
-and its certificate is included in the MixConfig tool, the MIX code, the JAP client and the
-InfoService. But soon you will be able to add or remove trusted authorities from/to the MIX
-configuration. </p>
+that signed your certificate installed in their software. At the moment, the JAP-Team is,
+by default, the only trusted authority, and its certificate is included in the MixConfig tool,
+the MIX code, the JAP client and the InfoService. Soon you will be able to add or remove
+trusted authorities from/to the MIX configuration.
 
-Certificates and keys are uniquely identified by their hash values, too. If you get a
+<p>Certificates and keys are uniquely identified by their hash values, too. If you get a
 certificate from someone that is not signed by an authority you trust in, you can still verify
 if it is really his/her certificate by comparing the SHA1/MD5 fingerprint with the fingerprint
-he/she will tell you. This is, for example, the SHA1 fingerprint of the JAP-Team certificate:
+he/she will tell you. This is, for example, the SHA1 fingerprint of the JAP-Team certificate:</p>
+
 <blockquote>
 4D CF 81 F5 92 4B 11 19 6B 44 2A CD 53 E2 46 E1 0D 9A 16 F6
 </blockquote>
 
+
 <h3>Secure communication with the JAP-Team</h3>
-The best way to contact us is by <a href="mailto:jap@inf.tu-dresden.de">email</a>
-There is no need to encrypt messages since we will not exchange any secret information.
-In fact it is better not to encrypt emails in this context but only to sign them, since
-signed emails will provide some transparency and reassurance in case of doubt.
-Here is the source of our PGP key and it's fingerprint (this key is only fo email
-communication and has nothing to do with the MIX network):
+The best way to contact us is by <a href="mailto:jap@inf.tu-dresden.de">e-mail</a>
+There is no need to encrypt messages for us, since we will not exchange any secret information.
+Signing your e-mails is no bad idea, though, as this will provide some transparency and reassurance
+in case of doubt. Here is the source of our PGP key and it's fingerprint (this key is optional
+and only for e-mail communication and has nothing to do with the MIX network):
 <blockquote>
 
     <li><a href="http://anon.inf.tu-dresden.de/jappgp.asc">http://anon-inf.tu-dresden.de/jappgp.asc</a></li>
@@ -66,7 +65,7 @@ PGP/GPG, you will find a short manual
 <p>
 If you don't trust this document itself you should confirm the key's fingerprint by some other
 means, e.g. calling us by phone. If you simply send us your public PGP or GPG key in an
-unsecured way (e.g. email), we will also not trust it until it has been confirmed by some other
+unsecured way (e.g. e-mail), we will also not trust it until it has been confirmed by some other
 means, like a phone call, or a signature by an authority we trust in.</p>
 
 <!--#include virtual="/footer_en.html"-->
