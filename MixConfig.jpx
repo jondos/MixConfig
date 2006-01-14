@@ -206,7 +206,7 @@
   <property category="sys" name="Encoding" value="UTF8"/>
   <property category="sys" name="ExcludeClassEnabled" value="0"/>
   <property category="sys" name="IncludeTestPath" value="1"/>
-  <property category="sys" name="JDK" value="java version 1.5.0_04-b05"/>
+  <property category="sys" name="JDK" value="java version 1.5.0_02-b09"/>
   <property category="sys" name="LastTag" value="36"/>
   <property category="sys" name="Libraries" value="Swing;BouncyCastleLightForMixConfig;JUnit;junitx;Log4j;XML-1.1"/>
   <property category="sys" name="MakeStable" value="0"/>
@@ -288,6 +288,9 @@
     <property category="archiving" name="contentRules.119" value="F:help/operatorTrust_en.html;help/operatorTrust_en.html"/>
     <property category="archiving" name="contentRules.12" value="F:images/arrowDown.gif;images/arrowDown.gif"/>
     <property category="archiving" name="contentRules.120" value="F:help/view_en.html;help/view_en.html"/>
+    <property category="archiving" name="contentRules.121" value="F:help/cmdjap_de.html;help/cmdjap_de.html"/>
+    <property category="archiving" name="contentRules.122" value="F:help/credits_de.html;help/credits_de.html"/>
+    <property category="archiving" name="contentRules.123" value="F:help/mixconfig.MixConfig_en.html;help/mixconfig.MixConfig_en.html"/>
     <property category="archiving" name="contentRules.13" value="F:images/arrowUp.gif;images/arrowUp.gif"/>
     <property category="archiving" name="contentRules.14" value="F:images/busy.gif;images/busy.gif"/>
     <property category="archiving" name="contentRules.15" value="F:images/cdisabled.gif;images/cdisabled.gif"/>
@@ -519,7 +522,6 @@
     <property category="nodeJavadoc" name="displayAllOutput" value="0"/>
   </node>
   <file path="MixConfig.doxy"/>
-  <file path="src/MixConfigMessages_de.properties"/>
   <file path="src/MixConfigMessages_en.properties"/>
   <file path="MixConfiguration.dtd"/>
   <file path="MixConfiguration.xml"/>
