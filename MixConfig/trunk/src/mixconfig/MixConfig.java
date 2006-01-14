@@ -75,7 +75,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.077"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.078"; //NEVER change the layout of this line!!
 
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -281,14 +281,7 @@ public class MixConfig extends JApplet
 		try
 		{
 			JAPMessages.init("MixConfigMessages");
-			// Let's search for the parent frame:
-			java.awt.Component comp = this;
-			while ( (comp = comp.getParent()) != null &&
-				   ! (comp instanceof java.awt.Frame))
-			{
-				;
-			}
-			m_MainWindow = (Frame) comp;
+			m_MainWindow = (Frame)GUIUtils.getParentWindow(this);
 			m_mixConfiguration = new MixConfiguration();
 			JAPHelp.init(m_MainWindow, null);
 
