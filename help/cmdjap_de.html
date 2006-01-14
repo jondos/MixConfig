@@ -1,0 +1,73 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+
+<body>
+<!--#include virtual="/header.html"-->
+
+<h2>Wie man die MIX-Server-Software als lokalen Anonymisierungsproxy benutzt ("Kommandozeilen-JAP")</h2>
+
+Wenn Sie die MIX-Server-Software <a href="index_en.html">erfolgreich installiert</a> haben
+k&ouml;nnen Sie diese auch als lokalen Anonymisierungsproxy f&uuml;r Ihren Webbrowser statt dem
+graphischen JAP-Client verwenden.
+
+<h3>Eine Kaskade ausw&auml;hlen</h3>
+
+Bevor Sie die Software als lokalen Proxy nutzen k&ouml;nnen, m&uuml;ssen Sie sich entscheiden,
+&uuml;ber welche Kaskade Sie surfen wollen. Sie k&ouml;nnen den JAP benutzen um die Adressen aller
+derzeit verf&uuml;gbaren MIXe zu bekommen. Die Adresse der Dresden-Dresden-Kaskade ist z.B.:
+
+	<blockquote>
+		<code>
+			mix.inf.tu-dresden.de:6544
+		</code>
+	</blockquote>
+
+Wenn Sie die Adresse eines InfoService kennen, k&ouml;nnen Sie diesen direkt nach Kaskaden-Adressen
+"fragen", z.B. den Dresdener InfoService:
+
+	<blockquote>
+		<code>http://infoservice.inf.tu-dresden.de/cascades</code>
+	</blockquote>
+Er akzeptiert auch noch einige andere Kommandos, versuchen Sie z.B. <code>mixes</code> und
+<code>status</code>.
+
+<h3>Den lokalen Proxy starten</h3>
+
+Nun k&ouml;nnen Sie das Programm starten. Die Parameter sind:
+
+	<blockquote>
+		<code>-?</code> --> alle Parameter auflisten<br></br>
+		<code>-j</code> --> sagt dem MIX, dass er als lokaler Proxy arbeiten soll (wie JAP)<br></br>
+		<code>-p [IP:]Port</code> --> der lokale Port, der benutzt werden soll
+		(und eventuell die lokale IP)<br></br>
+		<code>-n mix.inf.tu-dresden.de:6544</code>
+		--> die Kaskade zu welcher der Proxy sich verbinden soll (hier: 'Dresden-Dresden')<br></br>
+	</blockquote>
+
+Optionale parameter:
+
+	<blockquote>
+		<code>-l &lt;logdir&gt;</code> --> Verzeichnis in das die Logdatei geschrieben wird
+		(wenn nichts angegeben ist, wird das Syslog verwendet)<br></br>
+		<code>-d </code> --> sagt dem MIX dass er als D&auml;mon (im Hintergrund) laufen soll<br></br>
+	</blockquote>
+
+Wenn Sie den lokalen Proxy gestartet haben sollten Sie solche oder &auml;hnliche Nachrichten in der
+Logdatei sehen:
+
+	<blockquote>
+
+			<code>[2001/05/03-11:54:26, info    ] Anon proxy started!</code><br>
+			<code>[2001/05/03-11:54:26, info    ] Using: OpenSSL 0.9.6 24 Sep 2000!</code><br>
+			<code>[2001/05/03-11:54:26, info    ] Starting MIX...</code><br>
+			<code>[2001/05/03-11:54:26, info    ] Try connecting to next Mix...</code><br>
+			<code>[2001/05/03-11:54:26, info    ] connected!</code><br>
+			<code>[2001/05/03-11:54:26, info    ] Chain-Length: 2</code><br>
+		</code>
+	</blockquote>
+
+<!--#include virtual="/footer.html"-->
+</body>
+</html>

@@ -13,17 +13,19 @@ be maintained by hand, we developed a configuration tool called <em>MixConfig</e
 tool for creating the XML file that is later used by your MIX server, and a certificate
 management tool for the server's cryptographic keys. MixConfig is a Java application which
 will run on all Java Runtime Environments since 1.1.8 and on Microsoft JView.
-You may download the tool <a href="http://anon.inf.tu-dresden.de/develop/MixConfig.html">here</a>.
-Start it by typing the following command:
+You may download the tool <a href="http://anon.inf.tu-dresden.de/develop/MixConfig.html">
+from this page</a> or directly <a href="http://anon.inf.tu-dresden.de/develop/MixConfig.jar">
+from here</a>. Start it by typing the following command:
 
 <blockquote>
 	<code> java -jar MixConfig.jar </code>
 </blockquote>
 
-If you use Microsoft Windows XP, this command will do the same:
+If you have Java 1.1 you may also need <a HREF="swingall.jar">the Swing classes</A>.
+Then you can start the tool with
 
 <blockquote>
-	<code> jview /cp MixConfig.jar mixconfig.MixConfig </code>
+	<CODE>java -classpath MixConfig.jar:swingall.jar mixconfig.MixConfig<CODE>
 </blockquote>
 
 You get a list of possible options with
@@ -32,11 +34,17 @@ You get a list of possible options with
 	<code> java -jar MixConfig.jar --help </code>
 </blockquote>
 
-or, on Windows XP, with
+If you use Microsoft Windows XP, these commands will do the same:
 
 <blockquote>
-	<code> jview /cp MixConfig.jar mixconfig.MixConfig --help </code>
+<pre><code>
+jview /cp MixConfig.jar mixconfig.MixConfig
+jview /cp MixConfig.jar:swingall.jar mixconfig.MixConfig
+jview /cp MixConfig.jar mixconfig.MixConfig --help </code>
+</pre>
 </blockquote>
+
+
 
 <!--#include virtual="/footer_en.html"-->
 </body>
