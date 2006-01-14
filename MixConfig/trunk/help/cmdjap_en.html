@@ -6,15 +6,15 @@
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<h2>Using the MIX executable as local anonymizer proxy</h2>
+<h2>Using the MIX executable as local anonymizer proxy ("Command line JAP")</h2>
 
-If you have successfully installed the MIX server binary, you may also use it as
+If you have <a href="index_en.html">successfully installed the MIX server binary</a>, you may also use it as
 a local anonymizer proxy for your web browser instead of the graphical JAP client.
 
 <h3>Choosing the cascade</h3>
 
 Before using the software as a local proxy you have to decide which mix-cascade to use.
-You can use JAP to get the addresses of all available mixes. The address of the
+You can use JAP to get the addresses of all currently available MIXes. The address of the
 'Dresden-Dresden'-cascade for instance is:
 
 	<blockquote>
@@ -29,7 +29,7 @@ cascade addresses, for example the Dresden InfoService:
 	<blockquote>
 		<code>http://infoservice.inf.tu-dresden.de/cascades</code>
 	</blockquote>
-There are some other commands it accepts, try <code>mixes</code>, and
+There are some other commands it accepts, try <code>mixes</code> and
 <code>status</code>.
 
 <h3>Starting the local proxy</h3>
@@ -44,7 +44,7 @@ Now you are ready to start the program. The parameters are:
 		--> to which cascade to connect ('Dresden-Dresden' in this example)<br></br>
 	</blockquote>
 
-optional parameters:
+Optional parameters:
 
 	<blockquote>
 		<code>-l &lt;logdir&gt;</code> --> Directory where logfile should be placed (if omitted syslog is used)<br></br>
