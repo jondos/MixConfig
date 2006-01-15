@@ -1,0 +1,33 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="../xhelpfrms.css">
+</head>
+
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>Installing the web-proxy for a last MIX</h2>
+
+A last MIX server is unique in the way that it's not connected to a next MIX server
+but to a web-proxy. There are several web proxy servers a MIX can work with.
+We recommend using Squid. For further information visit it's website at:
+
+	<blockquote>
+		<a href="http://www.squid-cache.org/">http://www.squid-cache.org/</a>
+	</blockquote>
+
+<p>In most Linux distributions, for example in Novell SuSE Linux or Debian GNU/Linux,
+you can use your package management system to get binaries of Squid. Both systems
+ship it - if not in the standard installation than you can get it either from
+your installation media or online from a mirror.
+Of course you may also compile it manually. Check on the quoted Squid website
+	for more information.</p>
+Here is an exemplary configuration file for Squid that will fit for most scenarios:
+	<blockquote>
+		<a href="adminscripts/Mixproxy/squid.conf">Squid example configuration</a>
+	</blockquote>
+
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>
