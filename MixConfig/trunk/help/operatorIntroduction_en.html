@@ -6,31 +6,31 @@
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<h2>General introduction to AN.ON MIX Servers</h2>
+<h2>General introduction to AN.ON Mix Servers</h2>
 
-The AN.ON anonymity service is based on so called MIX cascades: A cascade consists of several
-	consecutive single MIX servers (a first MIX, zero or more middle MIXes and a last MIX) and one
-	terminating web-proxy. For a working MIX cascade at least two MIXes and the web-proxy are
-	needed. Each MIX opens a port where users (in case of the first MIX) or the previous MIX
-	(in case of a middle or last MIX) may connect to. The users send their web requests to the
-	first MIX that passes them on to the next one and so on until they have reached the last
+The AN.ON anonymity service is based on so called Mix cascades: A cascade consists of several
+	consecutive single Mix servers (a first Mix, zero or more middle Mixes and a last Mix) and one
+	terminating web-proxy. For a working Mix cascade at least two Mixes and the web-proxy are
+	needed. Each Mix opens a port where users (in case of the first Mix) or the previous Mix
+	(in case of a middle or last Mix) may connect to. The users send their web requests to the
+	first Mix that passes them on to the next one and so on until they have reached the last
 	mix and the web proxy, respective. The web response takes the same way back. As many users
 	send messages at the same time, and as the packets are encrypted for each mix, no one,
-	even the MIXes theirselves, know which user requests which information. Only if the
-	operators of all MIXes work together, the interests of a user are identified. This provides a
+	even the Mixes theirselves, know which user requests which information. Only if the
+	operators of all Mixes work together, the interests of a user are identified. This provides a
 	high level of anonymity.
 
-<p>The AN.ON network provides information about presently working MIX cascades, the number of
+<p>The AN.ON network provides information about presently working Mix cascades, the number of
 connected users on a cascade and the amount of data they send. This is useful, as it gives the
 users the possibility to find active cacades to connect to and information about their relative
 anonymity. This information is distributed to the user clients by components called
-<em><a name="infoservice">InfoService</a></em> that collect the data from the MIXes and act as a distributed
+<em><a name="infoservice">InfoService</a></em> that collect the data from the Mixes and act as a distributed
 information database.</p>
 
 
 <h3>What is this document about?</h3>
 
-What you're reading right now is about how to run an AN.ON MIX as an anonymity provider,
+What you're reading right now is about how to run an AN.ON Mix as an anonymity provider,
 in the following called <em> Operator </em>.
 
 

@@ -8,7 +8,7 @@
 
 <h2>Admin scripts</h2>
 
-This manual covers helper scripts for theMIX server, an InfoService, a firewall and
+This manual covers helper scripts for the Mix server, an InfoService, a firewall and
 a web proxy. They are useful if you often want to update the code with
 the newest CVS version.
 
@@ -17,7 +17,7 @@ the newest CVS version.
 To run the mix (and optionally an InfoService) you have to create the following
 directories:
 	<blockquote>
-		<code> /home/mix/Mixproxy </code>binaries and configuration for MIX server<br></br>
+		<code> /home/mix/Mixproxy </code>binaries and configuration for Mix server<br></br>
 		<code> /home/mix/InfoService	</code>binaries and configuration for InfoService<br></br>
 		<code>/home/mix/InfoService/log	</code>Status statistics of InfoService<br></br>
 	</blockquote>
@@ -53,16 +53,16 @@ it, you will have to adapt it to your needs first.
 
 <dl>
   <dt><a href="runANONServer">/home/mix/runANONServer</a></dt>
-  <dd>common script to start, shutdown update and monitor the MIX and the InfoService</dd>
+  <dd>common script to start, shutdown update and monitor the Mix and the InfoService</dd>
 
   <dt><a href="rc.status.anon">/home/mix/rc.status.anon</a></dt>
   <dd>script for printing status messages</dd>
 
   <dt>/home/mix/Mixproxy/mix</dt>
-  <dd>MIX server binary</dd>
+  <dd>Mix server binary</dd>
 
   <dt><a href="Mixproxy/runMixproxy">/home/mix/Mixproxy/runMixproxy</a></dt>
-  <dd>script to start, shutdown update and monitor the MIX</dd>
+  <dd>script to start, shutdown update and monitor the Mix</dd>
 
   <dt>/home/mix/InfoService/InfoService.jar</dt>
   <dd>InfoService executable jar</dd>
@@ -89,10 +89,10 @@ adapt one or more of the executable scripts and the links to them.
 
 <dl>
   <dt>/home/mix/Mixproxy/config.xml</dt>
-  <dd>config file for the MIX server</dd>
+  <dd>config file for the Mix server</dd>
 
   <dt>/home/mix/InfoService/Infoservice.properties</dt>
-  <dd>config file for the MIX server</dd>
+  <dd>config file for the Mix server</dd>
 
   <dt><a href="Mixproxy/sysctl.conf">/home/mix/Mixproxy/sysctl.conf</a></dt>
   <dd>settings of the keep-alive times</dd>
@@ -108,7 +108,7 @@ If you choose an other directory, you have to adapt the file
 <code>/home/mix/InfoService/runInfoService</code>.
 
 <h3>Links to the executables</h3>
-<p>The MIX server, InfoService and the firewall can be started with running
+<p>The Mix server, InfoService and the firewall can be started with running
 the skripts with the 'start', 'stop' and 'restart' options. With the
 'process' option you can list the running processes, 'log' will list the
 log file entries. 'status' shows you if the servers are running at the moment.
@@ -126,14 +126,14 @@ every directoy:
 		<code> exit </code><br>
 	</blockquote>
 
-You can test if the MIX server has connected properly to a cascade by tying
+You can test if the Mix server has connected properly to a cascade by tying
 
 <blockquote>
 	<code>mixproxy process</code>
 </blockquote>
 
 If you see more than one running instance of the server process, everythin is OK.
-This can take about a minute after you started the MIX. Another indication is to
+This can take about a minute after you started the Mix. Another indication is to
 check at the end of the logfile for an entry "connected" by typing
 <blockquote>
 	<code>mixproxy log | less</code>
@@ -165,14 +165,14 @@ to set links to the executables in runlevel 3 and runlevel 5.
 
 New messages will be appended on the end of the logfiles. InfoService can have
 more than just one logfile but should be configured with just one central log.
-Please configure the MIX/InfoService to store its logs at those positions:
+Please configure the Mix/InfoService to store its logs at those positions:
 
 	<blockquote>
 		<code>
 			/var/log/messages
 				</code>messages / logging of your firewall<code><br></br>
 			/home/mix/Mixproxy/messages
-				</code>messages / logging of the MIX server<code><br></br>
+				</code>messages / logging of the Mix server<code><br></br>
 			/home/mix/InfoService/InfoService.log
 				</code>messages / logging of InfoService<code><br></br>
 			/home/mix/InfoService/log/

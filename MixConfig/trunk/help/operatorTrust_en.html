@@ -5,16 +5,16 @@
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<h2>Responsibilities of MIX Operators</h2>
+<h2>Responsibilities of Mix Operators</h2>
 
 Due to the inherent insecurity of the Internet, all sent and received messages should be signed
 cryptographically.
-<h3>MIX certificates</h3>
+<h3>Mix certificates</h3>
 
-In the process of configuring your MIX with the MixConfig tool, you will create a cryptographic
-certificate that identifies your MIX and enables it to sign messages. This certificate must
-be sent to the operators of your neighbouring MIXes, and you must receive their certificates
-to get the MIXes connected. In the case of
+In the process of configuring your Mix with the MixConfig tool, you will create a cryptographic
+certificate that identifies your Mix and enables it to sign messages. This certificate must
+be sent to the operators of your neighbouring Mixes, and you must receive their certificates
+to get the Mixes connected. In the case of
 <a href="operatorResponsibilities_en.html#dynamicCascades">dynamic cascades</a>,
 
 the certificate distribution is automatically done by the InfoService (but this is not fully
@@ -28,13 +28,13 @@ Certificates and keys itself don't provide communication security, as anyone who
 is able to create them. Therefore, so-called <i>certificate infrastructures</i>
 exist, where trusted
 authorities sign the certificates and keys of people or organisations that have proven their
-identity and the ownership of the certificate/key to them. Each MIX Operator has to decide
-which authorities he will trust. If you operate a first MIX, its certificate must be trusted by
+identity and the ownership of the certificate/key to them. Each Mix Operator has to decide
+which authorities he will trust. If you operate a first Mix, its certificate must be trusted by
 the JAP users as well. They need to, like in browsers, have the certificate of the authority
 that signed your certificate installed in their software. At the moment, the JAP-Team is,
 by default, the only trusted authority, and its certificate is included in the MixConfig tool,
-the MIX code, the JAP client and the InfoService. Soon you will be able to add or remove
-trusted authorities from/to the MIX configuration.
+the Mix code, the JAP client and the InfoService. Soon you will be able to add or remove
+trusted authorities from/to the Mix configuration.
 
 <p>Certificates and keys are uniquely identified by their hash values, too. If you get a
 certificate from someone that is not signed by an authority you trust in, you can still verify
@@ -51,7 +51,7 @@ The best way to contact us is by <a href="mailto:jap@inf.tu-dresden.de">e-mail</
 There is no need to encrypt messages for us, since we will not exchange any secret information.
 Signing your e-mails is no bad idea, though, as this will provide some transparency and reassurance
 in case of doubt. Here is the source of our PGP key and it's fingerprint (this key is optional
-and only for e-mail communication and has nothing to do with the MIX network):
+and only for e-mail communication and has nothing to do with the Mix network):
 <blockquote>
 
     <li><a href="http://anon.inf.tu-dresden.de/jappgp.asc">http://anon-inf.tu-dresden.de/jappgp.asc</a></li>
