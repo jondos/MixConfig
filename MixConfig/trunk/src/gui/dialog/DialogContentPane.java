@@ -1605,7 +1605,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	}
 
 	/**
-	 * Returns the parent Dialog. It is a JDialog or a JAPDialog.
+	 * Returns the parent Dialog. It is a Window or a JAPDialog.
 	 * @return the parent Dialog
 	 */
 	public RootPaneContainer getDialog()
