@@ -165,7 +165,7 @@ public class MixConfig extends JApplet
 			m_MainWindow = new JFrame();
 			((JFrame)m_MainWindow).setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 			m_MainWindow.setResizable(false);
-			JAPHelp.init(null, null);
+			JAPHelp.init(m_MainWindow, null);
 
 			if (m_currentFileName != null && (f = new File(m_currentFileName)).exists())
 			{
@@ -283,7 +283,7 @@ public class MixConfig extends JApplet
 			JAPMessages.init("MixConfigMessages");
 			m_MainWindow = (Frame)GUIUtils.getParentWindow(this);
 			m_mixConfiguration = new MixConfiguration();
-			JAPHelp.init(null, null);
+			JAPHelp.init(m_MainWindow, null);
 
 			m_mainPanel = new ConfigFrame(null);
 			m_startPanel = new ChoicePanel(null,getRootPane());
