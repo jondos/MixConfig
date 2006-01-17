@@ -319,7 +319,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	/**
 	 * Shows a checkbox with a message on the dialog window.
 	 */
-	public static class LinkedCheckBox implements ILinkedInformation
+	public static class LinkedCheckBox extends LinkedHelpContext
 	{
 		private static final String MSG_REMEMBER_ANSWER = LinkedCheckBox.class.getName() + "_rememberAnswer";
 		private static final String MSG_DO_NOT_SHOW_AGAIN = LinkedCheckBox.class.getName() + "_doNotShowAgain";
@@ -334,7 +334,27 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		 */
 		public LinkedCheckBox(boolean a_bDefault)
 		{
-			this(JAPMessages.getString(MSG_DO_NOT_SHOW_AGAIN), a_bDefault);
+			this(a_bDefault, (JAPHelpContext.IHelpContext)null);
+		}
+
+		/**
+		 * Creates a new linked checkbox with the default message MSG_DO_NOT_SHOW_AGAIN.
+		 * @param a_bDefault the default value of the checkbox
+		 * @param a_helpContext the help context that is opened when the help button is clicked
+		 */
+		public LinkedCheckBox(boolean a_bDefault, JAPHelpContext.IHelpContext a_helpContext)
+		{
+			this(JAPMessages.getString(MSG_DO_NOT_SHOW_AGAIN), a_bDefault, a_helpContext);
+		}
+
+		/**
+		 * Creates a new linked checkbox with the default message MSG_DO_NOT_SHOW_AGAIN.
+		 * @param a_bDefault the default value of the checkbox
+		 * @param a_strHelpContext the help context that is opened when the help button is clicked
+		 */
+		public LinkedCheckBox(boolean a_bDefault, String a_strHelpContext)
+		{
+			this(JAPMessages.getString(MSG_DO_NOT_SHOW_AGAIN), a_bDefault, a_strHelpContext);
 		}
 
 		/**
@@ -344,6 +364,34 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		 */
 		public LinkedCheckBox(String a_strMessage, boolean a_bDefault)
 		{
+			this(a_strMessage, a_bDefault, (JAPHelpContext.IHelpContext)null);
+		}
+
+		/**
+		 * Creates a new linked checkbox.
+		 * @param a_strMessage a message to be displayed with the checkbox
+		 * @param a_bDefault the default value of the checkbox
+		 * @param a_strHelpContext the help context that is opened when the help button is clicked
+		 */
+		public LinkedCheckBox(String a_strMessage, boolean a_bDefault, final String a_strHelpContext)
+		{
+			this(a_strMessage, a_bDefault, new JAPHelpContext.IHelpContext()
+			{
+				public String getHelpContext(){ return a_strHelpContext;}
+			});
+		}
+
+		/**
+		 * Creates a new linked checkbox.
+		 * @param a_strMessage a message to be displayed with the checkbox
+		 * @param a_bDefault the default value of the checkbox
+		 * @param a_helpContext the help context that is opened when the help button is clicked
+		 */
+		public LinkedCheckBox(String a_strMessage, boolean a_bDefault,
+							  JAPHelpContext.IHelpContext a_helpContext)
+		{
+			super(a_helpContext);
+
 			m_strMessage = a_strMessage;
 			m_bDefault = a_bDefault;
 			m_bState = m_bDefault;
@@ -387,15 +435,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 				return TYPE_CHECKBOX_TRUE;
 			}
 			return TYPE_CHECKBOX_FALSE;
-		}
-
-		/**
-		 * Returns <CODE>false</CODE> as default but may be overwritten.
-		 * @return <CODE>false</CODE>
-		 */
-		public boolean isApplicationModalityForced()
-		{
-			return false;
 		}
 	}
 
