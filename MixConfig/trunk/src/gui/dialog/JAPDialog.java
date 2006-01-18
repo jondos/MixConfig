@@ -232,6 +232,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		m_internalDialog = new JOptionPane().createDialog(a_parentComponent, a_strTitle);
 		if (m_parentComponent == null)
 		{
+			// get the default frame
 			m_parentComponent = m_internalDialog.getParent();
 		}
 		m_internalDialog.getContentPane().removeAll();
