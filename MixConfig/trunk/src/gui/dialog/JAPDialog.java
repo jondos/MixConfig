@@ -230,6 +230,10 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		m_bForceApplicationModality = a_bForceApplicationModality;
 
 		m_internalDialog = new JOptionPane().createDialog(a_parentComponent, a_strTitle);
+		if (m_parentComponent == null)
+		{
+			m_parentComponent = m_internalDialog.getParent();
+		}
 		m_internalDialog.getContentPane().removeAll();
 		m_internalDialog.setResizable(true);
 		m_internalDialog.setModal(false);
