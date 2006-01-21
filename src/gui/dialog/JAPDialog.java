@@ -7,7 +7,7 @@
   - Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
 
-  - Redistributions in binary form must reproduce the above copyright notice,
+  - Redistributions in bisnary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation and/or
  other materials provided with the distribution.
 
@@ -2151,7 +2151,10 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			m_bBlockParentWindow = false;
 			m_parentWindow.setEnabled(true);
-			m_parentWindow.setVisible(true);
+			if (m_parentWindow.isVisible())
+			{
+				m_parentWindow.setVisible(true);
+			}
 		}
 
 		m_internalDialog.setVisible(false);
@@ -2707,7 +2710,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		if (isVisible() && m_bBlockParentWindow && !a_bVisible)
 		{
 			m_parentWindow.setEnabled(true);
-			m_parentWindow.setVisible(true);
+			if (m_parentWindow.isVisible())
+			{
+				// this is a bugfix
+				m_parentWindow.setVisible(true);
+			}
 		}
 
 		m_bBlockParentWindow = (a_bVisible && m_bModal);
@@ -2844,7 +2851,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			{
 				m_bBlockParentWindow = false;
 				m_parentWindow.setEnabled(true);
-				m_parentWindow.setVisible(true);
+				if (m_parentWindow.isVisible())
+				{
+					// this is a bugfix
+					m_parentWindow.setVisible(true);
+				}
 			}
 		}
 
