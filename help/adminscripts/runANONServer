@@ -141,6 +141,7 @@ case "$1" in
 		if [ "$2" = "-d" ]
 		then
 			COMPILE_DIR="$3"
+			shift 2
 		fi
 	fi
 	if [ ! "$COMPILE_DIR" ]
@@ -164,6 +165,7 @@ case "$1" in
         	                rm -R classes
                 	fi
 	                mkdir classes
+			# go into the source directory
         	        cd src
                 	javac -d ../classes $COMPILE_OPTIONS $PROGRAM_NAME.java
 	                rc_failed $?
@@ -177,6 +179,9 @@ case "$1" in
 	                for JAR in $JAR_CLASSES; do
         	                JAR_EXEC="$JAR_EXEC `jar -xf $JAR`"
                 	done
+			# create the manifest file
+			echo "Manifest-Version: 1.0" > ../MANIFEST.MF
+			echo "Main-Class: $PROGRAM_NAME" | sed s/[/]/./g >> ../MANIFEST.MF
 	                jar cvfm $PROGRAM ../MANIFEST.MF * $JAR_EXEC
         	        rc_failed $?
                 	mv $PROGRAM ..
