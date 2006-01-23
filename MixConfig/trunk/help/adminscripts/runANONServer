@@ -30,7 +30,7 @@ case "$1" in
 	$0 stop
 	$0 start
 	;;
-  command)
+  Command)
   	# executes the program with command line arguments
 	
 	if [ $# -lt 2 ]
@@ -135,13 +135,19 @@ case "$1" in
 	;;
 
   compile)
-	if [ $# -lt 2 ]
+	COMPILE_DIR=""
+	if [ $# -gt 2 ]
 	then 
-		COMPILE_DIR="$INSTALL_PATH/cvs/$CVS_MODULE"
-		echo "No arguments given. Compile in directory $COMPILE_DIR !"
-	else	
-		COMPILE_DIR="$2"
+		if [ "$2" = "-d" ]
+		then
+			COMPILE_DIR="$3"
+		fi
 	fi
+	if [ ! "$COMPILE_DIR" ]
+	then
+		COMPILE_DIR="$INSTALL_PATH/cvs/$CVS_MODULE"
+	fi
+	echo "Compiling in directory '$COMPILE_DIR'!"
 
 	if [ ! -d $COMPILE_DIR ]
 	then
@@ -196,25 +202,22 @@ case "$1" in
   	echo ""
   	echo "This script controls an AN.ON service."
 	echo ""
-	echo "Usage: service {start|stop|restart|update [directory]|compile [directory]|status|process|log|version|command {commands}}"
+	echo "Usage: SERVICENAME {start|stop|restart|update|compile [-d {directory}]|status|process|log|version|command {commands}}"
 	echo ""
-	echo "start|stop|restart:	basic control of $PROGRAM_NAME"
+	echo "start|stop|restart:	basic controls of the $PROGRAM_NAME"
 	echo "cvs:			fetch a new version from CVS"
-	echo "update [directory]:	if the program version in the given directory is newer than the current version,"
-	echo "			make a backup of the old version and replace it; stop the service if update was successful;"
-	echo "			if no directory is given, the program will be compiled from the standard CVS directory"
-	echo "compile [directory]:	compile the program in the specified directory; if no directory is given,"
-	echo "			it will be compiled in the standard CVS directory"
+	echo "update:			if the program version in the CVS directory is newer than the current version,"
+	echo "			this makes a backup of the old version and replaces it; the service s stopped if update was successful;"
+	echo "compile [-d {dir}]:	compiles the program in the specified directory;"
+	echo "			if no directory is given, the program will be compiled in the default CVS directory"
 	echo "status:			checks if the $PROGRAM_NAME is running"
 	echo "process:		lists all $PROGRAM_NAME processes"
 	echo "log:			returns the $PROGRAM_NAME log"
 	echo "version:		returns the $PROGRAM_NAME version"
 	echo "command {commands}:	runs the program with the specified command line options"
 	echo ""
-	echo "Several arguments can be combined, for example 'version' and 'status'."
-	echo "If you only want to update the service from CVS, try:"
-	echo "		service cvs compile"
-	echo "		service update"
+	echo "Several arguments can be combined, for example if you want to update the service from CVS, try:"
+	echo "		SERVICENAME cvs compile update"
 	echo ""
 	exit 1
 	;;
