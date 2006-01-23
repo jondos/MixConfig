@@ -30,7 +30,7 @@ case "$1" in
 	$0 stop
 	$0 start
 	;;
-  Command)
+  command)
   	# executes the program with command line arguments
 	
 	if [ $# -lt 2 ]
