@@ -8,7 +8,7 @@ case "$1" in
   start)
 	echo "Starting $PROGRAM_NAME..."
 	cd $INSTALL_PATH
-	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS &
+	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS 
 	if [ ! "`$0 process`" ]
 	then
 		rc_failed 1
@@ -62,19 +62,42 @@ case "$1" in
 	$0 command $VERSION_OPTION | grep -i version
 	;;
   cvs)
+	DO_UPDATE=0
+
+	if [ $# -gt 1 ]
+	then
+		if [ "$2" = "-update" ]
+		then
+			DO_UPDATE=1
+			shift 1
+		fi
+	fi
 	cd $INSTALL_PATH
 	if [ ! -d cvs ]
 	then
+		DO_UPDATE=0
 		mkdir cvs
 	fi
 	cd cvs
 	if [ -d $CVS_MODULE ]
 	then
-		#cvs update $CVS_MODULE
-		rm -R $CVS_MODULE
+		if [ $DO_UPDATE -eq 0 ]
+		then
+			rm -R $CVS_MODULE
+		fi
+	else
+		DO_UPDATE=0
 	fi
-	mkdir $CVS_MODULE
-	cvs checkout $CVS_MODULE
+
+	if [ $DO_UPDATE -eq 0 ]
+	then
+		mkdir $CVS_MODULE
+		cvs checkout $CVS_MODULE
+	else
+		cvs update $CVS_MODULE
+	fi
+
+	# delete the compiled program if it exists
 	cd $CVS_MODULE
 	if [ -e $PROGRAM ]
 	then
@@ -84,6 +107,7 @@ case "$1" in
 	;;
   update)
 	OLD_VERSION_OPTION=`$0 version`
+  	rc_reset	
 	NEW_VERSION_OPTION=`$EXECUTE_COMMAND $INSTALL_PATH/cvs/$CVS_MODULE/$PROGRAM $VERSION_OPTION | grep -i version`
 	echo "OLD_VERSION_OPTION: $OLD_VERSION_OPTION"
 	echo "NEW_VERSION_OPTION: $NEW_VERSION_OPTION"
@@ -210,7 +234,8 @@ case "$1" in
 	echo "Usage: SERVICENAME {start|stop|restart|update|compile [-d {directory}]|status|process|log|version|command {commands}}"
 	echo ""
 	echo "start|stop|restart:	basic controls of the $PROGRAM_NAME"
-	echo "cvs:			fetch a new version from CVS"
+	echo "cvs [-update]:		fetches a new version from CVS; if -update is specified,"
+	echo "			the code is only updated, not fully replaced"
 	echo "update:			if the program version in the CVS directory is newer than the current version,"
 	echo "			this makes a backup of the old version and replaces it; the service s stopped if update was successful;"
 	echo "compile [-d {dir}]:	compiles the program in the specified directory;"
