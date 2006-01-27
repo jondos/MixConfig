@@ -213,6 +213,7 @@ public class JAPHtmlMultiLineLabel extends JLabel
 			// reset the original parent
 			htmlView.getView(0).setParent(htmlView);
 		}
+		invalidate();
 	}
 
 
