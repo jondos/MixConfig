@@ -31,7 +31,6 @@ import java.util.Vector;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Window;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -94,6 +93,16 @@ import logging.LogType;
  */
 public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOptions
 {
+	static
+	{
+		// preload java dialog icons
+		new JOptionPane("", MESSAGE_TYPE_ERROR).createDialog(null, "");
+		new JOptionPane("", MESSAGE_TYPE_INFORMATION).createDialog(null, "");
+		new JOptionPane("", MESSAGE_TYPE_WARNING).createDialog(null, "");
+		new JOptionPane("", MESSAGE_TYPE_PLAIN).createDialog(null, "");
+		new JOptionPane("", MESSAGE_TYPE_QUESTION).createDialog(null, "");
+	}
+
 	public static final int ON_CLICK_DO_NOTHING = 0;
 	public static final int ON_CLICK_HIDE_DIALOG = 1;
 	public static final int ON_CLICK_DISPOSE_DIALOG = 2;
@@ -961,9 +970,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		width = 0;
 		height = 0;
 		nextContentPane = a_firstContentPane;
-		if (a_firstContentPane.m_parentDialog instanceof Window)
+		if (a_firstContentPane.m_parentDialog instanceof JDialog)
 		{
-			Window dialog = (Window)a_firstContentPane.m_parentDialog;
+			JDialog dialog = (JDialog)a_firstContentPane.m_parentDialog;
 			do
 			{
 				nextContentPane.updateDialog();
@@ -1183,9 +1192,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 */
 	public final void showDialog()
 	{
-		if (m_parentDialog instanceof Window)
+		if (m_parentDialog instanceof JDialog)
 		{
-			((Window)m_parentDialog).setVisible(true);
+			((JDialog)m_parentDialog).setVisible(true);
 		}
 		else
 		{
@@ -1442,7 +1451,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		}
 		else
 		{
-			((Window) m_parentDialog).validate();
+			((JDialog) m_parentDialog).validate();
 		}
 
 		return null;
@@ -1605,7 +1614,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	}
 
 	/**
-	 * Returns the parent Dialog. It is a Window or a JAPDialog.
+	 * Returns the parent Dialog. It is a JDialog or a JAPDialog.
 	 * @return the parent Dialog
 	 */
 	public RootPaneContainer getDialog()
@@ -1622,7 +1631,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	public final boolean isDialogVisible()
 	{
 		return ((m_parentDialog instanceof JAPDialog && ( (JAPDialog) m_parentDialog).isVisible()) ||
-				(m_parentDialog instanceof Window && ( (Window) m_parentDialog).isVisible()));
+				(m_parentDialog instanceof JDialog && ( (JDialog) m_parentDialog).isVisible()));
 	}
 
 	/**
@@ -1631,9 +1640,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 */
 	public void addDialogWindowListener(WindowListener a_listener)
 	{
-		if (m_parentDialog instanceof Window)
+		if (m_parentDialog instanceof JDialog)
 		{
-			((Window)m_parentDialog).addWindowListener(a_listener);
+			((JDialog)m_parentDialog).addWindowListener(a_listener);
 		}
 		else
 		{
@@ -1645,7 +1654,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 * Adds a component listener. It it called in the following situations:
 	 * <UL>
 	 * <LI> componentShown: 1) Dialog window is opened or set to visible and the content pane is its
-	 * current content pane. (Please note that with a JDialog no event is generated when the dialog is
+	 * current content pane. (Please note that with a JAPDialog no event is generated when the dialog is
 	 * closed and made visible a second time.)
 	 * 2) The Dialog window is already visible and is successfully updated with the
 	 * current content pane. </LI>
@@ -1684,9 +1693,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 */
 	public void addDialogComponentListener(ComponentListener a_listener)
 	{
-		if (m_parentDialog instanceof Window)
+		if (m_parentDialog instanceof JDialog)
 		{
-			((Window)m_parentDialog).addComponentListener(a_listener);
+			((JDialog)m_parentDialog).addComponentListener(a_listener);
 		}
 		else
 		{
@@ -1700,9 +1709,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 */
 	public void removeDialogComponentListener(ComponentListener a_listener)
 	{
-		if (m_parentDialog instanceof Window)
+		if (m_parentDialog instanceof JDialog)
 		{
-			((Window)m_parentDialog).removeComponentListener(a_listener);
+			((JDialog)m_parentDialog).removeComponentListener(a_listener);
 		}
 		else
 		{
@@ -1717,9 +1726,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 */
 	public void removeDialogWindowListener(WindowListener a_listener)
 	{
-		if (m_parentDialog instanceof Window)
+		if (m_parentDialog instanceof JDialog)
 		{
-			((Window)m_parentDialog).removeWindowListener(a_listener);
+			((JDialog)m_parentDialog).removeWindowListener(a_listener);
 		}
 		else
 		{
@@ -1735,9 +1744,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	{
 		if (a_bDispose)
 		{
-			if (m_parentDialog instanceof Window)
+			if (m_parentDialog instanceof JDialog)
 			{
-				((Window)m_parentDialog).dispose();
+				((JDialog)m_parentDialog).dispose();
 			}
 			else
 			{
@@ -1753,9 +1762,9 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		}
 		else
 		{
-			if (m_parentDialog instanceof Window)
+			if (m_parentDialog instanceof JDialog)
 			{
-				((Window)m_parentDialog).setVisible(false);
+				((JDialog)m_parentDialog).setVisible(false);
 			}
 			else
 			{
@@ -2123,10 +2132,10 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 				getDialog().getRootPane().setDefaultButton(getButtonYesOK());
 			}
 
-			if (getDialog() instanceof Window)
+			if (getDialog() instanceof JDialog)
 			{
 				/**
-				 * This is a patch for JDialog; componentShown is at least called on the first opening.
+				 * This is a patch for JDialog; componentShown at least called on the first opening.
 				 * Alas, it is not possible to generate this event when the dialog is closed and
 				 * opened a second time.
 				 */
