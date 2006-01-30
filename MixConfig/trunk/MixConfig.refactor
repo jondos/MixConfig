@@ -795,4 +795,16 @@
     <old-class-name>gui.JAPHelp$ExternalURLCaller</old-class-name>
     <new-class-name>gui.JAPHelp$IExternalURLCaller</new-class-name>
   </rename-class>
+  <rename-method id="6AP0MQJ4K2JEW3YT256YS6Y0" creation-time="Mon Jan 30 10:04:58.636 CET 2006">
+    <declaring-class-name>gui.JAPHtmlMultiLineLabel</declaring-class-name>
+    <declared-method-signature>(I)V</declared-method-signature>
+    <old-method-name>getTextPart</old-method-name>
+    <new-method-name>cutHTMLDocument</new-method-name>
+  </rename-method>
+  <rename-method id="4AP0MQJ4K2JEW3YT256YS6Y0" creation-time="Mon Jan 30 10:23:04.878 CET 2006">
+    <declaring-class-name>gui.JAPHtmlMultiLineLabel</declaring-class-name>
+    <declared-method-signature>(Ljava/lang/String;)Ljava/lang/String;</declared-method-signature>
+    <old-method-name>removeHTMLAndBODYTags</old-method-name>
+    <new-method-name>removeHTMLHEADAndBODYTags</new-method-name>
+  </rename-method>
 </refactor>

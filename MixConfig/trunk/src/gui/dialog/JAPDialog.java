@@ -1029,6 +1029,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			a_message = "";
 		}
+		a_message = JAPHtmlMultiLineLabel.removeHTMLHEADAndBODYTags(a_message);
 		message = a_message;
 
 		if (a_title == null)
