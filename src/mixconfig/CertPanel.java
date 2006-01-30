@@ -73,6 +73,7 @@ import gui.dialog.FinishedContentPane;
 import gui.dialog.JAPDialog;
 import gui.dialog.PasswordContentPane;
 import gui.dialog.ValidityContentPane;
+import gui.dialog.SimpleWizardContentPane;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
@@ -964,6 +965,7 @@ public class CertPanel extends JPanel implements ActionListener
 		final JAPDialog dialog = new JAPDialog(this, "Create new certificate", true);
 		dialog.setDefaultCloseOperation(JAPDialog.DO_NOTHING_ON_CLOSE);
 
+
 		ValidityContentPane validityContentPane = new ValidityContentPane(dialog);
 		PasswordContentPane passwordContentPane = new PasswordContentPane(dialog, validityContentPane,
 			PasswordContentPane.PASSWORD_NEW, m_validator.getPasswordInfoMessage());
@@ -978,7 +980,8 @@ public class CertPanel extends JPanel implements ActionListener
 		{
 			public void windowClosing(WindowEvent a_event)
 			{
-				if (!finishedContentPane.isVisible() || finishedContentPane.checkCancel() == null)
+				if (!worker.isVisible() &&
+					(!finishedContentPane.isVisible() || finishedContentPane.checkCancel() == null))
 				{
 					dialog.dispose();
 				}
