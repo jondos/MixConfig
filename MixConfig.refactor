@@ -807,4 +807,10 @@
     <old-method-name>removeHTMLAndBODYTags</old-method-name>
     <new-method-name>removeHTMLHEADAndBODYTags</new-method-name>
   </rename-method>
+  <rename-method id="6AP0ZC58W3JE1EK9ITO0QKH0" creation-time="Tue Jan 31 08:31:28.203 CET 2006">
+    <declaring-class-name>gui.dialog.DialogContentPane</declaring-class-name>
+    <declared-method-signature>()Z</declared-method-signature>
+    <old-method-name>isFocusSet</old-method-name>
+    <new-method-name>isAutomaticFocusSettingEnabled</new-method-name>
+  </rename-method>
 </refactor>
