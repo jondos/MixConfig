@@ -220,7 +220,7 @@ public class CertificateGenerator implements Runnable
 			{
 				return new CheckError[]
 					{
-					new CheckError("No validity given!")
+					new CheckError("No validity given!", LogType.GUI)
 				};
 			}
 

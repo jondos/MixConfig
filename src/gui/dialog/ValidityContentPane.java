@@ -44,6 +44,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import anon.crypto.Validity;
+import logging.LogType;
 import gui.JAPJIntField;
 
 import gui.*;
@@ -155,7 +156,7 @@ public class ValidityContentPane extends DialogContentPane implements
 		}
 		catch (NumberFormatException a_e)
 		{
-			return new CheckError[]{new CheckError("One or more date fields are empty")};
+			return new CheckError[]{new CheckError("One or more date fields are empty", LogType.GUI)};
 		}
 		return null;
 	}
@@ -301,7 +302,6 @@ public class ValidityContentPane extends DialogContentPane implements
 				}
 			});
 			month.addItemListener(this);
-			month.setSelectedIndex(cal.get(Calendar.MONTH));
 			gbc.weightx = 1;
 			layout.setConstraints(month, gbc);
 			add(month);
@@ -313,7 +313,8 @@ public class ValidityContentPane extends DialogContentPane implements
 			gbc.weightx = 1;
 			layout.setConstraints(year, gbc);
 			add(year);
-			gbc.gridx++;
+
+			month.setSelectedIndex(cal.get(Calendar.MONTH));
 		}
 
 		public DateTextField(Date date)
