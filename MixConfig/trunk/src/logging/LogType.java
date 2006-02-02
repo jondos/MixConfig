@@ -81,6 +81,17 @@ public final class LogType
 	}
 
 	/**
+	 * Returns if the given LogType is a valid log type. Valid means that the LogType is one of those
+	 * defined in this class.
+	 * @param a_logType a log type
+	 * @return if the given LogType is a valid log type
+	 */
+	public static boolean isValidLogType(int a_logType)
+	{
+		return (a_logType >= 0 && a_logType < STR_LOG_TYPES.length);
+	}
+
+	/**
 	 * Returns the integer values of all available log types. Log types may be combined by using the
 	 * bitwise or(|)-operation.
 	 * @return the integer values of all available log types
