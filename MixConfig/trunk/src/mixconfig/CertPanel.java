@@ -73,7 +73,6 @@ import gui.dialog.FinishedContentPane;
 import gui.dialog.JAPDialog;
 import gui.dialog.PasswordContentPane;
 import gui.dialog.ValidityContentPane;
-import gui.dialog.SimpleWizardContentPane;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
