@@ -41,6 +41,8 @@ import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
  */
 public class RSAKeyPair extends AsymmetricCryptoKeyPair
 {
+	public static final int KEY_LENGTH_2048 = 2048;
+
 	/**
 	 * Creates a new rsa key pair.
 	 * @param a_privateKey an rsa private key

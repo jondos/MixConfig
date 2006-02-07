@@ -272,7 +272,7 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 
 	public String getHelpContext()
 	{
-		return JAPHelpContext.INDEX;
+		return PaymentPanel.class.getName();
 	}
 
 	public Vector check()
