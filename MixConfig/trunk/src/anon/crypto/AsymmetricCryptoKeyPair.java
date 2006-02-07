@@ -36,7 +36,9 @@ import java.util.Vector;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import anon.util.ClassUtil;
-import logging.*;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
 
 /**
  * A key pair used for signing and encryption with an asymmetric cryptographic algorithm.
@@ -44,9 +46,12 @@ import logging.*;
  */
 public class AsymmetricCryptoKeyPair
 {
+	public static final int KEY_LENGTH_512 = 512;
+	public static final int KEY_LENGTH_1024 = 1024;
+
 	// register the mandatory key classes so that they are compiled; do not remove!
-	static final MyDSAPrivateKey dsaKey = null;
-	static final MyRSAPrivateKey rsaKey = null;
+	private static final MyDSAPrivateKey dsaKey = null;
+	private static final MyRSAPrivateKey rsaKey = null;
 
 	/**
 	 * Stores all registered private key classes.
