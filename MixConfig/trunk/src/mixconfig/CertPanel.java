@@ -586,7 +586,7 @@ public class CertPanel extends JPanel implements ActionListener
 					privateCertificate = PKCS12.getInstance(cert, pwReader);
 					if (privateCertificate == null && !pb.hasValidValue())
 					{
-						if (pb.getValue() == JAPDialog.RETURN_VALUE_UNINITIALIZED)
+						if (pb.getButtonValue() == JAPDialog.RETURN_VALUE_UNINITIALIZED)
 						{
 							JAPDialog.showErrorDialog(GUIUtils.getParentWindow(this),
 								"Your private certificate was not loaded for some unknown reason! " +
@@ -991,7 +991,7 @@ public class CertPanel extends JPanel implements ActionListener
 		dialog.setResizable(false);
 		dialog.setVisible(true);
 
-		if (finishedContentPane.getValue() != DialogContentPane.RETURN_VALUE_OK ||
+		if (finishedContentPane.getButtonValue() != DialogContentPane.RETURN_VALUE_OK ||
 			worker.getCertificateGenerator().getCertificate() == null)
 		{
 			return false;

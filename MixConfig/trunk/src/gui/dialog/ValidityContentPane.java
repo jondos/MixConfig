@@ -163,7 +163,7 @@ public class ValidityContentPane extends DialogContentPane implements
 
 	public Validity getValidity()
 	{
-		if (RETURN_VALUE_CLOSED == getValue() || RETURN_VALUE_CANCEL == getValue() ||
+		if (RETURN_VALUE_CLOSED == getButtonValue() || RETURN_VALUE_CANCEL == getButtonValue() ||
 			m_dateFrom == null || m_dateTo == null)
 		{
 			return null;
