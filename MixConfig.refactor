@@ -813,4 +813,22 @@
     <old-method-name>isFocusSet</old-method-name>
     <new-method-name>isAutomaticFocusSettingEnabled</new-method-name>
   </rename-method>
+  <rename-method id="0AP0D57C9RJEBEOH67RYS6Y0" creation-time="Thu Feb 16 17:17:38.982 CET 2006">
+    <declaring-class-name>gui.dialog.DialogContentPane</declaring-class-name>
+    <declared-method-signature>(I)V</declared-method-signature>
+    <old-method-name>setValue</old-method-name>
+    <new-method-name>setButtonValue</new-method-name>
+  </rename-method>
+  <rename-method id="Y9P0D57C9RJEBEOH67RYS6Y0" creation-time="Thu Feb 16 17:18:01.104 CET 2006">
+    <declaring-class-name>gui.dialog.DialogContentPane</declaring-class-name>
+    <declared-method-signature>()I</declared-method-signature>
+    <old-method-name>getValue</old-method-name>
+    <new-method-name>getButtonValue</new-method-name>
+  </rename-method>
+  <rename-method id="W9P0D57C9RJEBEOH67RYS6Y0" creation-time="Thu Feb 16 17:19:37.072 CET 2006">
+    <declaring-class-name>gui.dialog.WorkerContentPane</declaring-class-name>
+    <declared-method-signature>()Ljava/lang/Object;</declared-method-signature>
+    <old-method-name>getThreadValue</old-method-name>
+    <new-method-name>getValue</new-method-name>
+  </rename-method>
 </refactor>
