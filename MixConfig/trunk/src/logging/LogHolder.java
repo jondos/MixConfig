@@ -84,19 +84,14 @@ public final class LogHolder
 		m_logInstance = new DummyLog();
 	}
 
-	public void finalize()
+	public void finalize() throws Throwable
 	{
 		if (equals(ms_logHolderInstance))
 		{
 			ms_logHolderInstance = null;
 		}
-		try
-		{
-			super.finalize();
-		}
-		catch (Throwable ex)
-		{
-		}
+
+		super.finalize();
 	}
 
 	/**
@@ -133,26 +128,32 @@ public final class LogHolder
 	/**
 	 * Write the log data for a Throwable to the Log instance.
 	 *
-	 * @param logLevel The log level (see constants in class LogLevel).
-	 * @param logType The log type (see constants in class LogType).
+	 * @param a_logLevel The log level (see constants in class LogLevel).
+	 * @param a_logType The log type (see constants in class LogType).
 	 * @param a_throwable a Throwable to log
 	 */
-	public static synchronized void log(int logLevel, int logType, Throwable a_throwable)
+	public static synchronized void log(int a_logLevel, int a_logType, Throwable a_throwable)
 	{
-		if (isLogged(logLevel, logType))
+		if (a_throwable == null)
+		{
+			log(a_logLevel, a_logType, (String)null);
+			return;
+		}
+
+		if (isLogged(a_logLevel, a_logType))
 		{
 			if (m_messageDetailLevel == DETAIL_LEVEL_LOWEST)
 			{
-				getInstance().getLogInstance().log(logLevel, logType, a_throwable.getMessage());
+				getInstance().getLogInstance().log(a_logLevel, a_logType, a_throwable.getMessage());
 			}
 			else if (m_messageDetailLevel > DETAIL_LEVEL_LOWEST &&
 					 m_messageDetailLevel < DETAIL_LEVEL_HIGHEST)
 			{
-				getInstance().getLogInstance().log(logLevel, logType, a_throwable.toString());
+				getInstance().getLogInstance().log(a_logLevel, a_logType, a_throwable.toString());
 			}
 			else if (m_messageDetailLevel == DETAIL_LEVEL_HIGHEST)
 			{
-				getInstance().getLogInstance().log(logLevel, logType, Util.getStackTrace(a_throwable));
+				getInstance().getLogInstance().log(a_logLevel, a_logType, Util.getStackTrace(a_throwable));
 			}
 		}
 	}
@@ -195,8 +196,8 @@ public final class LogHolder
 			{
 				if (a_bAddCallingClass)
 				{
-					getInstance().getLogInstance().log(logLevel, logType,
-						Util.normaliseString(
+				getInstance().getLogInstance().log(logLevel, logType,
+					Util.normaliseString(
 											  getCallingMethod(false) + ": ", LINE_LENGTH_HIGHEST_DETAIL)
 						+ TRACED_LOG_MESSAGE);
 				}
@@ -205,8 +206,8 @@ public final class LogHolder
 							   getCallingMethod(a_bAddCallingClass) + ": ", LINE_LENGTH_HIGHEST_DETAIL)
 			+ message);
 			}
+			}
 		}
-	}
 
 	/**
 	 * Write the log data to the Log instance.
@@ -290,7 +291,7 @@ public final class LogHolder
 	 * @param a_bSkipOwnClass if true, the true calling method is skipped and the caller of the
 	 *                        first method in the stack trace of calling method that is in another
 	 *                        class than itself is returned; if false, the calling method is
-	 *                        returned (default)
+	 *                             returned (default)
 	 * @return the name, class and line number of the calling method
 	 */
 	private static String getCallingMethod(boolean a_bSkipOwnClass)
@@ -339,10 +340,10 @@ public final class LogHolder
 					{
 						strOwnClass = strOwnClass.substring(0, strOwnClass.indexOf("$"));
 					}
-				}
+					}
 				else
 				{
-					break;
+				break;
 				}
 			}
 		}
