@@ -197,14 +197,13 @@ public class ValidityContentPane extends DialogContentPane implements
 			day.updateBounds();
 		}
 
-		class DayBounds implements JAPJIntField.IntFieldBounds
+		class DayBounds implements JAPJIntField.IIntFieldBounds
 		{
-			private final int daysPerMonth[] =
-				{
-				31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-			public boolean isZeroAllowed()
+			private final int daysPerMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+			public int getAllowZeros()
 			{
-				return false;
+				return JAPJIntField.ALLOW_ZEROS_NONE;
 			}
 
 			public int getMaximum()
