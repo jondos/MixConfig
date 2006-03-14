@@ -30,7 +30,6 @@ package anon.crypto;
 
 import java.security.SecureRandom;
 import java.util.Random;
-import gui.*;
 
 public final class MyRandom
 {

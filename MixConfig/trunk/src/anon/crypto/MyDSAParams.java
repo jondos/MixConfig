@@ -36,7 +36,6 @@ import java.security.interfaces.DSAPrivateKey;
 
 import org.bouncycastle.asn1.x509.DSAParameter;
 import org.bouncycastle.crypto.params.DSAParameters;
-import gui.*;
 
 final public class MyDSAParams extends DSAParameters implements DSAParams
 {

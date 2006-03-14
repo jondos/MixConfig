@@ -38,6 +38,21 @@ import java.security.Signature;
 
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
+import org.bouncycastle.crypto.signers.DSASigner;
+import org.bouncycastle.asn1.DEROutputStream;
+import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.DERInteger;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Sequence;
+import java.math.BigInteger;
+import java.io.IOException;
+import org.bouncycastle.crypto.digests.SHA1Digest;
 
 /**
  * Implements the DSA algorithm for signatures.
@@ -47,7 +62,8 @@ public final class MyDSASignature implements IMySignature
 	private static final AlgorithmIdentifier ms_identifier =
 		new AlgorithmIdentifier(X9ObjectIdentifiers.id_dsa_with_sha1);
 
-	private Signature m_SignatureAlgorithm;
+	private DSASigner m_SignatureAlgorithm;
+	private SHA1Digest m_Digest;
 	/**
 	 * The key with that this algorithm has been initialised.
 	 */
@@ -57,7 +73,8 @@ public final class MyDSASignature implements IMySignature
 	{
 		try
 		{
-			m_SignatureAlgorithm = Signature.getInstance("DSA");
+			m_SignatureAlgorithm = new DSASigner();
+			m_Digest=new SHA1Digest();
 		}
 		catch (Exception e)
 		{
@@ -67,41 +84,78 @@ public final class MyDSASignature implements IMySignature
 
 	synchronized public void initVerify(IMyPublicKey k) throws InvalidKeyException
 	{
+		try
+		{
 		//if (m_initKey == null || m_initKey != k)
 		//{
-			m_SignatureAlgorithm.initVerify(k);
+			MyDSAPublicKey k1 = (MyDSAPublicKey) k;
+			m_SignatureAlgorithm.init(false, k1.getPublicParams());
+			m_Digest.reset();
 			m_initKey = k;
+		}
+	catch (Exception ex2)
+		{
+			throw new InvalidKeyException(
+				"MyDSASignautre - initVerify - dont know how to hnalde the given key");
+		}
 		//}
 	}
 
-	synchronized public void initSign(IMyPrivateKey ownPrivateKey) throws InvalidKeyException
-	{
-		//if (m_initKey == null || m_initKey != ownPrivateKey)
-		//{
-			m_SignatureAlgorithm.initSign(ownPrivateKey);
-			m_initKey = ownPrivateKey;
-		//}
-	}
-
-	synchronized public boolean verify(byte[] message, byte[] sig)
+	synchronized public void initSign(IMyPrivateKey k) throws InvalidKeyException
 	{
 		try
 		{
-			m_SignatureAlgorithm.update(message);
-			return m_SignatureAlgorithm.verify(sig);
+			//if (m_initKey == null || m_initKey != k)
+		//{
+			MyDSAPrivateKey k1 = (MyDSAPrivateKey) k;
+			m_SignatureAlgorithm.init(true, k1.getPrivateParams());
+			m_initKey = k;
 		}
-		catch (Exception e)
+		catch (Exception ex2)
 		{
+			throw new InvalidKeyException(
+				"MyDSASignautre - initVerify - dont know how to hnalde the given key");
+		}
+	}
+
+	synchronized public boolean verify(byte[] a_message, int message_offset, int message_len,
+									   byte[] a_signature,
+									   int signature_offset, int signature_len)
+	{
+		try
+		{
+			m_Digest.reset();
+			m_Digest.update(a_message,message_offset,message_len);
+			byte[]hash=new byte[m_Digest.getDigestSize()];
+			m_Digest.doFinal(hash,0);
+			BigInteger rs[]=derDecode(a_signature,signature_offset,signature_len);
+			return m_SignatureAlgorithm.verifySignature(hash,rs[0],rs[1]);
+		}
+		catch (Throwable e)
+		{
+			LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "MyDSASignature:verify() Exception!");
+			LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, e);
+
 			return false;
 		}
+	}
+
+	synchronized public boolean verify(byte[] a_message, byte[] a_signature)
+	{
+		LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "MyDSASignature:verify() try to verify a message...");
+		return verify(a_message, 0, a_message.length, a_signature, 0, a_signature.length);
 	}
 
 	synchronized public byte[] sign(byte[] bytesToSign)
 	{
 		try
 		{
-			m_SignatureAlgorithm.update(bytesToSign);
-			return m_SignatureAlgorithm.sign();
+			m_Digest.reset();
+			m_Digest.update(bytesToSign,0,bytesToSign.length);
+			byte hash[]=new byte[m_Digest.getDigestSize()];
+			m_Digest.doFinal(hash,0);
+			BigInteger rs[]=m_SignatureAlgorithm.generateSignature(hash);
+			return derEncode(rs[0],rs[1]);
 		}
 		catch (Throwable t)
 		{
@@ -113,7 +167,8 @@ public final class MyDSASignature implements IMySignature
 	 * Returns the algorithm identifier (DSA with SHA1).
 	 * @return the algorithm identifier (DSA with SHA1)
 	 */
-	public AlgorithmIdentifier getIdentifier() {
+	public AlgorithmIdentifier getIdentifier()
+	{
 		return ms_identifier;
 	}
 
@@ -254,6 +309,35 @@ public final class MyDSASignature implements IMySignature
 	public String getXMLSignatureAlgorithmReference()
 	{
 		return "http://www.w3.org/2000/09/xmldsig#dsa-sha1";
+	}
+
+	/// From BouncyCasatle....
+	private byte[] derEncode(BigInteger r, BigInteger s) throws IOException
+	{
+		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+		DEROutputStream dOut = new DEROutputStream(bOut);
+		ASN1EncodableVector v = new ASN1EncodableVector();
+
+		v.add(new DERInteger(r));
+		v.add(new DERInteger(s));
+
+		dOut.writeObject(new DERSequence(v));
+
+		return bOut.toByteArray();
+	}
+
+	private BigInteger[] derDecode(byte[] encoding,int off,int len) throws IOException
+	{
+		ByteArrayInputStream bIn = new ByteArrayInputStream(encoding,off,len);
+		ASN1InputStream aIn = new ASN1InputStream(bIn);
+		ASN1Sequence s = (ASN1Sequence) aIn.readObject();
+
+		BigInteger[] sig = new BigInteger[2];
+
+		sig[0] = ( (DERInteger) s.getObjectAt(0)).getValue();
+		sig[1] = ( (DERInteger) s.getObjectAt(1)).getValue();
+
+		return sig;
 	}
 
 }

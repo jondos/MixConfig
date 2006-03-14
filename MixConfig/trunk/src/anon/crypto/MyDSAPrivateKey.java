@@ -51,23 +51,17 @@ import org.w3c.dom.Element;
 
 import anon.util.Base64;
 import anon.util.XMLUtil;
-import gui.*;
 
-final public class MyDSAPrivateKey extends AbstractPrivateKey
-	implements DSAPrivateKey, IMyPrivateKey
+final public class MyDSAPrivateKey extends AbstractPrivateKey implements DSAPrivateKey, IMyPrivateKey
 {
-	private MyDSASignature m_algorithm = new MyDSASignature();;
 	private BigInteger m_X;
-	private DSAParams m_params;
+	private MyDSAParams m_params;
 
 	public MyDSAPrivateKey(PrivateKeyInfo privKeyInfo) throws InvalidKeyException
 	{
 		super(privKeyInfo);
 		try
 		{
-			//		ByteArrayInputStream bIn =new ByteArrayInputStream(encoded);
-			//		DERInputStream dIn = new DERInputStream(bIn);
-			//		PrivateKeyInfo privKeyInfo=new PrivateKeyInfo((ASN1Sequence)dIn.readObject());
 			AlgorithmIdentifier algId = privKeyInfo.getAlgorithmId();
 			DERInteger X = (DERInteger) privKeyInfo.getPrivateKey();
 			m_X = X.getValue();
@@ -97,11 +91,10 @@ final public class MyDSAPrivateKey extends AbstractPrivateKey
 		BigInteger Y;
 
 		Y = getParams().getG().modPow(getX(), getParams().getP());
-		key = new MyDSAPublicKey(new DSAPublicKeyParameters(Y, (DSAParameters)m_params));
+		key = new MyDSAPublicKey(new DSAPublicKeyParameters(Y, (DSAParameters) m_params));
 
 		return key;
 	}
-
 
 	public String getAlgorithm()
 	{
@@ -146,19 +139,31 @@ final public class MyDSAPrivateKey extends AbstractPrivateKey
 	{
 		try
 		{
-			m_algorithm.initSign(this);
+			MyDSASignature algorithm = new MyDSASignature(); ;
+			algorithm.initSign(this);
+			return algorithm;
 		}
 		catch (InvalidKeyException a_e)
 		{
 			// not possible
 		}
-		return m_algorithm;
+		return null;
 	}
 
 	public DSAParams getParams()
 	{
 		return m_params;
 	}
+
+	public MyDSAParams getMyDSAParams()
+	{
+		return m_params;
+	}
+
+	public 	DSAPrivateKeyParameters getPrivateParams()
+		{
+			return new DSAPrivateKeyParameters(m_X,m_params);
+		}
 
 
 	/**
