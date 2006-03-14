@@ -40,7 +40,6 @@ import anon.util.XMLUtil;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
-import gui.*;
 
 public class CertificateStore extends Observable
 {

@@ -1,5 +1,5 @@
 <!ELEMENT MixConfiguration (General,Network,Certificates,Description)>
-<!ATTLIST MixConfiguration version CDATA #FIXED "0.3">
+<!ATTLIST MixConfiguration version CDATA #FIXED "0.5">
 
 <!ELEMENT General (MixID,MixType,MixName,CascadeName?,Daemon,UserID?,NrOfFileDescriptors?,Logging?)>
     <!ELEMENT MixID (#PCDATA)>

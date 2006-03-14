@@ -50,7 +50,6 @@ import org.w3c.dom.NodeList;
 
 import anon.util.Base64;
 import anon.util.XMLUtil;
-import gui.*;
 
 /**
  * @deprecated use {@link anon.crypto.XMLSignature} instead; scheduled for removal on 04/12/12

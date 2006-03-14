@@ -171,8 +171,8 @@
 		</DNSServers>
 	</Network>
 	<Login>
-		<Password user="root"><!-- Superuser's password (optional) --> </RootPassword>
-		<Password user="mix"><!-- Password of regular user "mix" for SSH login (optional)--></UserPassword>
+		<RootPassword user="root"><!-- Superuser's password (optional) --> </RootPassword>
+		<UserPassword user="mix"><!-- Password of regular user "mix" for SSH login (optional)--></UserPassword>
 		<!-- ... -->
 	</Login>
 </MixOnCD>

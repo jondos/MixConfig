@@ -33,7 +33,6 @@
 package anon.crypto;
 
 import java.security.InvalidKeyException;
-import gui.*;
 
 /**
  * This interface represents a signature algorithm.

@@ -51,11 +51,10 @@ import org.w3c.dom.Element;
 import anon.util.Base64;
 import anon.util.XMLUtil;
 
-final public class MyDSAPublicKey extends AbstractPublicKey implements DSAPublicKey,IMyPublicKey
+final public class MyDSAPublicKey extends AbstractPublicKey implements DSAPublicKey, IMyPublicKey
 {
-	private MyDSASignature m_algorithm = new MyDSASignature();
 	private BigInteger m_Y;
-	private DSAParams m_params;
+	private MyDSAParams m_params;
 	private long m_hashValue = 0;
 
 	public MyDSAPublicKey(DSAPublicKeyParameters params)
@@ -90,13 +89,15 @@ final public class MyDSAPublicKey extends AbstractPublicKey implements DSAPublic
 	{
 		try
 		{
-			m_algorithm.initVerify(this);
+			MyDSASignature algorithm = new MyDSASignature();
+			algorithm.initVerify(this);
+			return algorithm;
 		}
 		catch (InvalidKeyException a_e)
 		{
 			// not possible
 		}
-		return m_algorithm;
+		return null;
 	}
 
 	public BigInteger getY()
@@ -109,6 +110,16 @@ final public class MyDSAPublicKey extends AbstractPublicKey implements DSAPublic
 		return m_params;
 	}
 
+	public DSAPublicKeyParameters getPublicParams()
+	{
+		return new DSAPublicKeyParameters(m_Y,m_params);
+	}
+
+	public MyDSAParams getMyDASParams()
+	{
+		return m_params;
+	}
+
 	public String getAlgorithm()
 	{
 		return "DSA";
@@ -117,11 +128,6 @@ final public class MyDSAPublicKey extends AbstractPublicKey implements DSAPublic
 	public String getFormat()
 	{
 		return "X.509";
-	}
-
-	public int getKeyLength()
-	{
-		return getParams().getP().bitLength();
 	}
 
 	public SubjectPublicKeyInfo getAsSubjectPublicKeyInfo()
@@ -189,6 +195,12 @@ final public class MyDSAPublicKey extends AbstractPublicKey implements DSAPublic
 						   m_params.getP().longValue() + m_params.getQ().longValue());
 		}
 
-		return (int)m_hashValue;
+		return (int) m_hashValue;
 	}
+
+	public int getKeyLength()
+	{
+		return m_params.getP().bitCount();
+	}
+
 }

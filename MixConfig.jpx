@@ -1,529 +1,409 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--JBuilder XML Project-->
 <project>
-  <property category="debug.0" name="SmartStepRedefineClasses" value="0"/>
-  <property category="debug.0" name="SmartStepSkipStaticInitializers" value="0"/>
-  <property category="debug.0" name="SmartStepSkipSynthetics" value="0"/>
-  <property category="debug.1" name="SmartStepRedefineClasses" value="0"/>
-  <property category="debug.1" name="SmartStepSkipStaticInitializers" value="0"/>
-  <property category="debug.1" name="SmartStepSkipSynthetics" value="0"/>
-  <property category="debug.2" name="SmartStepRedefineClasses" value="0"/>
-  <property category="debug.2" name="SmartStepSkipStaticInitializers" value="0"/>
-  <property category="debug.2" name="SmartStepSkipSynthetics" value="0"/>
-  <property category="debug.3" name="SmartStepRedefineClasses" value="0"/>
-  <property category="debug.3" name="SmartStepSkipStaticInitializers" value="0"/>
-  <property category="debug.3" name="SmartStepSkipSynthetics" value="0"/>
-  <property category="debug.4" name="SmartStepRedefineClasses" value="0"/>
-  <property category="debug.4" name="SmartStepSkipStaticInitializers" value="0"/>
-  <property category="debug.4" name="SmartStepSkipSynthetics" value="0"/>
-  <property category="generalFormatting" name="blockIndent" value="4"/>
-  <property category="generalFormatting" name="tabSize" value="4"/>
-  <property category="generalFormatting" name="useTabChar" value="1"/>
-  <property category="generalFormatting2" name="blockIndent" value="4"/>
-  <property category="generalFormatting2" name="overrideBasicFormatting" value="1"/>
-  <property category="generalFormatting2" name="tabSize" value="4"/>
-  <property category="generalFormatting2" name="useTabChar" value="1"/>
-  <property category="java.sapient" name="ACE" value="true"/>
-  <property category="java.sapient" name="AFLV" value="true"/>
-  <property category="java.sapient" name="AFP" value="true"/>
-  <property category="java.sapient" name="ASMDCN" value="true"/>
-  <property category="java.sapient" name="ASMO" value="true"/>
-  <property category="java.sapient" name="BSMC" value="true"/>
-  <property category="java.sapient" name="BTJC" value="false"/>
-  <property category="java.sapient" name="CA" value="true"/>
-  <property category="java.sapient" name="CEV" value="true"/>
-  <property category="java.sapient" name="CFPV" value="true"/>
-  <property category="java.sapient" name="CIUCFL" value="true"/>
-  <property category="java.sapient" name="CQS" value="true"/>
-  <property category="java.sapient" name="CSR" value="true"/>
-  <property category="java.sapient" name="CVSBF" value="true"/>
-  <property category="java.sapient" name="EIAV" value="false"/>
-  <property category="java.sapient" name="EJB_CL" value="false"/>
-  <property category="java.sapient" name="EJB_CONSOLE" value="false"/>
-  <property category="java.sapient" name="EJB_ENTITY" value="false"/>
-  <property category="java.sapient" name="EJB_FDESCR" value="false"/>
-  <property category="java.sapient" name="EJB_FILES" value="false"/>
-  <property category="java.sapient" name="EJB_HOME" value="false"/>
-  <property category="java.sapient" name="EJB_IO" value="false"/>
-  <property category="java.sapient" name="EJB_JDBC" value="false"/>
-  <property category="java.sapient" name="EJB_MESSAGE" value="false"/>
-  <property category="java.sapient" name="EJB_NAMES" value="false"/>
-  <property category="java.sapient" name="EJB_NATIVE" value="false"/>
-  <property category="java.sapient" name="EJB_OBJECT" value="false"/>
-  <property category="java.sapient" name="EJB_REFL" value="false"/>
-  <property category="java.sapient" name="EJB_SEC" value="false"/>
-  <property category="java.sapient" name="EJB_SECOBJ" value="false"/>
-  <property category="java.sapient" name="EJB_SESSION" value="false"/>
-  <property category="java.sapient" name="EJB_SFACT" value="false"/>
-  <property category="java.sapient" name="EJB_SOCKET" value="false"/>
-  <property category="java.sapient" name="EJB_SUBST" value="false"/>
-  <property category="java.sapient" name="EJB_THREADS" value="false"/>
-  <property category="java.sapient" name="EOBA" value="true"/>
-  <property category="java.sapient" name="EVC" value="true"/>
-  <property category="java.sapient" name="HIF" value="true"/>
-  <property category="java.sapient" name="HISM" value="true"/>
-  <property category="java.sapient" name="HN" value="true"/>
-  <property category="java.sapient" name="ICSBF" value="false"/>
-  <property category="java.sapient" name="IFM" value="true"/>
-  <property category="java.sapient" name="ILC" value="false"/>
-  <property category="java.sapient" name="IMCM" value="true"/>
-  <property category="java.sapient" name="IMMD" value="true"/>
-  <property category="java.sapient" name="LF" value="true"/>
-  <property category="java.sapient" name="LMC" value="true"/>
-  <property category="java.sapient" name="LNU" value="true"/>
-  <property category="java.sapient" name="MCP" value="true"/>
-  <property category="java.sapient" name="MCS" value="true"/>
-  <property category="java.sapient" name="MLOWP" value="true"/>
-  <property category="java.sapient" name="MNU" value="true"/>
-  <property category="java.sapient" name="MSOL" value="true"/>
-  <property category="java.sapient" name="MVDSN" value="true"/>
-  <property category="java.sapient" name="NC" value="true"/>
-  <property category="java.sapient" name="NCLS" value="true"/>
-  <property category="java.sapient" name="NFSF" value="false"/>
-  <property category="java.sapient" name="NLC" value="false"/>
-  <property category="java.sapient" name="NOIS" value="false"/>
-  <property category="java.sapient" name="ODCM" value="false"/>
-  <property category="java.sapient" name="OHCE" value="true"/>
-  <property category="java.sapient" name="OIM" value="true"/>
-  <property category="java.sapient" name="ONAMAM" value="true"/>
-  <property category="java.sapient" name="ONE" value="true"/>
-  <property category="java.sapient" name="OPM" value="true"/>
-  <property category="java.sapient" name="OSNBU" value="true"/>
-  <property category="java.sapient" name="OWS" value="false"/>
-  <property category="java.sapient" name="PCO" value="true"/>
-  <property category="java.sapient" name="PDBB" value="false"/>
-  <property category="java.sapient" name="PFC" value="false"/>
-  <property category="java.sapient" name="PIFS" value="true"/>
-  <property category="java.sapient" name="PJDC" value="false"/>
-  <property category="java.sapient" name="PMSNT" value="false"/>
-  <property category="java.sapient" name="PN" value="false"/>
-  <property category="java.sapient" name="PPA" value="true"/>
-  <property category="java.sapient" name="PPCF" value="true"/>
-  <property category="java.sapient" name="PSIB" value="true"/>
-  <property category="java.sapient" name="RIP" value="true"/>
-  <property category="java.sapient" name="SBC" value="true"/>
-  <property category="java.sapient" name="SEB" value="true"/>
-  <property category="java.sapient" name="SL" value="false"/>
-  <property category="java.sapient" name="SSSIDC" value="true"/>
-  <property category="java.sapient" name="SU" value="true"/>
-  <property category="java.sapient" name="TMSSC" value="true"/>
-  <property category="java.sapient" name="UAAO" value="true"/>
-  <property category="java.sapient" name="UC" value="true"/>
-  <property category="java.sapient" name="UCVN" value="true"/>
-  <property category="java.sapient" name="UE" value="true"/>
-  <property category="java.sapient" name="UL" value="true"/>
-  <property category="java.sapient" name="ULVFP" value="true"/>
-  <property category="java.sapient" name="UMM" value="true"/>
-  <property category="java.sapient" name="URSP" value="true"/>
-  <property category="javaFormatting" name="EventMatch" value="0"/>
-  <property category="javaFormatting" name="alwaysClasses" value="1"/>
-  <property category="javaFormatting" name="classBraceNextLine" value="1"/>
-  <property category="javaFormatting" name="extendsOnNewLine" value="0"/>
-  <property category="javaFormatting" name="implementsOnNewLine" value="0"/>
-  <property category="javaFormatting" name="methodBraceNextLine" value="1"/>
-  <property category="javaFormatting" name="otherBraceNextLine" value="1"/>
-  <property category="javaFormatting" name="packagePrefixGroups" value="java;javax;BLANK_LINE;java.awt;javax.swing;BLANK_LINE;org;(*)"/>
-  <property category="javaFormatting" name="wrapAtColumn" value="110"/>
-  <property category="javadoc" name="custom.tags.1" value="todo;a;To Do:"/>
-  <property category="optimize.0" name="OptimizableType" value="intuitive.ide.borland.jb10.ProfilerBootstrap"/>
-  <property category="optimize.0" name="oicc.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
-  <property category="optimize.0" name="oipr.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
-  <property category="optimize.3" name="OptimizableType" value="intuitive.ide.borland.jb10.ProfilerBootstrap"/>
-  <property category="optimize.3" name="oicc.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
-  <property category="optimize.3" name="oipr.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
-  <property category="optimize.4" name="OptimizableType" value="intuitive.ide.borland.jb10.ProfilerBootstrap"/>
-  <property category="optimize.4" name="oicc.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
-  <property category="optimize.4" name="oipr.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
-  <property category="personality" name="personality" value=""/>
-  <property category="runtime" name="ConfigurationCount" value="5"/>
-  <property category="runtime.0" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
-  <property category="runtime.0" name="ConfigurationName" value="MixConfig"/>
-  <property category="runtime.0" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
-  <property category="runtime.0" name="applet.appletviewer" value="1"/>
-  <property category="runtime.0" name="applet.class" value="mixconfig.TheApplet"/>
-  <property category="runtime.0" name="applet.html" value="src/TheApplet.html"/>
-  <property category="runtime.0" name="application.class" value="mixconfig.MixConfig"/>
-  <property category="runtime.0" name="application.parameters" value="--loglevel Info --logdetail 3"/>
-  <property category="runtime.0" name="jsprunner.launchuri" value="/"/>
-  <property category="runtime.0" name="test.harness" value="junit.textui.TestRunner"/>
-  <property category="runtime.1" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
-  <property category="runtime.1" name="ConfigurationName" value="MixConfig (Debug-Logging)"/>
-  <property category="runtime.1" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
-  <property category="runtime.1" name="applet.appletviewer" value="1"/>
-  <property category="runtime.1" name="applet.class" value="mixconfig.TheApplet"/>
-  <property category="runtime.1" name="applet.html" value="src/TheApplet.html"/>
-  <property category="runtime.1" name="application.class" value="mixconfig.MixConfig"/>
-  <property category="runtime.1" name="application.parameters" value="--loglevel Debug --logdetail 4"/>
-  <property category="runtime.1" name="jsprunner.launchuri" value="/"/>
-  <property category="runtime.1" name="test.harness" value="junit.textui.TestRunner"/>
-  <property category="runtime.2" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
-  <property category="runtime.2" name="ConfigurationName" value="MixConfig (Info-Logging)"/>
-  <property category="runtime.2" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
-  <property category="runtime.2" name="applet.appletviewer" value="1"/>
-  <property category="runtime.2" name="applet.class" value="mixconfig.TheApplet"/>
-  <property category="runtime.2" name="applet.html" value="src/TheApplet.html"/>
-  <property category="runtime.2" name="application.class" value="mixconfig.MixConfig"/>
-  <property category="runtime.2" name="application.parameters" value="--loglevel Info --logdetail 4"/>
-  <property category="runtime.2" name="jsprunner.launchuri" value="/"/>
-  <property category="runtime.2" name="test.harness" value="junit.textui.TestRunner"/>
-  <property category="runtime.3" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
-  <property category="runtime.3" name="ConfigurationName" value="MixConfig (Generate MixOnCD configuration)"/>
-  <property category="runtime.3" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
-  <property category="runtime.3" name="applet.appletviewer" value="1"/>
-  <property category="runtime.3" name="applet.class" value="mixconfig.TheApplet"/>
-  <property category="runtime.3" name="applet.html" value="src/TheApplet.html"/>
-  <property category="runtime.3" name="application.class" value="mixconfig.MixConfig"/>
-  <property category="runtime.3" name="application.parameters" value="--createConf"/>
-  <property category="runtime.3" name="jsprunner.launchuri" value="/"/>
-  <property category="runtime.3" name="test.harness" value="junit.textui.TestRunner"/>
-  <property category="runtime.4" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
-  <property category="runtime.4" name="ConfigurationName" value="MixConfig (Generate MixOnCD configuration, logged)"/>
-  <property category="runtime.4" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
-  <property category="runtime.4" name="applet.appletviewer" value="1"/>
-  <property category="runtime.4" name="applet.class" value="mixconfig.TheApplet"/>
-  <property category="runtime.4" name="applet.html" value="src/TheApplet.html"/>
-  <property category="runtime.4" name="application.class" value="mixconfig.MixConfig"/>
-  <property category="runtime.4" name="application.parameters" value="--loglevel Debug --logdetail 4 --createConf"/>
-  <property category="runtime.4" name="jsprunner.launchuri" value="/"/>
-  <property category="runtime.4" name="test.harness" value="junit.textui.TestRunner"/>
-  <property category="runtime.5" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
-  <property category="runtime.5" name="ConfigurationName" value="Applet"/>
-  <property category="runtime.5" name="RunnableType" value="com.borland.jbuilder.runtime.AppletRunner"/>
-  <property category="runtime.5" name="applet.class" value="mixconfig.MixConfig"/>
-  <property category="serverservices" name="disabled.services" value=""/>
-  <property category="sys" name="AuthorLabel" value="@author"/>
-  <property category="sys" name="Autorefresh" value="1"/>
-  <property category="sys" name="BackupPath" value="bak"/>
-  <property category="sys" name="CheckStable" value="1"/>
-  <property category="sys" name="Company" value=""/>
-  <property category="sys" name="CompanyLabel" value="Organisation:"/>
-  <property category="sys" name="Copyright" value="Copyright (c) 2002"/>
-  <property category="sys" name="CopyrightLabel" value="Copyright:"/>
-  <property category="sys" name="DefaultPath" value="src"/>
-  <property category="sys" name="Description" value=""/>
-  <property category="sys" name="DescriptionLabel" value="Beschreibung:"/>
-  <property category="sys" name="DocPath" value="doc"/>
-  <property category="sys" name="Encoding" value="UTF8"/>
-  <property category="sys" name="ExcludeClassEnabled" value="0"/>
-  <property category="sys" name="IncludeTestPath" value="1"/>
-  <property category="sys" name="JDK" value="java version 1.5.0_02-b09"/>
-  <property category="sys" name="LastTag" value="36"/>
-  <property category="sys" name="Libraries" value="Swing;BouncyCastleLightForMixConfig;JUnit;junitx;Log4j;XML-1.1"/>
-  <property category="sys" name="MakeStable" value="0"/>
-  <property category="sys" name="OutPath" value="classes"/>
-  <property category="sys" name="SourcePath" value="src;test"/>
-  <property category="sys" name="TestPath" value="test"/>
-  <property category="sys" name="Title" value=""/>
-  <property category="sys" name="TitleLabel" value="\u00dcberschrift:"/>
-  <property category="sys" name="Version" value="1.0"/>
-  <property category="sys" name="VersionLabel" value="@version"/>
-  <property category="sys" name="WorkingDirectory" value="."/>
-  <property category="sys" name="enable.auto.packages" value="false"/>
-  <property category="team" name="ignorePath.0" value="ant-build-classes"/>
-  <property category="team" name="ignorePath.1" value="bak"/>
-  <property category="team" name="ignorePath.10" value="images/mixconfig/mapquest-logo.gif"/>
-  <property category="team" name="ignorePath.11" value="images/mixconfig/mixconfig.wizard.WizardLayout_center.gif"/>
-  <property category="team" name="ignorePath.12" value="images/mixconfig/mixconfig.wizard.WizardLayout_left.gif"/>
-  <property category="team" name="ignorePath.13" value="images/mixconfig/mixconfig.wizard.WizardLayout_right.gif"/>
-  <property category="team" name="ignorePath.14" value="images/mixconfig/uparrow.gif"/>
-  <property category="team" name="ignorePath.15" value="images/mixconfig"/>
-  <property category="team" name="ignorePath.2" value="classes"/>
-  <property category="team" name="ignorePath.3" value="doc"/>
-  <property category="team" name="ignorePath.4" value="doc_doxy"/>
-  <property category="team" name="ignorePath.5" value="images/mixconfig/anonLogo.jpg"/>
-  <property category="team" name="ignorePath.6" value="images/mixconfig/anonLogo_start.jpg"/>
-  <property category="team" name="ignorePath.7" value="images/mixconfig/busy.gif"/>
-  <property category="team" name="ignorePath.8" value="images/mixconfig/downarrow.gif"/>
-  <property category="team" name="ignorePath.9" value="images/mixconfig/icon.gif"/>
-  <node name="help" type="NavigationDirectory">
-    <property category="directorynode" name="showSubdirectories" value="1"/>
-    <property category="directorynode" name="url" value="help"/>
-  </node>
-  <node name="images" type="NavigationDirectory">
-    <property category="directorynode" name="showSubdirectories" value="1"/>
-    <property category="directorynode" name="url" value="images"/>
-  </node>
-  <node name="Weitere Einstellungen" type="Folder">
-    <property category="sys" name="SettingsFolder" value="1"/>
-    <file path="jbuilder-build.xml">
-      <property category="ant" name="isantfile" value="1"/>
-    </file>
-  </node>
-  <node name="anon" type="Package"/>
-  <node name="gui" type="Package"/>
-  <node name="junitx.framework.extension" type="Package"/>
-  <node name="logging" type="Package"/>
-  <node name="mixconfig" type="Package"/>
-  <node name="test" type="Package"/>
-  <node name="Ant Build File" type="Ant">
-    <property category="archiving" name="buildWithProject" value="0"/>
-    <property category="export" name="target" value="jbuilder-build.xml"/>
-    <property category="generate" name="destdir" value="ant-build-classes"/>
-  </node>
-  <node name="MixConfig.jar" type="Archive">
-    <property category="archiving" name="archiverClass" value="com.borland.jbuilder.wizard.archive.ApplicationArchiver"/>
-    <property category="archiving" name="buildWithProject" value="0"/>
-    <property category="archiving" name="contentRules.1" value="I:**/*.*"/>
-    <property category="archiving" name="contentRules.10" value="F:images/arrow90.gif;images/arrow90.gif"/>
-    <property category="archiving" name="contentRules.100" value="F:help/mixsetupBuildCompile_en.html;help/mixsetupBuildCompile_en.html"/>
-    <property category="archiving" name="contentRules.101" value="F:help/mixsetupBuildGetLibraries_en.html;help/mixsetupBuildGetLibraries_en.html"/>
-    <property category="archiving" name="contentRules.102" value="F:help/mixsetupBuildGetSources_en.html;help/mixsetupBuildGetSources_en.html"/>
-    <property category="archiving" name="contentRules.103" value="F:help/mixsetupDebian_en.html;help/mixsetupDebian_en.html"/>
-    <property category="archiving" name="contentRules.104" value="F:help/mixsetupLiveCD_booting_en.html;help/mixsetupLiveCD_booting_en.html"/>
-    <property category="archiving" name="contentRules.105" value="F:help/mixsetupLiveCD_deployment_en.html;help/mixsetupLiveCD_deployment_en.html"/>
-    <property category="archiving" name="contentRules.106" value="F:help/mixsetupLiveCD_en.html;help/mixsetupLiveCD_en.html"/>
-    <property category="archiving" name="contentRules.107" value="F:help/mixsetupLiveCD_usage_en.html;help/mixsetupLiveCD_usage_en.html"/>
-    <property category="archiving" name="contentRules.108" value="F:help/mixsetupOtherLinux_en.html;help/mixsetupOtherLinux_en.html"/>
-    <property category="archiving" name="contentRules.109" value="F:help/mixsetupPrebuilt_en.html;help/mixsetupPrebuilt_en.html"/>
-    <property category="archiving" name="contentRules.11" value="F:images/arrow.gif;images/arrow.gif"/>
-    <property category="archiving" name="contentRules.110" value="F:help/mixsetupSuse_en.html;help/mixsetupSuse_en.html"/>
-    <property category="archiving" name="contentRules.111" value="F:help/operatorChooseServer_en.html;help/operatorChooseServer_en.html"/>
-    <property category="archiving" name="contentRules.112" value="F:help/operatorCommitment20030924_de.html;help/operatorCommitment20030924_de.html"/>
-    <property category="archiving" name="contentRules.113" value="F:help/operatorCommitment20030924_en.html;help/operatorCommitment20030924_en.html"/>
-    <property category="archiving" name="contentRules.114" value="F:help/operatorCommitment_de.html;help/operatorCommitment_de.html"/>
-    <property category="archiving" name="contentRules.115" value="F:help/operatorCommitment_en.html;help/operatorCommitment_en.html"/>
-    <property category="archiving" name="contentRules.116" value="F:help/operatorIntroduction_en.html;help/operatorIntroduction_en.html"/>
-    <property category="archiving" name="contentRules.117" value="F:help/operatorLawEnforcement_en.html;help/operatorLawEnforcement_en.html"/>
-    <property category="archiving" name="contentRules.118" value="F:help/operatorPutMixInCascade_en.html;help/operatorPutMixInCascade_en.html"/>
-    <property category="archiving" name="contentRules.119" value="F:help/operatorTrust_en.html;help/operatorTrust_en.html"/>
-    <property category="archiving" name="contentRules.12" value="F:images/arrowDown.gif;images/arrowDown.gif"/>
-    <property category="archiving" name="contentRules.120" value="F:help/view_en.html;help/view_en.html"/>
-    <property category="archiving" name="contentRules.121" value="F:help/cmdjap_de.html;help/cmdjap_de.html"/>
-    <property category="archiving" name="contentRules.122" value="F:help/credits_de.html;help/credits_de.html"/>
-    <property category="archiving" name="contentRules.123" value="F:help/mixconfig.MixConfig_en.html;help/mixconfig.MixConfig_en.html"/>
-    <property category="archiving" name="contentRules.13" value="F:images/arrowUp.gif;images/arrowUp.gif"/>
-    <property category="archiving" name="contentRules.14" value="F:images/busy.gif;images/busy.gif"/>
-    <property category="archiving" name="contentRules.15" value="F:images/cdisabled.gif;images/cdisabled.gif"/>
-    <property category="archiving" name="contentRules.16" value="F:images/cenabled.gif;images/cenabled.gif"/>
-    <property category="archiving" name="contentRules.17" value="F:images/cert.gif;images/cert.gif"/>
-    <property category="archiving" name="contentRules.18" value="F:images/certdisabled.gif;images/certdisabled.gif"/>
-    <property category="archiving" name="contentRules.19" value="F:images/certinactive.gif;images/certinactive.gif"/>
-    <property category="archiving" name="contentRules.2" value="F:certificates/acceptedCAs/bi.cer;certificates/acceptedCAs/bi.cer"/>
-    <property category="archiving" name="contentRules.20" value="F:images/certinvalid.gif;images/certinvalid.gif"/>
-    <property category="archiving" name="contentRules.21" value="F:images/certinvalidinactive.gif;images/certinvalidinactive.gif"/>
-    <property category="archiving" name="contentRules.22" value="F:images/copyicon.gif;images/copyicon.gif"/>
-    <property category="archiving" name="contentRules.23" value="F:images/copyintoicon.gif;images/copyintoicon.gif"/>
-    <property category="archiving" name="contentRules.24" value="F:images/deleteicon.gif;images/deleteicon.gif"/>
-    <property category="archiving" name="contentRules.25" value="F:images/enlarge.gif;images/enlarge.gif"/>
-    <property category="archiving" name="contentRules.26" value="F:images/error.gif;images/error.gif"/>
-    <property category="archiving" name="contentRules.27" value="F:images/exiticon.gif;images/exiticon.gif"/>
-    <property category="archiving" name="contentRules.28" value="F:images/green.gif;images/green.gif"/>
-    <property category="archiving" name="contentRules.29" value="F:images/gui.JAPHelp_home.gif;images/gui.JAPHelp_home.gif"/>
-    <property category="archiving" name="contentRules.3" value="F:certificates/acceptedCAs/japroot.cer;certificates/acceptedCAs/japroot.cer"/>
-    <property category="archiving" name="contentRules.30" value="F:images/gui.JAPHelp_next.gif;images/gui.JAPHelp_next.gif"/>
-    <property category="archiving" name="contentRules.31" value="F:images/gui.JAPHelp_previous.gif;images/gui.JAPHelp_previous.gif"/>
-    <property category="archiving" name="contentRules.32" value="F:images/haken.gif;images/haken.gif"/>
-    <property category="archiving" name="contentRules.33" value="F:images/host16.gif;images/host16.gif"/>
-    <property category="archiving" name="contentRules.34" value="F:images/icoc.gif;images/icoc.gif"/>
-    <property category="archiving" name="contentRules.35" value="F:images/icom.gif;images/icom.gif"/>
-    <property category="archiving" name="contentRules.36" value="F:images/icon16.gif;images/icon16.gif"/>
-    <property category="archiving" name="contentRules.37" value="F:images/icon32.gif;images/icon32.gif"/>
-    <property category="archiving" name="contentRules.38" value="F:images/icon.gif;images/icon.gif"/>
-    <property category="archiving" name="contentRules.39" value="F:images/iconify.gif;images/iconify.gif"/>
-    <property category="archiving" name="contentRules.4" value="F:src/MixConfigMessages_de.properties;MixConfigMessages_de.properties"/>
-    <property category="archiving" name="contentRules.40" value="F:images/info.gif;images/info.gif"/>
-    <property category="archiving" name="contentRules.41" value="F:images/information.gif;images/information.gif"/>
-    <property category="archiving" name="contentRules.42" value="F:images/infoservicefrominternet.gif;images/infoservicefrominternet.gif"/>
-    <property category="archiving" name="contentRules.43" value="F:images/infoservicemanuell.gif;images/infoservicemanuell.gif"/>
-    <property category="archiving" name="contentRules.44" value="F:images/install.gif;images/install.gif"/>
-    <property category="archiving" name="contentRules.45" value="F:images/jap.gif;images/jap.gif"/>
-    <property category="archiving" name="contentRules.46" value="F:images/japeye.gif;images/japeye.gif"/>
-    <property category="archiving" name="contentRules.47" value="F:images/japi.gif;images/japi.gif"/>
-    <property category="archiving" name="contentRules.48" value="F:images/japtxt.gif;images/japtxt.gif"/>
-    <property category="archiving" name="contentRules.49" value="F:images/meter1.gif;images/meter1.gif"/>
-    <property category="archiving" name="contentRules.5" value="F:src/MixConfigMessages_en.properties;MixConfigMessages_en.properties"/>
-    <property category="archiving" name="contentRules.50" value="F:images/meter2.gif;images/meter2.gif"/>
-    <property category="archiving" name="contentRules.51" value="F:images/meter3.gif;images/meter3.gif"/>
-    <property category="archiving" name="contentRules.52" value="F:images/meter4.gif;images/meter4.gif"/>
-    <property category="archiving" name="contentRules.53" value="F:images/meter5.gif;images/meter5.gif"/>
-    <property category="archiving" name="contentRules.54" value="F:images/meter6.gif;images/meter6.gif"/>
-    <property category="archiving" name="contentRules.55" value="F:images/meterD.gif;images/meterD.gif"/>
-    <property category="archiving" name="contentRules.56" value="F:images/meterN.gif;images/meterN.gif"/>
-    <property category="archiving" name="contentRules.57" value="F:images/meterNnew.gif;images/meterNnew.gif"/>
-    <property category="archiving" name="contentRules.58" value="F:images/mixconfig.CascadePanel_downarrow.gif;images/mixconfig.CascadePanel_downarrow.gif"/>
-    <property category="archiving" name="contentRules.59" value="F:images/mixconfig.CascadePanel_uparrow.gif;images/mixconfig.CascadePanel_uparrow.gif"/>
-    <property category="archiving" name="contentRules.6" value="F:images/accountBroken.gif;images/accountBroken.gif"/>
-    <property category="archiving" name="contentRules.60" value="F:images/mixconfig.MapBox_mapquest-logo.gif;images/mixconfig.MapBox_mapquest-logo.gif"/>
-    <property category="archiving" name="contentRules.61" value="F:images/mixconfig.MixConfig_icon.gif;images/mixconfig.MixConfig_icon.gif"/>
-    <property category="archiving" name="contentRules.62" value="F:images/mixconfig.wizard.WizardLayout_center.gif;images/mixconfig.wizard.WizardLayout_center.gif"/>
-    <property category="archiving" name="contentRules.63" value="F:images/mixconfig.wizard.WizardLayout_left.gif;images/mixconfig.wizard.WizardLayout_left.gif"/>
-    <property category="archiving" name="contentRules.64" value="F:images/mixconfig.wizard.WizardLayout_right.gif;images/mixconfig.wizard.WizardLayout_right.gif"/>
-    <property category="archiving" name="contentRules.65" value="F:images/north.gif;images/north.gif"/>
-    <property category="archiving" name="contentRules.66" value="F:images/red.gif;images/red.gif"/>
-    <property category="archiving" name="contentRules.67" value="F:images/reload.gif;images/reload.gif"/>
-    <property category="archiving" name="contentRules.68" value="F:images/reloaddisabled_anim.gif;images/reloaddisabled_anim.gif"/>
-    <property category="archiving" name="contentRules.69" value="F:images/reloadrollover.gif;images/reloadrollover.gif"/>
-    <property category="archiving" name="contentRules.7" value="F:images/accountDisabled.gif;images/accountDisabled.gif"/>
-    <property category="archiving" name="contentRules.70" value="F:images/saveicon.gif;images/saveicon.gif"/>
-    <property category="archiving" name="contentRules.71" value="F:images/server16.gif;images/server16.gif"/>
-    <property category="archiving" name="contentRules.72" value="F:images/server_blau.gif;images/server_blau.gif"/>
-    <property category="archiving" name="contentRules.73" value="F:images/server_rot.gif;images/server_rot.gif"/>
-    <property category="archiving" name="contentRules.74" value="F:images/server.gif;images/server.gif"/>
-    <property category="archiving" name="contentRules.75" value="F:images/serverfrominternet.gif;images/serverfrominternet.gif"/>
-    <property category="archiving" name="contentRules.76" value="F:images/servermanuell.gif;images/servermanuell.gif"/>
-    <property category="archiving" name="contentRules.77" value="F:images/splash.gif;images/splash.gif"/>
-    <property category="archiving" name="contentRules.78" value="F:images/warning.gif;images/warning.gif"/>
-    <property category="archiving" name="contentRules.79" value="F:images/west.gif;images/west.gif"/>
-    <property category="archiving" name="contentRules.8" value="F:images/accountOk.gif;images/accountOk.gif"/>
-    <property category="archiving" name="contentRules.80" value="F:help/xhelpfrms.css;help/xhelpfrms.css"/>
-    <property category="archiving" name="contentRules.81" value="F:help/adminscripts/firewall;help/adminscripts/firewall"/>
-    <property category="archiving" name="contentRules.82" value="F:help/adminscripts/rc.status.anon;help/adminscripts/rc.status.anon"/>
-    <property category="archiving" name="contentRules.83" value="F:help/adminscripts/runANONServer;help/adminscripts/runANONServer"/>
-    <property category="archiving" name="contentRules.84" value="F:help/adminscripts/InfoService/runInfoService;help/adminscripts/InfoService/runInfoService"/>
-    <property category="archiving" name="contentRules.85" value="F:help/adminscripts/Mixproxy/runMixproxy;help/adminscripts/Mixproxy/runMixproxy"/>
-    <property category="archiving" name="contentRules.86" value="F:help/adminscripts/Mixproxy/squid.conf;help/adminscripts/Mixproxy/squid.conf"/>
-    <property category="archiving" name="contentRules.87" value="F:help/adminscripts/Mixproxy/sysctl.conf;help/adminscripts/Mixproxy/sysctl.conf"/>
-    <property category="archiving" name="contentRules.88" value="F:help/adminscripts/manual_en.html;help/adminscripts/manual_en.html"/>
-    <property category="archiving" name="contentRules.89" value="F:help/cmdjap_en.html;help/cmdjap_en.html"/>
-    <property category="archiving" name="contentRules.9" value="F:images/arrow46.gif;images/arrow46.gif"/>
-    <property category="archiving" name="contentRules.90" value="F:help/credits_en.html;help/credits_en.html"/>
-    <property category="archiving" name="contentRules.91" value="F:help/file_en.html;help/file_en.html"/>
-    <property category="archiving" name="contentRules.92" value="F:help/index_en.html;help/index_en.html"/>
-    <property category="archiving" name="contentRules.93" value="F:help/mixconfig.CertificationTool_en.html;help/mixconfig.CertificationTool_en.html"/>
-    <property category="archiving" name="contentRules.94" value="F:help/mixconfig.GeneralPanel_en.html;help/mixconfig.GeneralPanel_en.html"/>
-    <property category="archiving" name="contentRules.95" value="F:help/mixconfig.MixOnCDPanel_en.html;help/mixconfig.MixOnCDPanel_en.html"/>
-    <property category="archiving" name="contentRules.96" value="F:help/mixconfig.OtherMixPanel_en.html;help/mixconfig.OtherMixPanel_en.html"/>
-    <property category="archiving" name="contentRules.97" value="F:help/mixconfig.OwnCertificatesPanel_en.html;help/mixconfig.OwnCertificatesPanel_en.html"/>
-    <property category="archiving" name="contentRules.98" value="F:help/mixconfig.StartScreenPanel_en.html;help/mixconfig.StartScreenPanel_en.html"/>
-    <property category="archiving" name="contentRules.99" value="F:help/mixsetupBuild_en.html;help/mixsetupBuild_en.html"/>
-    <property category="archiving" name="libraryStates.1" value="1:BouncyCastleLightForMixConfig"/>
-    <property category="archiving" name="libraryStates.2" value="1:Log4j"/>
-    <property category="archiving" name="libraryStates.3" value="1:XML-1.1"/>
-    <property category="archiving" name="manifestConfigFile" value="0"/>
-    <property category="archiving" name="manifestMainClass" value="mixconfig.MixConfig"/>
-    <property category="archiving" name="targetCompressed" value="1"/>
-    <property category="archiving" name="targetPath" value="MixConfig.jar"/>
-    <property category="archiving" name="usingRules" value="1"/>
-  </node>
-  <node name="Native ausführbare Datei" type="Archive">
-    <property category="archiving" name="archiverClass" value="com.borland.jbuilder.wizard.archive.ExecutableArchiver"/>
-    <property category="archiving" name="buildWithProject" value="0"/>
-    <property category="archiving" name="contentRules.1" value="I:**/*.*"/>
-    <property category="archiving" name="contentRules.10" value="F:images/icon.gif;images/icon.gif"/>
-    <property category="archiving" name="contentRules.100" value="F:help/view_en.html;help/view_en.html"/>
-    <property category="archiving" name="contentRules.101" value="F:help/xhelpfrms.css;help/xhelpfrms.css"/>
-    <property category="archiving" name="contentRules.11" value="F:images/cdisabled.gif;images/cdisabled.gif"/>
-    <property category="archiving" name="contentRules.12" value="F:images/icon16.gif;images/icon16.gif"/>
-    <property category="archiving" name="contentRules.13" value="F:images/reloadrollover.gif;images/reloadrollover.gif"/>
-    <property category="archiving" name="contentRules.14" value="F:images/certdisabled.gif;images/certdisabled.gif"/>
-    <property category="archiving" name="contentRules.15" value="F:images/server16.gif;images/server16.gif"/>
-    <property category="archiving" name="contentRules.16" value="F:images/server_rot.gif;images/server_rot.gif"/>
-    <property category="archiving" name="contentRules.17" value="F:images/meter4.gif;images/meter4.gif"/>
-    <property category="archiving" name="contentRules.18" value="F:images/iconify.gif;images/iconify.gif"/>
-    <property category="archiving" name="contentRules.19" value="F:images/splash.gif;images/splash.gif"/>
-    <property category="archiving" name="contentRules.2" value="F:images/arrow.gif;images/arrow.gif"/>
-    <property category="archiving" name="contentRules.20" value="F:images/busy.gif;images/busy.gif"/>
-    <property category="archiving" name="contentRules.21" value="F:images/red.gif;images/red.gif"/>
-    <property category="archiving" name="contentRules.22" value="F:images/information.gif;images/information.gif"/>
-    <property category="archiving" name="contentRules.23" value="F:images/west.gif;images/west.gif"/>
-    <property category="archiving" name="contentRules.24" value="F:images/mixconfig.wizard.WizardLayout_center.gif;images/mixconfig.wizard.WizardLayout_center.gif"/>
-    <property category="archiving" name="contentRules.25" value="F:images/server.gif;images/server.gif"/>
-    <property category="archiving" name="contentRules.26" value="F:images/cenabled.gif;images/cenabled.gif"/>
-    <property category="archiving" name="contentRules.27" value="F:images/servermanuell.gif;images/servermanuell.gif"/>
-    <property category="archiving" name="contentRules.28" value="F:images/error.gif;images/error.gif"/>
-    <property category="archiving" name="contentRules.29" value="F:images/meterD.gif;images/meterD.gif"/>
-    <property category="archiving" name="contentRules.3" value="F:images/meter3.gif;images/meter3.gif"/>
-    <property category="archiving" name="contentRules.30" value="F:images/mixconfig.CascadePanel_downarrow.gif;images/mixconfig.CascadePanel_downarrow.gif"/>
-    <property category="archiving" name="contentRules.31" value="F:images/reload.gif;images/reload.gif"/>
-    <property category="archiving" name="contentRules.32" value="F:images/certinvalid.gif;images/certinvalid.gif"/>
-    <property category="archiving" name="contentRules.33" value="F:images/arrowDown.gif;images/arrowDown.gif"/>
-    <property category="archiving" name="contentRules.34" value="F:images/serverfrominternet.gif;images/serverfrominternet.gif"/>
-    <property category="archiving" name="contentRules.35" value="F:images/gui.JAPHelp_previous.gif;images/gui.JAPHelp_previous.gif"/>
-    <property category="archiving" name="contentRules.36" value="F:images/saveicon.gif;images/saveicon.gif"/>
-    <property category="archiving" name="contentRules.37" value="F:images/infoservicemanuell.gif;images/infoservicemanuell.gif"/>
-    <property category="archiving" name="contentRules.38" value="F:images/meter6.gif;images/meter6.gif"/>
-    <property category="archiving" name="contentRules.39" value="F:images/arrow46.gif;images/arrow46.gif"/>
-    <property category="archiving" name="contentRules.4" value="F:images/icom.gif;images/icom.gif"/>
-    <property category="archiving" name="contentRules.40" value="F:images/meter5.gif;images/meter5.gif"/>
-    <property category="archiving" name="contentRules.41" value="F:images/copyicon.gif;images/copyicon.gif"/>
-    <property category="archiving" name="contentRules.42" value="F:images/host16.gif;images/host16.gif"/>
-    <property category="archiving" name="contentRules.43" value="F:images/mixconfig.MapBox_mapquest-logo.gif;images/mixconfig.MapBox_mapquest-logo.gif"/>
-    <property category="archiving" name="contentRules.44" value="F:images/install.gif;images/install.gif"/>
-    <property category="archiving" name="contentRules.45" value="F:images/arrow90.gif;images/arrow90.gif"/>
-    <property category="archiving" name="contentRules.46" value="F:images/icon32.gif;images/icon32.gif"/>
-    <property category="archiving" name="contentRules.47" value="F:images/exiticon.gif;images/exiticon.gif"/>
-    <property category="archiving" name="contentRules.48" value="F:images/infoservicefrominternet.gif;images/infoservicefrominternet.gif"/>
-    <property category="archiving" name="contentRules.49" value="F:images/mixconfig.wizard.WizardLayout_right.gif;images/mixconfig.wizard.WizardLayout_right.gif"/>
-    <property category="archiving" name="contentRules.5" value="F:images/server_blau.gif;images/server_blau.gif"/>
-    <property category="archiving" name="contentRules.50" value="F:images/enlarge.gif;images/enlarge.gif"/>
-    <property category="archiving" name="contentRules.51" value="F:images/meter2.gif;images/meter2.gif"/>
-    <property category="archiving" name="contentRules.52" value="F:images/accountDisabled.gif;images/accountDisabled.gif"/>
-    <property category="archiving" name="contentRules.53" value="F:images/certinactive.gif;images/certinactive.gif"/>
-    <property category="archiving" name="contentRules.54" value="F:images/mixconfig.CascadePanel_uparrow.gif;images/mixconfig.CascadePanel_uparrow.gif"/>
-    <property category="archiving" name="contentRules.55" value="F:images/reloaddisabled_anim.gif;images/reloaddisabled_anim.gif"/>
-    <property category="archiving" name="contentRules.56" value="F:images/mixconfig.MixConfig_icon.gif;images/mixconfig.MixConfig_icon.gif"/>
-    <property category="archiving" name="contentRules.57" value="F:images/meterNnew.gif;images/meterNnew.gif"/>
-    <property category="archiving" name="contentRules.58" value="F:images/accountBroken.gif;images/accountBroken.gif"/>
-    <property category="archiving" name="contentRules.59" value="F:images/arrowUp.gif;images/arrowUp.gif"/>
-    <property category="archiving" name="contentRules.6" value="F:images/jap.gif;images/jap.gif"/>
-    <property category="archiving" name="contentRules.60" value="F:images/haken.gif;images/haken.gif"/>
-    <property category="archiving" name="contentRules.61" value="F:images/info.gif;images/info.gif"/>
-    <property category="archiving" name="contentRules.62" value="F:images/certinvalidinactive.gif;images/certinvalidinactive.gif"/>
-    <property category="archiving" name="contentRules.63" value="F:images/warning.gif;images/warning.gif"/>
-    <property category="archiving" name="contentRules.64" value="F:images/copyintoicon.gif;images/copyintoicon.gif"/>
-    <property category="archiving" name="contentRules.65" value="F:images/north.gif;images/north.gif"/>
-    <property category="archiving" name="contentRules.66" value="F:images/japtxt.gif;images/japtxt.gif"/>
-    <property category="archiving" name="contentRules.67" value="F:images/green.gif;images/green.gif"/>
-    <property category="archiving" name="contentRules.68" value="F:images/deleteicon.gif;images/deleteicon.gif"/>
-    <property category="archiving" name="contentRules.69" value="F:images/meterN.gif;images/meterN.gif"/>
-    <property category="archiving" name="contentRules.7" value="F:images/gui.JAPHelp_home.gif;images/gui.JAPHelp_home.gif"/>
-    <property category="archiving" name="contentRules.70" value="F:images/gui.JAPHelp_next.gif;images/gui.JAPHelp_next.gif"/>
-    <property category="archiving" name="contentRules.71" value="F:images/japi.gif;images/japi.gif"/>
-    <property category="archiving" name="contentRules.72" value="F:images/meter1.gif;images/meter1.gif"/>
-    <property category="archiving" name="contentRules.73" value="F:images/icoc.gif;images/icoc.gif"/>
-    <property category="archiving" name="contentRules.74" value="F:images/mixconfig.wizard.WizardLayout_left.gif;images/mixconfig.wizard.WizardLayout_left.gif"/>
-    <property category="archiving" name="contentRules.75" value="F:images/accountOk.gif;images/accountOk.gif"/>
-    <property category="archiving" name="contentRules.76" value="F:help/cmdjap_en.html;help/cmdjap_en.html"/>
-    <property category="archiving" name="contentRules.77" value="F:help/credits_en.html;help/credits_en.html"/>
-    <property category="archiving" name="contentRules.78" value="F:help/debian_en.html;help/debian_en.html"/>
-    <property category="archiving" name="contentRules.79" value="F:help/file_en.html;help/file_en.html"/>
-    <property category="archiving" name="contentRules.8" value="F:images/japeye.gif;images/japeye.gif"/>
-    <property category="archiving" name="contentRules.80" value="F:help/index_en.html;help/index_en.html"/>
-    <property category="archiving" name="contentRules.81" value="F:help/livecd_booting_en.html;help/livecd_booting_en.html"/>
-    <property category="archiving" name="contentRules.82" value="F:help/livecd_deployment_en.html;help/livecd_deployment_en.html"/>
-    <property category="archiving" name="contentRules.83" value="F:help/livecd_en.html;help/livecd_en.html"/>
-    <property category="archiving" name="contentRules.84" value="F:help/livecd_usage_en.html;help/livecd_usage_en.html"/>
-    <property category="archiving" name="contentRules.85" value="F:help/mixconfig_summary_en.html;help/mixconfig_summary_en.html"/>
-    <property category="archiving" name="contentRules.86" value="F:help/mixconfig.CertificationTool_en.html;help/mixconfig.CertificationTool_en.html"/>
-    <property category="archiving" name="contentRules.87" value="F:help/mixconfig.GeneralPanel_en.html;help/mixconfig.GeneralPanel_en.html"/>
-    <property category="archiving" name="contentRules.88" value="F:help/mixconfig.StartScreenPanel_en.html;help/mixconfig.StartScreenPanel_en.html"/>
-    <property category="archiving" name="contentRules.89" value="F:help/mixsetup_build_en.html;help/mixsetup_build_en.html"/>
-    <property category="archiving" name="contentRules.9" value="F:images/cert.gif;images/cert.gif"/>
-    <property category="archiving" name="contentRules.90" value="F:help/mixsetup_introduction_en.html;help/mixsetup_introduction_en.html"/>
-    <property category="archiving" name="contentRules.91" value="F:help/mixsetup_lastmix_en.html;help/mixsetup_lastmix_en.html"/>
-    <property category="archiving" name="contentRules.92" value="F:help/mixsetup_prebuilt_en.html;help/mixsetup_prebuilt_en.html"/>
-    <property category="archiving" name="contentRules.93" value="F:help/mixsetup_scripts_en.html;help/mixsetup_scripts_en.html"/>
-    <property category="archiving" name="contentRules.94" value="F:help/mixsetup_settingup_en.html;help/mixsetup_settingup_en.html"/>
-    <property category="archiving" name="contentRules.95" value="F:help/otherlinux_en.html;help/otherlinux_en.html"/>
-    <property category="archiving" name="contentRules.96" value="F:help/OtherMixPanel_en.html;help/OtherMixPanel_en.html"/>
-    <property category="archiving" name="contentRules.97" value="F:help/OwnCertificatesPanel_en.html;help/OwnCertificatesPanel_en.html"/>
-    <property category="archiving" name="contentRules.98" value="F:help/squid.conf;help/squid.conf"/>
-    <property category="archiving" name="contentRules.99" value="F:help/suse_en.html;help/suse_en.html"/>
-    <property category="archiving" name="executableEnabled.1" value="0"/>
-    <property category="archiving" name="executableEnabled.2" value="1"/>
-    <property category="archiving" name="executableEnabled.3" value="0"/>
-    <property category="archiving" name="executableEnabled.4" value="0"/>
-    <property category="archiving" name="executableEnabled.5" value="0"/>
-    <property category="archiving" name="executableFiles.1" value="MixConfigW.exe"/>
-    <property category="archiving" name="executableFiles.2" value="MixConfig.exe"/>
-    <property category="archiving" name="executableFiles.3" value="MixConfig2-linux"/>
-    <property category="archiving" name="executableFiles.4" value="MixConfig2-solaris"/>
-    <property category="archiving" name="executableFiles.5" value="MixConfig2-mac"/>
-    <property category="archiving" name="libraryStates.1" value="1:BouncyCastleLightForMixConfig"/>
-    <property category="archiving" name="libraryStates.2" value="1:Log4j"/>
-    <property category="archiving" name="libraryStates.3" value="3:XML-1.1"/>
-    <property category="archiving" name="obfuscator" value="RetroGuard for J2ME"/>
-    <property category="archiving" name="targetPath" value="MixConfigExe.jar"/>
-    <property category="archiving" name="usingRules" value="1"/>
-  </node>
-  <node name="Standard-Doclet" type="Javadoc">
-    <property category="nodeJavadoc" name="buildWithProject" value="0"/>
-    <property category="nodeJavadoc" name="directory" value="doc"/>
-    <property category="nodeJavadoc" name="displayAllOutput" value="0"/>
-  </node>
-  <file path="MixConfig.doxy"/>
-  <file path="src/MixConfigMessages_en.properties"/>
-  <file path="MixConfiguration.dtd"/>
-  <file path="MixConfiguration.xml"/>
-  <file path="TheApplet.html"/>
+<property category="debug.0" name="SmartStepRedefineClasses" value="0"/>
+<property category="debug.0" name="SmartStepSkipStaticInitializers" value="0"/>
+<property category="debug.0" name="SmartStepSkipSynthetics" value="0"/>
+<property category="debug.1" name="SmartStepRedefineClasses" value="0"/>
+<property category="debug.1" name="SmartStepSkipStaticInitializers" value="0"/>
+<property category="debug.1" name="SmartStepSkipSynthetics" value="0"/>
+<property category="debug.2" name="SmartStepRedefineClasses" value="0"/>
+<property category="debug.2" name="SmartStepSkipStaticInitializers" value="0"/>
+<property category="debug.2" name="SmartStepSkipSynthetics" value="0"/>
+<property category="debug.3" name="SmartStepRedefineClasses" value="0"/>
+<property category="debug.3" name="SmartStepSkipStaticInitializers" value="0"/>
+<property category="debug.3" name="SmartStepSkipSynthetics" value="0"/>
+<property category="debug.4" name="SmartStepRedefineClasses" value="0"/>
+<property category="debug.4" name="SmartStepSkipStaticInitializers" value="0"/>
+<property category="debug.4" name="SmartStepSkipSynthetics" value="0"/>
+<property category="generalFormatting" name="blockIndent" value="4"/>
+<property category="generalFormatting" name="tabSize" value="4"/>
+<property category="generalFormatting" name="useTabChar" value="1"/>
+<property category="generalFormatting2" name="blockIndent" value="4"/>
+<property category="generalFormatting2" name="overrideBasicFormatting" value="1"/>
+<property category="generalFormatting2" name="tabSize" value="4"/>
+<property category="generalFormatting2" name="useTabChar" value="1"/>
+<property category="java.sapient" name="ACE" value="true"/>
+<property category="java.sapient" name="AFLV" value="true"/>
+<property category="java.sapient" name="AFP" value="true"/>
+<property category="java.sapient" name="ASMDCN" value="true"/>
+<property category="java.sapient" name="ASMO" value="true"/>
+<property category="java.sapient" name="BSMC" value="true"/>
+<property category="java.sapient" name="BTJC" value="false"/>
+<property category="java.sapient" name="CA" value="true"/>
+<property category="java.sapient" name="CEV" value="true"/>
+<property category="java.sapient" name="CFPV" value="true"/>
+<property category="java.sapient" name="CIUCFL" value="true"/>
+<property category="java.sapient" name="CQS" value="true"/>
+<property category="java.sapient" name="CSR" value="true"/>
+<property category="java.sapient" name="CVSBF" value="true"/>
+<property category="java.sapient" name="EIAV" value="false"/>
+<property category="java.sapient" name="EJB_CL" value="false"/>
+<property category="java.sapient" name="EJB_CONSOLE" value="false"/>
+<property category="java.sapient" name="EJB_ENTITY" value="false"/>
+<property category="java.sapient" name="EJB_FDESCR" value="false"/>
+<property category="java.sapient" name="EJB_FILES" value="false"/>
+<property category="java.sapient" name="EJB_HOME" value="false"/>
+<property category="java.sapient" name="EJB_IO" value="false"/>
+<property category="java.sapient" name="EJB_JDBC" value="false"/>
+<property category="java.sapient" name="EJB_MESSAGE" value="false"/>
+<property category="java.sapient" name="EJB_NAMES" value="false"/>
+<property category="java.sapient" name="EJB_NATIVE" value="false"/>
+<property category="java.sapient" name="EJB_OBJECT" value="false"/>
+<property category="java.sapient" name="EJB_REFL" value="false"/>
+<property category="java.sapient" name="EJB_SEC" value="false"/>
+<property category="java.sapient" name="EJB_SECOBJ" value="false"/>
+<property category="java.sapient" name="EJB_SESSION" value="false"/>
+<property category="java.sapient" name="EJB_SFACT" value="false"/>
+<property category="java.sapient" name="EJB_SOCKET" value="false"/>
+<property category="java.sapient" name="EJB_SUBST" value="false"/>
+<property category="java.sapient" name="EJB_THREADS" value="false"/>
+<property category="java.sapient" name="EOBA" value="true"/>
+<property category="java.sapient" name="EVC" value="true"/>
+<property category="java.sapient" name="HIF" value="true"/>
+<property category="java.sapient" name="HISM" value="true"/>
+<property category="java.sapient" name="HN" value="true"/>
+<property category="java.sapient" name="ICSBF" value="false"/>
+<property category="java.sapient" name="IFM" value="true"/>
+<property category="java.sapient" name="ILC" value="false"/>
+<property category="java.sapient" name="IMCM" value="true"/>
+<property category="java.sapient" name="IMMD" value="true"/>
+<property category="java.sapient" name="LF" value="true"/>
+<property category="java.sapient" name="LMC" value="true"/>
+<property category="java.sapient" name="LNU" value="true"/>
+<property category="java.sapient" name="MCP" value="true"/>
+<property category="java.sapient" name="MCS" value="true"/>
+<property category="java.sapient" name="MLOWP" value="true"/>
+<property category="java.sapient" name="MNU" value="true"/>
+<property category="java.sapient" name="MSOL" value="true"/>
+<property category="java.sapient" name="MVDSN" value="true"/>
+<property category="java.sapient" name="NC" value="true"/>
+<property category="java.sapient" name="NCLS" value="true"/>
+<property category="java.sapient" name="NFSF" value="false"/>
+<property category="java.sapient" name="NLC" value="false"/>
+<property category="java.sapient" name="NOIS" value="false"/>
+<property category="java.sapient" name="ODCM" value="false"/>
+<property category="java.sapient" name="OHCE" value="true"/>
+<property category="java.sapient" name="OIM" value="true"/>
+<property category="java.sapient" name="ONAMAM" value="true"/>
+<property category="java.sapient" name="ONE" value="true"/>
+<property category="java.sapient" name="OPM" value="true"/>
+<property category="java.sapient" name="OSNBU" value="true"/>
+<property category="java.sapient" name="OWS" value="false"/>
+<property category="java.sapient" name="PCO" value="true"/>
+<property category="java.sapient" name="PDBB" value="false"/>
+<property category="java.sapient" name="PFC" value="false"/>
+<property category="java.sapient" name="PIFS" value="true"/>
+<property category="java.sapient" name="PJDC" value="false"/>
+<property category="java.sapient" name="PMSNT" value="false"/>
+<property category="java.sapient" name="PN" value="false"/>
+<property category="java.sapient" name="PPA" value="true"/>
+<property category="java.sapient" name="PPCF" value="true"/>
+<property category="java.sapient" name="PSIB" value="true"/>
+<property category="java.sapient" name="RIP" value="true"/>
+<property category="java.sapient" name="SBC" value="true"/>
+<property category="java.sapient" name="SEB" value="true"/>
+<property category="java.sapient" name="SL" value="false"/>
+<property category="java.sapient" name="SSSIDC" value="true"/>
+<property category="java.sapient" name="SU" value="true"/>
+<property category="java.sapient" name="TMSSC" value="true"/>
+<property category="java.sapient" name="UAAO" value="true"/>
+<property category="java.sapient" name="UC" value="true"/>
+<property category="java.sapient" name="UCVN" value="true"/>
+<property category="java.sapient" name="UE" value="true"/>
+<property category="java.sapient" name="UL" value="true"/>
+<property category="java.sapient" name="ULVFP" value="true"/>
+<property category="java.sapient" name="UMM" value="true"/>
+<property category="java.sapient" name="URSP" value="true"/>
+<property category="javaFormatting" name="EventMatch" value="0"/>
+<property category="javaFormatting" name="alwaysClasses" value="1"/>
+<property category="javaFormatting" name="classBraceNextLine" value="1"/>
+<property category="javaFormatting" name="extendsOnNewLine" value="0"/>
+<property category="javaFormatting" name="implementsOnNewLine" value="0"/>
+<property category="javaFormatting" name="methodBraceNextLine" value="1"/>
+<property category="javaFormatting" name="otherBraceNextLine" value="1"/>
+<property category="javaFormatting" name="packagePrefixGroups" value="java;javax;BLANK_LINE;java.awt;javax.swing;BLANK_LINE;org;(*)"/>
+<property category="javaFormatting" name="wrapAtColumn" value="110"/>
+<property category="javadoc" name="custom.tags.1" value="todo;a;To Do:"/>
+<property category="optimize.0" name="OptimizableType" value="intuitive.ide.borland.jb10.ProfilerBootstrap"/>
+<property category="optimize.0" name="oicc.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
+<property category="optimize.0" name="oipr.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
+<property category="optimize.3" name="OptimizableType" value="intuitive.ide.borland.jb10.ProfilerBootstrap"/>
+<property category="optimize.3" name="oicc.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
+<property category="optimize.3" name="oipr.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
+<property category="optimize.4" name="OptimizableType" value="intuitive.ide.borland.jb10.ProfilerBootstrap"/>
+<property category="optimize.4" name="oicc.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
+<property category="optimize.4" name="oipr.FilterFile" value="/home/rolf/Coding/AN.ON/MixConfig/MixConfig.oif"/>
+<property category="personality" name="personality" value=""/>
+<property category="runtime" name="ConfigurationCount" value="5"/>
+<property category="runtime.0" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+<property category="runtime.0" name="ConfigurationName" value="MixConfig"/>
+<property category="runtime.0" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
+<property category="runtime.0" name="applet.appletviewer" value="1"/>
+<property category="runtime.0" name="applet.class" value="mixconfig.TheApplet"/>
+<property category="runtime.0" name="applet.html" value="src/TheApplet.html"/>
+<property category="runtime.0" name="application.class" value="mixconfig.MixConfig"/>
+<property category="runtime.0" name="application.parameters" value="--loglevel Info --logdetail 3"/>
+<property category="runtime.0" name="jsprunner.launchuri" value="/"/>
+<property category="runtime.0" name="test.harness" value="junit.textui.TestRunner"/>
+<property category="runtime.1" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+<property category="runtime.1" name="ConfigurationName" value="MixConfig (Debug-Logging)"/>
+<property category="runtime.1" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
+<property category="runtime.1" name="applet.appletviewer" value="1"/>
+<property category="runtime.1" name="applet.class" value="mixconfig.TheApplet"/>
+<property category="runtime.1" name="applet.html" value="src/TheApplet.html"/>
+<property category="runtime.1" name="application.class" value="mixconfig.MixConfig"/>
+<property category="runtime.1" name="application.parameters" value="--loglevel Debug --logdetail 4"/>
+<property category="runtime.1" name="jsprunner.launchuri" value="/"/>
+<property category="runtime.1" name="test.harness" value="junit.textui.TestRunner"/>
+<property category="runtime.2" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+<property category="runtime.2" name="ConfigurationName" value="MixConfig (Info-Logging)"/>
+<property category="runtime.2" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
+<property category="runtime.2" name="applet.appletviewer" value="1"/>
+<property category="runtime.2" name="applet.class" value="mixconfig.TheApplet"/>
+<property category="runtime.2" name="applet.html" value="src/TheApplet.html"/>
+<property category="runtime.2" name="application.class" value="mixconfig.MixConfig"/>
+<property category="runtime.2" name="application.parameters" value="--loglevel Info --logdetail 4"/>
+<property category="runtime.2" name="jsprunner.launchuri" value="/"/>
+<property category="runtime.2" name="test.harness" value="junit.textui.TestRunner"/>
+<property category="runtime.3" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+<property category="runtime.3" name="ConfigurationName" value="MixConfig (Generate MixOnCD configuration)"/>
+<property category="runtime.3" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
+<property category="runtime.3" name="applet.appletviewer" value="1"/>
+<property category="runtime.3" name="applet.class" value="mixconfig.TheApplet"/>
+<property category="runtime.3" name="applet.html" value="src/TheApplet.html"/>
+<property category="runtime.3" name="application.class" value="mixconfig.MixConfig"/>
+<property category="runtime.3" name="application.parameters" value="--createConf"/>
+<property category="runtime.3" name="jsprunner.launchuri" value="/"/>
+<property category="runtime.3" name="test.harness" value="junit.textui.TestRunner"/>
+<property category="runtime.4" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+<property category="runtime.4" name="ConfigurationName" value="MixConfig (Generate MixOnCD configuration, logged)"/>
+<property category="runtime.4" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
+<property category="runtime.4" name="applet.appletviewer" value="1"/>
+<property category="runtime.4" name="applet.class" value="mixconfig.TheApplet"/>
+<property category="runtime.4" name="applet.html" value="src/TheApplet.html"/>
+<property category="runtime.4" name="application.class" value="mixconfig.MixConfig"/>
+<property category="runtime.4" name="application.parameters" value="--loglevel Debug --logdetail 4 --createConf"/>
+<property category="runtime.4" name="jsprunner.launchuri" value="/"/>
+<property category="runtime.4" name="test.harness" value="junit.textui.TestRunner"/>
+<property category="runtime.5" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+<property category="runtime.5" name="ConfigurationName" value="Applet"/>
+<property category="runtime.5" name="RunnableType" value="com.borland.jbuilder.runtime.AppletRunner"/>
+<property category="runtime.5" name="applet.class" value="mixconfig.MixConfig"/>
+<property category="serverservices" name="disabled.services" value=""/>
+<property category="sys" name="AuthorLabel" value="@author"/>
+<property category="sys" name="Autorefresh" value="1"/>
+<property category="sys" name="BackupPath" value="bak"/>
+<property category="sys" name="CheckStable" value="1"/>
+<property category="sys" name="Company" value=""/>
+<property category="sys" name="CompanyLabel" value="Organisation:"/>
+<property category="sys" name="Copyright" value="Copyright (c) 2002"/>
+<property category="sys" name="CopyrightLabel" value="Copyright:"/>
+<property category="sys" name="DefaultPath" value="src"/>
+<property category="sys" name="Description" value=""/>
+<property category="sys" name="DescriptionLabel" value="Beschreibung:"/>
+<property category="sys" name="DocPath" value="doc"/>
+<property category="sys" name="Encoding" value="UTF8"/>
+<property category="sys" name="ExcludeClassEnabled" value="0"/>
+<property category="sys" name="IncludeTestPath" value="1"/>
+<property category="sys" name="JDK" value="java version 1.5.0_06-b05"/>
+<property category="sys" name="LastTag" value="36"/>
+<property category="sys" name="Libraries" value="Swing;BouncyCastleLightForMixConfig;JUnit;junitx;Log4j;XML-1.1"/>
+<property category="sys" name="MakeStable" value="0"/>
+<property category="sys" name="OutPath" value="classes"/>
+<property category="sys" name="SourcePath" value="src;test"/>
+<property category="sys" name="TestPath" value="test"/>
+<property category="sys" name="Title" value=""/>
+<property category="sys" name="TitleLabel" value="\u00dcberschrift:"/>
+<property category="sys" name="Version" value="1.0"/>
+<property category="sys" name="VersionLabel" value="@version"/>
+<property category="sys" name="WorkingDirectory" value="."/>
+<property category="sys" name="enable.auto.packages" value="false"/>
+<property category="team" name="ignorePath.0" value="ant-build-classes"/>
+<property category="team" name="ignorePath.1" value="bak"/>
+<property category="team" name="ignorePath.10" value="images/mixconfig/mapquest-logo.gif"/>
+<property category="team" name="ignorePath.11" value="images/mixconfig/mixconfig.wizard.WizardLayout_center.gif"/>
+<property category="team" name="ignorePath.12" value="images/mixconfig/mixconfig.wizard.WizardLayout_left.gif"/>
+<property category="team" name="ignorePath.13" value="images/mixconfig/mixconfig.wizard.WizardLayout_right.gif"/>
+<property category="team" name="ignorePath.14" value="images/mixconfig/uparrow.gif"/>
+<property category="team" name="ignorePath.15" value="images/mixconfig"/>
+<property category="team" name="ignorePath.2" value="classes"/>
+<property category="team" name="ignorePath.3" value="doc"/>
+<property category="team" name="ignorePath.4" value="doc_doxy"/>
+<property category="team" name="ignorePath.5" value="images/mixconfig/anonLogo.jpg"/>
+<property category="team" name="ignorePath.6" value="images/mixconfig/anonLogo_start.jpg"/>
+<property category="team" name="ignorePath.7" value="images/mixconfig/busy.gif"/>
+<property category="team" name="ignorePath.8" value="images/mixconfig/downarrow.gif"/>
+<property category="team" name="ignorePath.9" value="images/mixconfig/icon.gif"/>
+<node name="help" type="NavigationDirectory">
+<property category="directorynode" name="showSubdirectories" value="1"/>
+<property category="directorynode" name="url" value="help"/>
+</node>
+<node name="images" type="NavigationDirectory">
+<property category="directorynode" name="showSubdirectories" value="1"/>
+<property category="directorynode" name="url" value="images"/>
+</node>
+<node name="Weitere Einstellungen" type="Folder">
+<property category="sys" name="SettingsFolder" value="1"/>
+<file path="jbuilder-build.xml">
+<property category="ant" name="isantfile" value="1"/>
+</file>
+</node>
+<node name="anon" type="Package"/>
+<node name="anon.crypto" type="Package"/>
+<node name="gui" type="Package"/>
+<node name="junitx.framework.extension" type="Package"/>
+<node name="logging" type="Package"/>
+<node name="mixconfig" type="Package"/>
+<node name="test" type="Package"/>
+<node name="Ant Build File" type="Ant">
+<property category="archiving" name="buildWithProject" value="0"/>
+<property category="export" name="target" value="jbuilder-build.xml"/>
+<property category="generate" name="destdir" value="ant-build-classes"/>
+</node>
+<node name="MixConfig.jar" type="Archive">
+<property category="archiving" name="archiverClass" value="com.borland.jbuilder.wizard.archive.ApplicationArchiver"/>
+<property category="archiving" name="buildWithProject" value="0"/>
+<property category="archiving" name="contentRules.1" value="I:**/*.*"/>
+<property category="archiving" name="contentRules.10" value="F:images/arrow90.gif;images/arrow90.gif"/>
+<property category="archiving" name="contentRules.100" value="F:help/mixsetupBuildCompile_en.html;help/mixsetupBuildCompile_en.html"/>
+<property category="archiving" name="contentRules.101" value="F:help/mixsetupBuildGetLibraries_en.html;help/mixsetupBuildGetLibraries_en.html"/>
+<property category="archiving" name="contentRules.102" value="F:help/mixsetupBuildGetSources_en.html;help/mixsetupBuildGetSources_en.html"/>
+<property category="archiving" name="contentRules.103" value="F:help/mixsetupDebian_en.html;help/mixsetupDebian_en.html"/>
+<property category="archiving" name="contentRules.104" value="F:help/mixsetupLiveCD_booting_en.html;help/mixsetupLiveCD_booting_en.html"/>
+<property category="archiving" name="contentRules.105" value="F:help/mixsetupLiveCD_deployment_en.html;help/mixsetupLiveCD_deployment_en.html"/>
+<property category="archiving" name="contentRules.106" value="F:help/mixsetupLiveCD_en.html;help/mixsetupLiveCD_en.html"/>
+<property category="archiving" name="contentRules.107" value="F:help/mixsetupLiveCD_usage_en.html;help/mixsetupLiveCD_usage_en.html"/>
+<property category="archiving" name="contentRules.108" value="F:help/mixsetupOtherLinux_en.html;help/mixsetupOtherLinux_en.html"/>
+<property category="archiving" name="contentRules.109" value="F:help/mixsetupPrebuilt_en.html;help/mixsetupPrebuilt_en.html"/>
+<property category="archiving" name="contentRules.11" value="F:images/arrow.gif;images/arrow.gif"/>
+<property category="archiving" name="contentRules.110" value="F:help/mixsetupSuse_en.html;help/mixsetupSuse_en.html"/>
+<property category="archiving" name="contentRules.111" value="F:help/operatorChooseServer_en.html;help/operatorChooseServer_en.html"/>
+<property category="archiving" name="contentRules.112" value="F:help/operatorCommitment20030924_de.html;help/operatorCommitment20030924_de.html"/>
+<property category="archiving" name="contentRules.113" value="F:help/operatorCommitment20030924_en.html;help/operatorCommitment20030924_en.html"/>
+<property category="archiving" name="contentRules.114" value="F:help/operatorCommitment_de.html;help/operatorCommitment_de.html"/>
+<property category="archiving" name="contentRules.115" value="F:help/operatorCommitment_en.html;help/operatorCommitment_en.html"/>
+<property category="archiving" name="contentRules.116" value="F:help/operatorIntroduction_en.html;help/operatorIntroduction_en.html"/>
+<property category="archiving" name="contentRules.117" value="F:help/operatorLawEnforcement_en.html;help/operatorLawEnforcement_en.html"/>
+<property category="archiving" name="contentRules.118" value="F:help/operatorPutMixInCascade_en.html;help/operatorPutMixInCascade_en.html"/>
+<property category="archiving" name="contentRules.119" value="F:help/operatorTrust_en.html;help/operatorTrust_en.html"/>
+<property category="archiving" name="contentRules.12" value="F:images/arrowDown.gif;images/arrowDown.gif"/>
+<property category="archiving" name="contentRules.120" value="F:help/view_en.html;help/view_en.html"/>
+<property category="archiving" name="contentRules.121" value="F:help/cmdjap_de.html;help/cmdjap_de.html"/>
+<property category="archiving" name="contentRules.122" value="F:help/credits_de.html;help/credits_de.html"/>
+<property category="archiving" name="contentRules.123" value="F:help/mixconfig.MixConfig_en.html;help/mixconfig.MixConfig_en.html"/>
+<property category="archiving" name="contentRules.13" value="F:images/arrowUp.gif;images/arrowUp.gif"/>
+<property category="archiving" name="contentRules.14" value="F:images/busy.gif;images/busy.gif"/>
+<property category="archiving" name="contentRules.15" value="F:images/cdisabled.gif;images/cdisabled.gif"/>
+<property category="archiving" name="contentRules.16" value="F:images/cenabled.gif;images/cenabled.gif"/>
+<property category="archiving" name="contentRules.17" value="F:images/cert.gif;images/cert.gif"/>
+<property category="archiving" name="contentRules.18" value="F:images/certdisabled.gif;images/certdisabled.gif"/>
+<property category="archiving" name="contentRules.19" value="F:images/certinactive.gif;images/certinactive.gif"/>
+<property category="archiving" name="contentRules.2" value="F:certificates/acceptedCAs/bi.cer;certificates/acceptedCAs/bi.cer"/>
+<property category="archiving" name="contentRules.20" value="F:images/certinvalid.gif;images/certinvalid.gif"/>
+<property category="archiving" name="contentRules.21" value="F:images/certinvalidinactive.gif;images/certinvalidinactive.gif"/>
+<property category="archiving" name="contentRules.22" value="F:images/copyicon.gif;images/copyicon.gif"/>
+<property category="archiving" name="contentRules.23" value="F:images/copyintoicon.gif;images/copyintoicon.gif"/>
+<property category="archiving" name="contentRules.24" value="F:images/deleteicon.gif;images/deleteicon.gif"/>
+<property category="archiving" name="contentRules.25" value="F:images/enlarge.gif;images/enlarge.gif"/>
+<property category="archiving" name="contentRules.26" value="F:images/error.gif;images/error.gif"/>
+<property category="archiving" name="contentRules.27" value="F:images/exiticon.gif;images/exiticon.gif"/>
+<property category="archiving" name="contentRules.28" value="F:images/green.gif;images/green.gif"/>
+<property category="archiving" name="contentRules.29" value="F:images/gui.JAPHelp_home.gif;images/gui.JAPHelp_home.gif"/>
+<property category="archiving" name="contentRules.3" value="F:certificates/acceptedCAs/japroot.cer;certificates/acceptedCAs/japroot.cer"/>
+<property category="archiving" name="contentRules.30" value="F:images/gui.JAPHelp_next.gif;images/gui.JAPHelp_next.gif"/>
+<property category="archiving" name="contentRules.31" value="F:images/gui.JAPHelp_previous.gif;images/gui.JAPHelp_previous.gif"/>
+<property category="archiving" name="contentRules.32" value="F:images/haken.gif;images/haken.gif"/>
+<property category="archiving" name="contentRules.33" value="F:images/host16.gif;images/host16.gif"/>
+<property category="archiving" name="contentRules.34" value="F:images/icoc.gif;images/icoc.gif"/>
+<property category="archiving" name="contentRules.35" value="F:images/icom.gif;images/icom.gif"/>
+<property category="archiving" name="contentRules.36" value="F:images/icon16.gif;images/icon16.gif"/>
+<property category="archiving" name="contentRules.37" value="F:images/icon32.gif;images/icon32.gif"/>
+<property category="archiving" name="contentRules.38" value="F:images/icon.gif;images/icon.gif"/>
+<property category="archiving" name="contentRules.39" value="F:images/iconify.gif;images/iconify.gif"/>
+<property category="archiving" name="contentRules.4" value="F:src/MixConfigMessages_de.properties;MixConfigMessages_de.properties"/>
+<property category="archiving" name="contentRules.40" value="F:images/info.gif;images/info.gif"/>
+<property category="archiving" name="contentRules.41" value="F:images/information.gif;images/information.gif"/>
+<property category="archiving" name="contentRules.42" value="F:images/infoservicefrominternet.gif;images/infoservicefrominternet.gif"/>
+<property category="archiving" name="contentRules.43" value="F:images/infoservicemanuell.gif;images/infoservicemanuell.gif"/>
+<property category="archiving" name="contentRules.44" value="F:images/install.gif;images/install.gif"/>
+<property category="archiving" name="contentRules.45" value="F:images/jap.gif;images/jap.gif"/>
+<property category="archiving" name="contentRules.46" value="F:images/japeye.gif;images/japeye.gif"/>
+<property category="archiving" name="contentRules.47" value="F:images/japi.gif;images/japi.gif"/>
+<property category="archiving" name="contentRules.48" value="F:images/japtxt.gif;images/japtxt.gif"/>
+<property category="archiving" name="contentRules.49" value="F:images/meter1.gif;images/meter1.gif"/>
+<property category="archiving" name="contentRules.5" value="F:src/MixConfigMessages_en.properties;MixConfigMessages_en.properties"/>
+<property category="archiving" name="contentRules.50" value="F:images/meter2.gif;images/meter2.gif"/>
+<property category="archiving" name="contentRules.51" value="F:images/meter3.gif;images/meter3.gif"/>
+<property category="archiving" name="contentRules.52" value="F:images/meter4.gif;images/meter4.gif"/>
+<property category="archiving" name="contentRules.53" value="F:images/meter5.gif;images/meter5.gif"/>
+<property category="archiving" name="contentRules.54" value="F:images/meter6.gif;images/meter6.gif"/>
+<property category="archiving" name="contentRules.55" value="F:images/meterD.gif;images/meterD.gif"/>
+<property category="archiving" name="contentRules.56" value="F:images/meterN.gif;images/meterN.gif"/>
+<property category="archiving" name="contentRules.57" value="F:images/meterNnew.gif;images/meterNnew.gif"/>
+<property category="archiving" name="contentRules.58" value="F:images/mixconfig.CascadePanel_downarrow.gif;images/mixconfig.CascadePanel_downarrow.gif"/>
+<property category="archiving" name="contentRules.59" value="F:images/mixconfig.CascadePanel_uparrow.gif;images/mixconfig.CascadePanel_uparrow.gif"/>
+<property category="archiving" name="contentRules.6" value="F:images/accountBroken.gif;images/accountBroken.gif"/>
+<property category="archiving" name="contentRules.60" value="F:images/mixconfig.MapBox_mapquest-logo.gif;images/mixconfig.MapBox_mapquest-logo.gif"/>
+<property category="archiving" name="contentRules.61" value="F:images/mixconfig.MixConfig_icon.gif;images/mixconfig.MixConfig_icon.gif"/>
+<property category="archiving" name="contentRules.62" value="F:images/mixconfig.wizard.WizardLayout_center.gif;images/mixconfig.wizard.WizardLayout_center.gif"/>
+<property category="archiving" name="contentRules.63" value="F:images/mixconfig.wizard.WizardLayout_left.gif;images/mixconfig.wizard.WizardLayout_left.gif"/>
+<property category="archiving" name="contentRules.64" value="F:images/mixconfig.wizard.WizardLayout_right.gif;images/mixconfig.wizard.WizardLayout_right.gif"/>
+<property category="archiving" name="contentRules.65" value="F:images/north.gif;images/north.gif"/>
+<property category="archiving" name="contentRules.66" value="F:images/red.gif;images/red.gif"/>
+<property category="archiving" name="contentRules.67" value="F:images/reload.gif;images/reload.gif"/>
+<property category="archiving" name="contentRules.68" value="F:images/reloaddisabled_anim.gif;images/reloaddisabled_anim.gif"/>
+<property category="archiving" name="contentRules.69" value="F:images/reloadrollover.gif;images/reloadrollover.gif"/>
+<property category="archiving" name="contentRules.7" value="F:images/accountDisabled.gif;images/accountDisabled.gif"/>
+<property category="archiving" name="contentRules.70" value="F:images/saveicon.gif;images/saveicon.gif"/>
+<property category="archiving" name="contentRules.71" value="F:images/server16.gif;images/server16.gif"/>
+<property category="archiving" name="contentRules.72" value="F:images/server_blau.gif;images/server_blau.gif"/>
+<property category="archiving" name="contentRules.73" value="F:images/server_rot.gif;images/server_rot.gif"/>
+<property category="archiving" name="contentRules.74" value="F:images/server.gif;images/server.gif"/>
+<property category="archiving" name="contentRules.75" value="F:images/serverfrominternet.gif;images/serverfrominternet.gif"/>
+<property category="archiving" name="contentRules.76" value="F:images/servermanuell.gif;images/servermanuell.gif"/>
+<property category="archiving" name="contentRules.77" value="F:images/splash.gif;images/splash.gif"/>
+<property category="archiving" name="contentRules.78" value="F:images/warning.gif;images/warning.gif"/>
+<property category="archiving" name="contentRules.79" value="F:images/west.gif;images/west.gif"/>
+<property category="archiving" name="contentRules.8" value="F:images/accountOk.gif;images/accountOk.gif"/>
+<property category="archiving" name="contentRules.80" value="F:help/xhelpfrms.css;help/xhelpfrms.css"/>
+<property category="archiving" name="contentRules.81" value="F:help/adminscripts/firewall;help/adminscripts/firewall"/>
+<property category="archiving" name="contentRules.82" value="F:help/adminscripts/rc.status.anon;help/adminscripts/rc.status.anon"/>
+<property category="archiving" name="contentRules.83" value="F:help/adminscripts/runANONServer;help/adminscripts/runANONServer"/>
+<property category="archiving" name="contentRules.84" value="F:help/adminscripts/InfoService/runInfoService;help/adminscripts/InfoService/runInfoService"/>
+<property category="archiving" name="contentRules.85" value="F:help/adminscripts/Mixproxy/runMixproxy;help/adminscripts/Mixproxy/runMixproxy"/>
+<property category="archiving" name="contentRules.86" value="F:help/adminscripts/Mixproxy/squid.conf;help/adminscripts/Mixproxy/squid.conf"/>
+<property category="archiving" name="contentRules.87" value="F:help/adminscripts/Mixproxy/sysctl.conf;help/adminscripts/Mixproxy/sysctl.conf"/>
+<property category="archiving" name="contentRules.88" value="F:help/adminscripts/manual_en.html;help/adminscripts/manual_en.html"/>
+<property category="archiving" name="contentRules.89" value="F:help/cmdjap_en.html;help/cmdjap_en.html"/>
+<property category="archiving" name="contentRules.9" value="F:images/arrow46.gif;images/arrow46.gif"/>
+<property category="archiving" name="contentRules.90" value="F:help/credits_en.html;help/credits_en.html"/>
+<property category="archiving" name="contentRules.91" value="F:help/file_en.html;help/file_en.html"/>
+<property category="archiving" name="contentRules.92" value="F:help/index_en.html;help/index_en.html"/>
+<property category="archiving" name="contentRules.93" value="F:help/mixconfig.CertificationTool_en.html;help/mixconfig.CertificationTool_en.html"/>
+<property category="archiving" name="contentRules.94" value="F:help/mixconfig.GeneralPanel_en.html;help/mixconfig.GeneralPanel_en.html"/>
+<property category="archiving" name="contentRules.95" value="F:help/mixconfig.MixOnCDPanel_en.html;help/mixconfig.MixOnCDPanel_en.html"/>
+<property category="archiving" name="contentRules.96" value="F:help/mixconfig.OtherMixPanel_en.html;help/mixconfig.OtherMixPanel_en.html"/>
+<property category="archiving" name="contentRules.97" value="F:help/mixconfig.OwnCertificatesPanel_en.html;help/mixconfig.OwnCertificatesPanel_en.html"/>
+<property category="archiving" name="contentRules.98" value="F:help/mixconfig.StartScreenPanel_en.html;help/mixconfig.StartScreenPanel_en.html"/>
+<property category="archiving" name="contentRules.99" value="F:help/mixsetupBuild_en.html;help/mixsetupBuild_en.html"/>
+<property category="archiving" name="libraryStates.1" value="1:BouncyCastleLightForMixConfig"/>
+<property category="archiving" name="libraryStates.2" value="1:Log4j"/>
+<property category="archiving" name="libraryStates.3" value="1:XML-1.1"/>
+<property category="archiving" name="manifestConfigFile" value="0"/>
+<property category="archiving" name="manifestMainClass" value="mixconfig.MixConfig"/>
+<property category="archiving" name="targetCompressed" value="1"/>
+<property category="archiving" name="targetPath" value="MixConfig.jar"/>
+<property category="archiving" name="usingRules" value="1"/>
+</node>
+<node name="Standard-Doclet" type="Javadoc">
+<property category="nodeJavadoc" name="buildWithProject" value="0"/>
+<property category="nodeJavadoc" name="directory" value="doc"/>
+<property category="nodeJavadoc" name="displayAllOutput" value="0"/>
+</node>
+<file path="MixConfig.doxy"/>
+<file path="src/MixConfigMessages_en.properties"/>
+<file path="MixConfiguration.dtd"/>
+<file path="MixConfiguration.xml"/>
+<file path="TheApplet.html"/>
 </project>
