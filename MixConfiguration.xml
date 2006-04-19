@@ -94,6 +94,12 @@
 					<Host> </Host>
 					<Port> </Port>
 					<File> </File>
+					<VisibleAddresses> <!-- Describes the visible addresses from the 'outside world' -->
+					     <VisibleAddress>
+					        <Host> <!-- Host or IP -->
+					       </Host>
+					      </VisibleAddress>
+					 </VisibleAddresses>
 			</Proxy>
 
 	</Proxies>
