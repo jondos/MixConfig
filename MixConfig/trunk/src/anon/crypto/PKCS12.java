@@ -634,16 +634,6 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 	}
 
 	/**
-	 *
-	 * @return IMyPrivateKey
-	 * @deprecated use {@link getPrivateKey()} instead; scheduled for removal on 04/12/13
-	 */
-	public IMyPrivateKey getPrivKey()
-	{
-		return m_keyPair.getPrivate();
-	}
-
-	/**
 	 * Returns the private key of this certificate.
 	 * @return the private key of this certificate
 	 */
@@ -668,16 +658,6 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 	public AsymmetricCryptoKeyPair getKeyPair()
 	{
 		return m_keyPair;
-	}
-
-	/**
-	 * @deprecated use {@link getX509Certificate()} instead;
-	 *             scheduled for removal on 04/12/13
-	 * @return the X509 certificate corresponding to this PKCS12 certificate
-	 */
-	public X509CertificateStructure getX509cert()
-	{
-		return m_x509certificate;
 	}
 
 	/**
