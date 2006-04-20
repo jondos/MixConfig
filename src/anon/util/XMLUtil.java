@@ -56,6 +56,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
+
+import anon.util.Util;
 /**
  * This class provides an easy interface to XML methods.
  */
@@ -64,6 +66,7 @@ public class XMLUtil
 	private final static String DEFAULT_FORMAT_SPACE = "    ";
 	private final static String XML_STR_BOOLEAN_TRUE = "true";
 	private final static String XML_STR_BOOLEAN_FALSE = "false";
+	private static final String PACKAGE_TRANSFORMER = "javax.xml.transform.";
 	private static DocumentBuilder ms_DocumentBuilder;
 
 	/**
@@ -74,7 +77,6 @@ public class XMLUtil
 	public static void assertNotNull(Node a_node)
 		throws XMLParseException
 	{
-
 		if (a_node == null)
 		{
 			throw new XMLParseException(XMLParseException.NODE_NULL_TAG);
@@ -205,6 +207,29 @@ public class XMLUtil
 		return i;
 	}
 
+	/**
+	 * Returns the value of the specified XML node as double.
+	 * @param a_node an XML node
+	 * @param a_defaultValue the default value
+	 * @return the value of the specified node as double if the element`s value is of
+	 *         type double; otherwise, the default value is returned
+	 */
+	public static double parseValue(Node a_node, double a_defaultValue)
+	{
+		double i = a_defaultValue;
+		String s = parseValue(a_node, null);
+		if (s != null)
+		{
+			try
+			{
+				i = Util.parseFloat(s);
+			}
+			catch (Exception e)
+			{
+			}
+		}
+		return i;
+	}
 	/**
 	 *
 	 * @param n Node
@@ -515,24 +540,14 @@ public class XMLUtil
 	}
 
 	/**
-	 * Inserts a String value into an XML node.
-	 * @param a_node an XML node
-	 * @param a_value a String
-	 * @deprecated use setValue(Node, String); this method has been declared deprecated as its name
-	 * contained an argument type; scheduled for removal on 04/12/3
-	 */
-	public static void setNodeValue(Node a_node, String a_value)
-	{
-		setValue(a_node, a_value);
-	}
-
-	/**
-	 * Inserts a String value into an XML node.
+	 * Inserts a String value into an XML node. If a_value==NULL nothing is done.
 	 * @param a_node an XML node
 	 * @param a_value a String
 	 */
 	public static void setValue(Node a_node, String a_value)
 	{
+		if(a_node==null||a_value==null)
+			return;
 		a_node.appendChild(a_node.getOwnerDocument().createTextNode(a_value));
 	}
 
@@ -543,7 +558,7 @@ public class XMLUtil
 	 */
 	public static void setValue(Node a_node, int a_value)
 	{
-		a_node.appendChild(a_node.getOwnerDocument().createTextNode(a_value + ""));
+		a_node.appendChild(a_node.getOwnerDocument().createTextNode(Integer.toString(a_value)));
 	}
 
 	/**
@@ -553,7 +568,7 @@ public class XMLUtil
 	 */
 	public static void setValue(Node a_node, long a_value)
 	{
-		a_node.appendChild(a_node.getOwnerDocument().createTextNode(a_value + ""));
+		a_node.appendChild(a_node.getOwnerDocument().createTextNode(Long.toString(a_value)));
 	}
 
 	/**
@@ -567,25 +582,16 @@ public class XMLUtil
 	}
 
 	/**
-	 * Inserts a boolean value into an XML node.
-	 * @param node an XML node
-	 * @param b a boolean value
-	 * @deprecated use setValue(Node, boolean); this method has been declared deprecated as its name
-	 * contained an argument type; scheduled for removal on 04/12/3
-	 */
-	public static void setNodeBoolean(Node node, boolean b)
-	{
-		setValue(node, b);
-	}
-
-	/**
-	 * Creates and sets an attribute with a String value to an XML element.
-	 * @param a_element an XML Element
-	 * @param a_attribute an attribute name
-	 * @param a_value a String value for the attribute
+	 * Creates and sets an attribute with a String value to an XML element. If a_attribute or a_value is NULL,
+	 *  than nothing is done!
+	 * @param a_element an XML Element (not NULL)
+	 * @param a_attribute an attribute name (not NULL)
+	 * @param a_value a String value for the attribute (not NULL)
 	 */
 	public static void setAttribute(Element a_element, String a_attribute, String a_value)
 	{
+		if(a_value==null||a_attribute==null||a_element==null)
+			return;
 		a_element.setAttribute(a_attribute, a_value);
 	}
 
@@ -608,7 +614,7 @@ public class XMLUtil
 	 */
 	public static void setAttribute(Element a_element, String a_attribute, int a_value)
 	{
-		setAttribute(a_element, a_attribute, a_value + "");
+		setAttribute(a_element, a_attribute, Integer.toString(a_value));
 	}
 
 	/**
@@ -881,10 +887,12 @@ public class XMLUtil
 				paramClasses[1] = int.class;
 				Method methodCreateWriteContext = classXmlDocument.getMethod("createWriteContext",
 					paramClasses);
+
 				Object params[] = new Object[2];
 				params[0] = w;
 				params[1] = new Integer(2);
 				Object context = methodCreateWriteContext.invoke(doc, params);
+
 				paramClasses = new Class[1];
 				paramClasses[0] = Class.forName("com.sun.xml.tree.XmlWriteContext");
 				Method methodWriteXml = node.getClass().getMethod("writeXml", paramClasses);
@@ -898,20 +906,32 @@ public class XMLUtil
 		catch (Throwable t1)
 		{
 		}
+
 		try
 		{ //For JAXP 1.1 (for Instance Apache Crimson/Xalan shipped with Java 1.4)
-			//This seams to be realy stupid and compliecated...
-			//But if the do a simple t.transform(), a NoClassDefError is thrown, if
+			//This seams to be realy stupid and complicated...
+			//But if we do a simple t.transform(), a NoClassDefError is thrown, if
 			//the new JAXP1.1 is not present, even if we NOT call saveXMLDocument, but
 			//calling any other method within JAPUtil.
 			//Dont no why --> maybe this has something to to with Just in Time compiling ?
-			Object t =
-				javax.xml.transform.TransformerFactory.newInstance().newTransformer();
-			javax.xml.transform.Result r = new javax.xml.transform.stream.StreamResult(out);
-			javax.xml.transform.Source s = new javax.xml.transform.dom.DOMSource(node);
 
-			//this is to simply invoke t.transform(s,r)
-			Class c = t.getClass();
+			Class transformerFactory = Class.forName(PACKAGE_TRANSFORMER + "TransformerFactory");
+			Object transformerFactoryInstance =
+				transformerFactory.getMethod("newInstance", null).invoke(transformerFactory, null);
+			Object transformer = transformerFactory.getMethod("newTransformer", null).invoke(
+						 transformerFactoryInstance, null);
+			//Object transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
+
+			Class result = Class.forName(PACKAGE_TRANSFORMER + "stream.StreamResult");
+			Object r = result.getConstructor(new Class[]{OutputStream.class}).newInstance(new Object[]{out});
+			//javax.xml.transform.Result r = new javax.xml.transform.stream.StreamResult(out);
+			Class source = Class.forName(PACKAGE_TRANSFORMER + "dom.DOMSource");
+			Object s = source.getConstructor(new Class[]{Node.class}).newInstance(new Object[]{node});
+			//javax.xml.transform.Source s = new javax.xml.transform.dom.DOMSource(node);
+
+
+			//this is to simply invoke transformer.transform(s,r)
+			Class c = transformer.getClass();
 			Method m = null;
 			Method[] ms = c.getMethods();
 			for (int i = 0; i < ms.length; i++)
@@ -929,7 +949,7 @@ public class XMLUtil
 			Object[] p = new Object[2];
 			p[0] = s;
 			p[1] = r;
-			m.invoke(t, p);
+			m.invoke(transformer, p);
 			return out.toString();
 		}
 		catch (Throwable t2)
@@ -1088,7 +1108,6 @@ public class XMLUtil
 		XMLUtil.formatHumanReadable(a_doc);
 		a_outputStream.write(XMLUtil.toString(a_doc).getBytes());
 		a_outputStream.flush();
-		removeComments(a_doc);
 	}
 
 	/**
@@ -1102,7 +1121,6 @@ public class XMLUtil
 		XMLUtil.formatHumanReadable(a_doc);
 		a_writer.write(toString(a_doc));
 		a_writer.flush();
-		removeComments(a_doc);
 	}
 
 	/**
