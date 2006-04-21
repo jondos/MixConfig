@@ -34,8 +34,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -55,15 +53,15 @@ import javax.swing.event.ChangeEvent;
 
 import anon.util.XMLParseException;
 import gui.ClipFrame;
-import gui.dialog.JAPDialog;
 import gui.JAPHelp;
 import gui.JAPHelpContext;
 import gui.JAPMessages;
+import gui.GUIUtils;
+import gui.dialog.JAPDialog;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import mixconfig.wizard.ConfigWizard;
-import gui.dialog.*;
 
 public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 {
@@ -380,7 +378,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 
 					try
 					{
-						Clipboard cb = getClipboard();
+						Clipboard cb = GUIUtils.getSystemClipboard();
 						cb.setContents(new StringSelection(xmlString),
 									   new ClipboardOwner()
 						{
@@ -412,7 +410,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			}
 			else if (evt.getActionCommand().equals("OpenClip"))
 			{
-				Clipboard cb = getClipboard();
+				Clipboard cb = GUIUtils.getSystemClipboard();
 				String xmlString;
 
 				Transferable data = cb.getContents(this);
@@ -569,36 +567,6 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			cp.setWizardVisible();
 		}
 
-	}
-
-	private Clipboard getClipboard()
-	{
-		Clipboard r_cb = null;
-		try
-		{
-			Method getSystemSelection = m_mainWin.getToolkit().getClass()
-				.getMethod("getSystemSelection", new Class[0]);
-			r_cb = (Clipboard) getSystemSelection.invoke(m_mainWin.getToolkit(), new Object[0]);
-		}
-		catch (NoSuchMethodException nsme)
-		{
-			// JDK < 1.4 does not support getSystemSelection
-		}
-		catch (IllegalAccessException iae)
-		{
-			// this should not happen
-		}
-		catch (InvocationTargetException ite)
-		{
-			// this should not happen
-		}
-
-		// alternate way of retrieving the clipboard
-		if (r_cb == null)
-		{
-			r_cb = m_mainWin.getToolkit().getSystemClipboard();
-		}
-		return r_cb;
 	}
 
 	protected void checkUnuseableMenuItem()
