@@ -42,6 +42,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -351,14 +352,16 @@ public class XMLUtil
 				if (a_node.getNodeType() == Node.ELEMENT_NODE)
 				{
 					a_node = a_node.getFirstChild();
+
 				}
-				if (a_node.getNodeType() == Node.TEXT_NODE)
+				if (a_node.getNodeType() == Node.TEXT_NODE ||
+					a_node.getNodeType() == Node.ENTITY_REFERENCE_NODE)
 				{
 					s = "";
 					while (a_node != null &&
 						   (a_node.getNodeType() == Node.ENTITY_REFERENCE_NODE ||
 							a_node.getNodeType() == Node.TEXT_NODE))
-					{ ///@todo parsing of Documents which contains quoted chars are wrong under JAXP 1.0
+					{ ///@todo parsing of Documents which contains quoted chars is wrong under JAXP 1.0
 						if (a_node.getNodeType() == Node.ENTITY_REFERENCE_NODE)
 						{
 							s += a_node.getFirstChild().getNodeValue();
@@ -764,121 +767,39 @@ public class XMLUtil
 	 */
 	public static byte[] toByteArray(Node a_inputNode)
 	{
-		return toString(a_inputNode).getBytes();
+		byte[] bytes;
+
+		try
+		{
+			bytes = toByteArrayOutputStream(a_inputNode).toByteArray();
+		}
+		catch (Exception a_e)
+		{
+			return null;
+		}
+
+		return bytes;
 	}
 
 	/**
 	 * Writes an XML-Node to a String. If the node is a Document then the <XML> header is included.
 	 * Since writing was not standardized until JAXP 1.1 different Methods are tried
-	 * @param node an XML Node
-	 * @return an XML Node in a String representation
+	 * @param a_node an XML Node
+	 * @return an XML Node in a String representation or null if no transformation
+	 * could be done
 	 */
-	public static String toString(Node node)
+	public static String toString(Node a_node)
 	{
-		ByteArrayOutputStream out = null;
+		String strXml;
 		try
 		{
-			out = new ByteArrayOutputStream();
+				strXml = toByteArrayOutputStream(a_node).toString("UTF8");
 		}
-		catch (Throwable t3)
+		catch (Exception a_e)
 		{
 			return null;
 		}
-		try //For JAXP 1.0.1 Reference Implementation (shipped with JAP)
-		{
-			Class c = Class.forName("com.sun.xml.tree.ParentNode");
-			if (c.isInstance(node))
-			{
-				Document doc = null;
-				if (node instanceof Document)
-				{
-					doc = (Document) node;
-				}
-				else
-				{
-					doc = node.getOwnerDocument();
-				}
-				Writer w = new OutputStreamWriter(out, "UTF8");
-				//What we do here is acutally:
-				//com.sun.xml.tree.XmlWriteContext context=
-				//						((com.sun.xml.tree.XmlDocument)doc).createWriteContext(w,2);
-				//((com.sun.xml.tree.ElementNode)node).writeXml(context);
-				//We do that this way to avoid the need of JAXP1.0 for compilation!
-				Class classXmlDocument = Class.forName("com.sun.xml.tree.XmlDocument");
-				Class[] paramClasses = new Class[2];
-				paramClasses[0] = Writer.class;
-				paramClasses[1] = int.class;
-				Method methodCreateWriteContext = classXmlDocument.getMethod("createWriteContext",
-					paramClasses);
-
-				Object params[] = new Object[2];
-				params[0] = w;
-				params[1] = new Integer(2);
-				Object context = methodCreateWriteContext.invoke(doc, params);
-
-				paramClasses = new Class[1];
-				paramClasses[0] = Class.forName("com.sun.xml.tree.XmlWriteContext");
-				Method methodWriteXml = node.getClass().getMethod("writeXml", paramClasses);
-				params = new Object[1];
-				params[0] = context;
-				methodWriteXml.invoke(node, params);
-				w.flush();
-				return out.toString("UTF8");
-			}
-		}
-		catch (Throwable t1)
-		{
-		}
-
-		try
-		{ //For JAXP 1.1 (for Instance Apache Crimson/Xalan shipped with Java 1.4)
-			//This seams to be realy stupid and complicated...
-			//But if we do a simple t.transform(), a NoClassDefError is thrown, if
-			//the new JAXP1.1 is not present, even if we NOT call saveXMLDocument, but
-			//calling any other method within JAPUtil.
-			//Dont no why --> maybe this has something to to with Just in Time compiling ?
-
-			Class transformerFactory = Class.forName(PACKAGE_TRANSFORMER + "TransformerFactory");
-			Object transformerFactoryInstance =
-				transformerFactory.getMethod("newInstance", null).invoke(transformerFactory, null);
-			Object transformer = transformerFactory.getMethod("newTransformer", null).invoke(
-						 transformerFactoryInstance, null);
-			//Object transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
-
-			Class result = Class.forName(PACKAGE_TRANSFORMER + "stream.StreamResult");
-			Object r = result.getConstructor(new Class[]{OutputStream.class}).newInstance(new Object[]{out});
-			//javax.xml.transform.Result r = new javax.xml.transform.stream.StreamResult(out);
-			Class source = Class.forName(PACKAGE_TRANSFORMER + "dom.DOMSource");
-			Object s = source.getConstructor(new Class[]{Node.class}).newInstance(new Object[]{node});
-			//javax.xml.transform.Source s = new javax.xml.transform.dom.DOMSource(node);
-
-
-			//this is to simply invoke transformer.transform(s,r)
-			Class c = transformer.getClass();
-			Method m = null;
-			Method[] ms = c.getMethods();
-			for (int i = 0; i < ms.length; i++)
-			{
-				if (ms[i].getName().equals("transform"))
-				{
-					m = ms[i];
-					Class[] params = m.getParameterTypes();
-					if (params.length == 2)
-					{
-						break;
-					}
-				}
-			}
-			Object[] p = new Object[2];
-			p[0] = s;
-			p[1] = r;
-			m.invoke(transformer, p);
-			return out.toString();
-		}
-		catch (Throwable t2)
-		{
-			return null;
-		}
+		return strXml;
 	}
 
 	//Quotes a string according to XML (&,<,>)
@@ -934,19 +855,20 @@ public class XMLUtil
 	 * Reformats an XML document into a human readable format.
 	 * @param a_doc an xml document
 	 */
-	public static void formatHumanReadable(Document a_doc)
+	public static Document formatHumanReadable(Document a_doc)
 	{
 		formatHumanReadable(a_doc.getDocumentElement(), 0);
+		return a_doc;
 	}
 
 	/**
 	 * Reformats an XML element into a human readable format.
 	 * @param a_element an xml element
 	 */
-	public static void formatHumanReadable(Element a_element)
+	public static Element formatHumanReadable(Element a_element)
 	{
-
 		formatHumanReadable(a_element, 0);
+		return a_element;
 	}
 
 	/**
@@ -1137,6 +1059,123 @@ public class XMLUtil
 	}
 
 	/**
+	 * Writes an XML-Node to a String. If the node is a Document then the <XML> header is included.
+	 * Since writing was not standardized until JAXP 1.1 different Methods are tried
+	 * @param node an XML Node
+	 * @return an XML Node in a ByteArrayOutputStream representation or null if no transformation
+	 * could be done
+	 */
+	private static ByteArrayOutputStream toByteArrayOutputStream(Node node)
+	{
+		ByteArrayOutputStream out = null;
+		try
+		{
+			out = new ByteArrayOutputStream();
+		}
+		catch (Throwable t3)
+		{
+			return null;
+		}
+		try //For JAXP 1.0.1 Reference Implementation (shipped with JAP)
+		{
+			Class c = Class.forName("com.sun.xml.tree.ParentNode");
+			if (c.isInstance(node))
+			{
+				Document doc = null;
+				if (node instanceof Document)
+				{
+					doc = (Document) node;
+				}
+				else
+				{
+					doc = node.getOwnerDocument();
+				}
+				Writer w = new OutputStreamWriter(out, "UTF8");
+				//What we do here is acutally:
+				//com.sun.xml.tree.XmlWriteContext context=
+				//						((com.sun.xml.tree.XmlDocument)doc).createWriteContext(w,2);
+				//((com.sun.xml.tree.ElementNode)node).writeXml(context);
+				//We do that this way to avoid the need of JAXP1.0 for compilation!
+				Class classXmlDocument = Class.forName("com.sun.xml.tree.XmlDocument");
+				Class[] paramClasses = new Class[2];
+				paramClasses[0] = Writer.class;
+				paramClasses[1] = int.class;
+				Method methodCreateWriteContext = classXmlDocument.getMethod("createWriteContext",
+					paramClasses);
+
+				Object params[] = new Object[2];
+				params[0] = w;
+				params[1] = new Integer(2);
+				Object context = methodCreateWriteContext.invoke(doc, params);
+
+				paramClasses = new Class[1];
+				paramClasses[0] = Class.forName("com.sun.xml.tree.XmlWriteContext");
+				Method methodWriteXml = node.getClass().getMethod("writeXml", paramClasses);
+				params = new Object[1];
+				params[0] = context;
+				methodWriteXml.invoke(node, params);
+				w.flush();
+				return out;
+			}
+		}
+		catch (Throwable t1)
+		{
+		}
+
+		try
+		{ //For JAXP 1.1 (for Instance Apache Crimson/Xalan shipped with Java 1.4)
+			//This seams to be realy stupid and complicated...
+			//But if we do a simple t.transform(), a NoClassDefError is thrown, if
+			//the new JAXP1.1 is not present, even if we NOT call saveXMLDocument, but
+			//calling any other method within JAPUtil.
+			//Dont no why --> maybe this has something to to with Just in Time compiling ?
+
+			Class transformerFactory = Class.forName(PACKAGE_TRANSFORMER + "TransformerFactory");
+			Object transformerFactoryInstance =
+				transformerFactory.getMethod("newInstance", null).invoke(transformerFactory, null);
+			Object transformer = transformerFactory.getMethod("newTransformer", null).invoke(
+						 transformerFactoryInstance, null);
+			//Object transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
+
+			Class result = Class.forName(PACKAGE_TRANSFORMER + "stream.StreamResult");
+			Object r = result.getConstructor(new Class[]{OutputStream.class}).newInstance(new Object[]{out});
+			//javax.xml.transform.Result r = new javax.xml.transform.stream.StreamResult(out);
+			Class source = Class.forName(PACKAGE_TRANSFORMER + "dom.DOMSource");
+			Object s = source.getConstructor(new Class[]{Node.class}).newInstance(new Object[]{node});
+			//javax.xml.transform.Source s = new javax.xml.transform.dom.DOMSource(node);
+
+
+			//this is to simply invoke transformer.transform(s,r)
+			Class c = Class.forName(PACKAGE_TRANSFORMER + "Transformer"); //use this class rather than transformter.getClass()
+			//- because this may be an unaccessible subclass
+			Method m = null;
+			Method[] ms = c.getMethods();
+			for (int i = 0; i < ms.length; i++)
+			{
+				if (ms[i].getName().equals("transform"))
+				{
+					m = ms[i];
+					Class[] params = m.getParameterTypes();
+					if (params.length == 2)
+					{
+						break;
+					}
+				}
+			}
+			Object[] p = new Object[2];
+			p[0] = s;
+			p[1] = r;
+			m.invoke(transformer, p);
+			return out;
+		}
+		catch (Throwable t2)
+		{
+			return null;
+		}
+	}
+
+
+	/**
 	 * Returns a node that is equal to the given name, starting from the given node
 	 * and, if it is not the node we are looking for, recursing to all its children.
 	 * @param node the node from that the search starts
@@ -1179,6 +1218,7 @@ public class XMLUtil
 	 * @param a_element an xml element
 	 * @param a_level the level of this element
 	 * @return the number of nodes added (0 or 1)
+	 * @todo Debug for JDK < 1.4! A lot of superfluous lines are added...
 	 */
 	private static int formatHumanReadable(Node a_element, int a_level)
 	{
