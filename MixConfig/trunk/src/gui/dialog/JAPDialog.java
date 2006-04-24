@@ -327,8 +327,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public static class LinkedCheckBox extends LinkedHelpContext
 	{
-		private static final String MSG_REMEMBER_ANSWER = LinkedCheckBox.class.getName() + "_rememberAnswer";
-		private static final String MSG_DO_NOT_SHOW_AGAIN = LinkedCheckBox.class.getName() + "_doNotShowAgain";
+		public static final String MSG_REMEMBER_ANSWER = LinkedCheckBox.class.getName() + "_rememberAnswer";
+		public static final String MSG_DO_NOT_SHOW_AGAIN = LinkedCheckBox.class.getName() + "_doNotShowAgain";
 
 		private String m_strMessage;
 		private boolean m_bDefault;
@@ -2894,6 +2894,13 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 						}
 						else if (src instanceof Component)
 						{
+							if (src == getParentComponent() && event instanceof WindowEvent &&
+								( (WindowEvent) event).getID() == WindowEvent.WINDOW_CLOSING)
+							{
+								// Prevent closing of parent Window. This will otherwise work in KDE systems.
+								continue;
+							}
+
 							try
 							{
 								( (Component) src).dispatchEvent(event);
