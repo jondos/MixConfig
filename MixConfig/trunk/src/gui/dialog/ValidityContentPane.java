@@ -29,25 +29,24 @@ package gui.dialog;
 
 import java.util.Calendar;
 import java.util.Date;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusListener;
 import java.awt.event.FocusEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import anon.crypto.Validity;
-import logging.LogType;
 import gui.JAPJIntField;
-
-import gui.*;
+import logging.LogType;
 
 public class ValidityContentPane extends DialogContentPane implements
 	DialogContentPane.IWizardSuitable
