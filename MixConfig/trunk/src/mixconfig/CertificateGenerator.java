@@ -151,7 +151,7 @@ public class CertificateGenerator implements Runnable
 		}
 		catch (Exception e)
 		{
-			if (!Thread.interrupted())
+			if (!Thread.currentThread().isInterrupted())
 			{
 				JAPDialog.showErrorDialog(MixConfig.getMainWindow(), "Threading error!", LogType.THREAD, e);
 			}
