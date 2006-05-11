@@ -29,6 +29,7 @@ package gui.dialog;
 
 import java.util.EventListener;
 import java.util.Vector;
+import java.util.Enumeration;
 import java.lang.reflect.InvocationTargetException;
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
@@ -145,8 +146,10 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	private boolean m_bBlockParentWindow = false;
 	private int m_defaultCloseOperation;
 	private Vector m_windowListeners = new Vector();
+	private Vector m_componentListeners = new Vector();
 	private DialogWindowAdapter m_dialogWindowAdapter;
 	private boolean m_bForceApplicationModality;
+	private boolean m_bDisposed = false;
 
 	/**
 	 * Stores the instance of JDialog for internal use.
@@ -1153,9 +1156,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		int minLabelWidth;
 
 		// get the minimum width and height that is needed to display this dialog without any text
-		minSize = new Dimension(
-			  new JOptionPane("", a_messageType, a_optionType, a_icon).
-			  createDialog(a_parentComponent, a_title).getContentPane().getSize());
+		JDialog tempDialog = new JOptionPane("", a_messageType, a_optionType, a_icon).
+			createDialog(a_parentComponent, a_title);
+		minSize = new Dimension(tempDialog.getContentPane().getSize());
+		tempDialog.dispose();
+		tempDialog = null;
 		minSize.setSize(minSize.width / 2, minSize.height);
 
 		// set the maximum width that is allowed for the content pane
@@ -2081,6 +2086,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void setVisible(boolean a_bVisible, boolean a_bCenterOnParentComponent)
 	{
+		if (isDisposed())
+		{
+			return;
+		}
+
 		if (a_bVisible)
 		{
 			if (!m_bLocationSetManually && !isVisible())
@@ -2192,6 +2202,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		return m_internalDialog.isResizable();
 	}
 
+	public boolean isDisposed()
+	{
+		return m_bDisposed;
+	}
+
 	/**
 	 * Disposes the dialog (set it to invisible and releases all resources).
 	 * @todo Causes a Thread deadlock or throws an exception if called from Threads other than the main
@@ -2201,6 +2216,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void dispose()
 	{
+		m_bDisposed = true;
+
 		if (m_bBlockParentWindow)
 		{
 			m_bBlockParentWindow = false;
@@ -2216,6 +2233,41 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 		synchronized (m_internalDialog.getTreeLock())
 		{
+			Enumeration listeners = m_windowListeners.elements();
+
+			while (listeners.hasMoreElements())
+			{
+				final WindowListener currrentListener = (WindowListener)listeners.nextElement();
+				// do this trick to bypass deadlocks
+				new Thread()
+				{
+					public void run()
+					{
+						SwingUtilities.invokeLater(new Runnable()
+						{
+							public void run()
+							{
+								currrentListener.windowClosed(
+									new WindowEvent(m_internalDialog, WindowEvent.WINDOW_CLOSED));
+							}
+						});
+					}
+				}.start();
+			}
+			m_windowListeners.removeAllElements();
+
+			listeners = ((Vector)m_componentListeners.clone()).elements();
+			while (listeners.hasMoreElements())
+			{
+				removeComponentListener((ComponentListener)listeners.nextElement());
+			}
+			m_componentListeners.removeAllElements();
+
+			m_internalDialog.removeWindowListener(m_dialogWindowAdapter);
+			m_dialogWindowAdapter = null;
+			m_internalDialog.getContentPane().removeAll();
+			m_internalDialog.getRootPane().removeAll();
+			m_internalDialog.getLayeredPane().removeAll();
 			m_internalDialog.getTreeLock().notifyAll();
 		}
 	}
@@ -2419,8 +2471,10 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		if (a_listener != null)
 		{
-			m_windowListeners.addElement(a_listener);
-
+			synchronized (m_internalDialog.getTreeLock())
+			{
+				m_windowListeners.addElement(a_listener);
+			}
 		}
 	}
 
@@ -2431,7 +2485,14 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void addComponentListener(ComponentListener a_listener)
 	{
-		m_internalDialog.addComponentListener(a_listener);
+		synchronized (m_internalDialog.getTreeLock())
+		{
+			if (a_listener != null && !m_componentListeners.contains(a_listener))
+			{
+				m_componentListeners.addElement(a_listener);
+				m_internalDialog.addComponentListener(a_listener);
+			}
+		}
 	}
 
 	/**
@@ -2441,7 +2502,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void removeComponentListener(ComponentListener a_listener)
 	{
-		m_internalDialog.removeComponentListener(a_listener);
+		synchronized (m_internalDialog.getTreeLock())
+		{
+			m_componentListeners.removeElement(a_listener);
+			m_internalDialog.removeComponentListener(a_listener);
+		}
 	}
 
 	/**
@@ -2451,7 +2516,10 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 */
 	public final void removeWindowListener(WindowListener a_listener)
 	{
-		m_windowListeners.removeElement(a_listener);
+		synchronized (m_internalDialog.getTreeLock())
+		{
+			m_windowListeners.removeElement(a_listener);
+		}
 	}
 
 	/**
@@ -2521,14 +2589,14 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 
 		public void windowClosed(WindowEvent a_event)
-		{
+		{/* Does not work... Do this in the dispose method!
 			Vector listeners = (Vector)m_windowListeners.clone();
 			{
 				for (int i = 0; i < listeners.size(); i++)
 				{
 					( (WindowListener) listeners.elementAt(i)).windowClosed(a_event);
 				}
-			}
+			}*/
 		}
 
 		/**
