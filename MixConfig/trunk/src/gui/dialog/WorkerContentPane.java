@@ -54,8 +54,6 @@ public class WorkerContentPane extends DialogContentPane implements
 	/** @todo rename the image according to coding standards */
 	public static final String IMG_BUSY = "busy.gif";
 
-	public static final String DOTS = "...";
-
 	private Thread m_workerThread;
 	private Runnable m_workerRunnable;
 	private Thread m_internalThread;
@@ -175,6 +173,17 @@ public class WorkerContentPane extends DialogContentPane implements
 		return null;
 	}
 
+	public void dispose()
+	{
+		setInterruptThreadSafe(false);
+		interruptWorkerThread();
+		m_workerThread = null;
+		m_workerRunnable = null;
+		m_internalThread = null;
+		super.dispose();
+	}
+
+
 	/**
 	 * Interrupts the thread.
 	 */
@@ -201,7 +210,7 @@ public class WorkerContentPane extends DialogContentPane implements
 	{
 		public InternalThread(Runnable a_runnable)
 		{
-			super(a_runnable,"WorkerContentPane - InternalThread");
+			super(a_runnable, "WorkerContentPane - InternalThread");
 		}
 	}
 
@@ -300,11 +309,16 @@ public class WorkerContentPane extends DialogContentPane implements
 		}
 	}
 
+	/**
+	 * If an instance of IReturnRunnable is run, this method returns the result of IReturnRunnable.getValue().
+	 * Otherwise, <code>null</code> is returned.
+	 * @return the result of IReturnRunnable.getValue()
+	 */
 	public Object getValue()
 	{
-		if (m_workerRunnable instanceof ReturnThread)
+		if (m_workerRunnable instanceof IReturnRunnable)
 		{
-			return ( (ReturnThread) m_workerRunnable).getValue();
+			return ( (IReturnRunnable) m_workerRunnable).getValue();
 		}
 		else
 		{
@@ -312,9 +326,12 @@ public class WorkerContentPane extends DialogContentPane implements
 		}
 	}
 
-	public static abstract class ReturnThread extends Thread
+	/**
+	 * Implement this interface if you want your runnable object to return some kind of value.
+	 */
+	public static interface IReturnRunnable extends Runnable
 	{
-		public abstract Object getValue();
+		public Object getValue();
 	}
 
 }

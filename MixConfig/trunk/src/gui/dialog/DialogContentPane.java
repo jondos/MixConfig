@@ -28,6 +28,7 @@
 package gui.dialog;
 
 import java.util.Vector;
+import java.util.Enumeration;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -95,11 +96,12 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	static
 	{
 		// preload java dialog icons
-		new JOptionPane("", MESSAGE_TYPE_ERROR).createDialog(null, "");
-		new JOptionPane("", MESSAGE_TYPE_INFORMATION).createDialog(null, "");
-		new JOptionPane("", MESSAGE_TYPE_WARNING).createDialog(null, "");
-		new JOptionPane("", MESSAGE_TYPE_PLAIN).createDialog(null, "");
-		new JOptionPane("", MESSAGE_TYPE_QUESTION).createDialog(null, "");
+
+		new JOptionPane("", MESSAGE_TYPE_ERROR).createDialog(null, "").dispose();
+		new JOptionPane("", MESSAGE_TYPE_INFORMATION).createDialog(null, "").dispose();
+		new JOptionPane("", MESSAGE_TYPE_WARNING).createDialog(null, "").dispose();
+		new JOptionPane("", MESSAGE_TYPE_PLAIN).createDialog(null, "").dispose();
+		new JOptionPane("", MESSAGE_TYPE_QUESTION).createDialog(null, "").dispose();
 	}
 
 	public static final int ON_CLICK_DO_NOTHING = 0;
@@ -186,6 +188,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	private int m_defaultButton;
 	private String m_strText;
 	private String m_strTitle;
+	private JDialog m_tempDialog; // this is a temporary dialog used to construct the content pane
 
 	/**
 	 * Contructs a new dialog content pane. Its layout is predefined, but may change if the content pane
@@ -1619,7 +1622,6 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 */
 	private final synchronized CheckError[] updateDialog(int a_maxTextWidth, boolean a_bCallCheckUpdate)
 	{
-		JDialog dialog;
 		JOptionPane pane;
 		Object[] options;
 		CheckError[] errors;
@@ -1646,8 +1648,12 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			m_titlePane.remove(m_lblText);
 		}
 		pane = new JOptionPane(m_rootPane, m_messageType, 0, m_icon, options );
-		dialog = pane.createDialog(null, "");
-		dialog.pack();
+		if (m_tempDialog != null)
+		{
+			m_tempDialog.dispose();
+		}
+		m_tempDialog = pane.createDialog(null, "");
+		m_tempDialog.pack();
 		if (m_lblText != null)
 		{
 			if (isDialogVisible())
@@ -1677,7 +1683,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			m_currentlyActiveContentPane.removeComponentListener(
 						 m_currentlyActiveContentPaneComponentListener);
 		}
-		m_currentlyActiveContentPane = dialog.getContentPane();
+		m_currentlyActiveContentPane = m_tempDialog.getContentPane();
 		m_currentlyActiveContentPaneComponentListener = new ContentPaneComponentListener();
 		m_currentlyActiveContentPane.addComponentListener(m_currentlyActiveContentPaneComponentListener);
 		m_parentDialog.setContentPane(m_currentlyActiveContentPane);
@@ -2200,7 +2206,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 * @todo Find a way so that the componentShown method has full functionality in JDialogs; is there a way?
 	 * I propose to use JAPDialog if you want this...
 	 */
-	public void addComponentListener(ComponentListener a_listener)
+	public synchronized void addComponentListener(ComponentListener a_listener)
 	{
 		if (a_listener != null)
 		{
@@ -2212,7 +2218,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	 * Removes a component listener.
 	 * @param a_listener a ComponentListener
 	 */
-	public void removeComponentListener(ComponentListener a_listener)
+	public synchronized void removeComponentListener(ComponentListener a_listener)
 	{
 		m_componentListeners.removeElement(a_listener);
 	}
@@ -2264,6 +2270,64 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 		{
 			((JAPDialog)m_parentDialog).removeWindowListener(a_listener);
 		}
+	}
+
+	public void dispose()
+	{
+		if (m_tempDialog != null)
+		{
+			m_tempDialog.dispose();
+		}
+		if (m_titlePane != null)
+		{
+			m_titlePane.removeAll();
+		}
+		m_titlePane = null;
+		if (m_rootPane != null)
+		{
+			m_rootPane.removeAll();
+		}
+		m_rootPane = null;
+		if (m_contentPane != null)
+		{
+			m_contentPane.removeAll();
+		}
+		m_contentPane = null;
+		if (m_panelOptions != null)
+		{
+			m_panelOptions.removeAll();
+		}
+		m_panelOptions = null;
+		m_parentDialog = null;
+		m_lblText = null;
+		m_componentListeners.removeAllElements();
+		if (m_btnCancel != null)
+		{
+			m_btnCancel.removeActionListener(m_buttonListener);
+		}
+		if (m_btnYesOK != null)
+		{
+			m_btnYesOK.removeActionListener(m_buttonListener);
+		}
+		if (m_btnNo != null)
+		{
+			m_btnNo.removeActionListener(m_buttonListener);
+		}
+		if (m_btnHelp != null)
+		{
+			m_btnHelp.removeActionListener(m_buttonListener);
+		}
+
+		m_buttonListener = null;
+		if (m_currentlyActiveContentPane != null)
+		{
+			m_currentlyActiveContentPane.removeComponentListener(
+				m_currentlyActiveContentPaneComponentListener);
+		}
+		m_currentlyActiveContentPaneComponentListener = null;
+		m_currentlyActiveContentPane = null;
+		m_nextContentPane = null;
+		m_previousContentPane = null;
 	}
 
 	/**
@@ -2743,6 +2807,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 				listener.componentHidden(new ComponentEvent(
 								m_currentlyActiveContentPane, ComponentEvent.COMPONENT_HIDDEN));
 			}
+			dispose();
 		}
 		public void windowOpened(WindowEvent a_event)
 		{
