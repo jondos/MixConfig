@@ -230,6 +230,8 @@ public final class JAPHelp extends JAPDialog
 	 * Creates a button that opens the help window with the given context.
 	 * @param a_helpContext a help context
 	 * @return a button that opens the help window with the given context
+	 * @todo make the ActionListener removable, as it remains in memory after closing a dialog
+	 * and leads to a memory leak...
 	 */
 	public static JButton createHelpButton(IHelpContext a_helpContext)
 	{
