@@ -108,6 +108,11 @@ public final class ResourceLoader
 		byte[] buffer;
 		int readDataLength = 1;
 
+		if (a_iStream == null)
+		{
+			throw new IOException("Stream is null!");
+		}
+
 		data = new byte[0];
 		// if readDataLength >= 0 there are more bytes available to read
 		while (readDataLength >= 0)
@@ -196,15 +201,15 @@ public final class ResourceLoader
 		 * classpath. It may be used if class.getResource(..) does not work properly.
 		 * Please do not remove as this could be important for testing purposes.
 
-		   if (resourceURL == null)
-		   {
-		 // classPathFiles and classPathResources must be synchronized!
-		 synchronized (ms_classpathResourceURLs)
-		 {
+		if (resourceURL == null)
+		{
+			// classPathFiles and classPathResources must be synchronized!
+			synchronized (ms_classpathResourceURLs)
+			{
 		  resourceURL = getResourceURL(a_strRelativeResourcePath, readFilesFromClasspath(),
-				  ms_classpathResourceURLs, ms_classpathResourceTypes);
-		 }
-		   }*/
+											 ms_classpathResourceURLs, ms_classpathResourceTypes);
+			}
+		}*/
 
 		return resourceURL;
 	}
@@ -218,7 +223,7 @@ public final class ResourceLoader
 	 * @param a_strRelativeResourcePath a relative filename for the resource
 	 * @return the contents of the resource or null if resource could not be loaded
 	 */
-	public static byte[] loadResource(String a_strRelativeResourcePath)
+	public static InputStream loadResourceAsStream(String a_strRelativeResourcePath)
 	{
 		InputStream in;
 
@@ -256,6 +261,32 @@ public final class ResourceLoader
 				// load resource from the current directory
 				in = new FileInputStream(a_strRelativeResourcePath);
 			}
+			return in;
+		}
+		catch (IOException a_e)
+		{
+			return null;
+		}
+	}
+
+	/**
+	 * Loads a resource from the classpath or the current directory.
+	 * The resource may be contained in an archive (ZIP,JAR) or a directory structure.
+	 * If the resource could not be found in the classpath, it is loaded from the current
+	 * directory. Loads a single resource only, therefore directory specifications like
+	 * "home/dir/" are not allowed.
+	 * @param a_strRelativeResourcePath a relative filename for the resource
+	 * @return the contents of the resource or null if resource could not be loaded
+	 */
+	public static byte[] loadResource(String a_strRelativeResourcePath)
+	{
+		InputStream in = loadResourceAsStream(a_strRelativeResourcePath);
+		if (in == null)
+		{
+			return null;
+		}
+		try
+		{
 			return getStreamAsBytes(in);
 		}
 		catch (IOException a_e)
@@ -557,9 +588,9 @@ public final class ResourceLoader
 				object = null;
 				try
 				{
-					object = a_instantiator.getInstance(zipentry, zipfile);
+						object = a_instantiator.getInstance(zipentry, zipfile);
 
-				}
+					}
 				catch (IResourceInstantiator.ResourceInstantiationException a_e)
 				{
 					return;
@@ -647,7 +678,7 @@ public final class ResourceLoader
 			}
 
 			if (a_file.isFile() && isResourceInSearchPath(
-				strCurrentResourcePath, a_strResourceSearchPath, a_bRecursive))
+				 strCurrentResourcePath, a_strResourceSearchPath, a_bRecursive))
 			{
 				Object object = null;
 
@@ -659,9 +690,9 @@ public final class ResourceLoader
 
 				try
 				{
-					object = a_instantiator.getInstance(a_file, a_topDirectory);
+						object = a_instantiator.getInstance(a_file, a_topDirectory);
 
-				}
+					}
 				catch (IResourceInstantiator.ResourceInstantiationException a_e)
 				{
 					throw a_e;
@@ -695,9 +726,9 @@ public final class ResourceLoader
 					}
 
 					loadResourcesFromFile(
-						a_strResourceSearchPath,
-						new File(a_file.getAbsolutePath() + separatorChar + filesArray[i]),
-						a_topDirectory, a_instantiator, a_loadedResources, a_bRecursive,
+					   a_strResourceSearchPath,
+					   new File(a_file.getAbsolutePath() + separatorChar + filesArray[i]),
+					   a_topDirectory, a_instantiator, a_loadedResources, a_bRecursive,
 						a_bStopAtFirstResource);
 				}
 			}
@@ -855,7 +886,7 @@ public final class ResourceLoader
 		}
 
 		strCurrentFile = a_currentFile.toString().substring(
-			a_topDirectory.toString().length() + separator, a_currentFile.toString().length());
+				  a_topDirectory.toString().length() + separator, a_currentFile.toString().length());
 		strCurrentFile = strCurrentFile.replace('\\', '/');
 
 		if (a_currentFile.isDirectory() && !strCurrentFile.endsWith("/"))
@@ -927,7 +958,7 @@ public final class ResourceLoader
 					return true;
 				}
 				if (a_strCurrentResourcePath.substring(
-					a_strResourceSearchPath.length()).indexOf("/") < 0)
+								a_strResourceSearchPath.length()).indexOf("/") < 0)
 				{
 					return true;
 				}
@@ -1048,7 +1079,7 @@ public final class ResourceLoader
 	{
 		byte[] temp;
 
-		if (a_maxLength <= 0)
+		if  (a_maxLength <= 0)
 		{
 			temp = a_arrayToAppendTo;
 		}
@@ -1087,17 +1118,17 @@ public final class ResourceLoader
 			/**@todo Ihis lock has almost no effect; or has it? Check the code!*/
 			synchronized (ms_classpathResourceLock)
 			{
-				StringTokenizer tokenizer;
+			StringTokenizer tokenizer;
 
-				ms_classpath = classpath;
-				ms_classpathFiles = new Vector();
+			ms_classpath = classpath;
+			ms_classpathFiles = new Vector();
 				ms_classpathResourceTypes = new Vector();
 
 				tokenizer = new StringTokenizer(ms_classpath, File.pathSeparator);
-				while (tokenizer.hasMoreTokens())
-				{
+			while (tokenizer.hasMoreTokens())
+			{
 					ms_classpathFiles.addElement(
-						new File(new File(tokenizer.nextToken()).getAbsolutePath()));
+					   new File(new File(tokenizer.nextToken()).getAbsolutePath()));
 					ms_classpathResourceTypes.addElement( (String)null);
 				}
 			}
@@ -1113,7 +1144,7 @@ public final class ResourceLoader
 	private ByteArrayInstantiator createByteArrayInstantiator()
 	{
 		return new ByteArrayInstantiator();
-	}
+			}
 
 	/**
 	 * Returns a new FileTypeInstantiator.
@@ -1132,7 +1163,7 @@ public final class ResourceLoader
 	{
 		public Object getInstance(File a_file, File a_topDirectory) throws Exception
 		{
-			return getStreamAsBytes(new FileInputStream(a_file));
+				return getStreamAsBytes(new FileInputStream(a_file));
 		}
 
 		public Object getInstance(ZipEntry a_entry, ZipFile a_file) throws Exception
