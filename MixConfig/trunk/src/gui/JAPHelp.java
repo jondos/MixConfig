@@ -113,6 +113,7 @@ public final class JAPHelp extends JAPDialog
 	private JAPHelp(Frame parent, IExternalURLCaller a_urlCaller)
 	{
 		super(parent, JAPMessages.getString(MSG_HELP_WINDOW), false);
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
 
 		m_initializing = true;
 		m_helpContext = new JAPHelpContext();
@@ -169,7 +170,7 @@ public final class JAPHelp extends JAPDialog
 				LanguageMapper lang = new LanguageMapper(langCode, new Locale(langCode, ""));
 				m_comBoxLanguage.addItem(lang);
 
-				if ((m_helpPath.equals(" ") && m_language.getISOCode().length() == 0) ||
+				if ( (m_helpPath.equals(" ") && m_language.getISOCode().length() == 0) ||
 					lang.getISOCode().equals(JAPMessages.getLocale().getLanguage()))
 				{
 					m_helpPath = getHelpPath(i);
@@ -230,8 +231,6 @@ public final class JAPHelp extends JAPDialog
 	 * Creates a button that opens the help window with the given context.
 	 * @param a_helpContext a help context
 	 * @return a button that opens the help window with the given context
-	 * @todo make the ActionListener removable, as it remains in memory after closing a dialog
-	 * and leads to a memory leak...
 	 */
 	public static JButton createHelpButton(IHelpContext a_helpContext)
 	{
@@ -408,7 +407,13 @@ public final class JAPHelp extends JAPDialog
 		{
 			if (a_urlCaller == null)
 			{
-				a_urlCaller = new IExternalURLCaller(){public boolean openURL(URL a_url) {return false;}};
+				a_urlCaller = new IExternalURLCaller()
+				{
+					public boolean openURL(URL a_url)
+					{
+						return false;
+					}
+				};
 			}
 			m_urlCaller = a_urlCaller;
 			html = new JEditorPane("text/html", "<html><body></body></html>");
@@ -465,7 +470,7 @@ public final class JAPHelp extends JAPDialog
 		public boolean loadContext(String a_strHelpPath, String a_strContext, LanguageMapper a_language)
 		{
 			URL url = ResourceLoader.getResourceURL(
-				 a_strHelpPath + a_strContext + "_" + a_language.getISOCode() + ".html");
+				a_strHelpPath + a_strContext + "_" + a_language.getISOCode() + ".html");
 			boolean bLoaded = false;
 
 			if (url != null)
@@ -479,7 +484,7 @@ public final class JAPHelp extends JAPDialog
 							  "Could not load help context '" + a_strContext +
 							  "_" + a_language.getISOCode() + "'");
 
-				if(a_strContext != null)
+				if (a_strContext != null)
 				{
 					if (!a_strContext.equals(INDEX_CONTEXT))
 					{
@@ -501,11 +506,11 @@ public final class JAPHelp extends JAPDialog
 						int i;
 						for (i = 0; i < m_comBoxLanguage.getItemCount(); i++)
 						{
-							if (((LanguageMapper)m_comBoxLanguage.getItemAt(i)).equals(english) &&
+							if ( ( (LanguageMapper) m_comBoxLanguage.getItemAt(i)).equals(english) &&
 								m_comBoxLanguage.getSelectedIndex() != i)
 							{
 								m_comBoxLanguage.setSelectedIndex(i);
-								new HelpListener().actionPerformed(new ActionEvent(m_comBoxLanguage,0,""));
+								new HelpListener().actionPerformed(new ActionEvent(m_comBoxLanguage, 0, ""));
 								break;
 							}
 						}
@@ -619,7 +624,7 @@ public final class JAPHelp extends JAPDialog
 					html.getParent().repaint();
 				}
 				else if (
-					url.getProtocol().startsWith(ResourceLoader.SYSTEM_RESOURCE_TYPE_FILE)  ||
+					url.getProtocol().startsWith(ResourceLoader.SYSTEM_RESOURCE_TYPE_FILE) ||
 					url.getProtocol().startsWith(ResourceLoader.SYSTEM_RESOURCE_TYPE_ZIP) ||
 					url.getProtocol().startsWith(ResourceLoader.SYSTEM_RESOURCE_TYPE_JAR) ||
 					url.getProtocol().startsWith(ResourceLoader.SYSTEM_RESOURCE_TYPE_GENERIC))
@@ -649,7 +654,7 @@ public final class JAPHelp extends JAPDialog
 					{
 						html.setCursor(cursor);
 						JAPDialog.showMessageDialog(html.getParent(), JAPMessages.getString(MSG_ERROR_EXT_URL),
-												 new ExternalLinkedInformation(url));
+							new ExternalLinkedInformation(url));
 					}
 					if (m_historyPosition > 0)
 					{
@@ -722,5 +727,3 @@ public final class JAPHelp extends JAPDialog
 		return strHelpPath;
 	}
 }
-
-
