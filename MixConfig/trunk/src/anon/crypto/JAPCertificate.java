@@ -568,6 +568,29 @@ public final class JAPCertificate extends X509CertificateStructure
 	 * @return True, if this certificate could be verified.
 	 * @todo do not accept expired certificates?
 	 */
+	public synchronized boolean verify(Vector a_verifyingCertificates)
+	{
+		return verify(a_verifyingCertificates.elements());
+	}
+
+	/**
+	 * Checks if a given Certificate could be directly verified against a set of other certificates.
+	 * @param a_verifyingCertificates A Hashtable of JAPCertificates to verify this JAPCertificate.
+	 * @return True, if this certificate could be verified.
+	 * @todo do not accept expired certificates?
+	 */
+	public synchronized boolean verify(Hashtable a_verifyingCertificates)
+	{
+		return verify(a_verifyingCertificates.elements());
+	}
+
+
+	/**
+	 * Checks if a given Certificate could be directly verified against a set of other certificates.
+	 * @param a_verifyingCertificates An Enumeration of JAPCertificates to verify this JAPCertificate.
+	 * @return True, if this certificate could be verified.
+	 * @todo do not accept expired certificates?
+	 */
 	public synchronized boolean verify(Enumeration a_verifyingCertificates)
 	{
 		if (a_verifyingCertificates == null)

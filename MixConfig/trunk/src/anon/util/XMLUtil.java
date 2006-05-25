@@ -941,7 +941,17 @@ public class XMLUtil
 	 */
 	public static Document readXMLDocument(File a_file) throws IOException, XMLParseException
 	{
-		return readXMLDocument(new FileInputStream(a_file));
+		FileInputStream inputStream = new FileInputStream(a_file);
+		Document doc = readXMLDocument(inputStream);
+		try
+		{
+				inputStream.close();
+		}
+		catch (IOException a_e)
+		{
+			// never mind
+		}
+		return doc;
 	}
 
 	/**
@@ -1134,9 +1144,9 @@ public class XMLUtil
 
 			Class transformerFactory = Class.forName(PACKAGE_TRANSFORMER + "TransformerFactory");
 			Object transformerFactoryInstance =
-				transformerFactory.getMethod("newInstance", null).invoke(transformerFactory, null);
-			Object transformer = transformerFactory.getMethod("newTransformer", null).invoke(
-						 transformerFactoryInstance, null);
+				transformerFactory.getMethod("newInstance", (Class[])null).invoke(transformerFactory,(Object[]) null);
+			Object transformer = transformerFactory.getMethod("newTransformer", (Class[])null).invoke(
+						 transformerFactoryInstance,(Object[]) null);
 			//Object transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
 
 			Class result = Class.forName(PACKAGE_TRANSFORMER + "stream.StreamResult");
