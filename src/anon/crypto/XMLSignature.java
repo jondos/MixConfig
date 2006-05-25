@@ -46,13 +46,17 @@ import anon.util.Base64;
 import anon.util.IXMLEncodable;
 import anon.util.XMLParseException;
 import anon.util.XMLUtil;
+import anon.util.Util;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
 
 /**
  * This class stores and creates signatures of XML nodes. The signing and verification processes
  * and the underlying XML signature structure are completely transparent to the using code.
  * Therefore, the XML_ELEMENT_NAME is not public. Just sign and verify what you want, you do not
  * need to know how it works! It is not allowed to change the structure of an element`s signature
- * node for other code than methods of this class . Otherwise, some methods could give false
+ * node for other code than methods of this class. Otherwise, some methods could give false
  * results.
  * XMLSignature objects can only be created by signing or verifying XML nodes, or by getting an
  * unverified signature from an XML node.
@@ -320,7 +324,7 @@ public final class XMLSignature implements IXMLEncodable
 		}
 		catch (Exception a_e)
 		{
-			a_e.printStackTrace();
+			LogHolder.log(LogLevel.EXCEPTION, LogType.CRYPTO, "Could not sign XML document!", a_e);
 
 			// restore the old signature if present
 			if (oldSignatureNode != null)
@@ -342,10 +346,7 @@ public final class XMLSignature implements IXMLEncodable
 	 */
 	public static XMLSignature verify(Node a_node, JAPCertificate a_certificate) throws XMLParseException
 	{
-		Vector certificates = new Vector();
-		certificates.addElement(a_certificate);
-
-		return verify(a_node, certificates);
+		return verify(a_node, Util.toVector(a_certificate));
 	}
 
 	/**
@@ -368,8 +369,7 @@ public final class XMLSignature implements IXMLEncodable
 	 *
 	 * @param a_node A signed XML node.
 	 * @param a_rootCertificates A Vector of trusted root certificates which is used to verify
-	 *                           certificates that maybe appended to the signature or to verify the
-	 *                           signature itself.
+	 *                           the certificate maybe appended at the signature.
 	 * @param a_directCertificates A Vector of certificates to verify the signature, if it could
 	 *                             not be verified by the appended certificates (if there are no
 	 *                             appended certificates or the appended certificates could not
@@ -380,8 +380,7 @@ public final class XMLSignature implements IXMLEncodable
 	 *                              has an invalid structure
 	 * @todo do not accept expired certificates?
 	 */
-	public static XMLSignature verify(Node a_node, Vector a_rootCertificates,
-									  Vector a_directCertificates) throws
+	public static XMLSignature verify(Node a_node, Vector a_rootCertificates, Vector a_directCertificates) throws
 		XMLParseException
 	{
 		XMLSignature signature;
@@ -393,6 +392,7 @@ public final class XMLSignature implements IXMLEncodable
 		signature = findXMLSignature(a_node);
 		if (signature == null)
 		{
+			LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "Could not find the <Signature> node!");
 			return null;
 		}
 
@@ -400,24 +400,43 @@ public final class XMLSignature implements IXMLEncodable
 		try
 		{
 			// verify the signature against the appended certificates first
-			certificates = signature.getCertificates();
-			while (!bVerified && certificates != null && certificates.hasMoreElements())
+			LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "Locking for appended certificates...");
+			certificates = signature.getCertificates().elements();
+			if (certificates != null)
 			{
-				// get the next appended certificate
-				currentCertificate = (JAPCertificate) certificates.nextElement();
+				LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "Found appended certificates!");
 
-				/* try to verify this appended certificate against the root certificates */
-				if (!currentCertificate.verify(a_rootCertificates.elements()))
+				while (certificates.hasMoreElements())
 				{
-					/* this certificate cannot be verified; therefore, we do not use it here */
-					continue;
-				}
+					// get the next appended certificate
+					currentCertificate = (JAPCertificate) certificates.nextElement();
+					/* try to verify this appended certificate against the root certificates */
+					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
+						"Try to verify appended certificate against root certificate...");
 
-				// check the signature against this certificate if it is not verified yet
-				if (verify(a_node, signature, currentCertificate.getPublicKey()))
-				{
-					// the signature has been verified successfully
-					bVerified = true;
+					if (!currentCertificate.verify(a_rootCertificates))
+					{
+						LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
+							"Try to verify appended certificate against root certificate - failed!");
+						/* this certificate cannot be verified; therefore, we do not use it here */
+						continue;
+					}
+					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
+						"Try to verify appende certifcate agains root certifcate - success!");
+					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
+						"Try to verify signature against appende certifcate...");
+
+					// check the signature against this certificate if it is not verified yet
+					if (verify(a_node, signature, currentCertificate.getPublicKey()))
+					{
+						LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
+							"XMSignature:verify() Try to verify signature against appende certifcate -success!");
+						// the signature has been verified successfully
+						bVerified = true;
+						break;
+					}
+					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
+						"XMSignature:verify() Try to verify signature against appende certifcate -failed!");
 				}
 			}
 		}
@@ -430,13 +449,16 @@ public final class XMLSignature implements IXMLEncodable
 			/* the signature could not be verified against the appended certificates;
 			 * check the signature against the Vector of direct certificates
 			 */
-			certificates = a_directCertificates.elements();
-			while (!bVerified && certificates.hasMoreElements())
+
+			Enumeration additionalCertificates = a_directCertificates.elements();
+
+			/* try to verify the signature against the direct certificate */
+			while (!bVerified && additionalCertificates.hasMoreElements())
 			{
 				try
 				{
 					if (verify(a_node, signature,
-							   ( (JAPCertificate) (certificates.nextElement())).getPublicKey()))
+							   ( (JAPCertificate) (additionalCertificates.nextElement())).getPublicKey()))
 					{
 						/* signature could be verified against one of the direct certificates */
 						bVerified = true;
@@ -457,6 +479,24 @@ public final class XMLSignature implements IXMLEncodable
 		{
 			// the signature could not be verified
 			return null;
+		}
+	}
+
+	/**
+	 * Only verifies the signature of an XML node.
+	 * @param a_node an XML node
+	 * @param a_publicKey a public key to verify the signature
+	 * @return true if the signatue was ok, false otherwise
+	 */
+	public static boolean verifyFast(Node a_node, IMyPublicKey a_publicKey)
+	{
+		try
+		{
+			return verify(a_node, findXMLSignature(a_node), a_publicKey);
+		}
+		catch (Throwable t)
+		{
+			return false;
 		}
 	}
 
@@ -519,9 +559,15 @@ public final class XMLSignature implements IXMLEncodable
 	 * Returns all X509 certificates that are embedded in this XMLSignature.
 	 * @return all X509 certificates that are emmbeded in this XMLSignature;
 	 */
-	public synchronized Enumeration getCertificates()
+	public synchronized Vector getCertificates()
 	{
-		return m_appendedCertificates.keys();
+		Vector certificates = new Vector();
+		Enumeration enumCerts = m_appendedCertificates.keys();
+		while (enumCerts.hasMoreElements())
+		{
+			certificates.addElement(enumCerts.nextElement());
+		}
+		return certificates;
 	}
 
 	/**
