@@ -92,8 +92,7 @@ public class AsymmetricCryptoKeyPair
 
 		try
 		{
-			privateKey =
-				(IMyPrivateKey) createAsymmetricCryptoKey(a_keyInfo, getPrivateKeyClasses());
+			privateKey = (IMyPrivateKey) createAsymmetricCryptoKey(a_keyInfo, getPrivateKeyClasses());
 		}
 		catch (ClassCastException a_e)
 		{
@@ -196,7 +195,6 @@ public class AsymmetricCryptoKeyPair
 
 		return true;
 	}
-
 
 	private static Key createAsymmetricCryptoKey(Object a_keyInfo, Enumeration a_keyClasses)
 		throws InvalidKeyException

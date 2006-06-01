@@ -145,9 +145,9 @@ public class JAPCertificateTest extends XtendedPrivateTestCase
 
 		// test if the other data is set correctly
 		assertEquals(calendar.getTime(),
-					 privateCertificate.getX509Certificate().getStartDate().getDate());
+					 privateCertificate.getX509Certificate().getValidity().getValidFrom());
 		assertEquals(new BigInteger("35321"),
-				  privateCertificate.getX509Certificate().getSerialNumber().getPositiveValue());
+				  privateCertificate.getX509Certificate().getSerialNumber());
 	}
 
 	/**

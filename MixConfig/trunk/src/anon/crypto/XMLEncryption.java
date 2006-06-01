@@ -27,21 +27,14 @@
  */
 package anon.crypto;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.SecureRandom;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.bouncycastle.asn1.pkcs.PKCS12PBEParams;
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.encodings.OAEPEncoding;
 import org.bouncycastle.crypto.engines.AESFastEngine;
-import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.generators.PKCS12ParametersGenerator;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.modes.CTSBlockCipher;
@@ -51,13 +44,15 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-
 import anon.util.Base64;
+import anon.util.IMiscPasswordReader;
+import anon.util.SingleStringPasswordReader;
 import anon.util.XMLUtil;
-import gui.*;
 
 final public class XMLEncryption
 {
+	public static final String XML_ELEMENT_NAME = "EncryptedData";
+
 	private static final int SALT_SIZE = 20;
 	private static final int MIN_ITERATIONS = 1000;
 	private XMLEncryption()
@@ -104,7 +99,7 @@ final public class XMLEncryption
 		// initialize XML-Encryption-Standard structure
 		Document doc = elemPlain.getOwnerDocument();
 		Node nodeParent = elemPlain.getParentNode();
-		Element elemCrypt = doc.createElement("EncryptedData");
+		Element elemCrypt = doc.createElement(XML_ELEMENT_NAME);
 		elemCrypt.setAttribute("Type", "http://www.w3.org/2001/04/xmlenc#Element");
 		elemCrypt.setAttribute("xmlns", "http://www.w3.org/2001/04/xmlenc#");
 		Element elemAlgo = doc.createElement("EncryptionMethod");
@@ -163,12 +158,12 @@ final public class XMLEncryption
 	 * @author Bastian Voigt
 	 */
 	private static byte[] codeDataCTS(boolean encrypt,
-								   byte[] barInput,
-								   CipherParameters params) throws Exception
+									  byte[] barInput,
+									  CipherParameters params) throws Exception
 	{
 		BufferedBlockCipher cipher =
 			new CTSBlockCipher(
-			new AESFastEngine()
+				new AESFastEngine()
 			);
 		cipher.init(encrypt, params);
 
@@ -195,13 +190,13 @@ final public class XMLEncryption
 	 * @author Bastian Voigt
 	 */
 	private static byte[] codeDataCBCwithHMAC(boolean encrypt,
-								   byte[] barInput,
-								   CipherParameters encKey,
-								   CipherParameters macKey) throws Exception
+											  byte[] barInput,
+											  CipherParameters encKey,
+											  CipherParameters macKey) throws Exception
 	{
-		PaddedBufferedBlockCipher cipher =new PaddedBufferedBlockCipher(
+		PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(
 			new CBCBlockCipher(
-			new AESFastEngine()
+				new AESFastEngine()
 			));
 		cipher.init(encrypt, encKey);
 
@@ -213,16 +208,15 @@ final public class XMLEncryption
 			len = cipher.processBytes(barInput, 0, barInput.length,
 									  barOutput, 0);
 		}
-		len+=cipher.doFinal(barOutput, len);
-		if(!encrypt&&len!=barOutput.length) //remove padding
-			{
-				byte[] tmp=new byte[len];
-				System.arraycopy(barOutput,0,tmp,0,len);
-				barOutput=tmp;
-			}
+		len += cipher.doFinal(barOutput, len);
+		if (!encrypt && len != barOutput.length) //remove padding
+		{
+			byte[] tmp = new byte[len];
+			System.arraycopy(barOutput, 0, tmp, 0, len);
+			barOutput = tmp;
+		}
 		return barOutput;
 	}
-
 
 	/**
 	 * Decrypts an XML element
@@ -233,10 +227,21 @@ final public class XMLEncryption
 	 * @return Element
 	 * @author Bastian Voigt
 	 */
-	public static Element decryptElement(Element elemCrypt, String password) throws Exception
+	public static Element decryptElement(Element elemCrypt, final String password) throws Exception
+	{
+		return decryptElement(elemCrypt, new SingleStringPasswordReader(password));
+	}
+
+
+	public static Element decryptElement(Element elemCrypt, IMiscPasswordReader a_passwordReader) throws Exception
 	{
 		Document doc = elemCrypt.getOwnerDocument();
 		Node nodeParent = elemCrypt.getParentNode();
+
+		if (a_passwordReader == null)
+		{
+			a_passwordReader = new SingleStringPasswordReader("");
+		}
 
 		// get actual ciphertext from xml structure
 		String strType = elemCrypt.getAttribute("Type");
@@ -260,22 +265,31 @@ final public class XMLEncryption
 		byte[] barOutput = null;
 		Document doc2 = null;
 		Element elemPlain = null;
-		try
+		String password;
+		Exception ex = null;
+		while ((password = a_passwordReader.readPassword(null)) != null)
 		{
-			// decrypt
-			barOutput = codeDataCTS(false, barInput, generatePBEKey(password, barSalt));
+			try
+			{
 
-			// parse decrypted XML
-			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			doc2 = parser.parse(new ByteArrayInputStream(barOutput));
+				// decrypt
+				barOutput = codeDataCTS(false, barInput, generatePBEKey(password, barSalt));
 
-			elemPlain = (Element) XMLUtil.importNode(doc, doc2.getDocumentElement(), true);
+				// parse decrypted XML
+				doc2 = XMLUtil.toXMLDocument(barOutput);
+				elemPlain = (Element) XMLUtil.importNode(doc, doc2.getDocumentElement(), true);
+				ex = null;
+				break;
+			}
+			catch (Exception a_e)
+			{
+				ex = a_e;
+			}
 		}
-		catch (Exception ex)
+		if (ex != null)
 		{
 			throw new IOException("Exception while decrypting (maybe password wrong): " + ex.toString());
 		}
-
 		// remove ciphertext from document and add plaintext at the right position
 		nodeParent.removeChild(elemCrypt);
 		nodeParent.appendChild(elemPlain);
@@ -315,29 +329,30 @@ final public class XMLEncryption
 		try
 		{
 			barInput = XMLUtil.toString(elemPlain).getBytes();
-			barOutput = codeDataCBCwithHMAC(true, barInput, params,null);
+			barOutput = codeDataCBCwithHMAC(true, barInput, params, null);
 		}
 		catch (Exception ex1)
 		{
 			return false;
 		}
 		//encrpytiong the sym Key and IV
-		OAEPEncoding rsa=new OAEPEncoding(new RSAEngine());
-		rsa.init(true,publicKey.getParams());
+		MyRSA rsa = new MyRSA();
 		byte[] encryptedKey;
 		try
 		{
-			encryptedKey = rsa.encodeBlock(keyAndIv, 0, keyAndIv.length);
+			rsa.init(publicKey);
+			encryptedKey = rsa.processBlockOAEP(keyAndIv, 0, keyAndIv.length);
 		}
-		catch (InvalidCipherTextException ex)
+		catch (Exception ex)
 		{
 			return false;
 		}
 
 		// initialize XML-Encryption-Standard structure
 		Document doc = elemPlain.getOwnerDocument();
+
 		Node nodeParent = elemPlain.getParentNode();
-		Element elemCrypt = doc.createElement("EncryptedData");
+		Element elemCrypt = doc.createElement(XML_ELEMENT_NAME);
 		elemCrypt.setAttribute("Type", "http://www.w3.org/2001/04/xmlenc#Element");
 		elemCrypt.setAttribute("xmlns", "http://www.w3.org/2001/04/xmlenc#");
 		Element elemAlgo = doc.createElement("EncryptionMethod");
@@ -346,9 +361,9 @@ final public class XMLEncryption
 		Element elemKeyInfo = doc.createElement("ds:KeyInfo");
 		elemKeyInfo.setAttribute("xmlns:ds", "http://www.w3.org/2000/09/xmldsig#");
 		elemCrypt.appendChild(elemKeyInfo);
-		Element elemEncKey=doc.createElement("EncryptedKey");
+		Element elemEncKey = doc.createElement("EncryptedKey");
 		elemKeyInfo.appendChild(elemEncKey);
-		elemAlgo=doc.createElement("EncryptionMethod");
+		elemAlgo = doc.createElement("EncryptionMethod");
 		elemAlgo.setAttribute("Algorithm", "http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p");
 		elemEncKey.appendChild(elemAlgo);
 		Element elemCipher = doc.createElement("CipherData");
@@ -362,6 +377,7 @@ final public class XMLEncryption
 		elemValue = doc.createElement("CipherValue");
 		elemCipher.appendChild(elemValue);
 		XMLUtil.setValue(elemValue, Base64.encodeBytes(barOutput));
+
 
 		nodeParent.removeChild(elemPlain);
 		nodeParent.appendChild(elemCrypt);

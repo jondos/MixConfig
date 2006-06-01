@@ -73,7 +73,7 @@ public class MixCertificateView implements ICertificateView
 		Vector coordinates;
 		String strCommonName;
 
-		dn = certificate.getDistinguishedName();
+		dn = certificate.getSubject();
 		extensions = certificate.getExtensions();
 		try
 		{

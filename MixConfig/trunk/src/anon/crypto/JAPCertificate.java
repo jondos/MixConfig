@@ -64,6 +64,7 @@ import org.bouncycastle.asn1.DEROutputStream;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.DERTags;
+import org.bouncycastle.asn1.DEREncodable;
 import org.bouncycastle.asn1.DERUTCTime;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.SignedData;
@@ -71,6 +72,7 @@ import org.bouncycastle.asn1.x509.TBSCertificateStructure;
 import org.bouncycastle.asn1.x509.V3TBSCertificateGenerator;
 import org.bouncycastle.asn1.x509.X509CertificateStructure;
 import org.bouncycastle.asn1.x509.X509Name;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.crypto.digests.GeneralDigest;
 import org.bouncycastle.crypto.digests.MD5Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
@@ -90,8 +92,7 @@ import logging.LogType;
 /**
  * This class represents an X509 certificate.
  */
-public final class JAPCertificate extends X509CertificateStructure
-	implements IXMLEncodable, Cloneable, ICertificate
+public final class JAPCertificate implements IXMLEncodable, Cloneable, ICertificate
 {
 
 	/**
@@ -134,6 +135,11 @@ public final class JAPCertificate extends X509CertificateStructure
 	 */
 	private static IMyPrivateKey ms_dummyPrivateKey;
 
+	private X509CertificateStructure m_bcCertificate;
+	private X509DistinguishedName m_subject;
+	private X509DistinguishedName m_issuer;
+	private X509Extensions m_extensions;
+
 	private IMyPublicKey m_PubKey;
 	private String m_sha1Fingerprint;
 	private String m_md5Fingerprint;
@@ -147,7 +153,10 @@ public final class JAPCertificate extends X509CertificateStructure
 	 */
 	private JAPCertificate(X509CertificateStructure x509cert) throws IllegalArgumentException
 	{
-		super(ASN1Sequence.getInstance(new DERTaggedObject(true, DERTags.BIT_STRING, x509cert), true));
+		//super(ASN1Sequence.getInstance(new DERTaggedObject(true, DERTags.BIT_STRING, x509cert), true));
+		//m_bcCertificate = this;
+		m_bcCertificate = new X509CertificateStructure(ASN1Sequence.getInstance(new DERTaggedObject(true, DERTags.BIT_STRING, x509cert), true));
+
 
 		byte[] data;
 
@@ -168,10 +177,13 @@ public final class JAPCertificate extends X509CertificateStructure
 
 		Calendar startDate, endDate;
 		startDate = Calendar.getInstance();
-		startDate.setTime(this.getStartDate().getDate());
+		startDate.setTime(m_bcCertificate.getStartDate().getDate());
 		endDate = Calendar.getInstance();
-		endDate.setTime(this.getEndDate().getDate());
+		endDate.setTime(m_bcCertificate.getEndDate().getDate());
 		m_validity = new Validity(startDate, endDate);
+		m_subject = new X509DistinguishedName(m_bcCertificate.getSubject());
+		m_issuer = new X509DistinguishedName(m_bcCertificate.getIssuer());
+		m_extensions = new X509Extensions(m_bcCertificate.getTBSCertificate().getExtensions());
 	}
 
 	/**
@@ -193,6 +205,21 @@ public final class JAPCertificate extends X509CertificateStructure
 		}
 
 		return certificate;
+	}
+
+	/**
+	 * Creates a new certificate from a valid X509 certificate.
+	 * @param x509cert a valid X509 certificate
+	 * @return null if no certificate could be created from the certificate
+	 */
+	public static JAPCertificate getInstance(JAPCertificate x509cert)
+	{
+		if (x509cert == null)
+		{
+			return null;
+		}
+
+		return getInstance(x509cert.m_bcCertificate);
 	}
 
 	/**
@@ -411,7 +438,7 @@ public final class JAPCertificate extends X509CertificateStructure
 
 	public Object clone()
 	{
-		return JAPCertificate.getInstance(this);
+		return JAPCertificate.getInstance(m_bcCertificate);
 	}
 
 	/**
@@ -438,16 +465,26 @@ public final class JAPCertificate extends X509CertificateStructure
 	 */
 	public X509Extensions getExtensions()
 	{
-		return new X509Extensions(getTBSCertificate().getExtensions());
+		return m_extensions;
+	}
+
+	public BigInteger getSerialNumber()
+	{
+		return m_bcCertificate.getSerialNumber().getValue();
+	}
+
+	public X509DistinguishedName getIssuer()
+	{
+		return m_issuer;
 	}
 
 	/**
 	 * Returns the distinguished name.
 	 * @return the distinguished name.
 	 */
-	public X509DistinguishedName getDistinguishedName()
+	public X509DistinguishedName getSubject()
 	{
-		return new X509DistinguishedName(getSubject());
+		return m_subject;
 	}
 
 	/**
@@ -490,7 +527,7 @@ public final class JAPCertificate extends X509CertificateStructure
 
 		try
 		{
-			new DEROutputStream(out).writeObject(this);
+			new DEROutputStream(out).writeObject(this.m_bcCertificate);
 		}
 		catch (IOException a_e)
 		{
@@ -539,7 +576,7 @@ public final class JAPCertificate extends X509CertificateStructure
 	public void store(OutputStream a_ostream) throws IOException
 	{
 		DEROutputStream derOutputStream = new DEROutputStream(a_ostream);
-		derOutputStream.writeObject(this);
+		derOutputStream.writeObject(this.m_bcCertificate);
 	}
 
 	/**
@@ -583,7 +620,6 @@ public final class JAPCertificate extends X509CertificateStructure
 	{
 		return verify(a_verifyingCertificates.elements());
 	}
-
 
 	/**
 	 * Checks if a given Certificate could be directly verified against a set of other certificates.
@@ -650,9 +686,10 @@ public final class JAPCertificate extends X509CertificateStructure
 		try
 		{
 			ByteArrayOutputStream bArrOStream = new ByteArrayOutputStream();
-			(new DEROutputStream(bArrOStream)).writeObject(getTBSCertificate());
+			(new DEROutputStream(bArrOStream)).writeObject(m_bcCertificate.getTBSCertificate());
 
-			return ByteSignature.verify(bArrOStream.toByteArray(), getSignature().getBytes(), a_publicKey);
+			return ByteSignature.verify(bArrOStream.toByteArray(),
+										m_bcCertificate.getSignature().getBytes(), a_publicKey);
 		}
 		catch (IOException a_e)
 		{
@@ -673,7 +710,7 @@ public final class JAPCertificate extends X509CertificateStructure
 		JAPCertificate certificate;
 		X509CertificateStructure x509cert;
 		X509CertificateGenerator certgen =
-			new X509CertificateGenerator(getTBSCertificate());
+			new X509CertificateGenerator(m_bcCertificate.getTBSCertificate());
 		x509cert = certgen.sign(a_signerCertificate);
 		certificate = getInstance(x509cert);
 		return certificate;
@@ -692,7 +729,7 @@ public final class JAPCertificate extends X509CertificateStructure
 							   X509Extensions a_extensions, BigInteger a_serialNumber)
 	{
 		return JAPCertificate.getInstance(
-				  new X509DistinguishedName(getSubject()),
+				  new X509DistinguishedName(m_bcCertificate.getSubject()),
 				  a_signerCertificate.getSubject(), a_signerCertificate.getPrivateKey(),
 				  getPublicKey(), a_validity, a_extensions, a_serialNumber);
 	}
@@ -741,6 +778,16 @@ public final class JAPCertificate extends X509CertificateStructure
 		elemX509Cert.setAttribute("xml:space", "preserve");
 		XMLUtil.setValue(elemX509Cert, Base64.encode(toByteArray(), true));
 		return elemX509Cert;
+	}
+
+	DEREncodable getBouncyCastleCertificate()
+	{
+		return m_bcCertificate;
+	}
+
+	SubjectPublicKeyInfo getBouncyCastleSubjectPublicKeyInfo()
+	{
+		return m_bcCertificate.getSubjectPublicKeyInfo();
 	}
 
 	/**
@@ -905,7 +952,7 @@ public final class JAPCertificate extends X509CertificateStructure
 
 		public X509CertificateStructure sign(PKCS12 a_pkcs12Certificate)
 		{
-			return sign(a_pkcs12Certificate.getX509Certificate().getSubject(),
+			return sign(a_pkcs12Certificate.getX509Certificate().m_bcCertificate.getSubject(),
 						a_pkcs12Certificate.getPrivateKey());
 		}
 
