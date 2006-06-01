@@ -529,7 +529,8 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 			PKCS12PBEParams cParams = new PKCS12PBEParams(cSalt, MIN_ITERATIONS);
 			AlgorithmIdentifier cAlgId = new AlgorithmIdentifier(new DERObjectIdentifier(CERT_ALGORITHM),
 				cParams);
-			CertBag cBag = new CertBag(x509certType, new DEROctetString(m_x509certificate));
+			CertBag cBag = new CertBag(x509certType, new DEROctetString(
+						 m_x509certificate.getBouncyCastleCertificate()));
 			DERConstructedSet fName = new DERConstructedSet();
 			DEREncodableVector fSeq = new DEREncodableVector();
 			fSeq.add(pkcs_9_at_localKeyId);
@@ -630,8 +631,14 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 
 	public X509DistinguishedName getSubject()
 	{
-		return new X509DistinguishedName(m_x509certificate.getSubject());
+		return m_x509certificate.getSubject();
 	}
+
+	public X509DistinguishedName getIssuer()
+	{
+		return m_x509certificate.getIssuer();
+	}
+
 
 	/**
 	 * Returns the private key of this certificate.
@@ -894,7 +901,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 	{
 		try
 		{
-			return new SubjectKeyIdentifier(m_x509certificate.getSubjectPublicKeyInfo());
+			return new SubjectKeyIdentifier(m_x509certificate.getBouncyCastleSubjectPublicKeyInfo());
 			/*			ByteArrayInputStream bIn =
 			 new ByteArrayInputStream(pubKey.getEncoded());
 			   SubjectPublicKeyInfo info =

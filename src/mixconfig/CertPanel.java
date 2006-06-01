@@ -1122,12 +1122,12 @@ public class CertPanel extends JPanel implements ActionListener
 		//m_textCertCN.setText(a_x509cs.getSubject().toString());
 		//m_textCertIssuer.setText(a_x509cs.getIssuer().toString());
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(a_x509cs.getStartDate().getDate());
+		cal.setTime(a_x509cs.getValidity().getValidFrom());
 		int day = cal.get(Calendar.DAY_OF_MONTH);
 		int month = cal.get(Calendar.MONTH) + 1;
 		int year = cal.get(Calendar.YEAR);
 		String startDate = day + "." + month + "." + year;
-		cal.setTime(a_x509cs.getEndDate().getDate());
+		cal.setTime(a_x509cs.getValidity().getValidTo());
 		day = cal.get(Calendar.DAY_OF_MONTH);
 		month = cal.get(Calendar.MONTH) + 1;
 		year = cal.get(Calendar.YEAR);

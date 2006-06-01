@@ -30,7 +30,6 @@ package anon.crypto;
 import java.util.Vector;
 import java.util.Hashtable;
 import java.util.Enumeration;
-import java.util.Locale;
 
 import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.asn1.DERObjectIdentifier;
@@ -404,6 +403,16 @@ public final class X509DistinguishedName
 		}
 
 		return name;
+	}
+
+	public int hashCode()
+	{
+		return m_bcX509Name.hashCode();
+	}
+
+	public boolean equals(Object a_object)
+	{
+		return m_bcX509Name.equals(a_object);
 	}
 
 	/**

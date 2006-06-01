@@ -32,7 +32,6 @@ import java.security.PrivateKey;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 
 import anon.util.IXMLEncodable;
-import gui.*;
 
 /**
  * An interface for a private key for encryption and signing.

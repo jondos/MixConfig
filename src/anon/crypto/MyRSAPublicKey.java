@@ -37,8 +37,8 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;
 
+import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DERInputStream;
 import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.RSAPublicKeyStructure;
@@ -47,7 +47,6 @@ import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
 import anon.util.Base64;
 import anon.util.XMLUtil;
 
@@ -106,8 +105,9 @@ final public class MyRSAPublicKey extends AbstractPublicKey implements IMyPublic
 		try
 		{
 			return new MyRSAPublicKey(
-				new RSAPublicKeyStructure( (ASN1Sequence)new DERInputStream(new ByteArrayInputStream(encoded)).
-										  readObject())
+						 new RSAPublicKeyStructure( (
+											   ASN1Sequence)new ASN1InputStream(
+				new ByteArrayInputStream(encoded)).readObject())
 				);
 		}
 		catch (Throwable t)
@@ -125,7 +125,8 @@ final public class MyRSAPublicKey extends AbstractPublicKey implements IMyPublic
 	{
 		try
 		{
-			m_algorithm.initVerify(this);
+		m_algorithm.initVerify(this);
+
 		}
 		catch (InvalidKeyException a_e)
 		{
@@ -133,7 +134,6 @@ final public class MyRSAPublicKey extends AbstractPublicKey implements IMyPublic
 		}
 		return m_algorithm;
 	}
-
 
 	public BigInteger getModulus()
 	{
@@ -159,7 +159,6 @@ final public class MyRSAPublicKey extends AbstractPublicKey implements IMyPublic
 	{
 		return getModulus().bitLength();
 	}
-
 	public SubjectPublicKeyInfo getAsSubjectPublicKeyInfo()
 	{
 		AlgorithmIdentifier algID = new AlgorithmIdentifier(new DERObjectIdentifier("1.2.840.113549.1.1.1")); //RSA
@@ -178,7 +177,7 @@ final public class MyRSAPublicKey extends AbstractPublicKey implements IMyPublic
 	 * @return an XML Node
 	 */
 	public Element toXmlElement(Document a_doc)
-		{
+	{
 		Element elemRoot = a_doc.createElement("RSAKeyValue");
 		Element elemModulus = a_doc.createElement("Modulus");
 		elemRoot.appendChild(elemModulus);
@@ -227,6 +226,5 @@ final public class MyRSAPublicKey extends AbstractPublicKey implements IMyPublic
 
 		return (int) m_hashValue;
 	}
-
 
 }

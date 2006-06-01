@@ -27,8 +27,6 @@
  */
 package anon.crypto;
 
-import gui.*;
-
 /**
  * This interface represents an algorithm that verifies cryptographic signatures.
  */
@@ -41,6 +39,19 @@ public interface ISignatureVerificationAlgorithm
 	 * @return true if the signature of a specified message is valid; false otherwiese
 	 */
 	public boolean verify(byte[] a_message, byte[] a_signature);
+
+	/**
+	 * Tests if the signature of a specified message is valid.
+	 * @param a_message a message
+	 * @param message_offset start of message
+	 * @param message_len length of message
+	 * @param a_signature a signature
+	 * @param signature_offset start of signature
+	 * @param signature_len length of signature
+	 * @return true if the signature of a specified message is valid; false otherwiese
+	 */
+	 public boolean verify(byte[] a_message, int message_offset,int message_len,
+						   byte[] a_signature,int signature_offset,int signature_len);
 
 
 	/**

@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <Signature>
     <!--This xml structure has been created by anon.crypto.XMLSignature.-->
     <!--The calling test class was anon.crypto.test.XMLSignatureTest.-->
     <SignedInfo>
-        <CanonicalizationMethod/>
-        <SignatureMethod Algorithm="Dummy"/>
-        <Reference>
-            <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-            <DigestValue>6F/wvk51FFnVSXUqbyEFuWalbYs=</DigestValue>
-        </Reference>
+      <CanonicalizationMethod />
+      <SignatureMethod Algorithm="Dummy" />
+      <Reference>
+	<DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+	<DigestValue>6F/wvk51FFnVSXUqbyEFuWalbYs=</DigestValue>
+      </Reference>
     </SignedInfo>
     <SignatureValue>G37LG+yIz/uQl8ewgO2P5g==</SignatureValue>
     <KeyInfo>
-        <X509Data>
-            <X509Certificate xml:space="preserve">MIGXMHigAwIBAgIBATAIBgYAAAAAAAAwEjEQMA4GA1UEAxMHcHJpdmF0ZTAeFw0wNjAxMDYxNDMw
-MDJaFw0wNjAxMDYxNDMwMDJaMBMxETAPBgNVBAMTCHByaXZhdGUyMBcwCAYGAAAAAAACAwsAAghu
-LR0V7RGfxaMCMAAwCAYGAAAAAAAAAxEAr9mH/+gTjSHrQeAqLRhytA==</X509Certificate>
-            <X509Certificate xml:space="preserve">MIGYMHmgAwIBAgIBATAIBgYAAAAAAAAwEzERMA8GA1UEAxMIcHJpdmF0ZTMwHhcNMDYwMTA2MTQz
-MDAyWhcNMDYwMTA2MTQzMDAyWjATMREwDwYDVQQDEwhwcml2YXRlMjAXMAgGBgAAAAAAAgMLAAII
-bi0dFe0Rn8WjAjAAMAgGBgAAAAAAAAMRAIacEfYdQzOW4LyPWy/II3Y=</X509Certificate>
-        </X509Data>
+      <X509Data>
+	<X509Certificate xml:space="preserve">MIGXMHigAwIBAgIBATAIBgYAAAAAAAAwEjEQMA4GA1UEAxMHcHJpdmF0ZTAeFw0wNjA2MDExMjU5
+NTRaFw0wNjA2MDExMjU5NTRaMBMxETAPBgNVBAMTCHByaXZhdGUyMBcwCAYGAAAAAAACAwsAAghu
+LR0V7RGfxaMCMAAwCAYGAAAAAAAAAxEAVK46ZFvgdpZcdPcWGOHv+w==</X509Certificate>
+	<X509Certificate xml:space="preserve">MIGYMHmgAwIBAgIBATAIBgYAAAAAAAAwEzERMA8GA1UEAxMIcHJpdmF0ZTMwHhcNMDYwNjAxMTI1
+OTU0WhcNMDYwNjAxMTI1OTU0WjATMREwDwYDVQQDEwhwcml2YXRlMjAXMAgGBgAAAAAAAgMLAAII
+bi0dFe0Rn8WjAjAAMAgGBgAAAAAAAAMRAB1BJ0SWsh6yAtC68ZOD27c=</X509Certificate>
+      </X509Data>
     </KeyInfo>
-</Signature>
+  </Signature>

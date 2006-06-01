@@ -177,7 +177,7 @@ public class CertDetailsDialog extends JAPDialog
 		constraints.insets = inset;
 
 		// Common Name
-		JLabel lbl_summaryName = new JLabel(a_cert.getDistinguishedName().getCommonName(), JLabel.LEFT);
+		JLabel lbl_summaryName = new JLabel(a_cert.getSubject().getCommonName(), JLabel.LEFT);
 		lbl_summaryName.setForeground(TITLE_COLOR);
 		lbl_summaryName.setFont(TITLE_FONT);
 		constraints.gridwidth = 2;
@@ -188,12 +188,10 @@ public class CertDetailsDialog extends JAPDialog
 		detailsPanel.add(new JLabel(JAPMessages.getString(TITLE_ISSUER), JLabel.RIGHT), constraints);
 		constraints.gridx = 2;
 
-		X509DistinguishedName tmp = new X509DistinguishedName(a_cert.getIssuer());
-		str = tmp.getOrganisation();
+		str = a_cert.getIssuer().getOrganisation();
 		if ( (str == null) || (str.equals("")))
 		{
-			tmp = new X509DistinguishedName(a_cert.getIssuer());
-			str = tmp.getCommonName();
+			str = a_cert.getIssuer().getCommonName();
 		}
 		detailsPanel.add(new JLabel(str), constraints);
 		constraints.gridx = 1;
@@ -236,7 +234,7 @@ public class CertDetailsDialog extends JAPDialog
 		}
 
 		// Distinguished Name
-		X509DistinguishedName dName = a_cert.getDistinguishedName();
+		X509DistinguishedName dName = a_cert.getSubject();
 		Vector distinguishedNameKeys = dName.getAttributeIdentifiers();
 		Vector distinguishedNameValues = dName.getAttributeValues();
 		replaceCountryCodeByCountryName(distinguishedNameValues, distinguishedNameKeys);
@@ -256,9 +254,8 @@ public class CertDetailsDialog extends JAPDialog
 		}
 
 		// Issuer
-		X509DistinguishedName issuer = new X509DistinguishedName(a_cert.getIssuer());
-		Vector issuerKeys = issuer.getAttributeIdentifiers();
-		Vector issuerValues = issuer.getAttributeValues();
+		Vector issuerKeys = a_cert.getIssuer().getAttributeIdentifiers();
+		Vector issuerValues = a_cert.getIssuer().getAttributeValues();
 		replaceCountryCodeByCountryName(issuerValues, issuerKeys);
 		issuerKeys = idsToNames(issuerKeys);
 
@@ -370,7 +367,7 @@ public class CertDetailsDialog extends JAPDialog
 		Vector fpValues = new Vector();
 		fpValues.addElement(a_cert.getSHA1Fingerprint());
 		fpValues.addElement(a_cert.getMD5Fingerprint());
-		fpValues.addElement(a_cert.getSerialNumber().getValue());
+		fpValues.addElement(a_cert.getSerialNumber());
 
 		JLabel title_fingerprints = new JLabel(JAPMessages.getString(TITLE_IDENTIFICATION), JLabel.RIGHT);
 		title_fingerprints.setFont(TITLE_FONT);

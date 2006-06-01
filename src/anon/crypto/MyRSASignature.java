@@ -37,9 +37,9 @@ import java.io.ByteArrayOutputStream;
 import java.security.InvalidKeyException;
 import java.security.Key;
 
+import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Null;
 import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DERInputStream;
 import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.DEROutputStream;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
@@ -48,7 +48,6 @@ import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.encodings.PKCS1Encoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
-import gui.*;
 
 /*** SHA1withRSA Signature as described in RFC 2313 */
 public final class MyRSASignature implements IMySignature
@@ -89,48 +88,84 @@ public final class MyRSASignature implements IMySignature
 		//}
 	}
 
-	synchronized public boolean verify(byte[] message, byte[] sig)
+	synchronized public boolean verify(byte[] a_message, byte[] a_signature)
+	{
+		return verify(a_message, 0, a_message.length, a_signature, 0, a_signature.length);
+	}
+
+	synchronized public boolean verify(byte[] message, int message_offset, int message_len,
+									   byte[] sig, int signature_offset, int signature_len)
 	{
 		try
 		{
 			m_Digest.reset();
-			m_Digest.update(message,0,message.length);
-			byte[]  hash = new byte[m_Digest.getDigestSize()];
+			m_Digest.update(message, message_offset, message_len);
+			byte[] hash = new byte[m_Digest.getDigestSize()];
 			m_Digest.doFinal(hash, 0);
 
-			byte[]	 decryptedSig = m_SignatureAlgorithm.processBlock(sig, 0, sig.length);
-			ByteArrayInputStream    bIn = new ByteArrayInputStream(decryptedSig);
- 			DERInputStream          dIn = new DERInputStream(bIn);
+			byte[] decryptedSig = m_SignatureAlgorithm.processBlock(sig, signature_offset, signature_len);
+			ByteArrayInputStream bIn = new ByteArrayInputStream(decryptedSig);
+			ASN1InputStream dIn = new ASN1InputStream(bIn);
 
+			DigestInfo digInfo = new DigestInfo( (ASN1Sequence) dIn.readObject());
 
-			DigestInfo	 digInfo = new DigestInfo((ASN1Sequence)new DERInputStream(bIn).readObject());
-
-			 if (!digInfo.getAlgorithmId().getObjectId().equals(ms_AlgID.getObjectId()))
-			 {
-				 return false;
-			 }
-
-			Object o=digInfo.getAlgorithmId().getParameters();
-			if(o!=null&&!(o instanceof ASN1Null))
+			if (!digInfo.getAlgorithmId().getObjectId().equals(ms_AlgID.getObjectId()))
+			{
 				return false;
+			}
 
-			 byte[]  sigHash = digInfo.getDigest();
+			Object o = digInfo.getAlgorithmId().getParameters();
+			if (o != null && ! (o instanceof ASN1Null))
+			{
+				return false;
+			}
 
-			 if (hash.length != sigHash.length)
-			 {
-				 return false;
-			 }
+			byte[] sigHash = digInfo.getDigest();
 
-			 for (int i = 0; i < hash.length; i++)
-			 {
-				 if (sigHash[i] != hash[i])
-				 {
-					 return false;
-				 }
-			 }
+			if (hash.length != sigHash.length)
+			{
+				return false;
+			}
 
-			 return true;
-	 		}
+			for (int i = 0; i < hash.length; i++)
+			{
+				if (sigHash[i] != hash[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
+	}
+
+
+	/** Verifyes a signature for a given hash*/
+	synchronized public boolean verifyPlain(byte[] hash, byte[] sig)
+	{
+		try
+		{
+			byte[] sigHash = m_SignatureAlgorithm.processBlock(sig, 0, sig.length);
+
+			if (hash.length != sigHash.length)
+			{
+				return false;
+			}
+
+			for (int i = 0; i < hash.length; i++)
+			{
+				if (sigHash[i] != hash[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
 		catch (Exception e)
 		{
 			return false;
@@ -160,11 +195,26 @@ public final class MyRSASignature implements IMySignature
 		}
 	}
 
+	/** Only does the signature calculation assuming that the input already is a hash*/
+	public synchronized byte[] signPlain(byte[] hash)
+	{
+		try
+		{
+
+			return m_SignatureAlgorithm.processBlock(hash, 0, hash.length);
+		}
+		catch (Throwable t)
+		{
+			return null;
+		}
+	}
+
 	/**
 	 * Returns the algorithm identifier (RSA with SHA1).
 	 * @return the algorithm identifier (RSA with SHA1)
 	 */
-	public AlgorithmIdentifier getIdentifier() {
+	public AlgorithmIdentifier getIdentifier()
+	{
 		return ms_identifier;
 	}
 
