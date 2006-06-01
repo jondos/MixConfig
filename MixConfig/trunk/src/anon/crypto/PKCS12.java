@@ -93,7 +93,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.crypto.params.ParametersWithRandom;
 
 import anon.util.IMiscPasswordReader;
-import anon.util.CharArrayPasswordReader;
+import anon.util.SingleStringPasswordReader;
 
 /**
  * This class creates and handles PKCS12 certificates, that include a private key,
@@ -180,7 +180,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 	 */
 	public static PKCS12 getInstance(byte[] a_bytes, char[] a_password)
 	{
-		return getInstance(a_bytes, new CharArrayPasswordReader(a_password));
+		return getInstance(a_bytes, new SingleStringPasswordReader(a_password));
 	}
 
 	/**
@@ -216,7 +216,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 	 */
 	public static PKCS12 getInstance(InputStream a_stream, char[] password)
 	{
-		return getInstance(a_stream, new CharArrayPasswordReader(password));
+		return getInstance(a_stream, new SingleStringPasswordReader(password));
 	}
 
 	/**
@@ -237,7 +237,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 
 		if (a_passwordReader == null)
 		{
-			a_passwordReader = new CharArrayPasswordReader(new char[0]);
+			a_passwordReader = new SingleStringPasswordReader(new char[0]);
 		}
 
 		try

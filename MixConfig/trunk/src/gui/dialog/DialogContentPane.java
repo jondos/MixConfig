@@ -28,7 +28,6 @@
 package gui.dialog;
 
 import java.util.Vector;
-import java.util.Enumeration;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -97,11 +96,11 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 	{
 		// preload java dialog icons
 
-		new JOptionPane("", MESSAGE_TYPE_ERROR).createDialog(null, "").dispose();
-		new JOptionPane("", MESSAGE_TYPE_INFORMATION).createDialog(null, "").dispose();
-		new JOptionPane("", MESSAGE_TYPE_WARNING).createDialog(null, "").dispose();
-		new JOptionPane("", MESSAGE_TYPE_PLAIN).createDialog(null, "").dispose();
-		new JOptionPane("", MESSAGE_TYPE_QUESTION).createDialog(null, "").dispose();
+		new JOptionPane("", MESSAGE_TYPE_ERROR).createDialog(null, "");
+		new JOptionPane("", MESSAGE_TYPE_INFORMATION).createDialog(null, "");
+		new JOptionPane("", MESSAGE_TYPE_WARNING).createDialog(null, "");
+		new JOptionPane("", MESSAGE_TYPE_PLAIN).createDialog(null, "");
+		new JOptionPane("", MESSAGE_TYPE_QUESTION).createDialog(null, "");
 	}
 
 	public static final int ON_CLICK_DO_NOTHING = 0;
@@ -2434,7 +2433,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			}
 
 			clearStatusMessage();
-			bestSize = strMessage.length();
+			bestSize = 0;
 			currentSize = strMessage.length() / 2;
 			for (int i = 0; currentSize > 1; i++)
 			{
@@ -2446,14 +2445,15 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 				dummyLabel.setText(strMessage.substring(0, currentSize) + MORE_POINTS);
 				if (dummyLabel.getPreferredSize().width <= m_lblMessage.getSize().width)
 				{
-					bestSize = currentSize;
-					currentSize = bestSize + (bestSize / (i + 2));
+					bestSize = Math.max(bestSize, currentSize);
+					currentSize += (currentSize / (i + 2));
 				}
 				else
 				{
 					currentSize /= 2;
 				}
 			}
+
 			if (bestSize <= 5)
 			{
 				strMessage = MORE_POINTS;
@@ -2462,6 +2462,7 @@ public class DialogContentPane implements JAPHelpContext.IHelpContext, IDialogOp
 			{
 				strMessage = strMessage.substring(0, bestSize) + MORE_POINTS;
 			}
+
 			strHref =  " href=\"\"";
 			m_lblMessage.setToolTipText(JAPMessages.getString(MSG_SEE_FULL_MESSAGE));
 			m_linkedDialog = new LinkedDialog(a_strMessage, strMessageTitle,
