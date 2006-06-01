@@ -32,13 +32,13 @@ package anon.util;
  * invalidated.
  * @author Rolf Wendolsky
  */
-public class CharArrayPasswordReader implements IMiscPasswordReader
+public class SingleStringPasswordReader implements IMiscPasswordReader
 {
 	private char[] m_password;
 	private boolean m_bUsed = false;
 
 
-	public CharArrayPasswordReader(char[] a_password)
+	public SingleStringPasswordReader(char[] a_password)
 	{
 		m_password = a_password;
 	}
