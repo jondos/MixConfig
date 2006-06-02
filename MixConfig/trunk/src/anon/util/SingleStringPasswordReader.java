@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000 - 2005, The JAP-Team
+ Copyright (c) 2006, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -28,34 +28,54 @@
 package anon.util;
 
 /**
- * This is some kind of dummy password reader and may be used exactly one time before it is
- * invalidated.
  * @author Rolf Wendolsky
  */
 public class SingleStringPasswordReader implements IMiscPasswordReader
 {
-	private char[] m_password;
-	private boolean m_bUsed = false;
+	private char[] m_password = null;
 
+	public SingleStringPasswordReader(String a_password)
+	{
+		if (a_password == null)
+		{
+			m_password = null;
+			return;
+		}
+		m_password = a_password.toCharArray();
+	}
 
 	public SingleStringPasswordReader(char[] a_password)
 	{
-		m_password = a_password;
+		if (a_password == null)
+		{
+			m_password = null;
+			return;
+		}
+		m_password = new char[a_password.length];
+		System.arraycopy(a_password, 0, m_password, 0, a_password.length);
 	}
+
 
 	public String readPassword(Object a_message)
 	{
-		if (m_bUsed)
+		if (m_password == null)
 		{
 			return null;
 		}
+		String password = new String(m_password);
+		clear();
+		return password;
+	}
 
-		m_bUsed = true;
-		if (m_password == null || m_password.length == 0)
+	public void clear()
+	{
+		if (m_password != null)
 		{
-			return new String();
+			for (int i = 0; i < m_password.length; i++)
+			{
+				m_password[i] = 0;
+			}
+			m_password = null;
 		}
-
-		return new String(m_password);
 	}
 }
