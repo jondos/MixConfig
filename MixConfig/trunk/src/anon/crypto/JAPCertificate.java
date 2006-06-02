@@ -57,7 +57,6 @@ import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.BERInputStream;
 import org.bouncycastle.asn1.DERBitString;
 import org.bouncycastle.asn1.DEREncodableVector;
-import org.bouncycastle.asn1.DERInputStream;
 import org.bouncycastle.asn1.DERInteger;
 import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.DEROutputStream;
@@ -470,7 +469,7 @@ public final class JAPCertificate implements IXMLEncodable, Cloneable, ICertific
 
 	public BigInteger getSerialNumber()
 	{
-		return m_bcCertificate.getSerialNumber().getValue();
+		return m_bcCertificate.getSerialNumber().getPositiveValue();
 	}
 
 	public X509DistinguishedName getIssuer()
@@ -802,7 +801,7 @@ public final class JAPCertificate implements IXMLEncodable, Cloneable, ICertific
 
 		try
 		{
-			if (a_bytes[0] != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
+			if (a_bytes[0] != (ASN1InputStream.SEQUENCE | ASN1InputStream.CONSTRUCTED))
 			{
 				// Probably a Base64 encoded certificate
 				BufferedReader in =
