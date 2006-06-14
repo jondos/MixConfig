@@ -96,8 +96,18 @@ public class CertPanel extends JPanel implements ActionListener
 	private static final String STRING_ZERO = new String(new char[]{0});
 
 	// the trusted CSs against those all certificates are tested
-	private static final Hashtable TRUSTED_CERTIFICATES =
-		JAPCertificate.getInstance("certificates/acceptedCAs/", true);
+	private static Hashtable TRUSTED_CERTIFICATES;
+
+	static {
+		try
+		{
+			TRUSTED_CERTIFICATES =	JAPCertificate.getInstance("certificates/acceptedCAs/", true);
+		}
+		catch (SecurityException a_e)
+		{
+			TRUSTED_CERTIFICATES = new Hashtable();
+		}
+	}
 
 	private static final String CERT_VALID = "cert.gif";
 	private static final String CERT_INVALID = "certinvalid.gif";
@@ -835,7 +845,7 @@ public class CertPanel extends JPanel implements ActionListener
 		byte[] cert = null;
 		try
 		{
-			cert = MixConfig.openFile(MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
+			cert = MixConfig.openFile(this, MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
 		}
 		catch (RuntimeException a_ex)
 		{
@@ -870,11 +880,10 @@ public class CertPanel extends JPanel implements ActionListener
 			{
 				filter |= (MixConfig.FILTER_B64_CER | MixConfig.FILTER_CER);
 			}
-			buff = MixConfig.openFile(filter);
+			buff = MixConfig.openFile(this, filter);
 		}
-		catch (Exception e)
+		catch (SecurityException e)
 		{
-			/** @todo Find out which exception exactly is thrown, and catch only that */
 			JAPDialog.showErrorDialog(
 				this,
 				"Import of a private key with certificate is not supported when running as an applet.",
@@ -1027,7 +1036,7 @@ public class CertPanel extends JPanel implements ActionListener
 
 			do
 			{
-				fd = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG, filter);
+				fd = MixConfig.showFileDialog(this, MixConfig.SAVE_DIALOG, filter);
 				if (fd == null)
 				{
 					type = 0;

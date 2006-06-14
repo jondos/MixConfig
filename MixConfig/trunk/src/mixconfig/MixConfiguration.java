@@ -256,7 +256,8 @@ public class MixConfiguration
 		}
 		else
 		{
-			JFileChooser fileChooser = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG, MixConfig.FILTER_XML);
+			JFileChooser fileChooser = MixConfig.showFileDialog(
+						 MixConfig.getMainWindow(), MixConfig.SAVE_DIALOG, MixConfig.FILTER_XML);
 			if (fileChooser == null)
 			{
 				file = null;

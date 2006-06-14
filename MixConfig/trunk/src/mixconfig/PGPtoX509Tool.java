@@ -145,7 +145,7 @@ public class PGPtoX509Tool extends JAPDialog implements ActionListener
 		}
 		else if (e.getSource() == m_btnImport)
 		{
-			JFileChooser fileChooser = MixConfig.showFileDialog(MixConfig.OPEN_DIALOG,
+			JFileChooser fileChooser = MixConfig.showFileDialog(this.getContentPane(), MixConfig.OPEN_DIALOG,
 				MixConfig.FILTER_ALL);
 
 			if (fileChooser != null)

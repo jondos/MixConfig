@@ -207,7 +207,7 @@ public class EncryptedLogTool extends JAPDialog
 		{
 			try
 			{
-				byte[] buff = MixConfig.openFile(MixConfig.FILTER_ALL);
+				byte[] buff = MixConfig.openFile(this.getContentPane(), MixConfig.FILTER_ALL);
 				m_textLogFile.setText(new String(buff));
 				m_textLogFile.revalidate();
 				m_arLog = buff;
