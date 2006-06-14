@@ -36,6 +36,7 @@ import java.util.Calendar;
 
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
+import java.awt.Component;
 import java.awt.event.WindowEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -51,6 +52,7 @@ import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectKeyIdentifier;
 import anon.util.ResourceLoader;
 import anon.util.XMLUtil;
+import anon.util.ClassUtil;
 import gui.GUIUtils;
 import gui.dialog.JAPDialog;
 import gui.dialog.DialogContentPane;
@@ -75,7 +77,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.108"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.109"; //NEVER change the layout of this line!!
 
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -91,7 +93,7 @@ public class MixConfig extends JApplet
 	private static JPanel m_mainPanel;
 	private static ChoicePanel m_startPanel;
 	private static Frame m_MainWindow;
-	private static File m_fileCurrentDir = new File(System.getProperty("user.dir"));
+	private static File m_fileCurrentDir = new File(ClassUtil.getUserDir());
 	private static String m_currentFileName;
 
 	public static void main(String[] argv)
@@ -388,11 +390,22 @@ public class MixConfig extends JApplet
 	 * @param filter_type int
 	 * @return the JFileChooser if an action was taken or null if the user clicked 'cancel'
 	 */
-	public static JFileChooser showFileDialog(int type, int filter_type)
+	public static JFileChooser showFileDialog(Component a_component, int type, int filter_type)
 	{
 		int returnValue;
 		SimpleFileFilter active = null;
-		JFileChooser fd2 = new JFileChooser(m_fileCurrentDir);
+		JFileChooser fd2;
+		try
+		{
+			fd2 = new JFileChooser(m_fileCurrentDir);
+		}
+		catch (SecurityException a_e)
+		{
+			JAPDialog.showErrorDialog(a_component,
+									  "Access to file system is not allowed when running as applet!",
+									  LogType.MISC);
+			return null;
+		}
 		fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		if ( (filter_type & FILTER_CER) != 0)
 		{
@@ -417,11 +430,11 @@ public class MixConfig extends JApplet
 		fd2.setFileHidingEnabled(false);
 		if (type == SAVE_DIALOG)
 		{
-			returnValue = fd2.showSaveDialog(getMainWindow());
+			returnValue = fd2.showSaveDialog(a_component);
 		}
 		else
 		{
-			returnValue = fd2.showOpenDialog(getMainWindow());
+			returnValue = fd2.showOpenDialog(a_component);
 		}
 		if (returnValue == JFileChooser.CANCEL_OPTION)
 		{
@@ -432,9 +445,9 @@ public class MixConfig extends JApplet
 		return fd2;
 	}
 
-	public static byte[] openFile(int type)
+	public static byte[] openFile(Component a_component, int type)
 	{
-		JFileChooser fileChooser = showFileDialog(MixConfig.OPEN_DIALOG, type);
+		JFileChooser fileChooser = showFileDialog(a_component, MixConfig.OPEN_DIALOG, type);
 		if (fileChooser == null)
 		{
 			return null;

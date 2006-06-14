@@ -345,8 +345,9 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			{
 				if (ignoreInconsistenciesForSaving())
 				{
-					JFileChooser fileChooser = MixConfig.showFileDialog(MixConfig.SAVE_DIALOG,
-						MixConfig.FILTER_XML);
+					JFileChooser fileChooser =
+						MixConfig.showFileDialog(MixConfig.getMainWindow(), MixConfig.SAVE_DIALOG,
+												 MixConfig.FILTER_XML);
 					if (fileChooser == null)
 					{
 						return;
@@ -457,7 +458,8 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			{
 
 				File file = null;
-				JFileChooser chooser = MixConfig.showFileDialog(MixConfig.OPEN_DIALOG, MixConfig.FILTER_XML);
+				JFileChooser chooser = MixConfig.showFileDialog(
+								MixConfig.getMainWindow(), MixConfig.OPEN_DIALOG, MixConfig.FILTER_XML);
 				if (chooser != null)
 				{
 					file = chooser.getSelectedFile();

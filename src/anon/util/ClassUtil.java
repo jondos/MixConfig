@@ -194,12 +194,37 @@ public final class ClassUtil
 	}
 
 	/**
+	 * Returns the content of the system property user.dir
+	 * @return the content of the system property user.dir
+	 */
+	public static String getUserDir()
+	{
+		try
+		{
+			return System.getProperty("user.dir");
+		}
+		catch (SecurityException a_e)
+		{
+			// application runs as applet
+			return new File(".").toString();
+		}
+	}
+
+	/**
 	 * Returns the current java class path.
 	 * @return the current java class path
 	 */
 	public static String getClassPath()
 	{
-		return System.getProperty("java.class.path");
+		try
+		{
+			return System.getProperty("java.class.path");
+		}
+		catch (SecurityException a_e)
+		{
+			// application runs as applet
+			return getClassDirectory(ClassUtil.class).toString();
+		}
 	}
 
 	/**
