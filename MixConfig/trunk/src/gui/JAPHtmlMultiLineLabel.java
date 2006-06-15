@@ -39,6 +39,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLWriter;
 import javax.swing.text.BadLocationException;
 
+import anon.util.ClassUtil;
 import logging.LogType;
 import gui.dialog.JAPDialog;
 
@@ -62,12 +63,12 @@ public class JAPHtmlMultiLineLabel extends JLabel
 	private static final String TAG_HEAD_CLOSE = "</head>";
 	private static final String CLIENT_PROPERTY_HTML = "html";
 
-	private boolean m_bInitialised = false;
 
 	/**
 	 * Stores the HTML text displayed by this JAPHtmlMultiLineLabel without the header and the trailer.
 	 */
 	private String m_rawText;
+	private Font m_font;
 
 	/**
 	 * Creates a new JAPHtmlMultiLineLabel.
@@ -148,10 +149,10 @@ public class JAPHtmlMultiLineLabel extends JLabel
 	 */
 	public void setText(String a_newText)
 	{
-		if (!m_bInitialised)
+		if (JLabel.class.isAssignableFrom(ClassUtil.getCallingClassStatic()) &&
+			!JAPHtmlMultiLineLabel.class.isAssignableFrom(ClassUtil.getCallingClassStatic()))
 		{
 			// other JLabels use this method as expected (important for superclass calls)
-			m_bInitialised = true;
 			super.setText(a_newText);
 		}
 		else
@@ -162,6 +163,18 @@ public class JAPHtmlMultiLineLabel extends JLabel
 			 */
 			setFont(getFont());
 		}
+	}
+
+	public Font getFont()
+	{
+		if (JLabel.class.isAssignableFrom(ClassUtil.getCallingClassStatic()) &&
+			!JAPHtmlMultiLineLabel.class.isAssignableFrom(ClassUtil.getCallingClassStatic()))
+		{
+			// other JLabels use this method as expected (important for superclass calls)
+			return super.getFont();
+		}
+
+		return m_font;
 	}
 
 	/**
@@ -303,8 +316,18 @@ public class JAPHtmlMultiLineLabel extends JLabel
 		{
 			a_defaultFont = new JLabel().getFont();
 		}
-		super.setFont(a_defaultFont);
-		super.setText(formatTextAsHTML(m_rawText, a_defaultFont));
+
+		if (JLabel.class.isAssignableFrom(ClassUtil.getCallingClassStatic()) &&
+			!JAPHtmlMultiLineLabel.class.isAssignableFrom(ClassUtil.getCallingClassStatic()))
+		{
+			// other JLabels use this method as expected (important for superclass calls)
+			super.setFont(a_defaultFont);
+		}
+		else
+		{
+			m_font = a_defaultFont;
+			super.setText(formatTextAsHTML(m_rawText, a_defaultFont));
+		}
 	}
 
 	/**
