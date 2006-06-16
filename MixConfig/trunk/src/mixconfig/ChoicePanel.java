@@ -97,6 +97,7 @@ public class ChoicePanel extends JPanel
 
 
 			//add Panels to the 3 Cards
+
 			m_startScreenPanel = new StartScreenPanel(this);
 			m_mainPanel_wiz = new ConfigWizard();
 			m_mainPanel_expert = new ConfigFrame(m_Parent);

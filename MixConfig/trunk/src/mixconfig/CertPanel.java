@@ -99,6 +99,7 @@ public class CertPanel extends JPanel implements ActionListener
 	private static Hashtable TRUSTED_CERTIFICATES;
 
 	static {
+
 		try
 		{
 			TRUSTED_CERTIFICATES =	JAPCertificate.getInstance("certificates/acceptedCAs/", true);
