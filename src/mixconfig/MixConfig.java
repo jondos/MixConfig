@@ -67,7 +67,7 @@ public class MixConfig extends JApplet
 {
 	static
 	{
-		LogHolder.setLogInstance(new SystemErrLog(LogLevel.DEBUG, LogType.ALL));
+		LogHolder.setLogInstance(new SystemErrLog(LogLevel.WARNING, LogType.ALL));
 	}
 
 	public final static int SAVE_DIALOG = 1;
@@ -77,7 +77,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_XML = 2;
 	public final static int FILTER_PFX = 4;
 	public final static int FILTER_B64_CER = 8;
-	public final static String VERSION = "00.04.111"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.112"; //NEVER change the layout of this line!!
 
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -188,6 +188,7 @@ public class MixConfig extends JApplet
 			}
 
 			m_startPanel = new ChoicePanel((JFrame)m_MainWindow,null);
+
 			((JFrame)m_MainWindow).setContentPane(m_startPanel);
 			m_MainWindow.pack();
 			GUIUtils.centerOnScreen(m_MainWindow);
@@ -282,7 +283,6 @@ public class MixConfig extends JApplet
 	{
 		try
 		{
-			LogHolder.setDetailLevel(5);
 			JAPMessages.init("MixConfigMessages");
 			m_MainWindow = (Frame)GUIUtils.getParentWindow(this);
 			m_mixConfiguration = new MixConfiguration();
