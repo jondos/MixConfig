@@ -29,6 +29,7 @@ package gui;
 
 import java.util.Date;
 import java.util.Vector;
+import java.util.Locale;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -60,7 +61,7 @@ import logging.LogType;
  */
 public class CertDetailsDialog extends JAPDialog
 {
-
+	private static final String MSG_TITLE = CertDetailsDialog.class.getName();
 	private static final String MSG_CERTVALID = CertDetailsDialog.class.getName() + "_certValid";
 	private static final String MSG_CERTNOTVALID = CertDetailsDialog.class.getName() + "_certNotValid";
 	private static final String MSG_X509Attribute_ST = CertDetailsDialog.class.getName() + "_attributeST";
@@ -133,17 +134,21 @@ public class CertDetailsDialog extends JAPDialog
 		(LABEL.getFont().getSize()));
 
 	private JLabel lbl_summaryIcon;
+	private Locale m_Locale;
 	private String str;
 	/**
 	 *
 	 * @param a_parent The parent object
 	 * @param a_cert JAPCertificate which will be shown
 	 * @param a_bIsVerifyable boolean indicating if the cert has been verified
+	 * @param a_locale the current locale
 	 */
-
-	public CertDetailsDialog(Component a_parent, JAPCertificate a_cert, boolean a_bIsVerifyable)
+	public CertDetailsDialog(Component a_parent, JAPCertificate a_cert, boolean a_bIsVerifyable,
+							 Locale a_locale)
 	{
-		super(a_parent, "Certificate Details");
+		super(a_parent, JAPMessages.getString(MSG_TITLE));
+
+		m_Locale = a_locale;
 
 		JPanel rootPanel = new JPanel();
 		rootPanel.setLayout(new GridBagLayout());
@@ -505,11 +510,12 @@ public class CertDetailsDialog extends JAPDialog
 				try
 				{
 					a_attributes.setElementAt(
-						new CountryMapper(a_attributes.elementAt(i).toString()).toString(), i);
+						new CountryMapper(a_attributes.elementAt(i).toString(), m_Locale).toString(), i);
 				}
 				catch (IllegalArgumentException a_e)
 				{
 					LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Invalid / Unknown country code");
+					a_attributes.setElementAt(a_attributes.elementAt(i), i);
 				}
 			}
 		}

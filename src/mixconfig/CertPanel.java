@@ -317,7 +317,7 @@ public class CertPanel extends JPanel implements ActionListener
 				if (m_certLabel.isEnabled())
 				{
 					CertDetailsDialog dialog = new CertDetailsDialog(getParent(), m_cert.getX509Certificate(),
-						isCertificateVerifyable());
+						isCertificateVerifyable(), null);
 					dialog.setVisible(true);
 				}
 			}
