@@ -25,7 +25,7 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
-package mixconfig;
+package gui;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,13 +33,13 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
-import java.awt.Frame;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -57,15 +57,22 @@ import javax.swing.text.html.parser.DocumentParser;
 
 import gui.dialog.JAPDialog;
 import logging.LogType;
-import gui.GUIUtils;
 
 /** This class provides a dialog showing a map section loaded from MapQuest(R)
  * according to the specified latitude and longitude.
  */
 
-class MapBox extends JAPDialog implements ChangeListener
+public class MapBox extends JAPDialog implements ChangeListener
 {
+	public static final String MSG_ERROR_WHILE_LOADING = MapBox.class.getName() + "_errorLoading";
+
+
 	private static final String IMG_MAPQUEST = MapBox.class.getName() + "_mapquest-logo.gif";
+
+	private static final String MSG_PLEASE_WAIT = MapBox.class.getName() + "_pleaseWait";
+	private static final String MSG_CLOSE = MapBox.class.getName() + "_close";
+	private static final String MSG_TITLE = MapBox.class.getName() + "_title";
+	private static final String MSG_ZOOM = MapBox.class.getName() + "_zoom";
 
         /** The URL pointing to the real map image */
 	private String m_urlString;
@@ -85,7 +92,7 @@ class MapBox extends JAPDialog implements ChangeListener
          * @param level The zoom level to be set (0 - 9)
          * @throws Exception If an error occurs
          */
-	public MapBox(Frame parent, String lat, String lon, int level) throws Exception
+	public MapBox(Component parent, String lat, String lon, int level) throws IOException
 	{
 		super(parent, "");
 		getContentPane().setBackground(Color.white);
@@ -111,7 +118,7 @@ class MapBox extends JAPDialog implements ChangeListener
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		c.insets = new Insets(20, 10, 5, 10);
-		JLabel l = new JLabel("Zoom");
+		JLabel l = new JLabel(MSG_ZOOM);
 		layout.setConstraints(l, c);
 		getContentPane().add(l);
 
@@ -152,7 +159,7 @@ class MapBox extends JAPDialog implements ChangeListener
 		layout.setConstraints(logolabel, c);
 		getContentPane().add(logolabel);
 
-		m_btnClose = new JButton("Close");
+		m_btnClose = new JButton(JAPMessages.getString(MSG_CLOSE));
 		m_btnClose.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent a_event)
 		{
@@ -163,7 +170,9 @@ class MapBox extends JAPDialog implements ChangeListener
 		c.gridy = 2;
 		layout.setConstraints(m_btnClose, c);
 		getContentPane().add(m_btnClose);
+
 		refresh();
+
 		pack();
 	}
 
@@ -179,6 +188,12 @@ class MapBox extends JAPDialog implements ChangeListener
 		refresh();
 	}
 
+	public void setVisible(boolean a_bVisible)
+	{
+		super.setVisible(a_bVisible);
+
+}
+
 	public void stateChanged(ChangeEvent e)
 	{
 		try
@@ -191,7 +206,7 @@ class MapBox extends JAPDialog implements ChangeListener
 		}
 		catch (IOException ioe)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, ioe);
+			JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_ERROR_WHILE_LOADING), LogType.NET, ioe);
 		}
 	}
 
@@ -212,15 +227,14 @@ class MapBox extends JAPDialog implements ChangeListener
 		String Title = "";
 
 		map.setIcon(null);
-		map.setText("Please wait ...");
+		map.setText(JAPMessages.getString(MSG_PLEASE_WAIT) + "...");
 		map.repaint();
 
 		String site = "http://www.mapquest.com/maps/map.adp?latlongtype=" +
 			"decimal&latitude=" + m_latitude + "&longitude=" + m_longitude +
 			"&zoom=" + s.getValue();
 
-		Title = "The location shown on the Map is :  Latitude = " +
-			m_latitude + "  Longitude = " + m_longitude;
+		Title = JAPMessages.getString(MSG_TITLE, new String[]{m_latitude, m_longitude});
 
 		setTitle(Title);
 		URL urlsmall = new URL(site);
