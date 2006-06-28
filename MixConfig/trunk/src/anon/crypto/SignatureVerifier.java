@@ -34,11 +34,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import anon.util.XMLUtil;
+import anon.util.IXMLEncodable;
 
 /**
  * Manages the verification of all signatures.
  */
-public class SignatureVerifier
+public class SignatureVerifier implements IXMLEncodable
 {
 
         /**
@@ -60,7 +61,7 @@ public class SignatureVerifier
         /**
          * Stores the name of the root node of the XML settings for this class.
          */
-        private static final String XML_SETTINGS_ROOT_NODE_NAME = "SignatureVerification";
+        public static final String XML_ELEMENT_NAME = "SignatureVerification";
 
         /**
          * Stores the instance of SignatureVerifier (Singleton).
@@ -114,7 +115,7 @@ public class SignatureVerifier
          */
         public static String getXmlSettingsRootNodeName()
         {
-                return XML_SETTINGS_ROOT_NODE_NAME;
+                return XML_ELEMENT_NAME;
         }
 
         /**
@@ -222,7 +223,9 @@ public class SignatureVerifier
                                          */
                                         int rootType=JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX;
                                         if(a_documentClass == DOCUMENT_CLASS_INFOSERVICE)
-                                                rootType=JAPCertificate.CERTIFICATE_TYPE_ROOT_INFOSERVICE;
+										{
+											rootType = JAPCertificate.CERTIFICATE_TYPE_ROOT_INFOSERVICE;
+										}
                                         Vector rootCertificateInfoStructures = m_trustedCertificates.
                                                 getAvailableCertificatesByType(rootType);
                                         Enumeration rootCertificatesEnumerator = rootCertificateInfoStructures.elements();
@@ -257,14 +260,14 @@ public class SignatureVerifier
          *
          * @return The settings of this instance of SignatureVerifier as an XML node.
          */
-        public Element getSettingsAsXml(Document a_doc)
+        public Element toXmlElement(Document a_doc)
         {
-                Element signatureVerificationNode = a_doc.createElement(XML_SETTINGS_ROOT_NODE_NAME);
+                Element signatureVerificationNode = a_doc.createElement(XML_ELEMENT_NAME);
                 synchronized (m_trustedCertificates)
                 {
                         Element checkSignaturesNode = a_doc.createElement("CheckSignatures");
                         XMLUtil.setValue(checkSignaturesNode, m_checkSignatures);
-                        Element trustedCertificatesNode = m_trustedCertificates.getSettingsAsXml(a_doc);
+                        Element trustedCertificatesNode = m_trustedCertificates.toXmlElement(a_doc);
                         signatureVerificationNode.appendChild(checkSignaturesNode);
                         signatureVerificationNode.appendChild(trustedCertificatesNode);
                 }
