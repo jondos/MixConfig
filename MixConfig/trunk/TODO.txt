@@ -1,3 +1,15 @@
+<SourceHost>
 
-TODO:
 
+eintragen in im Tag nextMix
+
+
+<Proxy>
+	      <VisibleAddresses> <!-- Describes the visible addresses from the 'outside world' -->
+        <VisibleAddress>
+          <Host> <!-- Host or IP -->
+          </Host>
+        </VisibleAddress>
+      </VisibleAddresses>
+
+	 </Proxy>

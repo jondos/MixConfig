@@ -1,9 +1,0 @@
-SignatureVerifier:
-- umbenennen in XMLSignatureVerifier
-- implementieren von IXMLEncodable
-- getXmlSettingsRootNodeName umbenennen in getXmlElementName
-  oder ganz ersetztn durch Konstante XML_ELEMENT_NAME
-
-
-CertificateStore: 
-- implementieren von IXMLEncodable

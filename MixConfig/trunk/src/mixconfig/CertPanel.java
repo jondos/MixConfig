@@ -632,7 +632,7 @@ public class CertPanel extends JPanel implements ActionListener
 		}
 		else
 		{
-			throw new IllegalArgumentException(MSG_CERT_TYPE_UNKNOWN);
+			throw new IllegalArgumentException(JAPMessages.getString(MSG_CERT_TYPE_UNKNOWN));
 		}
 		enableButtons();
 		fireStateChanged();
