@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2000 - 2005, The JAP-Team
+ Copyright (c) 2000 - 2006, The JAP-Team
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -54,7 +54,6 @@ import java.util.zip.ZipFile;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1TaggedObject;
 import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.BERInputStream;
 import org.bouncycastle.asn1.DERBitString;
 import org.bouncycastle.asn1.DEREncodableVector;
 import org.bouncycastle.asn1.DERInteger;
@@ -811,6 +810,7 @@ public final class JAPCertificate implements IXMLEncodable, Cloneable, ICertific
 					new InputStreamReader(new ByteArrayInputStream(a_bytes)));
 				StringBuffer sbuf = new StringBuffer();
 				String line;
+				int indexFirst, indexLast;
 
 				while ( (line = in.readLine()) != null)
 				{
@@ -819,6 +819,19 @@ public final class JAPCertificate implements IXMLEncodable, Cloneable, ICertific
 						break;
 					}
 				}
+/*
+				if (line != null)
+				{
+					// data might be given in one long line
+					indexFirst = line.indexOf(Base64.BEGIN_TAG);
+					indexLast = line.indexOf(Base64.TAG_END_SEQUENCE);
+					if (indexFirst >= 0 && indexLast >= 0 && indexFirst < indexLast)
+					{
+						//if (line.length() > indexLast
+//						sbuf.append(line.substring(indexLast))
+					}
+				}*/
+
 
 				while ( (line = in.readLine()) != null)
 				{
@@ -833,8 +846,8 @@ public final class JAPCertificate implements IXMLEncodable, Cloneable, ICertific
 
 			if (bin == null && a_bytes[1] == 0x80)
 			{
-				// a BER encoded certificate
-				BERInputStream in = new BERInputStream(new ByteArrayInputStream(a_bytes));
+				//a BER encoded certificate
+				ASN1InputStream in = new ASN1InputStream(new ByteArrayInputStream(a_bytes));
 				return (ASN1Sequence) in.readObject();
 			}
 			else
@@ -842,7 +855,6 @@ public final class JAPCertificate implements IXMLEncodable, Cloneable, ICertific
 				if (bin == null)
 				{
 					bin = new ByteArrayInputStream(a_bytes);
-					// DERInputStream
 				}
 				return (ASN1Sequence) (new ASN1InputStream(bin)).readObject();
 			}

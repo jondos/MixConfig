@@ -16,7 +16,7 @@
   prior written permission.
 
 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HERS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
  AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS
  BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -45,13 +45,12 @@ import java.math.BigInteger;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.ASN1TaggedObject;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.BERConstructedOctetString;
-import org.bouncycastle.asn1.BERInputStream;
 import org.bouncycastle.asn1.BEROutputStream;
 import org.bouncycastle.asn1.DERBMPString;
-import org.bouncycastle.asn1.DERConstructedSet;
-import org.bouncycastle.asn1.DEREncodableVector;
-import org.bouncycastle.asn1.DERInputStream;
+import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.DEROctetString;
@@ -94,6 +93,7 @@ import org.bouncycastle.crypto.params.ParametersWithRandom;
 
 import anon.util.IMiscPasswordReader;
 import anon.util.SingleStringPasswordReader;
+import org.bouncycastle.asn1.DEREncodableVector;
 
 /**
  * This class creates and handles PKCS12 certificates, that include a private key,
@@ -233,7 +233,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 	{
 		boolean bCorrectPassword = false;
 		char[] password = new char[0];
-		DERInputStream dIn;
+		ASN1InputStream dIn;
 
 		if (a_passwordReader == null)
 		{
@@ -244,7 +244,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 		{
 			BufferedInputStream stream = new BufferedInputStream(a_stream);
 			stream.mark(1);
-			if (stream.read() != (DERInputStream.SEQUENCE | DERInputStream.CONSTRUCTED))
+			if (stream.read() != (ASN1InputStream.SEQUENCE | ASN1InputStream.CONSTRUCTED))
 			{
 				// this is no a valid PKCS12 stream
 				return null;
@@ -255,7 +255,8 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 			IMyPrivateKey privKey = null;
 			X509CertificateStructure x509cert = null;
 
-			BERInputStream is = new BERInputStream(stream);
+			//BERInputStream is = new BERInputStream(stream);
+			ASN1InputStream is = new ASN1InputStream(stream);
 			ContentInfo contentInfo = new Pfx((ASN1Sequence) is.readObject()).getAuthSafe();
 			/** @todo Check MAC */
 			// Look at JDKPKCS12KeyStore.engineLoad (starting with bag.getMacData())
@@ -264,9 +265,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 			{
 				return null;
 			}
-
-			is = new BERInputStream(new ByteArrayInputStream( ( (DEROctetString) contentInfo.getContent()).
-				getOctets()));
+			is = new ASN1InputStream(new ByteArrayInputStream( ( (ASN1OctetString) contentInfo.getContent()).getOctets()));
 			ContentInfo[] cinfos = (new AuthenticatedSafe( (ASN1Sequence) is.readObject())).getContentInfo();
 
 			for (int i = 0; i < cinfos.length; i++)
@@ -274,7 +273,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 				ASN1Sequence cseq;
 				if (cinfos[i].getContentType().equals(PKCSObjectIdentifiers.data))
 				{
-					DERInputStream dis = new DERInputStream(new ByteArrayInputStream(
+					ASN1InputStream dis = new ASN1InputStream(new ByteArrayInputStream(
 						( (DEROctetString) cinfos[i].getContent())
 						.getOctets()));
 					cseq = (ASN1Sequence) dis.readObject();
@@ -290,13 +289,13 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 					}
 					PKCS12PBEParams pbeParams = new PKCS12PBEParams( (ASN1Sequence) ed.getEncryptionAlgorithm()
 						.getParameters());
-					BERInputStream bis = null;
+					ASN1InputStream bis = null;
 
 					do
 					{
 						try
 						{
-							bis = new BERInputStream(
+							    bis = new ASN1InputStream(
 								new ByteArrayInputStream(
 								codeData(false, ed.getContent().getOctets(), pbeParams,
 										 password, cipher.cipher, cipher.keysize)));
@@ -328,7 +327,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 
 					if (sb.getBagId().equals(PKCSObjectIdentifiers.certBag))
 					{
-						dIn = new BERInputStream(
+						    dIn = new ASN1InputStream(
 							new ByteArrayInputStream( ( (DEROctetString)new CertBag( (ASN1Sequence)
 							sb.getBagValue()).getCertValue()).getOctets()));
 						ASN1Sequence xseq = (ASN1Sequence) dIn.readObject();
@@ -369,7 +368,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 							dIn = null;
 							try
 							{
-								dIn = new DERInputStream(new ByteArrayInputStream(
+								    dIn = new ASN1InputStream(new ByteArrayInputStream(
 									codeData(false, ePrivKey.getEncryptedData(),
 											 pbeParams, password, cipher.cipher, cipher.keysize)));
 								privKeyInfo = new PrivateKeyInfo( (ASN1Sequence) dIn.readObject());
@@ -501,19 +500,22 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 				new DERObjectIdentifier(KEY_ALGORITHM),
 				kParams.getDERObject());
 			EncryptedPrivateKeyInfo kInfo = new EncryptedPrivateKeyInfo(kAlgId, kBytes);
-			DERConstructedSet kName = new DERConstructedSet();
 
 			//
 			// set a default friendly name (from the key id) and local id
 			//
+			DERSequence[] seqs = new DERSequence[2];
 			DEREncodableVector kSeq = new DEREncodableVector();
 			kSeq.add(pkcs_9_at_localKeyId);
 			kSeq.add(new DERSet(createSubjectKeyId()));
-			kName.addObject(new DERSequence(kSeq));
+			seqs[0] = new DERSequence(kSeq);
+			//kName.addObject(new DERSequence(kSeq));
 			kSeq = new DEREncodableVector();
 			kSeq.add(pkcs_9_at_friendlyName);
 			kSeq.add(new DERSet(new DERBMPString(getAlias())));
-			kName.addObject(new DERSequence(kSeq));
+			seqs[1] = new DERSequence(kSeq);
+			DERSet kName = new DERSet(seqs);
+			//kName.addObject(new DERSequence(kSeq));
 
 			keyString = new BERConstructedOctetString(new DERSequence(
 				new SafeBag(pkcs8ShroudedKeyBag, kInfo.getDERObject(), kName)));
@@ -531,16 +533,18 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 				cParams);
 			CertBag cBag = new CertBag(x509certType, new DEROctetString(
 						 m_x509certificate.getBouncyCastleCertificate()));
-			DERConstructedSet fName = new DERConstructedSet();
 			DEREncodableVector fSeq = new DEREncodableVector();
 			fSeq.add(pkcs_9_at_localKeyId);
 			fSeq.add(new DERSet(createSubjectKeyId()));
-			fName.addObject(new DERSequence(fSeq));
+			DERSequence[] seqs = new DERSequence[2];
+			seqs[0] = new DERSequence(fSeq);
+
 
 			fSeq = new DEREncodableVector();
 			fSeq.add(pkcs_9_at_friendlyName);
 			fSeq.add(new DERSet(new DERBMPString(getAlias())));
-			fName.addObject(new DERSequence(fSeq));
+			seqs[1] = new DERSequence(fSeq);
+			DERSet fName = new DERSet(seqs);
 
 			SafeBag sBag = new SafeBag(certBag, cBag.getDERObject(), fName);
 
