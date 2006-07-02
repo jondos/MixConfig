@@ -118,11 +118,11 @@ public class MapBox extends JAPDialog implements ChangeListener
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		c.insets = new Insets(20, 10, 5, 10);
-		JLabel l = new JLabel(MSG_ZOOM);
+		JLabel l = new JLabel(JAPMessages.getString(MSG_ZOOM));
 		layout.setConstraints(l, c);
 		getContentPane().add(l);
 
-		s = new JSlider(JSlider.VERTICAL, 1, 9, level);
+		s = new JSlider(JSlider.VERTICAL, 0, 9, level);
 		s.setBackground(Color.white);
 		s.setPaintTicks(true);
 		s.setMajorTickSpacing(1);
