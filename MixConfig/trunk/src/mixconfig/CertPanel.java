@@ -38,6 +38,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -49,6 +50,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.ButtonGroup;
+import javax.swing.BoxLayout;
+import javax.swing.JRadioButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
@@ -77,6 +81,9 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import mixconfig.wizard.CannotContinueException;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.Transferable;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -120,6 +127,7 @@ public class CertPanel extends JPanel implements ActionListener
 	private static final String MSG_CERT_TYPE_UNKNOWN = CertPanel.class.getName() + "_certTypeUnknown";
 	private static final String MSG_CONFIRM_OVERWRITE = CertPanel.class.getName() + "_confirmOverwriting";
 	private static final String MSG_CONFIRM_DELETION = CertPanel.class.getName() + "_confirmDeletion";
+	private static final String MSG_CHOOSE_LOAD_METHOD = CertPanel.class.getName() + "_chooseLoadMethod";
 
 
 	// holds a Vector with all instanciated CertPanels
@@ -583,10 +591,10 @@ public class CertPanel extends JPanel implements ActionListener
 				JAPDialog dialog =
 					new JAPDialog(GUIUtils.getParentWindow(this), "Enter the certificate password", true);
 				dialog.setResizable(false);
-				dialog.setDefaultCloseOperation(JAPDialog.DISPOSE_ON_CLOSE);
+				dialog.setDefaultCloseOperation(JAPDialog.HIDE_ON_CLOSE);
 				PasswordContentPane pb = new PasswordContentPane(dialog,
 					PasswordContentPane.PASSWORD_ENTER, "Please enter your certificate password.");
-				pb.setDefaultButtonOperation(PasswordContentPane.ON_CLICK_DISPOSE_DIALOG);
+				pb.setDefaultButtonOperation(PasswordContentPane.ON_CLICK_HIDE_DIALOG);
 				pb.updateDialog();
 				dialog.pack();
 				CertPanelPasswordReader pwReader = new CertPanelPasswordReader(pb);
@@ -620,6 +628,7 @@ public class CertPanel extends JPanel implements ActionListener
 						}
 					}
 				}
+				dialog.dispose();
 				bChanged = setCertificate(privateCertificate, pwReader.getPassword());
 			}
 		}
@@ -844,21 +853,41 @@ public class CertPanel extends JPanel implements ActionListener
 	private boolean importPubCert() throws IOException
 	{
 		byte[] cert = null;
-		try
-		{
-			cert = MixConfig.openFile(this, MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
-		}
-		catch (RuntimeException a_ex)
-		{
-			ClipFrame open = new ClipFrame(this, "Paste a certificate to be imported in " +
-										   "the area provided.", true);
-			open.setVisible(true);
-			cert = open.getText().getBytes();
-		}
-		if (cert == null)
+		JAPDialog dialog = new JAPDialog(this, "Import a certificate");
+		ChooseCertLoadingMethodPane pane =
+			new ChooseCertLoadingMethodPane(dialog);
+		pane.updateDialog();
+		dialog.pack();
+		dialog.setResizable(false);
+		dialog.setVisible(true);
+		if (pane.getButtonValue() != DialogContentPane.RETURN_VALUE_OK)
 		{
 			return false;
 		}
+		if (pane.isMethodFile())
+		{
+			try
+			{
+				cert = MixConfig.openFile(this, MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
+			}
+			catch (RuntimeException a_ex)
+			{
+				ClipFrame open = new ClipFrame(this, "Paste a certificate to be imported in " +
+											   "the area provided.", true);
+				open.setVisible(true);
+				cert = open.getText().getBytes();
+			}
+			if (cert == null)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			cert = GUIUtils.getTextFromClipboard(this).getBytes();
+		}
+
+
 
 		return setCert(cert);
 	}
@@ -1217,6 +1246,40 @@ public class CertPanel extends JPanel implements ActionListener
 		public char[] getPassword()
 		{
 			return m_password;
+		}
+	}
+
+	private class ChooseCertLoadingMethodPane extends DialogContentPane
+	{
+		private JRadioButton m_btnFile;
+		private JRadioButton m_btnClip;
+
+		public ChooseCertLoadingMethodPane(JAPDialog a_dialog)
+		{
+			super(a_dialog, JAPMessages.getString(MSG_CHOOSE_LOAD_METHOD),
+				  new Options(DialogContentPane.OPTION_TYPE_OK_CANCEL));
+			JPanel buttonPanel = new JPanel();
+
+			setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
+			GridBagConstraints constr = new GridBagConstraints();
+			m_btnFile = new JRadioButton("File");
+			m_btnClip = new JRadioButton("Clipboard");
+			ButtonGroup group = new ButtonGroup();
+			group.add(m_btnFile);
+			group.add(m_btnClip);
+			m_btnFile.setSelected(true);
+			constr.gridx = 0;
+			constr.gridy = 0;
+			BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
+			buttonPanel.setLayout(layout);
+			getContentPane().setLayout(new GridBagLayout());
+			buttonPanel.add(m_btnFile, layout);
+			buttonPanel.add(m_btnClip, layout);
+			getContentPane().add(buttonPanel, constr);
+		}
+		public boolean isMethodFile()
+		{
+			return m_btnFile.isSelected();
 		}
 	}
 
