@@ -411,21 +411,8 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			}
 			else if (evt.getActionCommand().equals("OpenClip"))
 			{
-				Clipboard cb = GUIUtils.getSystemClipboard();
-				String xmlString;
+				String xmlString = GUIUtils.getTextFromClipboard(m_MenuBar);
 
-				Transferable data = cb.getContents(this);
-				if (data != null && data.isDataFlavorSupported(DataFlavor.stringFlavor))
-				{
-					xmlString = (String) data.getTransferData(DataFlavor.stringFlavor);
-				}
-				else
-				{
-					ClipFrame cf =
-						new ClipFrame(m_MenuBar, "Paste a file to be opened in the area provided.", true);
-					cf.setVisible(true, false);
-					xmlString = cf.getText();
-				}
 				//m_configFrame_Panel.setConfiguration(new MixConfiguration(new StringReader(xmlString)));
 				StringReader sr = new StringReader(xmlString);
 				MixConfiguration mixconfig = MixConfig.getMixConfiguration();

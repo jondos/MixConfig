@@ -38,11 +38,14 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.JOptionPane;
-import gui.dialog.*;
+
+import gui.dialog.JAPDialog;
+import logging.*;
 
 public class ClipFrame extends JAPDialog implements ActionListener, ItemListener
 {
+	private static final String MSG_EMPTY = ClipFrame.class.getName() + "_empty";
+
 	private TextArea m_TextArea;
 	private Choice chooser;
 	private ClipChoice[] choices;
@@ -131,9 +134,7 @@ public class ClipFrame extends JAPDialog implements ActionListener, ItemListener
 		{
 			if (m_TextArea.getText().equals(""))
 			{
-				JOptionPane.showMessageDialog(getOwner(), "The Text Area is empty!",
-											  "Error!", JOptionPane.ERROR_MESSAGE);
-
+				JAPDialog.showErrorDialog(getOwner(), JAPMessages.getString(MSG_EMPTY), LogType.GUI);
 			}
 			else
 			{
