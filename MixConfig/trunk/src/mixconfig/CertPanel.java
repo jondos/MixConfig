@@ -125,6 +125,9 @@ public class CertPanel extends JPanel implements ActionListener
 	private static final String MSG_CONFIRM_OVERWRITE = CertPanel.class.getName() + "_confirmOverwriting";
 	private static final String MSG_CONFIRM_DELETION = CertPanel.class.getName() + "_confirmDeletion";
 	private static final String MSG_CHOOSE_LOAD_METHOD = CertPanel.class.getName() + "_chooseLoadMethod";
+	private static final String MSG_CHOOSE_SAVE_METHOD = CertPanel.class.getName() + "_chooseSaveMethod";
+	private static final String MSG_CHOOSE_CERT_TYPE = CertPanel.class.getName() + "_chooseCertType";
+
 
 
 	// holds a Vector with all instanciated CertPanels
@@ -850,7 +853,7 @@ public class CertPanel extends JPanel implements ActionListener
 	private boolean importPubCert() throws IOException
 	{
 		byte[] cert = null;
-		JAPDialog dialog = new JAPDialog(this, "Import a certificate");
+		JAPDialog dialog = new JAPDialog(this, "Import certificate");
 		ChooseCertStorageMethodPane pane =
 			new ChooseCertStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_LOAD_METHOD));
 		pane.updateDialog();
@@ -900,31 +903,55 @@ public class CertPanel extends JPanel implements ActionListener
 	{
 		byte[] buff;
 		PKCS12 pkcs12;
-		try
+
+		pkcs12 = (PKCS12) m_cert;
+		JAPDialog dialog = new JAPDialog(this, "Import certificate");
+		ChooseCertStorageMethodPane pane =
+			new ChooseCertStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_LOAD_METHOD));
+		pane.updateDialog();
+		dialog.pack();
+		dialog.setResizable(false);
+		dialog.setVisible(true);
+		if (pane.getButtonValue() != DialogContentPane.RETURN_VALUE_OK)
 		{
-			pkcs12 = (PKCS12) m_cert;
+			return false;
+		}
+		if (pane.isMethodFile())
+		{
 			int filter = MixConfig.FILTER_PFX;
 			if (m_cert != null)
 			{
 				//filter |= (MixConfig.FILTER_B64_CER | MixConfig.FILTER_CER);
 				filter |= (MixConfig.FILTER_CER);
 			}
-			buff = MixConfig.openFile(this, filter);
-		}
-		catch (SecurityException e)
-		{
-			JAPDialog.showErrorDialog(
-				this,
-				"Import of a private key with certificate is not supported when running as an applet.",
-				"Not supported!",
-				LogType.GUI);
-			m_bttnImportCert.setEnabled(false);
-			return false;
-		}
+			try
+			{
+				buff = MixConfig.openFile(this, filter);
+			}
+			catch (SecurityException e)
+			{
+				/*
+					 JAPDialog.showErrorDialog(
+				 this,
+				 "Import of a private key with certificate is not supported when running as an applet.",
+				 "Not supported!",
+				 LogType.GUI);
+					 m_bttnImportCert.setEnabled(false);
+					return false;*/
+				ClipFrame open = new ClipFrame(this, "Paste a certificate to be imported in " +
+											   "the area provided.", true);
+				open.setVisible(true);
+				buff = open.getText().getBytes();
 
-		if (buff == null)
+			}
+			if (buff == null)
+			{
+				return false;
+			}
+		}
+		else
 		{
-			return false;
+			buff = GUIUtils.getTextFromClipboard(this).getBytes();
 		}
 
 		//if own key is already set, then maybe only an other certificate for this key is imported...
@@ -941,11 +968,8 @@ public class CertPanel extends JPanel implements ActionListener
 				else
 				{
 					JAPDialog.showErrorDialog(
-						this,
-						"This public key certificate does not" +
-						"belong to your private key!",
-						"Wrong certificate!",
-						LogType.GUI);
+						this, "This public key certificate does not belong to your private key!",
+						"Wrong certificate!", LogType.GUI);
 					return false;
 				}
 			}
@@ -1050,18 +1074,40 @@ public class CertPanel extends JPanel implements ActionListener
 			throw new IllegalArgumentException("No certificate to export.");
 		}
 
-		try
-		{
-			int filter = MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER;
-			if (m_cert instanceof PKCS12)
-			{
-				filter = filter | MixConfig.FILTER_P10 | MixConfig.FILTER_B64_P10 | MixConfig.FILTER_PFX;
-			}
+		JFileChooser fd;
+		FileFilter ff;
+		File file = null;
+		int type;
 
-			JFileChooser fd;
-			FileFilter ff;
-			File file;
-			int type;
+		JAPDialog dialog = new JAPDialog(this, "Export certificate");
+		ChooseCertStorageMethodPane pane =
+			new ChooseCertStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_SAVE_METHOD));
+		FileFilterSelectionPane typePane =
+			new FileFilterSelectionPane(dialog, JAPMessages.getString(MSG_CHOOSE_CERT_TYPE), pane);
+
+		pane.updateDialogOptimalSized(pane);
+		dialog.setResizable(false);
+		dialog.setVisible(true);
+		if (typePane.getButtonValue() != DialogContentPane.RETURN_VALUE_OK)
+		{
+			return;
+		}
+
+		if (pane.isMethodFile())
+		{
+			int filter;
+			if (typePane.getSelectionType() == FileFilterSelectionPane.X509)
+			{
+				filter = MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER;
+			}
+			else if (typePane.getSelectionType() == FileFilterSelectionPane.PKCS10)
+			{
+				filter = MixConfig.FILTER_P10 | MixConfig.FILTER_B64_P10;
+			}
+			else
+			{
+				filter = MixConfig.FILTER_PFX;
+			}
 
 			do
 			{
@@ -1079,7 +1125,18 @@ public class CertPanel extends JPanel implements ActionListener
 				}
 				else
 				{
-					type = MixConfig.FILTER_B64_CER;
+					if (typePane.getSelectionType() == FileFilterSelectionPane.X509)
+					{
+						type = MixConfig.FILTER_B64_CER;
+					}
+					else if (typePane.getSelectionType() == FileFilterSelectionPane.PKCS10)
+					{
+						type = MixConfig.FILTER_B64_P10;
+					}
+					else
+					{
+						type = MixConfig.FILTER_PFX;
+					}
 				}
 				file = fd.getSelectedFile();
 				if (file != null)
@@ -1117,38 +1174,62 @@ public class CertPanel extends JPanel implements ActionListener
 						file = new File(file.getParent(), fname + extensions[ext]);
 					}
 				}
-			} while (file != null && file.exists() &&
-					 (JAPDialog.showConfirmDialog(
-								this, JAPMessages.getString(MSG_CONFIRM_OVERWRITE),
-								JAPDialog.OPTION_TYPE_OK_CANCEL,
-								JAPDialog.MESSAGE_TYPE_QUESTION) != JAPDialog.RETURN_VALUE_OK));
+			}
+			while (file != null && file.exists() &&
+				   (JAPDialog.showConfirmDialog(
+					   this, JAPMessages.getString(MSG_CONFIRM_OVERWRITE),
+					   JAPDialog.OPTION_TYPE_OK_CANCEL,
+					   JAPDialog.MESSAGE_TYPE_QUESTION) != JAPDialog.RETURN_VALUE_OK));
+		}
+		else
+		{
+			if (typePane.getSelectionType() == FileFilterSelectionPane.X509)
+			{
+				type = MixConfig.FILTER_B64_CER;
+			}
+			else if (typePane.getSelectionType() == FileFilterSelectionPane.PKCS10)
+			{
+				type = MixConfig.FILTER_B64_P10;
+			}
+			else
+			{
+				// illegal selection!
+				return;
+			}
+		}
+		byte[] output = null;
+		switch (type)
+		{
+			case MixConfig.FILTER_PFX:
+				output = ( (PKCS12) m_cert).toByteArray(getPrivateCertPassword());
+				m_bCertificateSaved = true;
+				break;
+			case MixConfig.FILTER_CER:
+				output = m_cert.getX509Certificate().toByteArray();
+				break;
+			case MixConfig.FILTER_B64_CER:
+				output = m_cert.getX509Certificate().toByteArray(true);
+				break;
+			case MixConfig.FILTER_P10:
+				output = new PKCS10CertificationRequest( (PKCS12) m_cert).toByteArray(false);
+			case MixConfig.FILTER_B64_P10:
+				output = new PKCS10CertificationRequest( (PKCS12) m_cert).toByteArray(true);
+				break;
+			default:
+		}
 
+		try
+		{
 			if (file != null)
 			{
 				FileOutputStream fout = new FileOutputStream(file);
-				switch (type)
-				{
-					case MixConfig.FILTER_PFX:
-						fout.write( ( (PKCS12) m_cert).toByteArray(getPrivateCertPassword()));
-						m_bCertificateSaved = true;
-						break;
-					case MixConfig.FILTER_CER:
-						fout.write(m_cert.getX509Certificate().toByteArray());
-						break;
-					case MixConfig.FILTER_B64_CER:
-						fout.write(m_cert.getX509Certificate().toByteArray(true));
-						break;
-					case MixConfig.FILTER_P10:
-						fout.write(new PKCS10CertificationRequest( (PKCS12)m_cert).toByteArray(false));
-					case MixConfig.FILTER_B64_P10:
-						fout.write(new PKCS10CertificationRequest( (PKCS12)m_cert).toByteArray(true));
-					break;
-
-					default:
-				}
+				fout.write(output);
 				fout.close();
 			}
-
+			else if (!pane.isMethodFile())
+			{
+				GUIUtils.saveTextToClipboard(new String(output), this);
+			}
 			return;
 		}
 		catch (IOException a_e)
@@ -1156,10 +1237,10 @@ public class CertPanel extends JPanel implements ActionListener
 			JAPDialog.showErrorDialog(this, "Could not export cerificate", LogType.MISC, a_e);
 			ClipFrame save =
 				new ClipFrame(this,
-					"I/O error while saving, try clipboard. " +
-					"Copy and Save this file in a new Location.",
-					false);
-			save.setText(new String(m_cert.getX509Certificate().toByteArray(true)));
+							  "I/O error while saving, try clipboard. " +
+							  "Copy and Save this file in a new Location.",
+							  false);
+			save.setText(new String(output));
 			save.setVisible(true);
 		}
 	}
@@ -1271,30 +1352,109 @@ public class CertPanel extends JPanel implements ActionListener
 		{
 			super(a_dialog, a_strText,
 				  new Options(DialogContentPane.OPTION_TYPE_OK_CANCEL));
-			JPanel buttonPanel = new JPanel();
-
-			setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
 			GridBagConstraints constr = new GridBagConstraints();
+			ButtonGroup group = new ButtonGroup();
+
 			m_btnFile = new JRadioButton("File");
 			m_btnClip = new JRadioButton("Clipboard");
-			ButtonGroup group = new ButtonGroup();
 			group.add(m_btnFile);
 			group.add(m_btnClip);
 			m_btnFile.setSelected(true);
 			constr.gridx = 0;
 			constr.gridy = 0;
-			BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
-			buttonPanel.setLayout(layout);
+			constr.anchor = GridBagConstraints.WEST;
+			constr.fill = GridBagConstraints.HORIZONTAL;
+			constr.weightx = 0;
 			getContentPane().setLayout(new GridBagLayout());
-			buttonPanel.add(m_btnFile, layout);
-			buttonPanel.add(m_btnClip, layout);
-			getContentPane().add(buttonPanel, constr);
+			getContentPane().add(m_btnFile, constr);
+			constr.gridy++;
+			getContentPane().add(m_btnClip, constr);
 		}
 		public boolean isMethodFile()
 		{
 			return m_btnFile.isSelected();
 		}
 	}
+
+	private class FileFilterSelectionPane extends DialogContentPane implements
+		DialogContentPane.IWizardSuitable
+	{
+		public static final int X509 = 0;
+		public static final int PKCS10 = 1;
+		public static final int PKCS12 = 2;
+
+		private JRadioButton m_btnPublicCert;
+		private JRadioButton m_btnCertRequest;
+		private JRadioButton m_btnPrivateCert;
+
+		private ChooseCertStorageMethodPane m_previousPane;
+
+		public FileFilterSelectionPane(JAPDialog a_dialog, String a_strText,
+			ChooseCertStorageMethodPane a_previousPane)
+		{
+			super(a_dialog, a_strText,
+				  new Options(DialogContentPane.OPTION_TYPE_OK_CANCEL, a_previousPane));
+			m_previousPane = a_previousPane;
+
+			GridBagConstraints constr = new GridBagConstraints();
+			ButtonGroup group = new ButtonGroup();
+
+			m_btnPublicCert = new JRadioButton("X509 public certificate");
+			m_btnCertRequest = new JRadioButton("PKCS10 certification request");
+			m_btnPrivateCert = new JRadioButton("PKCS12 private certificate");
+			group.add(m_btnPublicCert);
+			group.add(m_btnCertRequest);
+			group.add(m_btnPrivateCert);
+			m_btnPublicCert.setSelected(true);
+			constr.gridx = 0;
+			constr.gridy = 0;
+			constr.anchor = GridBagConstraints.WEST;
+			constr.fill = GridBagConstraints.HORIZONTAL;
+			constr.weightx = 0;
+			getContentPane().setLayout(new GridBagLayout());
+			getContentPane().add(m_btnPublicCert, constr);
+			constr.gridy++;
+			getContentPane().add(m_btnCertRequest, constr);
+			constr.gridy++;
+			getContentPane().add(m_btnPrivateCert, constr);
+		}
+
+		public CheckError[] checkUpdate()
+		{
+			if (m_cert instanceof PKCS12)
+			{
+				m_btnCertRequest.setEnabled(true);
+				m_btnPrivateCert.setEnabled(m_previousPane.isMethodFile());
+				if (m_btnPrivateCert.isSelected() && !m_previousPane.isMethodFile())
+				{
+					m_btnPublicCert.setSelected(true);
+				}
+			}
+			else
+			{
+				m_btnPublicCert.setSelected(true);
+				m_btnCertRequest.setEnabled(false);
+				m_btnPrivateCert.setEnabled(false);
+			}
+			return super.checkUpdate();
+		}
+
+		public int getSelectionType()
+		{
+			if (m_btnPublicCert.isSelected())
+			{
+				return X509;
+			}
+			else if (m_btnCertRequest.isSelected())
+			{
+				return PKCS10;
+			}
+			else
+			{
+				return PKCS12;
+			}
+		}
+}
 
 	private class CertPanelFinishedContentPane extends FinishedContentPane
 	{
