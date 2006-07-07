@@ -38,23 +38,22 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.ButtonGroup;
-import javax.swing.BoxLayout;
-import javax.swing.JRadioButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -81,9 +80,7 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import mixconfig.wizard.CannotContinueException;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.Transferable;
+import anon.crypto.PKCS10CertificationRequest;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -854,8 +851,8 @@ public class CertPanel extends JPanel implements ActionListener
 	{
 		byte[] cert = null;
 		JAPDialog dialog = new JAPDialog(this, "Import a certificate");
-		ChooseCertLoadingMethodPane pane =
-			new ChooseCertLoadingMethodPane(dialog);
+		ChooseCertStorageMethodPane pane =
+			new ChooseCertStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_LOAD_METHOD));
 		pane.updateDialog();
 		dialog.pack();
 		dialog.setResizable(false);
@@ -868,7 +865,8 @@ public class CertPanel extends JPanel implements ActionListener
 		{
 			try
 			{
-				cert = MixConfig.openFile(this, MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
+				//cert = MixConfig.openFile(this, MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
+				cert = MixConfig.openFile(this, MixConfig.FILTER_CER);
 			}
 			catch (RuntimeException a_ex)
 			{
@@ -908,7 +906,8 @@ public class CertPanel extends JPanel implements ActionListener
 			int filter = MixConfig.FILTER_PFX;
 			if (m_cert != null)
 			{
-				filter |= (MixConfig.FILTER_B64_CER | MixConfig.FILTER_CER);
+				//filter |= (MixConfig.FILTER_B64_CER | MixConfig.FILTER_CER);
+				filter |= (MixConfig.FILTER_CER);
 			}
 			buff = MixConfig.openFile(this, filter);
 		}
@@ -1056,7 +1055,7 @@ public class CertPanel extends JPanel implements ActionListener
 			int filter = MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER;
 			if (m_cert instanceof PKCS12)
 			{
-				filter = filter | MixConfig.FILTER_PFX;
+				filter = filter | MixConfig.FILTER_P10 | MixConfig.FILTER_B64_P10 | MixConfig.FILTER_PFX;
 			}
 
 			JFileChooser fd;
@@ -1090,7 +1089,8 @@ public class CertPanel extends JPanel implements ActionListener
 					{
 						String extensions[] =
 							{
-							".pfx", ".der.cer", ".b64.cer"};
+							".pfx", ".der.cer", ".b64.cer", PKCS10CertificationRequest.FILE_EXTENSION,
+							".b64" + PKCS10CertificationRequest.FILE_EXTENSION};
 						int ext = 0;
 						// we can't use the MixConfig constants as array indices
 						// because we can't rely that their values don't change
@@ -1105,6 +1105,12 @@ public class CertPanel extends JPanel implements ActionListener
 								break;
 							case MixConfig.FILTER_B64_CER:
 								ext = 2;
+								break;
+							case MixConfig.FILTER_P10:
+								ext = 3;
+								break;
+							case MixConfig.FILTER_B64_P10:
+								ext = 4;
 								break;
 							default:
 						}
@@ -1132,6 +1138,12 @@ public class CertPanel extends JPanel implements ActionListener
 					case MixConfig.FILTER_B64_CER:
 						fout.write(m_cert.getX509Certificate().toByteArray(true));
 						break;
+					case MixConfig.FILTER_P10:
+						fout.write(new PKCS10CertificationRequest( (PKCS12)m_cert).toByteArray(false));
+					case MixConfig.FILTER_B64_P10:
+						fout.write(new PKCS10CertificationRequest( (PKCS12)m_cert).toByteArray(true));
+					break;
+
 					default:
 				}
 				fout.close();
@@ -1249,14 +1261,15 @@ public class CertPanel extends JPanel implements ActionListener
 		}
 	}
 
-	private class ChooseCertLoadingMethodPane extends DialogContentPane
+	private class ChooseCertStorageMethodPane extends DialogContentPane implements
+		DialogContentPane.IWizardSuitable
 	{
 		private JRadioButton m_btnFile;
 		private JRadioButton m_btnClip;
 
-		public ChooseCertLoadingMethodPane(JAPDialog a_dialog)
+		public ChooseCertStorageMethodPane(JAPDialog a_dialog, String a_strText)
 		{
-			super(a_dialog, JAPMessages.getString(MSG_CHOOSE_LOAD_METHOD),
+			super(a_dialog, a_strText,
 				  new Options(DialogContentPane.OPTION_TYPE_OK_CANCEL));
 			JPanel buttonPanel = new JPanel();
 

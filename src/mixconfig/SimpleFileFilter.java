@@ -30,6 +30,7 @@ package mixconfig;
 import java.io.File;
 import javax.swing.filechooser.FileFilter;
 
+import anon.crypto.PKCS10CertificationRequest;
 
 public class SimpleFileFilter extends javax.swing.filechooser.FileFilter
 {
@@ -58,6 +59,16 @@ public class SimpleFileFilter extends javax.swing.filechooser.FileFilter
 			case MixConfig.FILTER_XML:
 				m_strDesc = "Mix Configuration (*.xml)";
 				m_strExtension = ".xml";
+				break;
+			case MixConfig.FILTER_P10:
+				m_strDesc = "PKCS10 Certification Request (*" +
+					PKCS10CertificationRequest.FILE_EXTENSION + ")";
+				m_strExtension = PKCS10CertificationRequest.FILE_EXTENSION;
+				break;
+			case MixConfig.FILTER_B64_P10:
+				m_strDesc = "PKCS10 Certification Request, Base64 (*" +
+					PKCS10CertificationRequest.FILE_EXTENSION + ")";
+				m_strExtension = PKCS10CertificationRequest.FILE_EXTENSION;
 				break;
 			case MixConfig.FILTER_PFX:
 				m_strDesc = "Private Key with Certificate (*.pfx)";

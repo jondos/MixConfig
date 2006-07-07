@@ -35,11 +35,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JCheckBoxMenuItem;
@@ -52,11 +47,10 @@ import javax.swing.JRootPane;
 import javax.swing.event.ChangeEvent;
 
 import anon.util.XMLParseException;
-import gui.ClipFrame;
+import gui.GUIUtils;
 import gui.JAPHelp;
 import gui.JAPHelpContext;
 import gui.JAPMessages;
-import gui.GUIUtils;
 import gui.dialog.JAPDialog;
 import logging.LogHolder;
 import logging.LogLevel;
@@ -376,37 +370,8 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 					StringWriter sw = new StringWriter();
 					MixConfig.getMixConfiguration().save(sw);
 					String xmlString = sw.toString();
-
-					try
-					{
-						Clipboard cb = GUIUtils.getSystemClipboard();
-						cb.setContents(new StringSelection(xmlString),
-									   new ClipboardOwner()
-						{
-							public void lostOwnership(Clipboard cb, Transferable co)
-							{
-								// Don't care.
-							}
-						});
-
-						/*
-						 JOptionPane.showMessageDialog(TheApplet.getMainWindow(),
-						 "Configuration saved into clipboard.", "Save", JOptionPane.INFORMATION_MESSAGE);
-						 return;
-						 */
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-					}
-
-					// There are some problems with the access of the
-					// clipboard, so after the try to copy it, we
-					// still offer the ClipFrame.
-					ClipFrame cf =
-						new ClipFrame(m_MenuBar, "Copy and Save this file in a new Location.", false);
-					cf.setText(xmlString);
-					cf.setVisible(true, false);
+					GUIUtils.saveTextToClipboard(xmlString, MixConfig.getMainWindow());
+					//MixConfig.getMixConfiguration().setSavedToFile();
 				}
 			}
 			else if (evt.getActionCommand().equals("OpenClip"))

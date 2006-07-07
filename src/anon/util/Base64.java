@@ -1350,9 +1350,7 @@ public class Base64
 	public static byte[] decode(byte[] source, int off, int len)
 
 	{
-		new Exception().printStackTrace();
-		System.out.println(source.length);
-System.out.println(new String(source));
+
 		int len34 = len * 3 / 4;
 
 		byte[] outBuff = new byte[len34]; // Upper limit on size of output
