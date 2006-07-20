@@ -79,11 +79,26 @@ public class OperatorCertificateView implements ICertificateView
 		}
 
 		m_strOrganisation = formatDNField(dn.getOrganisation());
+		if (m_strOrganisation.equals(""))
+		{
+			m_strOrganisation = formatDNField(dn.getCommonName());
+		}
 		m_strOrgaUnit = formatDNField(dn.getOrganisationalUnit());
 
 		extensions = a_certificate.getX509Certificate().getExtensions();
 		m_strURL = "";
 		m_strEMail = "";
+
+		// try alternatives to get the e-mail address
+		if (m_strEMail.length() == 0)
+		{
+			m_strEMail = formatDNField(dn.getE_EmailAddress());
+			if (m_strEMail.length() == 0)
+			{
+				m_strEMail = formatDNField(dn.getEmailAddress());
+			}
+		}
+
 		for (int i = 0; i < extensions.getSize(); i++)
 		{
 			if (extensions.getExtension(i) instanceof X509SubjectAlternativeName)
@@ -104,16 +119,6 @@ public class OperatorCertificateView implements ICertificateView
 						m_strURL = formatDNField(vecValues.elementAt(j).toString());
 					}
 				}
-			}
-		}
-
-		// try alternatives to get the e-mail address
-		if (m_strEMail.length() == 0)
-		{
-			m_strEMail = formatDNField(dn.getE_EmailAddress());
-			if (m_strEMail.length() == 0)
-			{
-				m_strEMail = formatDNField(dn.getEmailAddress());
 			}
 		}
 	}

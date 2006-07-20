@@ -70,7 +70,7 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 		a_conf.removeChangeListener(this);
 		a_conf.addChangeListener(this);
 
-		int mixType = Integer.valueOf(getConfiguration().getValue("General/MixType")).
+		int mixType = Integer.valueOf(getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).
 			intValue();
 		setEnabled(mixType != MixConfiguration.MIXTYPE_FIRST &&
 				   (!getConfiguration().isAutoConfigurationAllowed()
@@ -86,22 +86,24 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 			if (e instanceof ConfigurationEvent)
 			{
 				ConfigurationEvent c = (ConfigurationEvent) e;
-				if (c.getChangedAttribute().equals("General/MixType"))
+				if (c.getChangedAttribute().equals(GeneralPanel.XMLPATH_GENERAL_MIXTYPE))
 				{
-					int mixType = Integer.valueOf(getConfiguration().getValue("General/MixType")).
+					int mixType =
+						Integer.valueOf(getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).
 						intValue();
 
 					enableCert(mixType != MixConfiguration.MIXTYPE_FIRST &&
 							   (!getConfiguration().isAutoConfigurationAllowed() ||
 								getConfiguration().isFallbackEnabled()));
 
-					setEnabled(mixType != MixConfiguration.MIXTYPE_FIRST);
+					setEnabled(mixType != MixConfiguration.MIXTYPE_FIRST &&
+							   (!getConfiguration().isAutoConfigurationAllowed()
+								|| getConfiguration().isFallbackEnabled()));
 				}
 				else if (c.getChangedAttribute().indexOf(GeneralPanel.XMLPATH_AUTOCONFIGURATION) >= 0)
 				{
 					enableComponents();
 				}
-
 			}
 
 			else if (e.getSource() instanceof CertPanel)

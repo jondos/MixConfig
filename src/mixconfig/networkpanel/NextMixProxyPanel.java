@@ -83,6 +83,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 	private JTable table2;
 	private OutgoingConnectionTableModel omodel;
 	private JButton m_bttnAddOutgoing;
+	private TitledBorder border;
 
 	/** Constructs a new instance of <CODE>NetworkPanel</CODE> */
 	public NextMixProxyPanel()
@@ -144,7 +145,8 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 		c.gridy++;
 		c.gridwidth = 4;
 		panel2 = new JPanel(Out_Layout);
-		panel2.setBorder(new TitledBorder("Outgoing"));
+		border = new TitledBorder("Outgoing");
+		panel2.setBorder(border);
 		panel2.setToolTipText("Connection(s) to next Mix or Proxies.");
 		add(panel2, c);
 		//add layout dummy
@@ -343,9 +345,10 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 
 		if (omodel.getRowCount() == 0)
 		{
-			if (!getConfiguration().isAutoConfigurationAllowed())
+			if (mixType == MixConfig.getMixConfiguration().MIXTYPE_LAST ||
+				!getConfiguration().isAutoConfigurationAllowed())
 			{
-				errors.addElement("You must specify outgoing connections in NextMix/Proxy panel.");
+				errors.addElement("You must specify outgoing connections in " + getName() + " panel.");
 			}
 		}
 		else
@@ -396,6 +399,11 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			if (mixType == MixConfiguration.MIXTYPE_LAST)
 			{
 				getMixCertPanel().removeCert();
+				border.setTitle("Proxy");
+			}
+			else
+			{
+				border.setTitle("Next Mix");
 			}
 
 			bEnableCerts = mixType != MixConfiguration.MIXTYPE_LAST &&
@@ -405,6 +413,12 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			getLocationPanel().setEnabled(bEnableCerts);
 			getOperatorPanel().setEnabled(bEnableCerts);
 			getMixOperatorCertPanel().setEnabled(bEnableCerts);
+
+			getMixCertPanel().setVisible(bEnableCerts);
+			getLocationPanel().setVisible(bEnableCerts);
+			getOperatorPanel().setVisible(bEnableCerts);
+			getMixOperatorCertPanel().setVisible(bEnableCerts);
+
 
 			bEnableOutgoing = mixType == MixConfiguration.MIXTYPE_LAST ||
 				!getConfiguration().isAutoConfigurationAllowed()
@@ -461,8 +475,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 					for (int i = 0; i >= 0 && i < omodel.getRowCount(); i++)
 					{
 						flags = omodel.getData(i).getFlags();
-						if (getConfiguration().getMixType() ==
-							MixConfiguration.MIXTYPE_LAST)
+						if (getConfiguration().getMixType() == MixConfiguration.MIXTYPE_LAST)
 						{
 							if (flags == ConnectionData.NO_PROXY)
 							{
@@ -515,9 +528,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			/*			String type;
 			   if(mixType != MixConfiguration.MIXTYPE_LAST)
 			 */
-			new OutgoingDialog(MixConfig.getMainWindow(),
-							   "Add" + titles[mixType],
-							   omodel).setVisible(true);
+			new OutgoingDialog(MixConfig.getMainWindow(), "Add" + titles[mixType], omodel).setVisible(true);
 		}
 		else if (a.getActionCommand().equals("DeleteOutgoing"))
 		{

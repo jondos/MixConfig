@@ -129,9 +129,10 @@ public class CertPanel extends JPanel implements ActionListener
 	private static final String MSG_CHOOSE_CERT_TYPE = CertPanel.class.getName() + "_chooseCertType";
 
 
-
 	// holds a Vector with all instanciated CertPanels
 	private static Vector ms_certpanels = new Vector();
+
+	private static boolean m_autoSign = false;
 
 	private String m_strChangedCertNotVerifyable;
 	private JAPDialog.ILinkedInformation m_linkedInformation;
@@ -172,6 +173,9 @@ public class CertPanel extends JPanel implements ActionListener
 
 	/** The certificate */
 	private ICertificate m_cert;
+
+	/** An additional Cert for the verification */
+	private ICertificate m_additionalVerifier;
 
 	/** The password for the private certificate (<CODE>null</CODE> if the certificate
 	 * is an X.509 public certificate)
@@ -326,6 +330,7 @@ public class CertPanel extends JPanel implements ActionListener
 				{
 					CertDetailsDialog dialog = new CertDetailsDialog(getParent(), m_cert.getX509Certificate(),
 						isCertificateVerifyable(), null);
+					dialog.pack();
 					dialog.setVisible(true);
 				}
 			}
@@ -421,6 +426,15 @@ public class CertPanel extends JPanel implements ActionListener
 	 */
 	public boolean isCertificateVerifyable()
 	{
+		//check if there is an additional verifier
+		if(m_additionalVerifier != null)
+		{
+			if(m_cert.getX509Certificate().verify(m_additionalVerifier.getPublicKey()))
+			{
+				//if the additional verifier verified the cert try to verify the additional verifier
+				return m_additionalVerifier.getX509Certificate().verify(TRUSTED_CERTIFICATES.elements());
+			}
+		}
 		return m_cert.getX509Certificate().verify(TRUSTED_CERTIFICATES.elements());
 	}
 
@@ -464,6 +478,16 @@ public class CertPanel extends JPanel implements ActionListener
 		super.setEnabled(enabled);
 
 		enableButtons();
+	}
+
+	public static boolean isAutoSign()
+	{
+		return m_autoSign;
+	}
+
+	public static void setAutoSign(boolean b_autoSign)
+	{
+		m_autoSign = b_autoSign;
 	}
 
 	public void actionPerformed(ActionEvent a_event)
@@ -644,9 +668,19 @@ public class CertPanel extends JPanel implements ActionListener
 			throw new IllegalArgumentException(JAPMessages.getString(MSG_CERT_TYPE_UNKNOWN));
 		}
 		enableButtons();
+		//deactivate auto-signing of OwnCertificate with OperatorCertificate while loading from file
+		CertPanel.setAutoSign(false);
 		fireStateChanged();
+		//activate auto-signing again
+		CertPanel.setAutoSign(true);
 
 		return bChanged;
+	}
+
+	/** Sets the addional cert for verification */
+	public void setAdditionalVerifier(ICertificate a_cert)
+	{
+		m_additionalVerifier = a_cert;
 	}
 
 	/** Removes the certficate from the panel */
@@ -745,7 +779,7 @@ public class CertPanel extends JPanel implements ActionListener
 		return true;
 	}
 
-	private void updateCertificateIcon(boolean a_bActive)
+	public void updateCertificateIcon(boolean a_bActive)
 	{
 		if (m_cert != null)
 		{
@@ -1005,7 +1039,11 @@ public class CertPanel extends JPanel implements ActionListener
 		if (pb.hasValidValue())
 		{
 			m_privCertPasswd = new String(pb.getPassword());
+			//deactivate auto-signing of OwnCertificate with OperatorCertificate while loading from file
+			CertPanel.setAutoSign(false);
 			fireStateChanged();
+			//activate auto-signing again
+			CertPanel.setAutoSign(true);
 		}
 	}
 

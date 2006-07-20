@@ -254,7 +254,14 @@ abstract class ConnectionDialog extends JAPDialog
 		}
 		if (isHost && data == null)
 		{
-			iptext.setInt(6544);
+			if ( getType().equals("Proxy"))
+			{
+				iptext.setInt(3128);
+			}
+			else
+			{
+				iptext.setInt(6544);
+			}
 		}
 
 		layout.setConstraints(iptext, rc);

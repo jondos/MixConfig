@@ -75,7 +75,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	public static final String XMLPATH_GENERAL_MIN_CASCADELENGTH = "General/MinCascadeLength";
 	public static final String XMLPATH_GENERAL_MIXNAME = "General/MixName";
 
-
+	private static final String MSG_MIX_TYPE = "Mix type";
 	private static final String MSG_FIRST_MIX = GeneralPanel.class.getName() + "_firstMix";
 	private static final String MSG_MIDDLE_MIX = GeneralPanel.class.getName() + "_middleMix";
 	private static final String MSG_LAST_MIX = GeneralPanel.class.getName() + "_lastMix";
@@ -94,7 +94,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		"Network/InfoService/AllowAutoConfiguration";
 	public static final String XML_ATTRIBUTE_FALLBACK = "fallback";
 
-	private static final String PSEUDO_CASCADE_NAME = "******Dynamic cascade bug*******";
+	public static final String PSEUDO_CASCADE_NAME = "******Dynamic cascade bug*******";
 
 	private JComboBox m_comboboxMixType, m_combxConfiguration, m_combxCascadeLength;
 	private JCheckBox m_cbxDynamicFallback;
@@ -108,6 +108,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	/** A text field for the name of the cascade */
 	private JTextField m_tfCascadeName;
 
+	private JPanel m_mixTypePanel;
+	private JLabel m_lblMixType;
+	private int m_mixTypeRow;
+	private JCheckBox m_cbxFirstMix, m_cbxMiddleMix, m_cbxLastMix;
 	private JPanel m_listenerPanel;
 	private JTable m_listenerTable;
 	private IncomingConnectionTableModel m_listenerModel;
@@ -152,9 +156,26 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_comboboxMixType.addItem(JAPMessages.getString(MSG_MIDDLE_MIX));
 		m_comboboxMixType.addItem(JAPMessages.getString(MSG_LAST_MIX));
 		m_comboboxMixType.addItemListener(this);
-		m_panelGeneralSettings.addRow(new JLabel("Mix type"), m_comboboxMixType,
-									  GridBagConstraints.HORIZONTAL);
+		m_lblMixType = new JLabel(MSG_MIX_TYPE);
+		m_mixTypeRow = m_panelGeneralSettings.addRow(m_lblMixType, m_comboboxMixType,
+													 GridBagConstraints.HORIZONTAL);
+		m_mixTypePanel = new JPanel(new GridBagLayout());
+		GridBagConstraints mixTypeConstraints = new GridBagConstraints();
+		m_cbxFirstMix = new JCheckBox(JAPMessages.getString(MSG_FIRST_MIX));
+		m_cbxFirstMix.setName(XMLPATH_GENERAL_MIXTYPE);
+		m_cbxFirstMix.addItemListener(this);
+		m_cbxMiddleMix = new JCheckBox(JAPMessages.getString(MSG_MIDDLE_MIX));
+		m_cbxMiddleMix.setName(XMLPATH_GENERAL_MIXTYPE);
+		m_cbxMiddleMix.addItemListener(this);
+		m_cbxLastMix = new JCheckBox(JAPMessages.getString(MSG_LAST_MIX));
+		m_cbxLastMix.setName(XMLPATH_GENERAL_MIXTYPE);
+		m_cbxLastMix.addItemListener(this);
+		m_mixTypePanel.add(m_cbxFirstMix, mixTypeConstraints);
+		m_mixTypePanel.add(m_cbxMiddleMix, mixTypeConstraints);
+		m_mixTypePanel.add(m_cbxLastMix, mixTypeConstraints);
 
+		//m_panelGeneralSettings.replaceRow(m_lblMixType, m_mixTypePanel, m_mixTypeRow,
+			//							  GridBagConstraints.HORIZONTAL);
 
 		// Mix Name JTextField
 		m_tfMixName = new JTextField(20);
@@ -170,6 +191,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_tfCascadeName.addFocusListener(this);
 		// Cascade length
 		m_combxCascadeLength = new JComboBox();
+		m_combxCascadeLength.setVisible(false); /** @todo  not needed any more; remove... */
 		m_combxCascadeLength.setName(XMLPATH_GENERAL_MIN_CASCADELENGTH);
 		for (int i = 2; i <= 5; i++)
 		{
@@ -177,7 +199,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		}
 		m_combxCascadeLength.addItemListener(this);
 		m_lblCascadeLength = new JLabel("Minimum cascade length");
-
+		m_lblCascadeLength.setVisible(false); /** @todo  not needed any more; remove... */
 
 		m_cascadeNameLabel = new JLabel("Cascade name");
 		m_panelGeneralSettings.addRow(m_cascadeNameLabel, m_tfCascadeName,
@@ -365,22 +387,51 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 
 	public void stateChanged(ChangeEvent a_event)
 	{
-		if (a_event instanceof ConfigurationEvent)
+		if (!(a_event instanceof ConfigurationEvent))
 		{
-			if (((ConfigurationEvent)a_event).getChangedAttribute().indexOf(
-						 MixOnCDPanel.XMLPATH_MIXONCD) >= 0)
+			return;
+		}
+		ConfigurationEvent ce = (ConfigurationEvent) a_event;
+		if (ce.getChangedAttribute().indexOf(MixOnCDPanel.XMLPATH_MIXONCD) >= 0)
+		{
+			setMixOnCDInfo(getConfiguration().isMixOnCDEnabled());
+		}
+
+		else if (ce.getChangedAttribute().equals(GeneralPanel.XMLPATH_GENERAL_CASCADENAME))
+		{
+			String value = getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_CASCADENAME);
+			if (value == null || !value.equals(m_tfCascadeName.getText()))
 			{
-				setMixOnCDInfo(getConfiguration().isMixOnCDEnabled());
+				load(m_tfCascadeName);
 			}
 		}
+
 	}
 
 	public void actionPerformed(ActionEvent ae)
 	{
 		if (ae.getActionCommand().equals("AddIncoming"))
 		{
-			new IncomingDialog(MixConfig.getMainWindow(), "Add", m_listenerModel,
-							   getConfiguration().isMixOnCDEnabled()).setVisible(true);
+			boolean bEditExisting = false;
+			if (m_listenerModel.getRowCount() == 1)
+			{
+				if (m_listenerModel.getData(0).getName().equals(""))
+				{
+					bEditExisting = true;
+				}
+			}
+			if (bEditExisting)
+			{
+				new IncomingDialog(MixConfig.getMainWindow(),
+								   "Change", m_listenerModel,
+								   m_listenerModel.getData(0),
+								   getConfiguration().isMixOnCDEnabled()).setVisible(true);
+			}
+			else
+			{
+				new IncomingDialog(MixConfig.getMainWindow(), "Add", m_listenerModel,
+								   getConfiguration().isMixOnCDEnabled()).setVisible(true);
+			}
 		}
 		else if (ae.getActionCommand().equals("DeleteIncoming"))
 		{
@@ -405,10 +456,13 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		{
 			mixType = getConfiguration().getMixType();
 			s = mixConf.getValue(XMLPATH_GENERAL_CASCADENAME);
-			if ( ((mixType == MixConfiguration.MIXTYPE_FIRST && !isFirstDynamicMix()) ||
+		/*	if ( ((mixType == MixConfiguration.MIXTYPE_FIRST && !isFirstDynamicMix()) ||
 				  (mixType == MixConfiguration.MIXTYPE_LAST &&
 				   getConfiguration().isAutoConfigurationAllowed())) &&
-				(s == null || s.equals("")))
+				(s == null || s.equals("")))*/
+			if ((mixType == MixConfiguration.MIXTYPE_FIRST && !isFirstDynamicMix())  &&
+				  (s == null || s.equals("")))
+
 			{
 				errors.addElement("Cascade Name not entered.");
 			}
@@ -674,6 +728,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 												m_cbxDynamicFallback.isSelected());
 			getConfiguration().setValue(XMLPATH_AUTOCONFIGURATION, m_cbxDynamicFallback.isSelected());
 		}
+		else if (a_cbx == m_cbxFirstMix || a_cbx == m_cbxMiddleMix || a_cbx == m_cbxLastMix)
+		{
+
+		}
 		else
 		{
 			super.save(a_cbx);
@@ -732,10 +790,10 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 			getConfiguration().getMixType() != MixConfiguration.MIXTYPE_LAST);
 
 		bEnableCascadeName = (getConfiguration().getMixType() == MixConfiguration.MIXTYPE_FIRST &&
-							  !isFirstDynamicMix()) ||
-			(getConfiguration().getMixType() == MixConfiguration.MIXTYPE_LAST &&
+							  !isFirstDynamicMix());// ||
+/*			(getConfiguration().getMixType() == MixConfiguration.MIXTYPE_LAST &&
 			 getConfiguration().isAutoConfigurationAllowed());
-
+*/
 		m_tfCascadeName.setEnabled(bEnableCascadeName);
 		m_cascadeNameLabel.setEnabled(bEnableCascadeName);
 
@@ -761,6 +819,18 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	public String getHelpContext()
 	{
 			return getClass().getName();
+	}
+
+	protected void load(JCheckBox a_cbx)
+	{
+		if (a_cbx == m_cbxFirstMix || a_cbx == m_cbxMiddleMix || a_cbx == m_cbxLastMix)
+		{
+
+		}
+		else
+		{
+			super.load(a_cbx);
+		}
 	}
 
 	public void load() throws IOException
