@@ -1,25 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<Signature>
+<?xml version="1.0" encoding="UTF-8"?><Signature>
     <!--This xml structure has been created by anon.crypto.XMLSignature.-->
     <!--The calling test class was anon.crypto.test.XMLSignatureTest.-->
     <SignedInfo>
-      <CanonicalizationMethod />
-      <SignatureMethod Algorithm="Dummy" />
-      <Reference>
-	<DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-	<DigestValue>6F/wvk51FFnVSXUqbyEFuWalbYs=</DigestValue>
-      </Reference>
+        <CanonicalizationMethod/>
+        <SignatureMethod Algorithm="Dummy"/>
+        <Reference>
+            <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <DigestValue>6F/wvk51FFnVSXUqbyEFuWalbYs=</DigestValue>
+        </Reference>
     </SignedInfo>
     <SignatureValue>G37LG+yIz/uQl8ewgO2P5g==</SignatureValue>
     <KeyInfo>
-      <X509Data>
-	<X509Certificate xml:space="preserve">MIGXMHigAwIBAgIBATAIBgYAAAAAAAAwEjEQMA4GA1UEAxMHcHJpdmF0ZTAeFw0wNjA2MDIwNjAz
-MDRaFw0wNjA2MDIwNjAzMDRaMBMxETAPBgNVBAMTCHByaXZhdGUyMBcwCAYGAAAAAAACAwsAAghu
-LR0V7RGfxaMCMAAwCAYGAAAAAAAAAxEAAbkOjsDqR1YaKssZEhkO7w==</X509Certificate>
-	<X509Certificate xml:space="preserve">MIGYMHmgAwIBAgIBATAIBgYAAAAAAAAwEzERMA8GA1UEAxMIcHJpdmF0ZTMwHhcNMDYwNjAyMDYw
-MzA0WhcNMDYwNjAyMDYwMzA0WjATMREwDwYDVQQDEwhwcml2YXRlMjAXMAgGBgAAAAAAAgMLAAII
-bi0dFe0Rn8WjAjAAMAgGBgAAAAAAAAMRAGi6pHZ+RxwX2G8oirbKtXw=</X509Certificate>
-      </X509Data>
+        <X509Data>
+            <X509Certificate xml:space="preserve">MIGXMHigAwIBAgIBATAIBgYAAAAAAAAwEjEQMA4GA1UEAxMHcHJpdmF0ZTAeFw0wNjA2MjkxMjQw
+MzVaFw0wNjA2MjkxMjQwMzVaMBMxETAPBgNVBAMTCHByaXZhdGUyMBcwCAYGAAAAAAACAwsAAghu
+LR0V7RGfxaMCMAAwCAYGAAAAAAAAAxEAzOE1fJ9x4I6GKnmGGwgLmw==</X509Certificate>
+            <X509Certificate xml:space="preserve">MIGYMHmgAwIBAgIBATAIBgYAAAAAAAAwEzERMA8GA1UEAxMIcHJpdmF0ZTMwHhcNMDYwNjI5MTI0
+MDM1WhcNMDYwNjI5MTI0MDM1WjATMREwDwYDVQQDEwhwcml2YXRlMjAXMAgGBgAAAAAAAgMLAAII
+bi0dFe0Rn8WjAjAAMAgGBgAAAAAAAAMRAJsikqRKnwOjGJODE/7zotA=</X509Certificate>
+        </X509Data>
     </KeyInfo>
-  </Signature>
+</Signature>

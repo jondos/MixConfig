@@ -70,6 +70,7 @@ import logging.LogType;
 import gui.JAPHelpContext;
 import gui.dialog.JAPDialog;
 import gui.GUIUtils;
+import javax.swing.JTextField;
 
 /** The <CODE>CascadePanel</CODE> is a panel that lets the user edit settings concerning
  * an entire mix cascade. It should only be made visible when the mix that is being
@@ -113,6 +114,9 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 	 */
 	private JButton m_recvMixListButton;
 
+	/** A text field for the name of the cascade */
+	private JTextField m_tfCascadeName;
+
 	/** Constructs a new instance of <CODE>CascadePanel</CODE> */
 	public CascadePanel()
 	{
@@ -120,8 +124,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		this.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		GridBagConstraints constraints = new GridBagConstraints();
-		GridBagLayout layout = new GridBagLayout();
-		this.setLayout(layout);
+		this.setLayout(new GridBagLayout());
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.anchor = GridBagConstraints.NORTHWEST;
 		constraints.insets = new Insets(5, 5, 5, 5);
@@ -130,6 +133,20 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 
 		constraints.gridx = 0;
 		constraints.gridy = 0;
+
+		// Cascade Name JTextField; this field is disabled by selecting a middle mix type
+		m_tfCascadeName = new JTextField(20);
+		m_tfCascadeName.setName(GeneralPanel.XMLPATH_GENERAL_CASCADENAME);
+		m_tfCascadeName.addFocusListener(this);
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		add(new JLabel("Cascade name"), constraints);
+		constraints.gridx = 1;
+		constraints.gridwidth = 2;
+		this.add(m_tfCascadeName, constraints);
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.gridwidth = 1;
+		constraints.gridx = 0;
+		constraints.gridy++;
 
 		m_recvMixListButton = new JButton("Update");
 		m_recvMixListButton.addActionListener(this);
@@ -428,8 +445,8 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 	{
 		/** The names of the columns in the model */
 		private final String columnName[] =
-			{
-			"Mix ID", "Mix name", "Location", "Type", "Desired cascade length"};
+			{"Mix ID", "Mix name", "Location", "Type"};
+			//"Mix ID", "Mix name", "Location", "Type", "Desired cascade length"};
 
 		/** The list of mix entries */
 		Vector mixList = new Vector();
@@ -459,7 +476,8 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 
 		public int getColumnCount()
 		{
-			return 5;
+			//return 5;
+			return 4;
 		}
 
 		public int getRowCount()
@@ -734,6 +752,22 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		}
 	}
 
+	/**
+	 * @todo This implementation is only needed because of a bug in the dynamic configuration
+	 * of the mix.
+	 * @param a_textField JTextField
+	 */
+	protected void load(JTextField a_textField)
+	{
+		super.load(a_textField);
+
+		if (a_textField == m_tfCascadeName && a_textField.getText() != null &&
+			a_textField.getText().equals(GeneralPanel.PSEUDO_CASCADE_NAME))
+		{
+			a_textField.setText("");
+		}
+	}
+
 	protected void load(JTable a_table)
 	{
 		if (a_table == m_configuredMixTable)
@@ -762,6 +796,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 
 			( (MixListTableModel) m_configuredMixTable.getModel()).addRow(myself);
 		}
+
 	}
 
 	public void setConfiguration(MixConfiguration a_mixConf) throws IOException
@@ -811,6 +846,14 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			else if (ce.getChangedAttribute().endsWith("MinCascadeLength"))
 			{
 				col = 4;
+			}
+			else if (ce.getChangedAttribute().equals(GeneralPanel.XMLPATH_GENERAL_CASCADENAME))
+			{
+				String value = getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_CASCADENAME);
+				if (value == null || !value.equals(m_tfCascadeName.getText()))
+				{
+					load(m_tfCascadeName);
+				}
 			}
 
 			if (col >= 0 && m_configuredMixTable.getRowCount() > 0)

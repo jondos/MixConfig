@@ -128,6 +128,7 @@ public class MixConfiguration
 		setValue("General/MixName", "AN.ON Mix");
 		setValue("Network/InfoService/Host", "80.237.206.62");
 		setValue("Network/InfoService/Port", "6543");
+
 		setValue("Network/ListenerInterfaces/ListenerInterface/NetworkProtocol",
 				 "RAW/TCP");
 		setValue("Network/ListenerInterfaces/ListenerInterface/Port","6544");

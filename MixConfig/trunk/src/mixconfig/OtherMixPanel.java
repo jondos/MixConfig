@@ -59,6 +59,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 {
 	public static final String MIX_TYPE_PREVIOUS = "Previous Mix";
 	public static final String MIX_TYPE_NEXT = "Next Mix";
+	public static final String TYPE_PROXY = "Proxy";
 
 	private static final String MSG_CERT_NOT_VERIFYABLE =
 		OtherMixPanel.class.getName() + "_certNotVerifyable";
@@ -182,6 +183,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		m_locLatField.setEditable(false);
 		m_mapButton = new JButton("Show on map");
 		m_mapButton.setActionCommand("Map");
+		m_mapButton.setEnabled(false);
 		m_mapButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -206,7 +208,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		panel.addRow(new JLabel("State"), m_locStateField, null);
 		panel.addRow(new JLabel("Country"), m_locCountryField, null);
 		panel.addRow(new JLabel("Longitude"), m_locLongField, m_mapButton);
-		panel.addRow(new JLabel("Longitude"), m_locLatField, null);
+		panel.addRow(new JLabel("Latitude"), m_locLatField, null);
 
 		return panel;
 	}
@@ -322,6 +324,8 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		}
 		else if (a_e.getSource() == m_otherOpCert)
 		{
+			m_otherCert.setAdditionalVerifier(m_otherOpCert.getCert());
+			m_otherCert.updateCertificateIcon(false);
 			OperatorCertificateView certView = (OperatorCertificateView) m_otherOpCert.getCertificateView();
 			m_opOrgField.setText(certView.getOrganisation());
 			m_opOrgUnitField.setText(certView.getOrganisationalUnit());

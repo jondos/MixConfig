@@ -43,6 +43,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
@@ -112,7 +113,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		c.insets = getDefaultInsets();
 
 		m_ownCert = new CertPanel("Own Mix Certificate",
-								  "Hint: You have to sent your public test " +
+								  "Hint: You have to send your public test " +
 								  "certificate to the operators of your " +
 								  "adjacent mixes", (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
 		m_ownCert.setName("Certificates/OwnCertificate");
@@ -124,7 +125,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		add(m_ownCert, c);
 
 		m_operatorCert = new CertPanel("Operator Certificate",
-									   "Hint: You have to sent your public test " +
+									   "Hint: You have to send your public test " +
 									   "certificate to the operators of your " +
 									   "adjacent mixes",
 									   (PKCS12)null, CertPanel.CERT_ALGORITHM_DSA);
@@ -324,7 +325,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			if (e.getSource() instanceof CertPanel)
 			{
 				save( (CertPanel) e.getSource());
-				if (e.getSource() == m_ownCert)
+				if(e.getSource() == m_ownCert)
 				{
 					if (m_ownCert.getCert() != null)
 					{
@@ -354,6 +355,18 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 							m_txtLatitude.setText(certView.getLatitude());
 							save(m_txtLatitude);
 						}
+						//sign Own cert with Operator cert
+						if((m_operatorCert.getCert() != null) && CertPanel.isAutoSign() &&
+						   !m_ownCert.getCert().getX509Certificate().verify(
+												 m_operatorCert.getCert().getX509Certificate()))
+						{
+							if(JAPDialog.showYesNoDialog(this,
+								"Do you want to sign your Mix-Certificate with the Operator-Certificate?"))
+							{
+								PKCS12 operatorCert = (PKCS12)m_operatorCert.getCert();
+								((PKCS12) m_ownCert.getCert()).sign(operatorCert);
+							}
+						}
 					}
 					updateDeprecatedMixID();
 					if (! ((MixCertificateView) m_ownCert.getCertificateView()).isMixCertificate())
@@ -364,6 +377,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				}
 				else if (e.getSource() == m_operatorCert)
 				{
+					m_ownCert.setAdditionalVerifier(m_operatorCert.getCert());
+					m_ownCert.updateCertificateIcon(false);
 					if (m_operatorCert.getCert() != null)
 					{
 						OperatorCertificateView certView =
@@ -392,6 +407,18 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 						{
 							m_txtOperatorUrl.setText(certView.getURL());
 							save(m_txtOperatorUrl);
+						}
+						//sign Own Cert with Operator Cert
+						if((m_ownCert.getCert() != null) && CertPanel.isAutoSign() &&
+							!m_ownCert.getCert().getX509Certificate().verify(
+							 m_operatorCert.getCert().getX509Certificate()))
+						{
+							if(JAPDialog.showYesNoDialog(this,
+								"Do you want to sign your Mix-Certificate with the Operator-Certificate?"))
+							{
+								PKCS12 operatorCert = (PKCS12)m_operatorCert.getCert();
+								((PKCS12) m_ownCert.getCert()).sign(operatorCert);
+							}
 						}
 					}
 				}
@@ -536,8 +563,9 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 				m_invalidity.addElement(JAPMessages.getString(MSG_INVALID_EMAIL, getName()));
 			}
 
+			/*
 			message[0] = "country";
-			checkCertificateField(XMLPATH_OPERATOR_COUNTRY, m_invalidity, message);
+			checkCertificateField(XMLPATH_OPERATOR_COUNTRY, m_invalidity, message);*/
 
 			strValue = getConfiguration().getValue(XMLPATH_OPERATOR_URL);
 			if (strValue != null && strValue.trim().length() > 0)
@@ -650,7 +678,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 	private void enableOperatorCertificateFields()
 	{
 		OperatorCertificateView certView = (OperatorCertificateView) m_operatorCert.getCertificateView();
-		if (certView.getCountry().length() > 0 &&
+		if (m_operatorCert.getCert() != null &&
 			( (CountryMapper) m_cbxOperatorCountry.getSelectedItem()).equals(certView.getCountryMapper()))
 		{
 			m_cbxOperatorCountry.setEnabled(false);

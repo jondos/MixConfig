@@ -203,6 +203,10 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		toolEncLogMenuItem.setActionCommand("toolEncLogMenuItem");
 		toolEncLogMenuItem.addActionListener(this);
 
+		JMenuItem toolCertViewMenuItem = new JMenuItem("View accepted CAs ...");
+		m_toolsMenu.add(toolCertViewMenuItem);
+			toolCertViewMenuItem.setActionCommand("toolCertViewMenuItem");
+		toolCertViewMenuItem.addActionListener(this);
 
 
 		//items for "view"
@@ -454,6 +458,10 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			else if (evt.getActionCommand().equals("toolPGPMenuItem"))
 			{
 				new PGPtoX509Tool(MixConfig.getMainWindow());
+			}
+			else if (evt.getActionCommand().equals("toolCertViewMenuItem"))
+			{
+				new CADialog(MixConfig.getMainWindow());
 			}
 			else if (evt.getActionCommand().equals("About"))
 			{

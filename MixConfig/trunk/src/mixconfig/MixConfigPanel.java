@@ -740,8 +740,11 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		{
 			b = Base64.decode(cert);
 		}
-
+		//deactivate auto-signing of OwnCertificate with OperatorCertificate while loading from file
+		CertPanel.setAutoSign(false);
 		a.setCert(b);
+		//activate auto-signing again
+		CertPanel.setAutoSign(true);
 	}
 
 	/** This subclass of <code>javax.swing.JToggleButton.ToggleButtonModel</code> is required
