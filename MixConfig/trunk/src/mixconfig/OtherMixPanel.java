@@ -292,15 +292,6 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 		JAPHelp.getInstance().getContextObj().setContext("index");
 	}
 
-	/**
-	 * Enables used and disables unused components.
-	 *
-	 * @todo Implement this mixconfig.MixConfigPanel method
-	 */
-	protected void enableComponents()
-	{
-	}
-
 
 	public void stateChanged(ChangeEvent a_e)
 	{

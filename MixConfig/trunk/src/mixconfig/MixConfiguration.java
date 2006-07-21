@@ -62,17 +62,14 @@ import gui.dialog.JAPDialog;
  */
 public class MixConfiguration
 {
-	/** Indicates that the Mix is ready to be either first or middle mix */
-	//public static final int MIXTYPE_FIRST_OR_MIDDLE = 3;
-
-	/** Indicates that the Mix is the last in a cascade */
-	public static final int MIXTYPE_LAST = 2;
+	/** Indicates that the Mix is the first in a cascade */
+	public static final int MIXTYPE_FIRST = 1;
 
 	/** Indicates that the Mix is within a cascade */
-	public static final int MIXTYPE_MIDDLE = 1;
+	public static final int MIXTYPE_MIDDLE = 2;
 
-	/** Indicates that the Mix is the first in a cascade */
-	public static final int MIXTYPE_FIRST = 0;
+	/** Indicates that the Mix is the last in a cascade */
+	public static final int MIXTYPE_LAST = 4;
 
 	/** Indicates that no logging should take place */
 	public static final int LOG_NONE = 0;
@@ -91,7 +88,7 @@ public class MixConfiguration
 	 */
 	private static final String MIXTYPE_NAME[] =
 		{
-		"FirstMix", "MiddleMix", "LastMix", "FirstOrMiddle"};
+		"FirstMix", "MiddleMix", "LastMix"};
 
 	/** The configuration file information version number. */
 	private static final String VERSION = "0.61";
@@ -176,11 +173,21 @@ public class MixConfiguration
 
 	public static String getMixTypeAsString(int a_mixType)
 	{
-		if (MIXTYPE_NAME.length <= a_mixType)
+		String strMixType = "";
+
+		if ((a_mixType & MIXTYPE_FIRST) > 0)
 		{
-			return null;
+			strMixType += MIXTYPE_NAME[0];
 		}
-		return MIXTYPE_NAME[a_mixType];
+		if ((a_mixType & MIXTYPE_MIDDLE) > 0)
+		{
+			strMixType += MIXTYPE_NAME[1];
+		}
+		if ((a_mixType & MIXTYPE_LAST) > 0)
+		{
+			strMixType += MIXTYPE_NAME[2];
+		}
+		return strMixType;
 	}
 
 	/** Returns the DOM Document object underlying this configuration.
@@ -541,9 +548,9 @@ public class MixConfiguration
 	 */
 	public void setValue(String a_xmlPath, int a_value)
 	{
-		if (a_xmlPath.indexOf("MixType") >= 0)
+		if (a_xmlPath.indexOf(GeneralPanel.XMLPATH_GENERAL_MIXTYPE) >= 0)
 		{
-			setValue(a_xmlPath, this.MIXTYPE_NAME[a_value]);
+			setValue(a_xmlPath, getMixTypeAsString(a_value));
 		}
 		else
 		{
@@ -801,14 +808,19 @@ public class MixConfiguration
 	 */
 	private int getMixTypeAsInt(String a_s)
 	{
-		for (int i = 0; i < this.MIXTYPE_NAME.length; i++)
+		int mixType = 0;
+		if (a_s != null)
 		{
-			if (a_s.equals(MIXTYPE_NAME[i]))
+			for (int i = 0; i < this.MIXTYPE_NAME.length; i++)
 			{
-				return i;
+				if (a_s.indexOf(MIXTYPE_NAME[i]) >= 0)
+				{
+					mixType += Math.pow(2,i);
+				}
 			}
 		}
-		return 0;
+
+		return mixType;
 	}
 
 	private Node getAttribute(Node n, String a_namedItem)

@@ -241,10 +241,15 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 	{
 		Vector errors = new Vector();
 		MixListTableModel confMix = (MixListTableModel)this.m_configuredMixTable.getModel();
-		Integer t = new Integer(getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE));
-		if (t.intValue() != MixConfiguration.MIXTYPE_LAST)
+		if (getConfiguration().getMixType() != MixConfiguration.MIXTYPE_LAST)
 		{
 			return errors;
+		}
+
+		String s = getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_CASCADENAME);
+		if (s == null || s.equals(""))
+		{
+			errors.addElement("Cascade Name not entered.");
 		}
 
 		if (confMix.getRowCount() > 1)
@@ -805,9 +810,8 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 		super.setConfiguration(a_mixConf);
 		a_mixConf.removeChangeListener(this);
 		a_mixConf.addChangeListener(this);
-		setEnabled(new Integer(a_mixConf.getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).intValue() ==
-				   MixConfiguration.MIXTYPE_LAST &&
-			getConfiguration().isAutoConfigurationAllowed());
+		setEnabled(getConfiguration().getMixType() == MixConfiguration.MIXTYPE_LAST &&
+				   getConfiguration().isAutoConfigurationAllowed());
 	}
 
 	public void stateChanged(ChangeEvent a_event)
@@ -815,6 +819,8 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 
 		if (a_event instanceof ConfigurationEvent)
 		{
+			int mixType = getConfiguration().getMixType();
+
 			ConfigurationEvent ce = (ConfigurationEvent) a_event;
 			int col = -1;
 			if (ce.getChangedAttribute().endsWith("MixID"))
@@ -831,16 +837,13 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 			}
 			else if (ce.getChangedAttribute().equals("Network/InfoService/AllowAutoConfiguration"))
 			{
-				setEnabled(new Integer(getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).intValue() ==
-						   MixConfiguration.MIXTYPE_LAST &&
+				setEnabled(mixType == MixConfiguration.MIXTYPE_LAST &&
 						   getConfiguration().isAutoConfigurationAllowed());
 			}
 			else if (ce.getChangedAttribute().equals(GeneralPanel.XMLPATH_GENERAL_MIXTYPE))
 			{
 				col = 3;
-				setEnabled(new Integer(getConfiguration().getValue(
-								GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).intValue() ==
-						   MixConfiguration.MIXTYPE_LAST &&
+				setEnabled(mixType == MixConfiguration.MIXTYPE_LAST &&
 						   getConfiguration().isAutoConfigurationAllowed());
 			}
 			else if (ce.getChangedAttribute().endsWith("MinCascadeLength"))

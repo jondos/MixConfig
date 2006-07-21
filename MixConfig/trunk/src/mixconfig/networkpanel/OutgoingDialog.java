@@ -93,8 +93,7 @@ public class OutgoingDialog extends ConnectionDialog
 		rc.gridy = 0;
 		rc.weightx = 0;
 
-		if (MixConfig.getMixConfiguration().getMixType() ==
-			MixConfiguration.MIXTYPE_LAST)
+		if (MixConfig.getMixConfiguration().getMixType() == MixConfiguration.MIXTYPE_LAST)
 		{
 			addType(data, layout, lc, rc);
 		}

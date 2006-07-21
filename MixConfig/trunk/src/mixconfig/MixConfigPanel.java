@@ -517,6 +517,10 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		}
 		else
 		{
+			if (a.getName().equals(GeneralPanel.XMLPATH_GENERAL_MIXTYPE))
+			{
+				s = (int)Math.pow(2, s);
+			}
 			m_mixConf.setValue(a.getName(), s);
 		}
 	}
@@ -594,6 +598,10 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		catch (NumberFormatException nfe)
 		{
 			i = 0;
+		}
+		if (a.getName().indexOf(GeneralPanel.XMLPATH_GENERAL_MIXTYPE) >= 0)
+		{
+			i = (int)(Math.log(i) / Math.log(2));
 		}
 		a.setSelectedIndex(i);
 	}

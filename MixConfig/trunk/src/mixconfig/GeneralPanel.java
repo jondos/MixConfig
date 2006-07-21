@@ -586,7 +586,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		}
 
 	//Check if a middle or last mix has only one valid interface
-	mixType = Integer.valueOf(mixConf.getValue(XMLPATH_GENERAL_MIXTYPE)).intValue();
+	mixType = mixConf.getMixType();
 	if (mixType == MixConfiguration.MIXTYPE_LAST || mixType == MixConfiguration.MIXTYPE_MIDDLE)
 	{
 		if (m_listenerModel.getRowCount() > 2)
