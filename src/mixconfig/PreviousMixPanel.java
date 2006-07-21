@@ -70,9 +70,8 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 		a_conf.removeChangeListener(this);
 		a_conf.addChangeListener(this);
 
-		int mixType = Integer.valueOf(getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).
-			intValue();
-		setEnabled(mixType != MixConfiguration.MIXTYPE_FIRST &&
+
+		setEnabled(getConfiguration().getMixType() != MixConfiguration.MIXTYPE_FIRST &&
 				   (!getConfiguration().isAutoConfigurationAllowed()
 					|| getConfiguration().isFallbackEnabled()));
 
@@ -86,21 +85,8 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 			if (e instanceof ConfigurationEvent)
 			{
 				ConfigurationEvent c = (ConfigurationEvent) e;
-				if (c.getChangedAttribute().equals(GeneralPanel.XMLPATH_GENERAL_MIXTYPE))
-				{
-					int mixType =
-						Integer.valueOf(getConfiguration().getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).
-						intValue();
-
-					enableCert(mixType != MixConfiguration.MIXTYPE_FIRST &&
-							   (!getConfiguration().isAutoConfigurationAllowed() ||
-								getConfiguration().isFallbackEnabled()));
-
-					setEnabled(mixType != MixConfiguration.MIXTYPE_FIRST &&
-							   (!getConfiguration().isAutoConfigurationAllowed()
-								|| getConfiguration().isFallbackEnabled()));
-				}
-				else if (c.getChangedAttribute().indexOf(GeneralPanel.XMLPATH_AUTOCONFIGURATION) >= 0)
+				if (c.getChangedAttribute().equals(GeneralPanel.XMLPATH_GENERAL_MIXTYPE) ||
+					c.getChangedAttribute().indexOf(GeneralPanel.XMLPATH_AUTOCONFIGURATION) >= 0)
 				{
 					enableComponents();
 				}
@@ -116,6 +102,24 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 		{
 			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, ex);
 		}
+	}
 
+	protected void enableComponents()
+	{
+		boolean enable;
+
+		if (getConfiguration() != null)
+		{
+			int mixType = getConfiguration().getMixType();
+			enable = mixType != MixConfiguration.MIXTYPE_FIRST &&
+				(!getConfiguration().isAutoConfigurationAllowed() ||
+				 getConfiguration().isFallbackEnabled());
+		}
+		else
+		{
+			enable = true;
+		}
+		enableCert(enable);
+		setEnabled(enable);
 	}
 }

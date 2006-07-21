@@ -226,9 +226,9 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 			if (e instanceof ConfigurationEvent)
 			{
 				ConfigurationEvent c = (ConfigurationEvent) e;
-				if (c.getChangedAttribute().equals("General/MixType"))
+				if (c.getChangedAttribute().equals(GeneralPanel.XMLPATH_GENERAL_MIXTYPE))
 				{
-					int i = Integer.valueOf( (String) c.getNewValue()).intValue();
+					int i = getConfiguration().getMixType();
 					m_chkPaymentEnabled.setEnabled(i == MixConfiguration.MIXTYPE_FIRST);
 					setEnabled(i == MixConfiguration.MIXTYPE_FIRST);
 					enableComponents();
@@ -259,12 +259,9 @@ public class PaymentPanel extends MixConfigPanel implements ActionListener, Chan
 
 		// now check if payment should be really enabled
 		setAutoSaveEnabled(false);
-		String mixType = a_conf.getValue("General/MixType");
-		this.m_chkPaymentEnabled.setEnabled(mixType != null &&
-											Integer.valueOf(mixType).intValue() ==
-											MixConfiguration.MIXTYPE_FIRST);
-		setEnabled(mixType != null &&
-				   Integer.valueOf(mixType).intValue() == MixConfiguration.MIXTYPE_FIRST);
+		int mixType = a_conf.getMixType();
+		this.m_chkPaymentEnabled.setEnabled(mixType == MixConfiguration.MIXTYPE_FIRST);
+		setEnabled(mixType == MixConfiguration.MIXTYPE_FIRST);
 		this.m_chkPaymentEnabled.setSelected(a_conf.isPaymentPresent());
 		enableComponents();
 		setAutoSaveEnabled(true);

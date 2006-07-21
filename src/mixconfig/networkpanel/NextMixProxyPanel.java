@@ -201,17 +201,18 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			{
 				if (e.getClickCount() == 2)
 				{
-					String titles[] =
-						{
-						" Next Mix", " Next Mix", " Proxy"
-					};
-					MixConfiguration mixConf = getConfiguration();
-					int mixType = Integer.valueOf(mixConf.getValue(
-									   GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).
-						intValue();
+					String title;
+					if ( (getConfiguration().getMixType() & MixConfiguration.MIXTYPE_LAST) > 0)
+					{
+						title = "Proxy";
+					}
+					else
+					{
+						title = "Next Mix";
+					}
 
 					new OutgoingDialog(MixConfig.getMainWindow(),
-									   "Change" + titles[mixType],
+									   "Change" + title,
 									   omodel,
 									   omodel.getData(table2.getSelectedRow())).setVisible(true);
 				}
@@ -250,10 +251,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 					{
 						public void tableChanged(TableModelEvent e)
 						{
-							String s = getConfiguration().getValue(
-								GeneralPanel.XMLPATH_GENERAL_MIXTYPE);
-							int i = Integer.valueOf(s).intValue();
-							ob.setEnabled(i == MixConfiguration.MIXTYPE_LAST ||
+							ob.setEnabled(getConfiguration().getMixType() == MixConfiguration.MIXTYPE_LAST ||
 										  omodel.getRowCount() == 0);
 						}
 					});
@@ -340,8 +338,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 	public Vector check()
 	{
 		Vector errors = super.check();
-		String s = MixConfig.getMixConfiguration().getValue("General/MixType");
-		int mixType = Integer.valueOf(s).intValue();
+		int mixType = MixConfig.getMixConfiguration().getMixType();
 
 		if (omodel.getRowCount() == 0)
 		{
@@ -516,19 +513,22 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 
 	public void actionPerformed(ActionEvent a)
 	{
-		String titles[] =
-			{
-			" Next Mix", " Next Mix", " Proxy"
-		};
-		MixConfiguration mixConf = getConfiguration();
-		int mixType = Integer.valueOf(mixConf.getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).intValue();
+		String title;
+		if ((getConfiguration().getMixType() & MixConfiguration.MIXTYPE_LAST) > 0)
+		{
+			title = "Proxy";
+		}
+		else
+		{
+			title = "Next Mix";
+		}
 
 		if (a.getActionCommand().equals("AddOutgoing"))
 		{
 			/*			String type;
 			   if(mixType != MixConfiguration.MIXTYPE_LAST)
 			 */
-			new OutgoingDialog(MixConfig.getMainWindow(), "Add" + titles[mixType], omodel).setVisible(true);
+			new OutgoingDialog(MixConfig.getMainWindow(), "Add " + title, omodel).setVisible(true);
 		}
 		else if (a.getActionCommand().equals("DeleteOutgoing"))
 		{
