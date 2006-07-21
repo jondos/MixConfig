@@ -31,13 +31,14 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.text.SimpleDateFormat;
 
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Observer;
 import java.util.Observable;
 
@@ -264,6 +265,16 @@ public class CADialog extends JAPDialog implements Observer //JAPHelpContext.IHe
 				}
 			}
 		});
+		m_listCert.addMouseListener(new MouseAdapter()
+		{
+			public void mouseClicked(MouseEvent a_event)
+			{
+				if (a_event.getClickCount() == 2)
+				{
+					showCert();
+				}
+			}
+		});
 
 		m_scrpaneList = new JScrollPane();
 		m_scrpaneList.getViewport().add(m_listCert, null);
@@ -284,12 +295,7 @@ public class CADialog extends JAPDialog implements Observer //JAPHelpContext.IHe
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				CertDetailsDialog dialog = new CertDetailsDialog(m_rootPanel.getParent(),
-					( (CertificateInfoStructure) m_listCert.getSelectedValue()).getCertificate().
-					getX509Certificate(),
-					true, null);
-				dialog.pack();
-				dialog.setVisible(true);
+				showCert();
 			}
 		});
 
@@ -303,6 +309,19 @@ public class CADialog extends JAPDialog implements Observer //JAPHelpContext.IHe
 		r_panelCA.add(m_bttnCertView);
 
 		return r_panelCA;
+	}
+
+	private void showCert()
+	{
+		Object selected = m_listCert.getSelectedValue();
+		if (selected != null)
+		{
+			CertDetailsDialog dialog = new CertDetailsDialog(m_rootPanel.getParent(),
+				( (CertificateInfoStructure) m_listCert.getSelectedValue()).getCertificate().
+				getX509Certificate(),
+				true, null);
+			dialog.setVisible(true);
+		}
 	}
 
 	private JPanel createCertInfoPanel()
