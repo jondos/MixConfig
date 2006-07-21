@@ -391,17 +391,21 @@ public class CertDetailsDialog extends JAPDialog
 		// Key Algorithm and Key length
 		Vector keyKeys = new Vector();
 		keyKeys.addElement(JAPMessages.getString(TITLE_KEYS_ALGORITHM));
-		//keyKeys.addElement(JAPMessages.getString(TITLE_KEYS_KEYLENGTH));
-		keyKeys.addElement(JAPMessages.getString(TITLE_KEYS_SIGNALGORITHM));
+
+
 		Vector keyValues = new Vector();
 		keyValues.addElement(new String(a_cert.getPublicKey().getAlgorithm()));
 		if (a_cert.getPublicKey() instanceof MyRSAPublicKey)
-		{
-			/** @todo Calculate correct keysize for DSA keys */
-			int kLength = ( (IMyPublicKey) a_cert.getPublicKey()).getKeyLength();
-			keyValues.addElement(new Integer(kLength).toString());
+				{
+					/** @todo Calculate correct keysize for DSA keys */
+					int kLength = ( (IMyPublicKey) a_cert.getPublicKey()).getKeyLength();
+					keyKeys.addElement(JAPMessages.getString(TITLE_KEYS_KEYLENGTH));
+					keyValues.addElement(new Integer(kLength).toString());
 		}
+		keyKeys.addElement(JAPMessages.getString(TITLE_KEYS_SIGNALGORITHM));
 		keyValues.addElement(a_cert.getPublicKey().getSignatureAlgorithm().getXMLSignatureAlgorithmReference());
+
+
 		JLabel title_keys = new JLabel(JAPMessages.getString(TITLE_KEYS), JLabel.RIGHT);
 		title_keys.setFont(TITLE_FONT);
 		title_keys.setForeground(TITLE_COLOR);
