@@ -365,6 +365,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 							{
 								PKCS12 operatorCert = (PKCS12)m_operatorCert.getCert();
 								((PKCS12) m_ownCert.getCert()).sign(operatorCert);
+								m_ownCert.setCert(m_ownCert.getCert().getX509Certificate());
 							}
 						}
 					}
@@ -418,6 +419,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 							{
 								PKCS12 operatorCert = (PKCS12)m_operatorCert.getCert();
 								((PKCS12) m_ownCert.getCert()).sign(operatorCert);
+								m_ownCert.setCert(m_ownCert.getCert().getX509Certificate());
 							}
 						}
 					}
