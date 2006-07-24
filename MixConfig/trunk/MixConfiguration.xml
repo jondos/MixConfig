@@ -103,8 +103,24 @@
 			</Proxy>
 
 	</Proxies>
+		<InfoServices>
+			<!-- Describes how to connect to one or more InfoServices; 
+			     Replaces the old InfoService tag -->
+			<InfoService>
+     		<ListenerInterfaces>
+					<ListenerInterface>
+						<Host> hostname or ip of the InfoService </Host>
+			 			<Port> port of the InfoService </Port>
+					</ListenerInterface>
+				</ListenerInterfaces>
+			</InfoService>
+			<!-- If set to 'true', the InfoService may change previous/next mix. 
+			If 'fallback' is 'true' this change may only happen if the default mixes are not available for some time. -->
+			<AllowAutoConfiguration fallback="true|false">True</AllowAutoConfiguration>			
+    </InfoServices>	    
 	<InfoService>
-		<!-- Describes how to connect to the InfoService -->
+		<!-- Deprecated tag: Describes how to connect to the InfoService 
+		     is ignored if the InfoServices tag is set -->
 			 <Host> hostname or ip of the InfoService </Host>
 			 <Port> port of the InfoService </Port>
 			 <!-- If set to 'true', the InfoService may change previous/next mix. 
