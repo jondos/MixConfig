@@ -12,12 +12,8 @@
 		- added Payment
 -->
 <General>
-	<MixID> <!-- Each Mix gets an unique ID, ether chosen by the user or generate
-					Rules:
-						MixID::='m' (Letter|Digits|'.'|'_'|'-'){4:n}
-						Letter::='A'..'Z'|'a'..'z'
-						Digits::='0'..'9'
-	-->
+	<MixID> <!-- The MixID MUST be the SubjectKeyIdentifier of the mix certificate's 
+	        public key in uppercase hex letters without spaces  -->
 	</MixID>
 	<MixType> <!--- One of: FirstMix | MiddleMix | LastMix --> </MixType>
 	<MixName> <!-- human readble String which shortly describes the Mix --> </MixName>
@@ -140,6 +136,20 @@
 			<!-- this is the public test certificate, which belongs to the certificate above -->
 		</X509Certificate>
 	</OwnCertificate>
+	<OperatorOwnCertificate>
+		<X509PKCS12>
+			<!-- Base64 encoded version of the DER encoded version of a PKCS#12 structure which includes the private key 
+			     and one or more X.509 Certificates -->
+		</X509PKCS12>
+		<X509Certificate>
+			<!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
+			<!-- this is the public test certificate, which belongs to the certificate above -->
+		</X509Certificate>
+		<X509Certificate>
+			<!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
+			<!-- first cert of a verification chain of one or more public certificates for the public cert above -->
+		</X509Certificate>		
+	</OperatorOwnCertificate>	
 
 	<PrevMixCertificate>
 	<!-- X.509 Public Key Test Certificate of the key from the previous mix -->
@@ -156,10 +166,10 @@
 	</NextMixCertificate>s
 </Certificates>
 
-<Description><!-- optional -->
+<Description><!-- optional; is hard-linked with the certificate information!  -->
 	<Location> <!-- Describes the location of the mix server -->
 		<City>    <!-- optional --></City>
-		<Country> <!-- optional --></Country>
+		<Country> <!-- optional; a two-letter ISO country code --></Country>
 		<State> <!-- optional --> </State>
 
 		<Position>
@@ -173,7 +183,10 @@
 
 	<Operator> <!-- who is operating this mix? -->
 		<Organisation> <!-- The name of the operating organisation or a person's name for private operators --> </Organisation>
-		<URL> <!-- a url that leads to more information on the operator, including contact information --> </URL>
+		<OrganisationalUnit>  </OrganisationalUnit>
+		<URL> <!-- optional; a url that leads to more information on the operator, including contact information --> </URL>
+		<EMail> <!-- optional; the EMail address of the operator --> </EMail>
+		<Country><!-- optional; a two-letter ISO country code --> </Country>
 	</Operator>
 
 </Description>
