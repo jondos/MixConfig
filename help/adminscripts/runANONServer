@@ -199,10 +199,12 @@ case "$1" in
 				rc_exit
 			fi
         	        cd ../classes
+                        #rm -r META-INF/	
                 	JAR_EXEC=""
 	                for JAR in $JAR_CLASSES; do
         	                JAR_EXEC="$JAR_EXEC `jar -xf $JAR`"
                 	done
+                        rm -r META-INF/	
 			# create the manifest file
 			echo "Manifest-Version: 1.0" > ../MANIFEST.MF
 			echo "Main-Class: $PROGRAM_NAME" | sed s/[/]/./g >> ../MANIFEST.MF

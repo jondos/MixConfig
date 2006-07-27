@@ -1144,7 +1144,7 @@ public class CertPanel extends JPanel implements ActionListener
 			}
 			else
 			{
-				filter = MixConfig.FILTER_PFX;
+				filter = MixConfig.FILTER_PFX | MixConfig.FILTER_PFX;
 			}
 
 			do
@@ -1184,7 +1184,8 @@ public class CertPanel extends JPanel implements ActionListener
 					{
 						String extensions[] =
 							{
-							".pfx", ".der.cer", ".b64.cer", PKCS10CertificationRequest.FILE_EXTENSION,
+							PKCS12.FILE_EXTENSION, ".b64" + PKCS12.FILE_EXTENSION, ".der.cer", ".b64.cer",
+							PKCS10CertificationRequest.FILE_EXTENSION,
 							".b64" + PKCS10CertificationRequest.FILE_EXTENSION};
 						int ext = 0;
 						// we can't use the MixConfig constants as array indices
@@ -1195,17 +1196,20 @@ public class CertPanel extends JPanel implements ActionListener
 							case MixConfig.FILTER_PFX:
 								ext = 0;
 								break;
-							case MixConfig.FILTER_CER:
+							case MixConfig.FILTER_B64_PFX:
 								ext = 1;
 								break;
-							case MixConfig.FILTER_B64_CER:
+							case MixConfig.FILTER_CER:
 								ext = 2;
 								break;
-							case MixConfig.FILTER_P10:
+							case MixConfig.FILTER_B64_CER:
 								ext = 3;
 								break;
-							case MixConfig.FILTER_B64_P10:
+							case MixConfig.FILTER_P10:
 								ext = 4;
+								break;
+							case MixConfig.FILTER_B64_P10:
+								ext = 5;
 								break;
 							default:
 						}
@@ -1231,8 +1235,7 @@ public class CertPanel extends JPanel implements ActionListener
 			}
 			else
 			{
-				// illegal selection!
-				return;
+				type = MixConfig.FILTER_B64_PFX;
 			}
 		}
 		byte[] output = null;
@@ -1240,6 +1243,10 @@ public class CertPanel extends JPanel implements ActionListener
 		{
 			case MixConfig.FILTER_PFX:
 				output = ( (PKCS12) m_cert).toByteArray(getPrivateCertPassword());
+				m_bCertificateSaved = true;
+				break;
+			case MixConfig.FILTER_B64_PFX:
+				output = ( (PKCS12) m_cert).toByteArray(getPrivateCertPassword(), true);
 				m_bCertificateSaved = true;
 				break;
 			case MixConfig.FILTER_CER:
@@ -1462,7 +1469,8 @@ public class CertPanel extends JPanel implements ActionListener
 			if (m_cert instanceof PKCS12)
 			{
 				m_btnCertRequest.setEnabled(true);
-				m_btnPrivateCert.setEnabled(m_previousPane.isMethodFile());
+				//m_btnPrivateCert.setEnabled(m_previousPane.isMethodFile());
+				m_btnPrivateCert.setEnabled(true);
 				if (m_btnPrivateCert.isSelected() && !m_previousPane.isMethodFile())
 				{
 					m_btnPublicCert.setSelected(true);
