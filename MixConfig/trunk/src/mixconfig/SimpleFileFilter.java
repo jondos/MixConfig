@@ -74,6 +74,10 @@ public class SimpleFileFilter extends javax.swing.filechooser.FileFilter
 				m_strDesc = "Private Key with Certificate (*.pfx)";
 				m_strExtension = ".pfx";
 				break;
+			case MixConfig.FILTER_B64_PFX:
+				m_strDesc = "Private Key with Certificate, Base64 (*.pfx)";
+				m_strExtension = ".pfx";
+				break;
 			default:
 				m_strDesc = "";
 				m_strExtension = "";

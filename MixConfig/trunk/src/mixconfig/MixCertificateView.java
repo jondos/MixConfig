@@ -35,6 +35,7 @@ import anon.util.Util;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectAlternativeName;
+import anon.crypto.AbstractX509Extension;
 
 /**
  * Stores the information that should be present in a mix certificate.
@@ -87,11 +88,11 @@ public class MixCertificateView implements ICertificateView
 		m_strStateOrProvince = formatDNField(dn.getStateOrProvince());
 		strCommonName = formatDNField(dn.getCommonName());
 		m_bMixCertificate = (strCommonName != null && strCommonName.toLowerCase().indexOf("mix") >= 0);
-
-		alternativeName = (X509SubjectAlternativeName)
+		AbstractX509Extension extension =
 			extensions.getExtension(X509SubjectAlternativeName.IDENTIFIER);
-		if (alternativeName != null)
+		if (extension != null && extension instanceof X509SubjectAlternativeName)
 		{
+			alternativeName = (X509SubjectAlternativeName) extension;
 			if (alternativeName.getTags().size() == 2 &&
 				alternativeName.getValues().size() == 2)
 			{
@@ -115,7 +116,7 @@ public class MixCertificateView implements ICertificateView
 					try
 					{
 						m_strLatitude = coordinates.elementAt(1).toString();
-						Util.parseFloat(m_strLongitude);
+						Util.parseFloat(m_strLatitude);
 						m_strLatitude = m_strLatitude.trim();
 					}
 					catch (NumberFormatException a_e)
@@ -124,6 +125,7 @@ public class MixCertificateView implements ICertificateView
 					}
 				}
 			}
+
 		}
 	}
 
