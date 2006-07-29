@@ -6,12 +6,26 @@
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<h2>Using the Mix executable as local anonymizer proxy ("Command line JAP")</h2>
+<h2>Using JAP at the command line</h2>
+
+<h3>Schalter im JAP</h3>
+Type
+	<blockquote>
+		<code>
+			java -jar JAP.jar -console
+		</code>
+	</blockquote>
+to start JAP without grafical user interface. If a configuration file exists (jap.conf),
+it is read and used, otherwise a new configuration is created. There is no control interface
+for the command line yet, but JAP will automatically (re-)connect if you have specified
+this in the grafical view before.
+
+<h3>Using the Mix executable as local anonymizer proxy</h3>
 
 If you have <a href="index_en.html">successfully installed the Mix server binary</a>, you may also use it as
 a local anonymizer proxy for your web browser instead of the graphical JAP client.
 
-<h3>Choosing the cascade</h3>
+<h4>Choosing the cascade</h4>
 
 Before using the software as a local proxy you have to decide which mix-cascade to use.
 You can use JAP to get the addresses of all currently available Mixes. The address of the
@@ -32,7 +46,7 @@ cascade addresses, for example the Dresden InfoService:
 There are some other commands it accepts, try <code>mixes</code> and
 <code>status</code>.
 
-<h3>Starting the local proxy</h3>
+<h4>Starting the local proxy</h4>
 
 Now you are ready to start the program. The parameters are:
 
