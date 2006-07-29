@@ -6,13 +6,29 @@
 <body>
 <!--#include virtual="/header.html"-->
 
-<h2>Wie man die Mix-Server-Software als lokalen Anonymisierungsproxy benutzt ("Kommandozeilen-JAP")</h2>
+<h2>JAP auf der Kommandozeile verwenden</h2>
+
+<h3>Schalter im JAP</h3>
+
+Mittels
+	<blockquote>
+		<code>
+			java -jar JAP.jar -console
+		</code>
+	</blockquote>
+k&ouml;nnen Sie JAP auf der Kommandozeile ohne grafische Benutzeroberfläche starten.
+Wenn eine Konfiguration (jap.conf) vorliegt, wird diese eingelesen und benutzt,
+andernfalls wird eine neue erzeugt. Momentan gibt es noch keine Steuerungsm&ouml;glichkeit
+auf der Kommandozeile, JAP wird sich aber automatisch (wieder-)verbinden, wenn Sie dies vorher
+in der grafischen Ansicht konfiguriert haben.
+
+<h3>Wie man die Mix-Server-Software als lokalen Anonymisierungsproxy benutzt</h3>
 
 Wenn Sie die Mix-Server-Software <a href="index_en.html">erfolgreich installiert</a> haben
 k&ouml;nnen Sie diese auch als lokalen Anonymisierungsproxy f&uuml;r Ihren Webbrowser statt dem
 graphischen JAP-Client verwenden.
 
-<h3>Eine Kaskade ausw&auml;hlen</h3>
+<h4>Eine Kaskade ausw&auml;hlen</h4>
 
 Bevor Sie die Software als lokalen Proxy nutzen k&ouml;nnen, m&uuml;ssen Sie sich entscheiden,
 &uuml;ber welche Kaskade Sie surfen wollen. Sie k&ouml;nnen den JAP benutzen um die Adressen aller
@@ -33,7 +49,7 @@ Wenn Sie die Adresse eines InfoService kennen, k&ouml;nnen Sie diesen direkt nac
 Er akzeptiert auch noch einige andere Kommandos, versuchen Sie z.B. <code>mixes</code> und
 <code>status</code>.
 
-<h3>Den lokalen Proxy starten</h3>
+<h4>Den lokalen Proxy starten</h4>
 
 Nun k&ouml;nnen Sie das Programm starten. Die Parameter sind:
 
