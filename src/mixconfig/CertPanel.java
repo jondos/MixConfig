@@ -81,6 +81,7 @@ import logging.LogLevel;
 import logging.LogType;
 import mixconfig.wizard.CannotContinueException;
 import anon.crypto.PKCS10CertificationRequest;
+import java.awt.Cursor;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -322,6 +323,7 @@ public class CertPanel extends JPanel implements ActionListener
 
 		m_certLabel = new JLabel(GUIUtils.loadImageIcon(CERT_DISABLED));
 		m_certLabel.setBorder(null);
+		m_certLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		m_certLabel.addMouseListener(new MouseAdapter()
 		{
 			public void mouseClicked(MouseEvent a_event)
@@ -334,6 +336,7 @@ public class CertPanel extends JPanel implements ActionListener
 					dialog.setVisible(true);
 				}
 			}
+
 
 			public void mouseEntered(MouseEvent a_event)
 			{
