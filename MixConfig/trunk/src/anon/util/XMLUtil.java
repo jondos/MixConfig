@@ -44,6 +44,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.StringTokenizer;
 import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -304,6 +305,29 @@ public class XMLUtil
 	}
 
 	/**
+	 * Returns the value of the specified attribute of an XML element as long.
+	 * @param a_node an XML node
+	 * @param a_attribute an attribute`s name
+	 * @param a_default the default value
+	 * @return the value of the specified attribute as long if the element has this attribute;
+	 *         otherwise, the default value is returned
+	 */
+	public static long parseAttribute(Node a_node, String a_attribute, long a_default)
+	{
+		long i = a_default;
+
+		try
+		{
+			i = Long.parseLong(parseAttribute(a_node, a_attribute, null));
+		}
+		catch (Exception ex)
+		{
+		}
+
+		return i;
+	}
+
+	/**
 	 * Returns the value of the specified XML node as boolean.
 	 * @param a_node an XML node
 	 * @param a_defaultValue the default value
@@ -387,6 +411,21 @@ public class XMLUtil
 			}
 		}
 		return s;
+	}
+
+	public static String getXmlElementName(Class a_xmlEncodableClass)
+	{
+		String xmlElementName = null;
+		try
+		{
+			Field field = a_xmlEncodableClass.getField(IXMLEncodable.FIELD_XML_ELEMENT_NAME);
+			xmlElementName = (String) field.get(null);
+		}
+		catch (Exception ex)
+		{
+		}
+
+		return xmlElementName;
 	}
 
 	/**
@@ -544,6 +583,17 @@ public class XMLUtil
 	public static void setAttribute(Element a_element, String a_attribute, int a_value)
 	{
 		setAttribute(a_element, a_attribute, Integer.toString(a_value));
+	}
+
+	/**
+	 * Creates and sets an attribute with a long value to an XML element.
+	 * @param a_element an XML Element
+	 * @param a_attribute an attribute name
+	 * @param a_value a long value for the attribute
+	 */
+	public static void setAttribute(Element a_element, String a_attribute, long a_value)
+	{
+		setAttribute(a_element, a_attribute, Long.toString(a_value));
 	}
 
 	/**
