@@ -128,6 +128,8 @@ public class CertPanel extends JPanel implements ActionListener
 	private static final String MSG_CHOOSE_LOAD_METHOD = CertPanel.class.getName() + "_chooseLoadMethod";
 	private static final String MSG_CHOOSE_SAVE_METHOD = CertPanel.class.getName() + "_chooseSaveMethod";
 	private static final String MSG_CHOOSE_CERT_TYPE = CertPanel.class.getName() + "_chooseCertType";
+	private static final String MSG_NO_PRIVATE_CERT = CertPanel.class.getName() + "_noPrivateCert";
+
 
 
 	// holds a Vector with all instanciated CertPanels
@@ -610,6 +612,11 @@ public class CertPanel extends JPanel implements ActionListener
 		{
 			if (x509cert != null)
 			{
+				if (m_cert == null)
+				{
+					throw new IllegalArgumentException(JAPMessages.getString(MSG_NO_PRIVATE_CERT));
+				}
+
 				bChanged = ( (PKCS12) m_cert).setX509Certificate(x509cert);
 			}
 			else
