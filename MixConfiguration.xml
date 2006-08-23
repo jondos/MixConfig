@@ -3,16 +3,20 @@
 
 <!-- XML File for Mix Configuration -->
 
-<MixConfiguration version="0.5">  <!-- Root-Element -->
+<MixConfiguration version="0.6">  <!-- Root-Element -->
 <!-- Changes in Version 0.2:
 		- added attr 'hidden' and 'virtual' to ListenerInterface
 	- Changes in Version 0.3:
 		- added Encrypted Log
 	- Changes in Version 0.4:
 		- added Payment
+    - Changes in Version 0.5:
+       - adeed <InfoSerices>?
+    - changes in Version 0.6:
+       - added Keep-Alive-Traffic Information
 -->
 <General>
-	<MixID> <!-- The MixID MUST be the SubjectKeyIdentifier of the mix certificate's 
+	<MixID> <!-- The MixID MUST be the SubjectKeyIdentifier of the mix certificate's
 	        public key in uppercase hex letters without spaces  -->
 	</MixID>
 	<MixType> <!--- One of: FirstMix | MiddleMix | LastMix --> </MixType>
@@ -28,7 +32,9 @@
 	<Logging>
 		<!-- Information of how to log some events -->
 		<!-- Only one of File|SysLog|Console is possible -->
-		<File compressed="True|False"><!--The file to which the log data should be written--></File>
+		<File compressed="True|False">
+          <!--The file to which the log data should be written-->
+        </File>
 		<SysLog>  <!-- Values: True | False --> </SysLog>
 		<Console> <!-- Values: True | False, must be False, if Daemon=True --> </Console>
 
@@ -100,7 +106,7 @@
 
 	</Proxies>
 		<InfoServices>
-			<!-- Describes how to connect to one or more InfoServices; 
+			<!-- Describes how to connect to one or more InfoServices;
 			     Replaces the old InfoService tag -->
 			<InfoService>
      		<ListenerInterfaces>
@@ -110,19 +116,35 @@
 					</ListenerInterface>
 				</ListenerInterfaces>
 			</InfoService>
-			<!-- If set to 'true', the InfoService may change previous/next mix. 
+			<!-- If set to 'true', the InfoService may change previous/next mix.
 			If 'fallback' is 'true' this change may only happen if the default mixes are not available for some time. -->
-			<AllowAutoConfiguration fallback="true|false">True</AllowAutoConfiguration>			
-    </InfoServices>	    
+			<AllowAutoConfiguration fallback="true|false">True</AllowAutoConfiguration>
+    </InfoServices>
 	<InfoService>
-		<!-- Deprecated tag: Describes how to connect to the InfoService 
+		<!-- Deprecated tag: Describes how to connect to the InfoService
 		     is ignored if the InfoServices tag is set -->
 			 <Host> hostname or ip of the InfoService </Host>
 			 <Port> port of the InfoService </Port>
-			 <!-- If set to 'true', the InfoService may change previous/next mix. 
+			 <!-- If set to 'true', the InfoService may change previous/next mix.
 			 If 'fallback' is 'true' this change may only happen if the default mixes are not available for some time. -->
 			 <AllowAutoConfiguration fallback="true|false">True</AllowAutoConfiguration>
 	</InfoService>
+	<KeepAlive>
+		<!-- Since Version 0.6 -->
+		<!-- Gives information about the "Keep-Alive"-protocol
+		    between Mixes -->
+		<SendInterval>
+			<!-- minimum packet send interval (in seconds)
+			     from Mix n to Mix n-1 -->
+			...
+		</SendInterval>
+		<ReceiveInterval>
+			<!-- minimum packet receive interval (in seconds)
+			     from Mix n-1 to Mix n -->
+			...
+		</ReceiveInterval>
+	</KeepAlive>
+
 </Network>
 
 <Certificates>
@@ -138,7 +160,7 @@
 	</OwnCertificate>
 	<OperatorOwnCertificate>
 		<X509PKCS12>
-			<!-- Base64 encoded version of the DER encoded version of a PKCS#12 structure which includes the private key 
+			<!-- Base64 encoded version of the DER encoded version of a PKCS#12 structure which includes the private key
 			     and one or more X.509 Certificates -->
 		</X509PKCS12>
 		<X509Certificate>
@@ -148,8 +170,8 @@
 		<X509Certificate>
 			<!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
 			<!-- first cert of a verification chain of one or more public certificates for the public cert above -->
-		</X509Certificate>		
-	</OperatorOwnCertificate>	
+		</X509Certificate>
+	</OperatorOwnCertificate>
 
 	<PrevMixCertificate>
 	<!-- X.509 Public Key Test Certificate of the key from the previous mix -->
