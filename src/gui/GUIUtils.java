@@ -32,7 +32,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Hashtable;
 import java.io.File;
-import java.io.IOException;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -89,10 +88,39 @@ public final class GUIUtils
 	private static final String MSG_SAVED_TO_CLIP = GUIUtils.class.getName() + "_savedToClip";
 
 
+	private static IIconResizer ms_resizer = new IIconResizer()
+		{
+			public double getResizeFactor()
+			{
+				return 1.0;
+			}
+	};
 
 
 	// all loaded icons are stored in the cache and do not need to be reloaded from file
 	private static Hashtable ms_iconCache = new Hashtable();
+
+	/**
+	 * Defines a resize factor for icons that is especially useful if the font size is altered.
+	 */
+	public static interface IIconResizer
+	{
+		/**
+		 * 1.0 means no resizing is done
+		 * @return 1.0 means 100%
+		 */
+		public double getResizeFactor();
+	}
+
+	public static final IIconResizer getIconResizer()
+	{
+		return ms_resizer;
+	}
+
+	public static final void setIconResizer(IIconResizer a_resizer)
+	{
+		ms_resizer = a_resizer;
+	}
 
 	/**
 	 * Loads an ImageIcon from the classpath or the current directory.
@@ -133,51 +161,52 @@ public final class GUIUtils
 		// try to load the image from the cache
 		if (ms_iconCache.containsKey(a_strRelativeImagePath))
 		{
-			return new ImageIcon((Image)ms_iconCache.get(a_strRelativeImagePath));
+			img = new ImageIcon((Image)ms_iconCache.get(a_strRelativeImagePath));
 		}
-
-		// load image from the local classpath or the local directory
-		img = loadImageIconInternal(ResourceLoader.getResourceURL(a_strRelativeImagePath));
-
-		if (img == null && (Toolkit.getDefaultToolkit().getColorModel().getPixelSize() <= 16))
+		else
 		{
-			// load the image from the low color image path
-			img = loadImageIconInternal(
-				 ResourceLoader.getResourceURL(
-						 JAPMessages.getString(MSG_DEFAULT_IMGAGE_PATH_LOWCOLOR) + a_strRelativeImagePath));
-		}
+			// load image from the local classpath or the local directory
+			img = loadImageIconInternal(ResourceLoader.getResourceURL(a_strRelativeImagePath));
 
-		if (img == null || img.getImageLoadStatus() == MediaTracker.ERRORED)
-		{
-			// load the image from the default image path
-			img = loadImageIconInternal(
-						 ResourceLoader.getResourceURL(
-							   JAPMessages.getString(MSG_DEFAULT_IMGAGE_PATH) + a_strRelativeImagePath));
-		}
-
-		if (img != null)
-		{
-			if (a_bSync)
+			if (img == null && (Toolkit.getDefaultToolkit().getColorModel().getPixelSize() <= 16))
 			{
-				statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED | MediaTracker.COMPLETE;
-				while ( (img.getImageLoadStatus() & statusBits) == 0)
-				{
-					Thread.yield();
-				}
+				// load the image from the low color image path
+				img = loadImageIconInternal(
+					ResourceLoader.getResourceURL(
+						JAPMessages.getString(MSG_DEFAULT_IMGAGE_PATH_LOWCOLOR) + a_strRelativeImagePath));
 			}
 
-			// write the image to the cache
-			ms_iconCache.put(a_strRelativeImagePath, img.getImage());
-		}
+			if (img == null || img.getImageLoadStatus() == MediaTracker.ERRORED)
+			{
+				// load the image from the default image path
+				img = loadImageIconInternal(
+					ResourceLoader.getResourceURL(
+						JAPMessages.getString(MSG_DEFAULT_IMGAGE_PATH) + a_strRelativeImagePath));
+			}
 
-		statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED;
-		if (img == null || (img.getImageLoadStatus() & statusBits) != 0)
-		{
-			LogHolder.log(LogLevel.INFO, LogType.GUI,
-						  "Could not load requested image '" + a_strRelativeImagePath + "'!");
-		}
+			if (img != null)
+			{
+				if (a_bSync)
+				{
+					statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED | MediaTracker.COMPLETE;
+					while ( (img.getImageLoadStatus() & statusBits) == 0)
+					{
+						Thread.yield();
+					}
+				}
 
-		return img;
+				// write the image to the cache
+				ms_iconCache.put(a_strRelativeImagePath, img.getImage());
+			}
+
+			statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED;
+			if (img == null || (img.getImageLoadStatus() & statusBits) != 0)
+			{
+				LogHolder.log(LogLevel.INFO, LogType.GUI,
+							  "Could not load requested image '" + a_strRelativeImagePath + "'!");
+			}
+		}
+		return GUIUtils.createScaledImageIcon(img, ms_resizer);
 	}
 
 	private static ImageIcon loadImageIconInternal(URL a_imageURL)
@@ -362,21 +391,33 @@ public final class GUIUtils
 
 
 	/**
-	 * Returns all valid javax.swing.LookAndFeel subclasses that could be found by ClassUtil.findSubclasses.
-	 * @return all valid javax.swing.LookAndFeel subclasses that could be found by ClassUtil.findSubclasses
+	 * Registers all instanciable subclasses of javax.swing.LookAndFeel from a file in the UIManager.
+	 * @return the files that contain the newly loaded look&feel classes
 	 */
-	public static boolean registerLookAndFeelClasses(File a_file) throws IllegalAccessException
+	public static Vector registerLookAndFeelClasses(File a_file) throws IllegalAccessException
 	{
 		if (a_file == null)
 		{
-			return false;
+			return new Vector();
 		}
-		ClassUtil.addFileToClasspath(a_file);
-		ClassUtil.loadClasses(a_file);
 
 		LookAndFeelInfo lnfOldInfo[] = UIManager.getInstalledLookAndFeels();
 		LookAndFeelInfo lnfNewInfo[];
 		LookAndFeel lnf;
+		Vector oldFiles = new Vector(lnfOldInfo.length);
+		Vector newFiles;
+		File file;
+		for (int i = 0; i < lnfOldInfo.length; i++)
+		{
+			file = ClassUtil.getClassDirectory(lnfOldInfo[i].getClassName());
+			if (file != null)
+			{
+				oldFiles.addElement(file);
+			}
+		}
+
+		ClassUtil.addFileToClasspath(a_file);
+		ClassUtil.loadClasses(a_file);
 
 		Vector tempLnfClasses = ClassUtil.findSubclasses(LookAndFeel.class);
 		for (int i = 0; i < tempLnfClasses.size(); i++)
@@ -424,7 +465,23 @@ public final class GUIUtils
 			}
 		}
 		lnfNewInfo = UIManager.getInstalledLookAndFeels();
-		return lnfNewInfo.length > lnfOldInfo.length;
+		if (lnfNewInfo.length > lnfOldInfo.length)
+		{
+			newFiles = new Vector(lnfNewInfo.length - lnfOldInfo.length);
+			for (int i = 0; i < lnfNewInfo.length; i++)
+			{
+				file = ClassUtil.getClassDirectory(lnfNewInfo[i].getClassName());
+				if (!oldFiles.contains(file))
+				{
+					newFiles.addElement(file);
+				}
+			}
+		}
+		else
+		{
+			newFiles = new Vector();
+		}
+		return newFiles;
 	}
 
 	/**
@@ -482,6 +539,20 @@ public final class GUIUtils
 			new ClipFrame(a_requestingComponent, JAPMessages.getString(MSG_COPY_FROM_CLIP), false);
 		cf.setText(strText);
 		cf.setVisible(true, false);
+	}
+
+	public static ImageIcon createScaledImageIcon(ImageIcon a_icon, IIconResizer a_resizer)
+	{
+		if (a_icon == null)
+		{
+			return null;
+		}
+		if (a_resizer == null)
+		{
+			return a_icon;
+		}
+		return  new ImageIcon(a_icon.getImage().getScaledInstance(
+			  (int) (a_icon.getIconWidth() * a_resizer.getResizeFactor()), -1, Image.SCALE_REPLICATE));
 	}
 
 	private static String getTextFromClipboard(Component a_requestingComponent, boolean a_bUseTextArea)
