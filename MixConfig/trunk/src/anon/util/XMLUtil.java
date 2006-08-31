@@ -308,6 +308,7 @@ public class XMLUtil
 		return i;
 	}
 
+
 	/**
 	 * Returns the value of the specified attribute of an XML element as long.
 	 * @param a_node an XML node
@@ -642,6 +643,17 @@ public class XMLUtil
 	public static void setAttribute(Element a_element, String a_attribute, int a_value)
 	{
 		setAttribute(a_element, a_attribute, Integer.toString(a_value));
+	}
+
+	/**
+	 * Creates and sets an attribute with a double value to an XML element.
+	 * @param a_element an XML Element
+	 * @param a_attribute an attribute name
+	 * @param a_value a double value for the attribute
+	 */
+	public static void setAttribute(Element a_element, String a_attribute, double a_value)
+	{
+		setAttribute(a_element, a_attribute, Double.toString(a_value));
 	}
 
 	/**
