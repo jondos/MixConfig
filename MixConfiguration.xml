@@ -11,7 +11,7 @@
 	- Changes in Version 0.4:
 		- added Payment
     - Changes in Version 0.5:
-       - adeed <InfoSerices>?
+       - added <InfoServices>
     - changes in Version 0.6:
        - added Keep-Alive-Traffic Information
 -->
@@ -185,7 +185,7 @@
 		<X509Certificate>
 			<!-- Base64 encoded version of the DER encoded version of the X.509 Certificate -->
 		</X509Certificate>
-	</NextMixCertificate>s
+	</NextMixCertificate>
 </Certificates>
 
 <Description><!-- optional; is hard-linked with the certificate information!  -->
