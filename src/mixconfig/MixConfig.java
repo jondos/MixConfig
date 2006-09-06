@@ -62,6 +62,7 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import logging.SystemErrLog;
+import platform.AbstractOS;
 
 public class MixConfig extends JApplet
 {
@@ -81,7 +82,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_P10 = 32;
 	public final static int FILTER_B64_P10 = 64;
 
-	public final static String VERSION = "00.04.136"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.04.137"; //NEVER change the layout of this line!!
 
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -171,7 +172,7 @@ public class MixConfig extends JApplet
 			m_MainWindow = new JFrame();
 			((JFrame)m_MainWindow).setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 			m_MainWindow.setResizable(false);
-			JAPHelp.init(m_MainWindow, null);
+			JAPHelp.init(m_MainWindow, AbstractOS.getInstance(), AbstractOS.getInstance());
 
 			if (m_currentFileName != null && (f = new File(m_currentFileName)).exists())
 			{
@@ -290,7 +291,7 @@ public class MixConfig extends JApplet
 			JAPMessages.init("MixConfigMessages");
 			m_MainWindow = (Frame)GUIUtils.getParentWindow(this);
 			m_mixConfiguration = new MixConfiguration();
-			JAPHelp.init(m_MainWindow, null);
+			JAPHelp.init(m_MainWindow, AbstractOS.getInstance(), AbstractOS.getInstance());
 
 			m_mainPanel = new ConfigFrame(null);
 			m_startPanel = new ChoicePanel(null,getRootPane());
