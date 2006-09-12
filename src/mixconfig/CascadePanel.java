@@ -622,7 +622,7 @@ public class CascadePanel extends MixConfigPanel implements ActionListener, List
 
 			mix[3] = getElementData(a_mix, "MixType");
 
-			mix[4] = getElementData(a_mix, "MinCascadeLength");
+			//mix[4] = getElementData(a_mix, "MinCascadeLength");
 
 			addRow(mix);
 		}

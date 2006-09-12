@@ -64,6 +64,7 @@ import javax.swing.plaf.FontUIResource;
 import anon.util.ClassUtil;
 import anon.util.ResourceLoader;
 import gui.dialog.JAPDialog;
+import gui.dialog.WorkerContentPane;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
@@ -89,6 +90,9 @@ public final class GUIUtils
 	private static final String MSG_COPY_FROM_CLIP = GUIUtils.class.getName() + "_copyFromClip";
 	private static final String MSG_SAVED_TO_CLIP = GUIUtils.class.getName() + "_savedToClip";
 
+	private static final int MAXIMUM_TEXT_LENGTH = 60;
+
+	private static boolean ms_loadImages = true;
 
 	private static final IIconResizer DEFAULT_RESIZER = new IIconResizer()
 	{
@@ -98,6 +102,20 @@ public final class GUIUtils
 		}
 	};
 	private static IIconResizer ms_resizer = DEFAULT_RESIZER;
+
+	private static final NativeGUILibrary DUMMY_GUI_LIBRARY = new NativeGUILibrary()
+	{
+		public boolean setAlwaysOnTop(Window a_window, boolean a_bOnTop)
+		{
+			return false;
+		}
+
+		public boolean isAlwaysOnTop(Window a_window)
+		{
+			return false;
+		}
+	};
+	private static NativeGUILibrary ms_nativeGUILibrary = DUMMY_GUI_LIBRARY;
 
 	private static final IIconResizer RESIZER = new IIconResizer()
 	{
@@ -111,6 +129,13 @@ public final class GUIUtils
 
 	// all loaded icons are stored in the cache and do not need to be reloaded from file
 	private static Hashtable ms_iconCache = new Hashtable();
+
+	public static interface NativeGUILibrary
+	{
+		public boolean setAlwaysOnTop(Window a_window, boolean a_bOnTop);
+
+		public boolean isAlwaysOnTop(Window a_window);
+	}
 
 	/**
 	 * Defines a resize factor for icons that is especially useful if the font size is altered.
@@ -127,6 +152,23 @@ public final class GUIUtils
 	public static final IIconResizer getIconResizer()
 	{
 		return RESIZER;
+	}
+
+	/**
+	 * Stops loading of images, e.g. because of an update of the parent JAR file.
+	 */
+	public static void setLoadImages(boolean a_bLoadImages)
+	{
+		if (ms_loadImages && !a_bLoadImages)
+		{
+			LogHolder.log(LogLevel.NOTICE, LogType.GUI, "Loading of images has been stopped!");
+		}
+		ms_loadImages = a_bLoadImages;
+	}
+
+	public static boolean isLoadingImagesStopped()
+	{
+		return !ms_loadImages;
 	}
 
 	public static final void setIconResizer(IIconResizer a_resizer)
@@ -204,7 +246,7 @@ public final class GUIUtils
 		{
 			img = new ImageIcon((Image)ms_iconCache.get(a_strRelativeImagePath));
 		}
-		else
+		else if (ms_loadImages)
 		{
 			// load image from the local classpath or the local directory
 			img = loadImageIconInternal(ResourceLoader.getResourceURL(a_strRelativeImagePath));
@@ -247,9 +289,56 @@ public final class GUIUtils
 							  "Could not load requested image '" + a_strRelativeImagePath + "'!");
 			}
 		}
-		if (a_bScale)
+		else
 		{
-			return GUIUtils.createScaledImageIcon(img, ms_resizer);
+			img = null;
+		}
+		if (a_bScale && ms_loadImages)
+		{
+			final ImageIcon image = img;
+			WorkerContentPane.IReturnRunnable run = new WorkerContentPane.IReturnRunnable()
+			{
+				private ImageIcon m_icon;
+				public void run()
+				{
+					m_icon = GUIUtils.createScaledImageIcon(image, ms_resizer);
+				}
+
+				public Object getValue()
+				{
+					return m_icon;
+				}
+			};
+			Thread thread = new Thread(run);
+			thread.start();
+			try
+			{
+				thread.join(1000);
+			}
+			catch (InterruptedException ex)
+			{
+				// ignore
+			}
+			while (thread.isAlive())
+			{
+				thread.interrupt();
+				try
+				{
+					thread.join();
+				}
+				catch (InterruptedException a_e)
+				{
+					// ignore
+				}
+			}
+			if (run.getValue() != null)
+			{
+				return (ImageIcon)run.getValue();
+			}
+			if (img != null && run.getValue() == null)
+			{
+				LogHolder.log(LogLevel.ERR, LogType.GUI, "Interrupted while scaling image icon!");
+			}
 		}
 		return img;
 	}
@@ -322,6 +411,56 @@ public final class GUIUtils
 		Rectangle screenBounds = getScreenBounds(a_window);
 		Dimension ownSize = a_window.getSize();
 		a_window.setLocation( (screenBounds.width - ownSize.width), 0);
+	}
+
+	public static void setNativeGUILibrary(NativeGUILibrary a_library)
+	{
+		if (a_library != null)
+		{
+			ms_nativeGUILibrary = a_library;
+		}
+	}
+
+	/**
+	 * Returns if the alwaysOnTop method of JRE 1.5 is set on a given Window.
+	 * @param a_Window a Window
+	 * @return if the alwaysOnTop method of JRE 1.5 is set on a given Window
+	 */
+	public static boolean isAlwaysOnTop(Window a_Window)
+	{
+		try
+		{
+			Method m = Window.class.getMethod("isAlwaysOnTop", new Class[0]);
+			return ( (Boolean) m.invoke(a_Window, new Object[0])).booleanValue();
+		}
+		catch (Throwable t)
+		{
+		}
+		return ms_nativeGUILibrary.isAlwaysOnTop(a_Window);
+	}
+
+	/**
+	 * Tries to use the method setAlwaysOnTop of JRE 1.5.
+	 * @param a_Window Window
+	 * @param a_bOnTop boolean
+	 * @return if the method setAlwaysOnTop could be called with the given arguments
+	 */
+	public static boolean setAlwaysOnTop(Window a_Window, boolean a_bOnTop)
+	{
+		try
+		{
+			Class[] c = new Class[1];
+			c[0] = boolean.class;
+			Method m = Window.class.getMethod("setAlwaysOnTop", c);
+			Object[] args = new Object[1];
+			args[0] = new Boolean(a_bOnTop);
+			m.invoke(a_Window, args);
+			return true;
+		}
+		catch (Throwable t)
+		{
+		}
+		return ms_nativeGUILibrary.setAlwaysOnTop(a_Window, a_bOnTop);
 	}
 
 	/**
@@ -609,6 +748,38 @@ public final class GUIUtils
 
 		return new IconScaler(a_icon, a_resizer.getResizeFactor());
 	}
+
+	/**
+	 * Shortens a text received from the IS or in a certificate so that it is not to long to display.
+	 * @param a_strOriginal String
+	 * @param a_maximumLength the maximum length that is displayed
+	 * @return the stripped text
+	 */
+	public static String trim(String a_strOriginal, int a_maximumLength)
+	{
+		if (a_strOriginal == null || a_maximumLength < 4)
+		{
+			return null;
+		}
+		// remove all html TAGS
+		a_strOriginal = JAPHtmlMultiLineLabel.removeTagsAndNewLines(a_strOriginal);
+		if (a_strOriginal.length() > a_maximumLength)
+		{
+			a_strOriginal = a_strOriginal.substring(0, a_maximumLength - 2) + "...";
+		}
+		return a_strOriginal;
+	}
+
+	/**
+	 * Shortens a text received from the IS or in a certificate so that it is not to long to display.
+	 * @param a_strOriginal String
+	 * @return the stripped text
+	 */
+	public static String trim(String a_strOriginal)
+	{
+		return trim(a_strOriginal, MAXIMUM_TEXT_LENGTH);
+	}
+
 
 	private static String getTextFromClipboard(Component a_requestingComponent, boolean a_bUseTextArea)
 	{
