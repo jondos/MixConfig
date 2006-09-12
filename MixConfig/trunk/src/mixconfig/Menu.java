@@ -496,7 +496,8 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, e);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(),
+									  JAPMessages.getString(JAPDialog.MSG_ERROR_UNKNOWN), LogType.GUI, e);
 		}
 
 		//set MessageTitle
