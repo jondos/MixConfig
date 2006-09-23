@@ -37,6 +37,7 @@ import java.util.Vector;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
@@ -49,7 +50,11 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -62,6 +67,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.plaf.FontUIResource;
 
 import anon.util.ClassUtil;
+import anon.util.JobQueue;
 import anon.util.ResourceLoader;
 import gui.dialog.JAPDialog;
 import gui.dialog.WorkerContentPane;
@@ -310,6 +316,7 @@ public final class GUIUtils
 				}
 			};
 			Thread thread = new Thread(run);
+			thread.setDaemon(true);
 			thread.start();
 			try
 			{
@@ -408,7 +415,7 @@ public final class GUIUtils
 	 */
 	public static void moveToUpRightCorner(Window a_window)
 	{
-		Rectangle screenBounds = getScreenBounds(a_window);
+		Rectangle screenBounds = getDefaultScreenBounds(a_window);
 		Dimension ownSize = a_window.getSize();
 		a_window.setLocation( (screenBounds.width - ownSize.width), 0);
 	}
@@ -463,13 +470,338 @@ public final class GUIUtils
 		return ms_nativeGUILibrary.setAlwaysOnTop(a_Window, a_bOnTop);
 	}
 
-	/**
-	 * Returns the bounds of the screen where a specified window is currently shown.
-	 * @param a_window a Window
-	 * @return the bounds of the screen where the specified window is currently shown
-	 */
-	public static Rectangle getScreenBounds(Window a_window)
+	public static class WindowDocker
 	{
+		private JobQueue m_queue;
+		private Component m_component;
+		private InternalListener m_listener;
+		private Window m_parentWindow;
+
+		public WindowDocker(Component a_window)
+		{
+			m_component = a_window;
+			m_listener = new InternalListener();
+			m_component.addMouseListener(m_listener);
+			m_component.addMouseMotionListener(m_listener);
+			m_component.addComponentListener(m_listener);
+			m_parentWindow = GUIUtils.getParentWindow(a_window);
+			m_queue = new JobQueue("Docking queue");
+
+		}
+
+		public void finalize()
+		{
+			m_queue.stop();
+			m_queue = null;
+			m_component.removeMouseListener(m_listener);
+			m_component.removeMouseMotionListener(m_listener);
+			m_component.removeComponentListener(m_listener);
+			m_listener = null;
+		}
+
+		private class InternalListener extends MouseAdapter implements MouseMotionListener, ComponentListener
+		{
+			private static final int DOCK_DISTANCE = 10;
+			private boolean m_bIsDragging = false;
+			private Point m_startPoint;
+			private final Object SYNC = new Object();
+
+			public void componentHidden(ComponentEvent a_event)
+			{
+			}
+
+			public void componentResized(ComponentEvent a_event)
+			{
+			}
+
+			public void componentShown(ComponentEvent a_event)
+			{
+			}
+
+			public void componentMoved(ComponentEvent a_event)
+			{
+				move(m_parentWindow.getLocationOnScreen());
+			}
+
+			public void mouseReleased(MouseEvent e)
+			{
+				synchronized (SYNC)
+				{
+					m_bIsDragging = false;
+				}
+			}
+
+			public void mouseMoved(MouseEvent e)
+			{
+			}
+
+			public void mouseDragged(MouseEvent e)
+			{
+				synchronized (SYNC)
+				{
+					if (!m_bIsDragging)
+					{
+						m_bIsDragging = true;
+						m_startPoint = e.getPoint();
+					}
+					else
+					{
+						Point endPoint = e.getPoint();
+						Point aktLocation = m_parentWindow.getLocationOnScreen();
+						int x, y;
+
+						x = aktLocation.x + endPoint.x - m_startPoint.x;
+						y = aktLocation.y + endPoint.y - m_startPoint.y;
+
+						move(new Point(x, y));
+					}
+				}
+			}
+
+			private void move(final Point a_location)
+			{
+				m_queue.addJob(new JobQueue.Job()
+				{
+					public void runJob()
+					{
+						//synchronized (SYNC)
+						{
+							GUIUtils.Screen currentScreen = GUIUtils.getCurrentScreen(m_parentWindow);
+							int x, y, maxX, maxY;
+							boolean bMove = false;
+
+							x = a_location.x;
+							y = a_location.y;
+							if (x != m_parentWindow.getLocationOnScreen().x &&
+								y != m_parentWindow.getLocationOnScreen().y)
+							{
+								bMove = true;
+							}
+
+							maxX = (int) currentScreen.getWidth() + currentScreen.getX();
+							maxY = (int) currentScreen.getHeight() + currentScreen.getY();
+							if (x != currentScreen.getX() && Math.abs(x - currentScreen.getX()) < (DOCK_DISTANCE))
+							{
+								bMove = true;
+								x = currentScreen.getX();
+							}
+							else if (x + m_parentWindow.getSize().width > maxX - DOCK_DISTANCE &&
+									 ! (x + m_parentWindow.getSize().width > maxX + DOCK_DISTANCE))
+							{
+								bMove = true;
+								x = maxX - m_parentWindow.getSize().width;
+							}
+
+							if (y != currentScreen.getY() && Math.abs(y - currentScreen.getY()) < (DOCK_DISTANCE))
+							{
+								bMove = true;
+								y = currentScreen.getY();
+							}
+							else if (y + m_parentWindow.getSize().height > maxY - DOCK_DISTANCE &&
+									 ! (y + m_parentWindow.getSize().height > maxY + DOCK_DISTANCE))
+							{
+								bMove = true;
+								y = maxY - m_parentWindow.getSize().height;
+							}
+							if (bMove)
+							{
+								m_parentWindow.setLocation(x, y);
+							}
+						}
+					}
+				});
+			}
+		}
+	}
+
+	/**
+	 * Sets a window to the specified size and tries to put the window inside the screen by altering
+	 * the size if needed. The location of the window should be set before.
+	 * @param a_window Window
+	 * @param a_size Dimension
+	 * @return if the size has been changed
+	 */
+	public static boolean restoreSize(Window a_window, Dimension a_size)
+	{
+		if (a_window == null || a_size == null)
+		{
+			return false;
+		}
+		a_window.setSize(a_size);
+		Screen currentScreen = getCurrentScreen(a_window);
+
+		int width = a_window.getSize().width;
+		int height = a_window.getSize().height;
+
+		if ((a_window.getLocation().x + width) > (currentScreen.getX() + currentScreen.getWidth()))
+		{
+			width = currentScreen.getX() + currentScreen.getWidth() - a_window.getLocation().x;
+		}
+		if ((a_window.getLocation().y + height) > (currentScreen.getY() + currentScreen.getHeight()))
+		{
+			height = currentScreen.getY() + currentScreen.getHeight() - a_window.getLocation().y;
+		}
+
+		if (width == 0)
+		{
+			width =  a_window.getSize().width;
+		}
+		if (height == 0)
+		{
+			height = a_window.getSize().height;
+		}
+
+		a_window.setSize(width, height);
+		return true;
+	}
+
+
+	/**
+	 * Sets a window to the specified position and tries to put the window inside the screen by altering
+	 * the position if needed.
+	 * @param a_window Window
+	 * @param a_location Point
+	 * @return if the location has been changed
+	 */
+	public static boolean restoreLocation(Window a_window, Point a_location)
+	{
+		if (a_window == null || a_location == null)
+		{
+			return false;
+		}
+		a_window.setLocation(a_location);
+		Screen currentScreen = getCurrentScreen(a_window);
+
+		int x = a_location.x;
+		int y = a_location.y;
+
+		if ((x + a_window.getSize().width) > (currentScreen.getX() + currentScreen.getWidth()))
+		{
+			x = currentScreen.getX() +  currentScreen.getWidth() - a_window.getSize().width;
+		}
+		if ((y + a_window.getSize().height) > (currentScreen.getY() + currentScreen.getHeight()))
+		{
+			y = currentScreen.getY() + currentScreen.getHeight() - a_window.getSize().height;
+		}
+
+		if (x < currentScreen.getX())
+		{
+			x = currentScreen.getX();
+		}
+		if (y < currentScreen.getY())
+		{
+			y = currentScreen.getY();
+		}
+
+		a_window.setLocation(x, y);
+		return true;
+	}
+
+	public static class Screen
+	{
+		private Point m_location;
+		private Rectangle m_bounds;
+
+		public Screen(Point a_location, Rectangle a_bounds)
+		{
+			m_location = a_location;
+			m_bounds = a_bounds;
+		}
+
+		public int getX()
+		{
+			return m_location.x;
+		}
+
+		public int getY()
+		{
+			return m_location.y;
+		}
+
+		public int getWidth()
+		{
+			return m_bounds.width;
+		}
+
+		public int getHeight()
+		{
+			return m_bounds.height;
+		}
+
+		public Point getLocation()
+		{
+			return m_location;
+		}
+		public Rectangle getBounds()
+		{
+			return m_bounds;
+		}
+	}
+
+	public static Screen getCurrentScreen(Window a_window)
+	{
+		if (a_window == null)
+		{
+			return null;
+		}
+
+		try
+		{
+			Object graphicsConfiguration;
+			Frame screenFrame;
+			Point windowMiddleLocation = a_window.getLocation();
+			Rectangle screenBounds;
+			Point screenLocation;
+			Object graphicsEnvironment =
+				Class.forName("java.awt.GraphicsEnvironment").getMethod(
+								"getLocalGraphicsEnvironment", null).invoke(null, null);
+			Object[] graphicsDevices = (Object[])graphicsEnvironment.getClass().getMethod(
+						 "getScreenDevices", null).invoke(graphicsEnvironment, null);
+
+			// now look on which srceen the middle of the window is located
+			windowMiddleLocation = new Point(windowMiddleLocation.x + a_window.getSize().width,
+											 windowMiddleLocation.y + a_window.getSize().height);
+			for (int i = 0; i < graphicsDevices.length; i++)
+			{
+				graphicsConfiguration = graphicsDevices[i].getClass().getMethod(
+								"getDefaultConfiguration", null).invoke(graphicsDevices[i], null);
+				screenFrame = (Frame)Frame.class.getConstructor(
+								new Class[]{Class.forName("java.awt.GraphicsConfiguration")}).newInstance(
+					new Object[]{graphicsConfiguration});
+				screenLocation = screenFrame.getLocation();
+				screenBounds = (Rectangle)graphicsConfiguration.getClass().getMethod(
+								"getBounds", null).invoke(graphicsConfiguration, null);
+
+				if (windowMiddleLocation.x >= screenLocation.x &&
+					windowMiddleLocation.x <= (screenLocation.x + screenBounds.width) &&
+					windowMiddleLocation.y >= screenLocation.y &&
+					windowMiddleLocation.y <= (screenLocation.y + screenBounds.height))
+				{
+					return new Screen(screenLocation, screenBounds);
+				}
+			}
+		}
+		catch (Exception a_e)
+		{
+			// ignore
+		}
+
+		// for JDKs < 1.3
+		return new Screen(new Point(0,0), getDefaultScreenBounds(a_window));
+	}
+
+	/**
+	 * Returns the bounds of the default screen.
+	 * @param a_window a Window
+	 * @return the bounds of the default screen
+	 */
+	public static Rectangle getDefaultScreenBounds(Window a_window)
+	{
+		if (a_window == null)
+		{
+			return null;
+		}
+
 		Rectangle screenBounds;
 
 		try
@@ -500,11 +832,29 @@ public final class GUIUtils
 	 */
 	public static void centerOnScreen(Window a_window)
 	{
-		Rectangle screenBounds = getScreenBounds(a_window);
+		Rectangle screenBounds = getDefaultScreenBounds(a_window);
 		Dimension ownSize = a_window.getSize();
 
 		a_window.setLocation(screenBounds.x + ((screenBounds.width - ownSize.width) / 2),
 							 screenBounds.y + ((screenBounds.height - ownSize.height) / 2));
+	}
+
+	/**
+	 * Positions a window on the screen centered to a parent window.
+	 * @param a_window a Window
+	 * @param a_parent the Window's parent window
+	 */
+	public static void centerOnWindow(Window a_window, Window a_parent)
+	{
+		if (a_window == null || a_parent == null)
+		{
+			return;
+		}
+		Dimension parentSize = a_parent.getSize();
+		Dimension ownSize = a_window.getSize();
+		Point parentLocation = a_parent.getLocationOnScreen();
+		a_window.setLocation(parentLocation.x + (parentSize.width / 2) - (ownSize.width / 2),
+							 parentLocation.y + (parentSize.height / 2) - (ownSize.height / 2));
 	}
 
 	/**

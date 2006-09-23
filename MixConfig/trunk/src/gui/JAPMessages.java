@@ -129,6 +129,11 @@ public final class JAPMessages
 		ms_locale = locale;
 	}
 
+	public static boolean isInitialised()
+	{
+		return ms_locale != null;
+	}
+
 	/**
 	 * Returns the Locale that is used by this class to get the messages.
 	 * @return the Locale that is used by this class to get the messages
@@ -181,10 +186,10 @@ public final class JAPMessages
 
 			if (string == null || string.trim().length() == 0)
 			{
-				LogHolder.log(LogLevel.INFO, LogType.GUI, "Could not load messsage string: " + a_key, true);
+			LogHolder.log(LogLevel.INFO, LogType.GUI, "Could not load messsage string: " + a_key, true);
 				string = a_key;
-			}
 		}
+	}
 
 		ms_cachedMessages.put(a_key, string);
 		return string;
