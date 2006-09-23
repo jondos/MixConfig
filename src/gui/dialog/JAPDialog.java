@@ -83,6 +83,7 @@ import logging.LogLevel;
 import logging.LogType;
 import java.awt.Cursor;
 import java.awt.Insets;
+import java.awt.Rectangle;
 
 /**
  * This is the generic implementation for an optionally modal, resizable a dialog. Use the getRootPane()
@@ -164,6 +165,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	private DialogWindowAdapter m_dialogWindowAdapter;
 	private boolean m_bForceApplicationModality;
 	private boolean m_bDisposed = false;
+	private boolean m_bCatchCancel = false;
+	private GUIUtils.WindowDocker m_docker;
+	private final Object SYNC_DOCK = new Object();
 
 	/**
 	 * Stores the instance of JDialog for internal use.
@@ -632,6 +636,33 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 	}
 
+	public static class Options
+	{
+		private int m_optionType;
+
+		public Options(int a_optionType)
+		{
+			m_optionType = a_optionType;
+		}
+		public final int getOptionType()
+		{
+			return m_optionType;
+		}
+
+		public String getYesOKText()
+		{
+			return null;
+		}
+		public String getNoText()
+		{
+			return null;
+		}
+		public String getCancelText()
+		{
+			return null;
+		}
+	}
+
 	/**
 	 * Sets the format to which all automatically scaled dialogs are optimized. It is one of the constants
 	 * FORMAT_GOLDEN_RATIO_PHI, FORMAT_DEFAULT_SCREEN and FORMAT_WIDE_SCREEN.
@@ -659,6 +690,8 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	/**
 	 * Returns the format to which all automatically scaled dialogs are optimized. It is one of the constants
 	 * FORMAT_DEFAULT_SCREEN, FORMAT_GOLDEN_RATIO_PHI, and FORMAT_WIDE_SCREEN.
+	 * @param a_format one of the constants
+	 * FORMAT_DEFAULT_SCREEN, FORMAT_GOLDEN_RATIO_PHI, and FORMAT_WIDE_SCREEN
 	 * @return the format to which all automatically scaled dialogs are optimized
 	 */
 	public static double getOptimizedFormatInternal(int a_format)
@@ -1147,7 +1180,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 								a_messageType, a_icon, a_linkedInformation);
 	}
 
-
 	/**
 	 * Displays a confirm dialog. Words are wrapped automatically if a message line is too long.
 	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
@@ -1169,6 +1201,55 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 										int a_optionType, int a_messageType, Icon a_icon,
 										ILinkedInformation a_linkedInformation)
 	{
+		return showConfirmDialog(a_parentComponent, a_message, a_title, new Options(a_optionType),
+								 a_messageType, a_icon, a_linkedInformation);
+	}
+
+/**
+	 * Displays a confirm dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
+	 * @param a_messageType use the message types from JOptionPane
+	 * @param a_options use the option types from JOptionPane
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 * @return The value the user has selected. RETURN_VALUE_UNINITIALIZED implies
+	 * the user has not yet made a choice or that the current thread has been interrupted
+	 * @see javax.swing.JOptionPane
+	 */
+	public static int showConfirmDialog(Component a_parentComponent, String a_message, String a_title,
+										Options a_options, int a_messageType,
+										ILinkedInformation a_linkedInformation)
+	{
+		return showConfirmDialog(a_parentComponent, a_message, a_title, a_options, a_messageType, null,
+								 a_linkedInformation);
+	}
+
+	/**
+	 * Displays a confirm dialog. Words are wrapped automatically if a message line is too long.
+	 * @param a_parentComponent The parent component for this dialog. If it is null or the parent
+	 *                          component is not within a frame, the dialog's parent frame is the
+	 *                          default frame.
+	 * @param a_title The title of the message dialog
+	 * @param a_message The message to be displayed. It is interpreted as HTML. You do not need to put in
+	 * formatting tags, as the text will be auto-formatted in a way that the dialog's size is very close
+	 * to the golden ratio.
+	 * @param a_icon an icon that will be displayed on the dialog
+	 * @param a_messageType use the message types from JOptionPane
+	 * @param a_options use the option types from JOptionPane
+	 * @param a_linkedInformation a clickable information message that is appended to the text
+	 * @return The value the user has selected. RETURN_VALUE_UNINITIALIZED implies
+	 * the user has not yet made a choice or that the current thread has been interrupted
+	 * @see javax.swing.JOptionPane
+	 */
+	public static int showConfirmDialog(Component a_parentComponent, String a_message, String a_title,
+										Options a_options, int a_messageType, Icon a_icon,
+										ILinkedInformation a_linkedInformation)
+	{
 		JAPDialog dialog;
 		JAPHelpContext.IHelpContext helpContext = null;
 		DialogContentPane dialogContentPane;
@@ -1180,11 +1261,28 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		JComponent linkLabel;
 		boolean bForceApplicationModality = false;
 		boolean bOnTop = false;
+		String yesOKText = null;
+		String cancelText = null;
+		String noText = null;
+		Vector vecOptions = new Vector();
 
 		if (ms_bConsoleOnly)
 		{
 			LogHolder.log(LogLevel.ALERT, LogType.GUI, a_message);
 			return RETURN_VALUE_UNINITIALIZED;
+		}
+
+		if (a_options.getYesOKText() != null && a_options.getYesOKText().trim().length() > 0)
+		{
+			yesOKText = a_options.getYesOKText();
+		}
+		if (a_options.getNoText() != null && a_options.getNoText().trim().length() > 0)
+		{
+			noText = a_options.getNoText();
+		}
+		if (a_options.getCancelText() != null && a_options.getCancelText().trim().length() > 0)
+		{
+			cancelText = a_options.getCancelText();
 		}
 
 		if (a_message == null)
@@ -1209,7 +1307,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			 */
 			if (a_linkedInformation instanceof JAPHelpContext.IHelpContext)
 			{
-				helpContext = (JAPHelpContext.IHelpContext)a_linkedInformation;
+				helpContext = (JAPHelpContext.IHelpContext) a_linkedInformation;
 				if (a_linkedInformation.getType() == ILinkedInformation.TYPE_DEFAULT)
 				{
 					a_linkedInformation = null;
@@ -1243,7 +1341,36 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		dialog = new JAPDialog(a_parentComponent, a_title, true, bForceApplicationModality);
 		dialogContentPane = new DialogContentPane(dialog,
 												  new DialogContentPane.Layout(null, a_messageType, a_icon),
-												  new DialogContentPane.Options(a_optionType, helpContext));
+												  new DialogContentPane.Options(a_options.getOptionType(),
+			helpContext));
+		if (dialogContentPane.getButtonHelp() != null)
+		{
+			vecOptions.addElement(dialogContentPane.getButtonHelp().getText());
+		}
+		if (dialogContentPane.getButtonYesOK() != null)
+		{
+			if (yesOKText != null)
+			{
+				dialogContentPane.getButtonYesOK().setText(yesOKText);
+			}
+			vecOptions.addElement(dialogContentPane.getButtonYesOK().getText());
+		}
+		if (dialogContentPane.getButtonCancel() != null)
+		{
+			if (cancelText != null)
+			{
+				dialogContentPane.getButtonCancel().setText(cancelText);
+			}
+			vecOptions.addElement(dialogContentPane.getButtonCancel().getText());
+		}
+		if (dialogContentPane.getButtonNo() != null)
+		{
+			if (noText != null)
+			{
+				dialogContentPane.getButtonNo().setText(noText);
+			}
+			vecOptions.addElement(dialogContentPane.getButtonNo().getText());
+		}
 		dialogContentPane.setDefaultButtonOperation(DialogContentPane.ON_CLICK_DISPOSE_DIALOG);
 
 		try
@@ -1276,7 +1403,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		// test if labels will be formatted correctly
 		try
 		{
-				label = new JAPHtmlMultiLineLabel("Text");
+			label = new JAPHtmlMultiLineLabel("Text");
 		}
 		catch (NullPointerException a_e)
 		{
@@ -1320,15 +1447,14 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		dialogContentPane.updateDialog();
 		//dialog.pack();
 		// trick: a dialog's content pane is always a JComponent; it is needed to set the min/max size
-		contentPane = (JComponent)dialog.getContentPane();
-
+		contentPane = (JComponent) dialog.getContentPane();
 
 		/**
 		 * Calculate the optimal dialog size with respect to the golden ratio.
 		 * The width defines the longer side.
 		 */
 		Dimension bestDimension = null;
-		Dimension  minSize;
+		Dimension minSize;
 		double currentDelta;
 		double bestDelta;
 		int currentWidth;
@@ -1344,8 +1470,13 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		{
 			icon = DialogContentPane.getMessageIcon(a_messageType);
 		}
-		JDialog tempDialog = new JOptionPane("", a_messageType, a_optionType, icon).
-			createDialog(a_parentComponent, a_title);
+		String[] options = new String[vecOptions.size()];
+		for (int i = 0; i < options.length; i++)
+		{
+			options[i] = vecOptions.elementAt(i).toString();
+		}
+		JDialog tempDialog = new JOptionPane("", a_messageType, a_options.getOptionType(), icon,
+											 options).createDialog(a_parentComponent, a_title);
 		minSize = new Dimension(tempDialog.getContentPane().getSize());
 		tempDialog.dispose();
 		tempDialog = null;
@@ -1385,7 +1516,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		//currentWidth = contentPane.getWidth() / 2;
 		//currentWidth = maxWidth;
 		currentWidth = Math.min(500, contentPane.getWidth());
-		bestWidth =  currentWidth;
+		bestWidth = currentWidth;
 		failed = 0;
 		minLabelWidth = label.getMinimumSize().width;
 		bAlgorithmFailed = true;
@@ -1426,18 +1557,18 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 			// patch for CDE/Motif
 			/*
-			if (label.getSize().width < minLabelWidth)
-			{
-				System.out.println("before:" + dialog.getSize());
-				label.setSize(new Dimension(minLabelWidth, label.getSize().height));
-				System.out.println("after:" +  dialog.getSize());
-			}*/
+			   if (label.getSize().width < minLabelWidth)
+			   {
+			 System.out.println("before:" + dialog.getSize());
+			 label.setSize(new Dimension(minLabelWidth, label.getSize().height));
+			 System.out.println("after:" +  dialog.getSize());
+			   }*/
 
 			currentWidth = dummyBox.getWidth();
 			currentDelta = getOptimizedFormatDelta(dialog);
 			if (Math.abs(currentDelta) < Math.abs(bestDelta) &&
 				(i == 0 || // patch for CDE/Motif, tolerate this error in the first run
-				label.getSize().width >= minLabelWidth))
+				 label.getSize().width >= minLabelWidth))
 			{
 				bestDimension = new Dimension(dummyBox.getSize());
 				bestDelta = currentDelta;
@@ -1456,14 +1587,14 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			}
 			else
 			{
-				currentWidth = bestWidth + (int)(bestDelta / (3.0 * (failed + 1.0)));
+				currentWidth = bestWidth + (int) (bestDelta / (3.0 * (failed + 1.0)));
 				failed++;
 			}
 
 			// the objective function value
 			//System.out.println("bestDelta: " + bestDelta + "  currentDelta:" + currentDelta);
 
-			currentWidth = (int)Math.max(currentWidth, minSize.width);
+			currentWidth = (int) Math.max(currentWidth, minSize.width);
 			if (currentWidth == bestWidth)
 			{
 				break;
@@ -1475,10 +1606,10 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 
 		/*
-		System.out.println("CurrentSize: " + dummyBox.getSize() + "_" + contentPane.getSize());
-		System.out.println("MaximumSize: " + dummyBox.getMaximumSize() + "_" + contentPane.getMaximumSize());
-		System.out.println("PreferredSize: " + dummyBox.getPreferredSize() + "_" + contentPane.getPreferredSize());
-		*/
+		  System.out.println("CurrentSize: " + dummyBox.getSize() + "_" + contentPane.getSize());
+		 System.out.println("MaximumSize: " + dummyBox.getMaximumSize() + "_" + contentPane.getMaximumSize());
+		 System.out.println("PreferredSize: " + dummyBox.getPreferredSize() + "_" + contentPane.getPreferredSize());
+		 */
 
 		/**
 		 * Recreate the dialog and set its final size.
@@ -1503,19 +1634,20 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		if (strLinkedInformation != null)
 		{
 			if (a_linkedInformation.getType() == ILinkedInformation.TYPE_SELECTABLE_LINK)
-			{   /** @todo this is not nice in most of the old JDKs) */
+			{
+				/** @todo this is not nice in most of the old JDKs) */
 				JTextPane textPane = GUIUtils.createSelectableAndResizeableLabel(dummyBox);
 				/*
-				SimpleAttributeSet attributes;
-				attributes = new SimpleAttributeSet(textPane.getCharacterAttributes());
-				attributes.addAttribute(CharacterConstants.Underline, Boolean.TRUE);
-				textPane.setCharacterAttributes(attributes, true);
-			*/
+				 SimpleAttributeSet attributes;
+				 attributes = new SimpleAttributeSet(textPane.getCharacterAttributes());
+				 attributes.addAttribute(CharacterConstants.Underline, Boolean.TRUE);
+				 textPane.setCharacterAttributes(attributes, true);
+				 */
 
 				textPane.setText(strLinkedInformation);
 				textPane.setFont(label.getFont());
-				textPane.setMargin(new java.awt.Insets(0,0,0,0));
-				textPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,1,0));
+				textPane.setMargin(new java.awt.Insets(0, 0, 0, 0));
+				textPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 1, 0));
 				textPane.setForeground(java.awt.Color.blue);
 				textPane.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 				linkLabel = textPane;
@@ -1526,10 +1658,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			{
 				linkLabel =
 					new JCheckBox(strLinkedInformation,
-								  a_linkedInformation.getType() == ILinkedInformation.TYPE_CHECKBOX_TRUE);
+								  a_linkedInformation.getType() ==
+								  ILinkedInformation.TYPE_CHECKBOX_TRUE);
 				linkLabel.setFont(label.getFont());
-				((JCheckBox)linkLabel).addItemListener(
-								new LinkedInformationClickListener(a_linkedInformation));
+				( (JCheckBox) linkLabel).addItemListener(
+					new LinkedInformationClickListener(a_linkedInformation));
 			}
 			else
 			{
@@ -1543,24 +1676,27 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		}
 
 		dialogContentPane.setContentPane(dummyBox);
-		if (a_optionType == OPTION_TYPE_CANCEL || a_optionType == OPTION_TYPE_OK_CANCEL ||
-			a_optionType == OPTION_TYPE_YES_NO_CANCEL)
+		if (a_options.getOptionType() == OPTION_TYPE_CANCEL ||
+			a_options.getOptionType() == OPTION_TYPE_OK_CANCEL ||
+			a_options.getOptionType() == OPTION_TYPE_YES_NO_CANCEL)
 		{
 			dialogContentPane.setDefaultButton(DialogContentPane.DEFAULT_BUTTON_CANCEL);
 		}
-		else if (a_optionType == OPTION_TYPE_YES_NO)
+		else if (a_options.getOptionType() == OPTION_TYPE_YES_NO)
 		{
 			dialogContentPane.setDefaultButton(DialogContentPane.DEFAULT_BUTTON_NO);
 		}
 
 		dialogContentPane.updateDialog();
-		((JComponent)dialog.getContentPane()).setPreferredSize(bestDimension);
+		( (JComponent) dialog.getContentPane()).setPreferredSize(bestDimension);
 		dialog.pack();
 		if (bestDelta != getOptimizedFormatDelta(dialog))
 		{
-			LogHolder.log(LogLevel.ERR, LogType.GUI, "Calculated dialog size differs from real size!");
+			LogHolder.log(LogLevel.ERR, LogType.GUI,
+						  "Calculated dialog size differs from real size!");
 		}
-		LogHolder.log(LogLevel.NOTICE, LogType.GUI, "Dialog golden ratio delta: " + getOptimizedFormatDelta(dialog));
+		LogHolder.log(LogLevel.NOTICE, LogType.GUI,
+					  "Dialog golden ratio delta: " + getOptimizedFormatDelta(dialog));
 
 		dialog.setResizable(false);
 		dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -1571,6 +1707,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 		return dialogContentPane.getButtonValue();
 	}
+
 
 	/**
 	 * Displays a message dialog that asks the user for a confirmation.
@@ -2187,7 +2324,6 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * @param a_message a message that is shown to the user (may be null)
 	 * @param a_logType the log type for this error
 	 * @param a_throwable a Throwable that has been caught (may be null)
-	 * @param a_linkedInformation a clickable information message that is appended to the text
 	 * @see logging.LogHolder
 	 * @see logging.LogType
 	 * @see logging.Log
@@ -2375,6 +2511,48 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
+	 * Sets if the default click on the <i>Cancel</i> button of a dialog content
+	 * pane is caught by the WindowClosing-Event of this dialog
+	 * @param a_bCatchCancel if the default click on the <i>Cancel</i> button of a dialog content
+	 * pane is caught by the WindowClosing-Event of this dialog
+	 */
+	public void doClosingOnContentPaneCancel(boolean a_bCatchCancel)
+	{
+		m_bCatchCancel = a_bCatchCancel;
+	}
+
+	/**
+	 * Returns if the default click on the <i>Cancel</i> button of a dialog content
+	 * pane is caught by the WindowClosing-Event of this dialog.
+	 * @return if the default click on the <i>Cancel</i> button of a dialog content
+	 * pane is caught by the WindowClosing-Event of this dialog
+	 */
+	public boolean isClosingOnContentPaneCancel()
+	{
+		return m_bCatchCancel;
+	}
+
+	public void setName(String a_name)
+	{
+		m_internalDialog.setName(a_name);
+	}
+
+	public String getName()
+	{
+		return m_internalDialog.getName();
+	}
+
+
+	public void setAlwaysOnTop(boolean a_bOnTop)
+	{
+		//GUIUtils.setAlwaysOnTop(m_internalDialog, true);
+		if (!isVisible())
+		{
+			m_bOnTop = a_bOnTop;
+		}
+	}
+
+	/**
 	 * Returns if the dialog is visible on the screen.
 	 * @return true if the dialog is visible on the screen; false otherwise
 	 */
@@ -2429,6 +2607,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		if (m_bOnTop || bOwnerOnTop)
 		{
 			GUIUtils.setAlwaysOnTop(getOwner(), false);
+			getOwner().toBack(); // fix for KDE, as otherwise the dialog would be below the window
 			newName = getOwner().getName();
 			m_internalDialog.setName(newName);
 			GUIUtils.setAlwaysOnTop(m_internalDialog, true);
@@ -2454,9 +2633,14 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	 * Sets the title of this dialog.
 	 * @param a_title the title of this dialog
 	 */
-	public final void setTitle(String a_title)
+	public void setTitle(String a_title)
 	{
 		m_internalDialog.setTitle(a_title);
+	}
+
+	public String getTitle()
+	{
+		return m_internalDialog.getTitle();
 	}
 
 	/**
@@ -2572,6 +2756,15 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		m_internalDialog.setVisible(false);
 		m_internalDialog.dispose();
 
+		synchronized (SYNC_DOCK)
+		{
+			if (m_docker != null)
+			{
+				m_docker.finalize();
+				m_docker = null;
+			}
+		}
+
 		synchronized (m_internalDialog.getTreeLock())
 		{
 			Enumeration listeners = m_windowListeners.elements();
@@ -2580,7 +2773,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			{
 				final WindowListener currrentListener = (WindowListener)listeners.nextElement();
 				// do this trick to bypass deadlocks
-				new Thread()
+				Thread run = new Thread(new Runnable()
 				{
 					public void run()
 					{
@@ -2593,7 +2786,9 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 							}
 						});
 					}
-				}.start();
+				});
+				run.setDaemon(true);
+				run.start();
 			}
 			m_windowListeners.removeAllElements();
 
@@ -2690,6 +2885,41 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	}
 
 	/**
+	 * Returns the bounds of the screen where this dialog is shown.
+	 * @return the bounds of the screen where this dialog is shown
+	 */
+	public final Rectangle getScreenBounds()
+	{
+		return GUIUtils.getDefaultScreenBounds(m_internalDialog);
+	}
+
+	public void setDockable(boolean a_bDockable)
+	{
+		synchronized (SYNC_DOCK)
+		{
+			if (m_docker == null && a_bDockable)
+			{
+				m_docker = new GUIUtils.WindowDocker(m_internalDialog);
+			}
+			else if (m_docker != null && !a_bDockable)
+			{
+				m_docker.finalize();
+				m_docker = null;
+			}
+		}
+	}
+
+	/**
+	 * After using a method that sets the location of the dialog, it will not automatically set
+	 * its location any more. This may be reset by calling this method.
+	 * @param a_bDoNotSetLocationAutomatically if the dialog should not set its location automatically
+	 */
+	public void resetAutomaticLocation(boolean a_bDoNotSetLocationAutomatically)
+	{
+		m_bLocationSetManually = a_bDoNotSetLocationAutomatically;
+	}
+
+	/**
 	 * Centers this dialog relative to the screen.
 	 * Sets the location of the dialog 'manually'. After that, no automatic alignment is done by this dialog.
 	 */
@@ -2707,6 +2937,29 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 	{
 		m_bLocationSetManually = true;
 		GUIUtils.positionRightUnderWindow(m_internalDialog, getOwner());
+	}
+
+	/**
+	 * Sets a window to the specified position and tries to put the window inside the screen by altering
+	 * the position if needed.
+	 * @param a_point a Point; may be null
+	 */
+	public void restoreLocation(Point a_point)
+	{
+		if (GUIUtils.restoreLocation(m_internalDialog, a_point))
+		{
+			m_bLocationSetManually = true;
+		}
+	}
+
+	/**
+	 * Sets a window to the specified size and tries to put the window inside the screen by altering
+	 * the size if needed. The location of the window should be set before.
+	 * @param a_size a Dimension; may be null
+	 */
+	public void restoreSize(Dimension a_size)
+	{
+		GUIUtils.restoreSize(m_internalDialog, a_size);
 	}
 
 	/**
@@ -2876,6 +3129,11 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		return m_internalDialog.getInsets();
 	}
 
+	void doWindowClosing()
+	{
+		m_dialogWindowAdapter.windowClosing(new WindowEvent(m_internalDialog, WindowEvent.WINDOW_CLOSING));
+	}
+
 	/**
 	 * Catches all window events and informs the window listeners about them.
 	 */
@@ -2954,6 +3212,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 		 * processing the windowClosing event and informing its listeners. Therefore it is recommended
 		 * only to use JAPDialogs as parent, and, if it is really needed to use as parent a JFrame, a JDialog
 		 * or an other window, to check for it if it is enabled before performing the windowClosing operation.
+		 * This may be already fixed?
 		 * @param a_event WindowEvent
 		 */
 		public void windowClosing(WindowEvent a_event)
@@ -3259,7 +3518,7 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 
 								if (m_bBlockParentWindow && m_parentWindow.isEnabled())
 								{
-									// another dialog has enabled the parent; set it back to diabled
+									// another dialog has enabled the parent; set it back to disabled
 									m_parentWindow.setEnabled(false);
 								}
 
@@ -3390,12 +3649,16 @@ public class JAPDialog implements Accessible, WindowConstants, RootPaneContainer
 			if (!m_parentWindow.isEnabled())
 			{
 				m_bBlockParentWindow = false;
-				m_parentWindow.setEnabled(true);
+				m_parentWindow.setEnabled(!ms_bConsoleOnly);
 				if (m_parentWindow.isVisible())
 				{
 					// this is a bugfix
 					m_parentWindow.setVisible(true);
 				}
+			}
+			if (ms_bConsoleOnly)
+			{
+				m_parentWindow.setEnabled(false);
 			}
 		}
 
