@@ -362,9 +362,6 @@ public final class GUIUtils
 		}
 	}
 
-
-
-
 	/**
 	 * Finds the first parent that is a window.
 	 * @param a_component a Component
@@ -415,9 +412,10 @@ public final class GUIUtils
 	 */
 	public static void moveToUpRightCorner(Window a_window)
 	{
-		Rectangle screenBounds = getDefaultScreenBounds(a_window);
+		Screen currentScreen =  getCurrentScreen(a_window);
 		Dimension ownSize = a_window.getSize();
-		a_window.setLocation( (screenBounds.width - ownSize.width), 0);
+		a_window.setLocation(currentScreen.getX() + (currentScreen.getWidth() - ownSize.width),
+							 currentScreen.getY());
 	}
 
 	public static void setNativeGUILibrary(NativeGUILibrary a_library)
@@ -483,9 +481,9 @@ public final class GUIUtils
 			m_listener = new InternalListener();
 			m_component.addMouseListener(m_listener);
 			m_component.addMouseMotionListener(m_listener);
-			m_component.addComponentListener(m_listener);
+			//m_component.addComponentListener(m_listener);
 			m_parentWindow = GUIUtils.getParentWindow(a_window);
-			m_queue = new JobQueue("Docking queue");
+			m_queue = new JobQueue("Docking queue for window: " + a_window.getName());
 
 		}
 
@@ -587,12 +585,13 @@ public final class GUIUtils
 								bMove = true;
 								x = currentScreen.getX();
 							}
-							else if (x + m_parentWindow.getSize().width > maxX - DOCK_DISTANCE &&
+							else if (x + m_parentWindow.getSize().width  > maxX - DOCK_DISTANCE &&
 									 ! (x + m_parentWindow.getSize().width > maxX + DOCK_DISTANCE))
 							{
 								bMove = true;
 								x = maxX - m_parentWindow.getSize().width;
 							}
+							//System.out.println(currentScreen.getWidth() + ":" + (x + m_parentWindow.getSize().width) + ":" + (maxX + DOCK_DISTANCE));
 
 							if (y != currentScreen.getY() && Math.abs(y - currentScreen.getY()) < (DOCK_DISTANCE))
 							{
@@ -657,6 +656,15 @@ public final class GUIUtils
 		return true;
 	}
 
+	public static Point getMiddlePoint(Window a_window)
+	{
+		if (a_window == null)
+		{
+			return new Point(0, 0);
+		}
+		return new Point (a_window.getLocation().x + (a_window.getSize().width / 2),
+						  a_window.getLocation().y + (a_window.getSize().height / 2));
+	}
 
 	/**
 	 * Sets a window to the specified position and tries to put the window inside the screen by altering
@@ -671,11 +679,131 @@ public final class GUIUtils
 		{
 			return false;
 		}
+		int distanceX, distanceY;
+		double bestArea = -1.0;
+		double bestDistance = Double.MAX_VALUE;
+		double currentDistanceVector;
+		Screen currentScreen = null;
 		a_window.setLocation(a_location);
-		Screen currentScreen = getCurrentScreen(a_window);
-
+		Point windowCenter = getMiddlePoint(a_window);
+		Screen[] screens = getScreens(a_window);
 		int x = a_location.x;
+		int width = a_window.getSize().width;
 		int y = a_location.y;
+		int height = a_window.getSize().height;
+		boolean bLeftDown, bLeftUp, bRightDown, bRightUp;
+		int area, areaHeight, areaX1, areaX2, areaY1, areaY2;
+
+		if (screens.length == 0)
+		{
+			return false;
+		}
+
+		/* Find the screen that contains the middle point of the window or, if such a screen does
+		 * not exist, most of the window's area.
+		 */
+		for (int i = 0; i < screens.length; i++)
+		{
+			// check first if point is contained in the screen
+			if (windowCenter.x >= screens[i].getX() && windowCenter.y >= screens[i].getY() &&
+				windowCenter.x <= (screens[i].getX() + screens[i].getWidth()) &&
+				windowCenter.y <= (screens[i].getY() + screens[i].getHeight()))
+			{
+				// the window lies in this screen
+				currentScreen = screens[i];
+				break;
+			}
+
+			// look if part of the window lies in this screen; get the corners
+			bLeftUp = x >= screens[i].getX() && x <= (screens[i].getX() + screens[i].getWidth()) &&
+				y >= screens[i].getY() && y <= (screens[i].getY() + screens[i].getHeight());
+			bRightUp = x + width >= screens[i].getX() &&
+				x + width <= (screens[i].getX() + screens[i].getWidth()) &&
+				y >= screens[i].getY() && y <= (screens[i].getY() + screens[i].getHeight());
+			bLeftDown = y + height >= screens[i].getY() &&
+				y + height <= (screens[i].getY() + screens[i].getHeight()) &&
+				x >= screens[i].getX() && x <= (screens[i].getX() + screens[i].getWidth());
+			bRightDown = y + height >= screens[i].getY() && x + width >= screens[i].getX() &&
+				y + height <= (screens[i].getY() + screens[i].getHeight()) &&
+				x + width <= (screens[i].getX() + screens[i].getWidth());
+
+			if (!bLeftUp && !bRightUp && !bLeftDown && !bRightDown)
+			{
+				// no area of the window lies in this screen
+				continue;
+			}
+
+			// calculate the area
+			if (bLeftUp || bLeftDown)
+			{
+				areaX1 = x;
+			}
+			else
+			{
+				areaX1 = screens[i].getX();
+			}
+
+			if (bRightUp || bRightDown)
+			{
+				areaX2 = x + width;
+			}
+			else
+			{
+				areaX2 = screens[i].getX() + screens[i].getWidth();
+			}
+
+			if (bLeftUp || bRightUp)
+			{
+				areaY1 = y;
+			}
+			else
+			{
+				areaY1 = screens[i].getY();
+			}
+
+			if (bLeftDown || bRightDown)
+			{
+				areaY2 = y + height;
+			}
+			else
+			{
+				areaY2 = screens[i].getY() + screens[i].getHeight();
+			}
+
+			area =  (areaX2 - areaX1) * (areaY2  - areaY1);
+			LogHolder.log(LogLevel.INFO, LogType.GUI,
+						  "Calculated partial overlapping area for restoring window location: " + area);
+			if (area >= bestArea)
+			{
+				bestArea = area;
+				currentScreen = screens[i];
+			}
+		}
+
+		// if no screen with an overlapping area was found, take the one with the shortest distance
+		if (currentScreen == null)
+		{
+			for (int i = 0; i < screens.length; i++)
+			{
+				distanceX = Math.min(Math.abs(windowCenter.x - screens[i].getX()),
+									 Math.abs(windowCenter.x - screens[i].getX() - screens[i].getWidth()));
+				distanceY = Math.min(Math.abs(windowCenter.y - screens[i].getY()),
+									 Math.abs(windowCenter.y - screens[i].getY() - screens[i].getHeight()));
+				currentDistanceVector = Math.sqrt(Math.pow(distanceX, 2.0) + Math.pow(distanceY, 2.0));
+				LogHolder.log(LogLevel.INFO, LogType.GUI,
+						  "Calculated distance vector for restoring window location: " +
+						  currentDistanceVector);
+				if (currentDistanceVector < bestDistance)
+				{
+					currentScreen = screens[i];
+					bestDistance = currentDistanceVector;
+				}
+			}
+		}
+		LogHolder.log(LogLevel.NOTICE, LogType.GUI,
+					  "The following screen was chosen for restoring a window location:\n" + currentScreen);
+
+
 
 		if ((x + a_window.getSize().width) > (currentScreen.getX() + currentScreen.getWidth()))
 		{
@@ -738,7 +866,55 @@ public final class GUIUtils
 		{
 			return m_bounds;
 		}
+		public String toString()
+		{
+			return "x=" + getX() + " " + "y=" + getY() + " " + "width=" + getWidth() + " " +
+				"height=" + getHeight();
+		}
+
 	}
+
+	public static Screen[] getScreens(Window a_window)
+	{
+		Screen[] screens;
+		Object graphicsConfiguration;
+		Frame screenFrame;
+		Rectangle screenBounds;
+		Point screenLocation;
+
+		try
+		{
+			Object graphicsEnvironment =
+				Class.forName("java.awt.GraphicsEnvironment").getMethod(
+					"getLocalGraphicsEnvironment", null).invoke(null, null);
+			Object[] graphicsDevices = (Object[]) graphicsEnvironment.getClass().getMethod(
+				"getScreenDevices", null).invoke(graphicsEnvironment, null);
+			screens = new Screen[graphicsDevices.length];
+			for (int i = 0; i < graphicsDevices.length; i++)
+			{
+				graphicsConfiguration = graphicsDevices[i].getClass().getMethod(
+					"getDefaultConfiguration", null).invoke(graphicsDevices[i], null);
+				screenFrame = (Frame) Frame.class.getConstructor(
+					new Class[]
+					{Class.forName("java.awt.GraphicsConfiguration")}).newInstance(
+						new Object[]
+						{graphicsConfiguration});
+				screens[i] = new Screen(screenFrame.getLocation(),
+										(Rectangle) graphicsConfiguration.getClass().getMethod(
+											"getBounds", null).invoke(graphicsConfiguration, null));
+			}
+			return screens;
+		}
+		catch (Exception a_e)
+		{
+			// ignore
+		}
+		// for JDKs < 1.3
+		return new Screen[]
+			{
+			new Screen(new Point(0, 0), getDefaultScreenBounds(a_window))};
+	}
+
 
 	public static Screen getCurrentScreen(Window a_window)
 	{
@@ -751,7 +927,7 @@ public final class GUIUtils
 		{
 			Object graphicsConfiguration;
 			Frame screenFrame;
-			Point windowMiddleLocation = a_window.getLocation();
+			Point windowMiddleLocation;
 			Rectangle screenBounds;
 			Point screenLocation;
 			Object graphicsEnvironment =
@@ -761,8 +937,7 @@ public final class GUIUtils
 						 "getScreenDevices", null).invoke(graphicsEnvironment, null);
 
 			// now look on which srceen the middle of the window is located
-			windowMiddleLocation = new Point(windowMiddleLocation.x + a_window.getSize().width,
-											 windowMiddleLocation.y + a_window.getSize().height);
+			windowMiddleLocation = getMiddlePoint(a_window);
 			for (int i = 0; i < graphicsDevices.length; i++)
 			{
 				graphicsConfiguration = graphicsDevices[i].getClass().getMethod(
@@ -779,7 +954,8 @@ public final class GUIUtils
 					windowMiddleLocation.y >= screenLocation.y &&
 					windowMiddleLocation.y <= (screenLocation.y + screenBounds.height))
 				{
-					return new Screen(screenLocation, screenBounds);
+					// if this screen overlaps with the default screen, take the smallest common part
+					return getOverlappingScreen(new Screen(screenLocation, screenBounds), a_window);
 				}
 			}
 		}
@@ -793,43 +969,7 @@ public final class GUIUtils
 	}
 
 	/**
-	 * Returns the bounds of the default screen.
-	 * @param a_window a Window
-	 * @return the bounds of the default screen
-	 */
-	public static Rectangle getDefaultScreenBounds(Window a_window)
-	{
-		if (a_window == null)
-		{
-			return null;
-		}
-
-		Rectangle screenBounds;
-
-		try
-		{
-			// try to center the window on the default screen; useful if there is more than one screen
-			Object graphicsEnvironment =
-				Class.forName("java.awt.GraphicsEnvironment").getMethod(
-						"getLocalGraphicsEnvironment", null).invoke(null, null);
-			Object graphicsDevice = graphicsEnvironment.getClass().getMethod(
-				 "getDefaultScreenDevice", null).invoke(graphicsEnvironment, null);
-			Object graphicsConfiguration = graphicsDevice.getClass().getMethod(
-				"getDefaultConfiguration", null).invoke(graphicsDevice, null);
-			screenBounds = (Rectangle)graphicsConfiguration.getClass().getMethod(
-				 "getBounds", null).invoke(graphicsConfiguration, null);
-		}
-		catch(Exception a_e)
-		{
-			// not all methods to get the default screen are available in JDKs < 1.3
-			screenBounds = new Rectangle(new Point(0,0), a_window.getToolkit().getScreenSize());
-		}
-		return screenBounds;
-	}
-
-
-	/**
-	 * Centers a window relative to the screen.
+	 * Centers a window relative to the default screen.
 	 * @param a_window a Window
 	 */
 	public static void centerOnScreen(Window a_window)
@@ -1132,6 +1272,69 @@ public final class GUIUtils
 		return trim(a_strOriginal, MAXIMUM_TEXT_LENGTH);
 	}
 
+	/**
+	 * Checks if a screen overlaps with the default screen and trims the screen area if needed.
+	 * @param a_screen Screen
+	 * @param a_window Window
+	 * @return Screen
+	 */
+	private static Screen getOverlappingScreen(Screen a_screen, Window a_window)
+	{
+		if (a_screen == null)
+		{
+			return null;
+		}
+
+		Screen defaultScreen = new Screen(new Point(0, 0), getDefaultScreenBounds(a_window));
+		if (defaultScreen.getX() == a_screen.getX() &&
+			defaultScreen.getY() == a_screen.getY() &&
+			defaultScreen.getWidth() == a_screen.getWidth() &&
+			defaultScreen.getHeight() == a_screen.getHeight())
+		{
+			// these are the same screens
+			return a_screen;
+		}
+
+		int x = a_screen.getX();
+		int y = a_screen.getY();
+		int width = a_screen.getWidth();
+		int height = a_screen.getHeight();
+		boolean bOverlap = false;
+
+		if ((a_screen.getY() < defaultScreen.getY() &&
+			 a_screen.getY() + a_screen.getHeight() > defaultScreen.getY()) ||
+			(defaultScreen.getY() < a_screen.getY()) &&
+			defaultScreen.getY() + defaultScreen.getHeight() > a_screen.getY())
+		{
+			// height is overlapping; get the minimum overlapping area as screen
+			bOverlap = true;
+			System.out.println("overlap Y");
+			y = Math.max(a_screen.getY(), defaultScreen.getY());
+			height = Math.min(a_screen.getY() + a_screen.getHeight(),
+							  defaultScreen.getY() + defaultScreen.getHeight() -
+							  Math.abs(a_screen.getY() - defaultScreen.getY()));
+		}
+
+		if ((a_screen.getX() < defaultScreen.getX() &&
+			 a_screen.getX() + a_screen.getWidth() > defaultScreen.getX()) ||
+			(defaultScreen.getX() < a_screen.getX() &&
+			defaultScreen.getX() + defaultScreen.getWidth() > a_screen.getX()))
+		{
+			// width is overlapping; get the minimum overlapping area as screen
+			bOverlap = true;
+
+			x = Math.max(a_screen.getX(), defaultScreen.getX());
+			width = Math.min(a_screen.getX() + a_screen.getWidth(),
+							 defaultScreen.getX() + defaultScreen.getWidth() -
+							 Math.abs(a_screen.getX() - defaultScreen.getX()));
+		}
+
+		if (bOverlap)
+		{
+			a_screen = new Screen(new Point(x, y), new Rectangle(width, height));
+		}
+		return a_screen;
+	}
 
 	private static String getTextFromClipboard(Component a_requestingComponent, boolean a_bUseTextArea)
 	{
@@ -1159,6 +1362,42 @@ public final class GUIUtils
 			strText = cf.getText();
 		}
 		return strText;
+	}
+
+	/**
+	 * Returns the bounds of the default screen. This method is private as is does not always return
+	 * the right coordinates and screen bounds.
+	 * @param a_window a Window
+	 * @return the bounds of the default screen
+	 */
+	private static Rectangle getDefaultScreenBounds(Window a_window)
+	{
+		if (a_window == null)
+		{
+			return null;
+		}
+
+		Rectangle screenBounds;
+
+		try
+		{
+			// try to center the window on the default screen; useful if there is more than one screen
+			Object graphicsEnvironment =
+				Class.forName("java.awt.GraphicsEnvironment").getMethod(
+						"getLocalGraphicsEnvironment", null).invoke(null, null);
+			Object graphicsDevice = graphicsEnvironment.getClass().getMethod(
+				 "getDefaultScreenDevice", null).invoke(graphicsEnvironment, null);
+			Object graphicsConfiguration = graphicsDevice.getClass().getMethod(
+				"getDefaultConfiguration", null).invoke(graphicsDevice, null);
+			screenBounds = (Rectangle)graphicsConfiguration.getClass().getMethod(
+				 "getBounds", null).invoke(graphicsConfiguration, null);
+		}
+		catch(Exception a_e)
+		{
+			// not all methods to get the default screen are available in JDKs < 1.3
+			screenBounds = new Rectangle(new Point(0,0), a_window.getToolkit().getScreenSize());
+		}
+		return screenBounds;
 	}
 
 	/**
