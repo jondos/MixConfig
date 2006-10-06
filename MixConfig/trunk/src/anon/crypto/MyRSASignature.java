@@ -48,6 +48,9 @@ import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.encodings.PKCS1Encoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
 
 /*** SHA1withRSA Signature as described in RFC 2313 */
 public final class MyRSASignature implements IMySignature
@@ -107,6 +110,7 @@ public final class MyRSASignature implements IMySignature
 			ByteArrayInputStream bIn = new ByteArrayInputStream(decryptedSig);
 			ASN1InputStream dIn = new ASN1InputStream(bIn);
 
+
 			DigestInfo digInfo = new DigestInfo( (ASN1Sequence) dIn.readObject());
 
 			if (!digInfo.getAlgorithmId().getObjectId().equals(ms_AlgID.getObjectId()))
@@ -137,8 +141,9 @@ public final class MyRSASignature implements IMySignature
 
 			return true;
 		}
-		catch (Exception e)
+		catch (Throwable e)
 		{
+			LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "Signature algorithm does not match!");
 			return false;
 		}
 	}

@@ -105,6 +105,8 @@ public class CertDetailsDialog extends JAPDialog
 		"_alertCertValidityExpired";
 	private static final String MSG_ALERT_CERTDATE_NOTYET = CertDetailsDialog.class.getName() +
 		"_alertCertNotYetValid";
+	private static final String MSG_ALERT_SELF_SIGNED = CertDetailsDialog.class.getName() +
+		"_alertSelfSigned";
 	private static final String MSG_ALERT_NOT_TRUSTED = CertDetailsDialog.class.getName() +
 		"_alertSignatureNotTrusted";
 	private static final String UNKNOWN_EXTENSION = CertDetailsDialog.class.getName() +
@@ -662,6 +664,10 @@ public class CertDetailsDialog extends JAPDialog
 		if (!a_bIsVerifyable)
 		{
 			String MSG = JAPMessages.getString(MSG_ALERT_NOT_TRUSTED);
+			if (a_cert.verify(a_cert))
+			{
+				MSG = JAPMessages.getString(MSG_ALERT_SELF_SIGNED);
+			}
 			JLabel lbl_verifyAlert = new JLabel(MSG, JLabel.LEFT);
 			lbl_verifyAlert.setFont(ALERT_FONT);
 			lbl_verifyAlert.setForeground(ALERT_COLOR);
@@ -713,7 +719,10 @@ public class CertDetailsDialog extends JAPDialog
 		JLabel title_extensions = new JLabel(JAPMessages.getString(TITLE_EXTENSIONS), JLabel.RIGHT);
 		title_extensions.setFont(TITLE_FONT);
 		title_extensions.setForeground(TITLE_COLOR);
-		detailsPanel.addRow(title_extensions, null, new JSeparator(JSeparator.HORIZONTAL));
+		if (extensionsVect.getSize() > 0)
+		{
+			detailsPanel.addRow(title_extensions, null, new JSeparator(JSeparator.HORIZONTAL));
+		}
 		String critical = null;
 
 		for (int i = 0; i < extensionsVect.getExtensions().size(); i++)
