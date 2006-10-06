@@ -25,83 +25,27 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
+/* Hint: This file may be only a copy of the original file which is always in the JAP source tree!
+ * If you change something - do not forget to add the changes also to the JAP source tree!
+ */
 package anon.crypto;
 
-import java.util.Hashtable;
-
-import org.w3c.dom.Node;
-
-import anon.crypto.XMLSignature;
-
-public class SignatureCreator
+/**
+ * Defines an interface for verification and validation.
+ *
+ * @author Rolf Wendolsky
+ */
+public interface IVerifyable
 {
+	/**
+	 * Returns if the object has been verified by checking its signature(s).
+	 * @return if the object has been verified by checking its signature(s)
+	 */
+	public boolean isVerified();
 
 	/**
-	 * Stores the instance of SignatureCreator (Singleton).
+	 * Returns if the object is valid at this time
+	 * @return if the object is valid at this time
 	 */
-	private static SignatureCreator ms_scInstance;
-
-	private Hashtable m_signatureKeys;
-
-	/**
-	 * Returns the instance of SignatureCreator (Singleton). If there is no instance, there is a
-	 * new one created.
-	 *
-	 * @return The SignatureCreator instance.
-	 */
-	public static SignatureCreator getInstance()
-	{
-		synchronized (SignatureCreator.class)
-		{
-			if (ms_scInstance == null)
-			{
-				ms_scInstance = new SignatureCreator();
-			}
-		}
-		return ms_scInstance;
-	}
-
-	/**
-	 * Creates a new instance of SignatureVerifier.
-	 */
-	private SignatureCreator()
-	{
-		m_signatureKeys = new Hashtable();
-	}
-
-	public void setSigningKey(int a_purpose, PKCS12 a_signatureKey)
-	{
-		synchronized (m_signatureKeys)
-		{
-			m_signatureKeys.put(new Integer(a_purpose), a_signatureKey);
-		}
-	}
-
-	public XMLSignature getSignedXml(int a_documentClass, Node a_nodeToSign)
-	{
-		PKCS12 signatureKey = null;
-		XMLSignature createdSignature = null;
-
-		synchronized (m_signatureKeys)
-		{
-			signatureKey = (PKCS12) (m_signatureKeys.get(new Integer(a_documentClass)));
-		}
-
-		if (signatureKey != null)
-		{
-			try
-			{
-				createdSignature = XMLSignature.sign(a_nodeToSign, signatureKey);
-			}
-			catch (Exception e)
-			{
-			}
-		}
-		return createdSignature;
-	}
-
-	public boolean signXml(int a_documentClass, Node a_nodeToSign)
-	{
-		return getSignedXml(a_documentClass, a_nodeToSign) != null;
-	}
+	public boolean isValid();
 }

@@ -154,6 +154,39 @@ public class SignatureVerifier implements IXMLEncodable
                 return m_trustedCertificates;
         }
 
+		/**
+		 * Verifies the signature of an XML document against the store of trusted certificates.
+		 * This methode returns true, if the signature of the document is valid, the signing certificate
+		 * can be derived from one of the trusted certificates (or is one of them) and if all of the
+		 * needed certificates in the path have the permission to sign documents of this class. This
+		 * method also returns always true if signature checking is disabled.
+		 *
+		 * @param a_rootNode The root node of the document. The Signature node must be one of the
+		 *                   children of the root node.
+		 * @param a_documentClass The class of the document. See the constants in this class.
+		 *
+		 * @return True, if the signature (and appended certificate) could be verified against the
+		 *         trusted certificates or false if not.
+		 *
+		 * @todo The ID within the document should be compared to the ID stored in the certificate.
+		 * @todo the return value should be the certificate that successfully verified the signature
+		 */
+		public boolean verifyXml(Document a_rootNode, int a_documentClass)
+		{
+			if (!m_checkSignatures )
+			{
+				/* accept every document without testing the signature */
+				return true;
+			}
+
+			if (a_rootNode == null)
+			{
+				return false;
+			}
+			return verifyXml(a_rootNode.getDocumentElement(), a_documentClass);
+		}
+
+
         /**
          * Verifies the signature of an XML document against the store of trusted certificates.
          * This methode returns true, if the signature of the document is valid, the signing certificate
@@ -180,8 +213,11 @@ public class SignatureVerifier implements IXMLEncodable
 			}
 			else
 			{
+				if (a_rootNode == null)
+				{
+					return false;
+				}
 				XMLSignature signature = this.getVerifiedXml(a_rootNode, a_documentClass);
-				System.out.println(signature.getCertPath());
 				if(signature != null)
 				{
 					return signature.isVerified();
@@ -232,12 +268,12 @@ public class SignatureVerifier implements IXMLEncodable
 						break;
 					}
 				}
-				Vector additionalCertificates = new Vector();
+				Vector additionalCertPaths = new Vector();
 				Enumeration additionalCertificatesEnumerator = additionalCertificateInfoStructures.elements();
 				while (additionalCertificatesEnumerator.hasMoreElements())
 				{
-					additionalCertificates.addElement( ( (CertificateInfoStructure) (
-						additionalCertificatesEnumerator.nextElement())).getCertificate());
+					additionalCertPaths.addElement( ( (CertificateInfoStructure) (
+						additionalCertificatesEnumerator.nextElement())).getCertPath());
 				}
 				/* get the root certificates for verifying appended certificates */
 				Vector rootCertificates = new Vector();
@@ -260,24 +296,18 @@ public class SignatureVerifier implements IXMLEncodable
 						rootCertificates.addElement( ( (CertificateInfoStructure) (rootCertificatesEnumerator.
 							nextElement())).getCertificate());
 					}
-
-				}
-				try{
-					System.out.println("Root:"+((JAPCertificate)rootCertificates.firstElement()).getSubject().getCommonName());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				try{
-					System.out.println("Direct:"+((JAPCertificate)additionalCertificates.firstElement()).getSubject().getCommonName());
-				} catch (Exception e) {
-				    e.printStackTrace();
 				}
 
 				/* now we have everything -> verify the signature */
 				try
 				{
-					signature = XMLSignature.getVerified(a_rootNode, rootCertificates, additionalCertificates, false);
+					System.out.println(rootCertificates.size());
+					signature = XMLSignature.getVerified(a_rootNode, rootCertificates, additionalCertPaths, false);
 					signature.getCertPath().setDocType(a_documentClass);
+					if (!isCheckSignatures())
+					{
+						signature.setVerified(true);
+					}
 				}
 				catch (Exception e)
 				{

@@ -722,9 +722,9 @@ public final class JAPCertificate implements IXMLEncodable, Cloneable, ICertific
 		}
 
 		// the cert is verified, too, if the public key is the same as the test key
-		if (getPublicKey().equals(a_publicKey))
+		//if (getPublicKey().equals(a_publicKey))
 		{
-			return true;
+			//return true;
 		}
 
 		try
