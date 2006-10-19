@@ -50,14 +50,21 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import javax.swing.ToolTipManager;
+import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.KeyStroke;
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
 import javax.swing.LookAndFeel;
@@ -107,6 +114,7 @@ public final class GUIUtils
 			return 1.0;
 		}
 	};
+
 	private static IIconResizer ms_resizer = DEFAULT_RESIZER;
 
 	private static final NativeGUILibrary DUMMY_GUI_LIBRARY = new NativeGUILibrary()
@@ -244,33 +252,89 @@ public final class GUIUtils
 	 */
 	public static ImageIcon loadImageIcon(String a_strRelativeImagePath, boolean a_bSync, boolean a_bScale)
 	{
-		ImageIcon img;
+		ImageIcon img = null;
 		int statusBits;
+		boolean bScalingDone = false;
+		String strScaledRelativeImagePath = null;
+
+		if (a_bScale && ms_resizer.getResizeFactor() != 1.0)
+		{
+			// we have to scale; look if there are pre-scaled graphics first
+			strScaledRelativeImagePath =
+				((int)(100 * ms_resizer.getResizeFactor())) + "/" +  a_strRelativeImagePath;
+		}
 
 		// try to load the image from the cache
-		if (ms_iconCache.containsKey(a_strRelativeImagePath))
+		if (strScaledRelativeImagePath != null && ms_iconCache.containsKey(strScaledRelativeImagePath))
+		{
+			img = new ImageIcon((Image)ms_iconCache.get(strScaledRelativeImagePath));
+			if (img != null)
+			{
+				bScalingDone = true;
+			}
+		}
+		else if (ms_iconCache.containsKey(a_strRelativeImagePath))
 		{
 			img = new ImageIcon((Image)ms_iconCache.get(a_strRelativeImagePath));
 		}
-		else if (ms_loadImages)
+
+		if (img == null && ms_loadImages)
 		{
 			// load image from the local classpath or the local directory
-			img = loadImageIconInternal(ResourceLoader.getResourceURL(a_strRelativeImagePath));
+			if (strScaledRelativeImagePath != null)
+			{
+				img = loadImageIconInternal(ResourceLoader.getResourceURL(strScaledRelativeImagePath));
+				if (img != null)
+				{
+					bScalingDone = true;
+				}
+			}
+
+			if (img == null)
+			{
+				img = loadImageIconInternal(ResourceLoader.getResourceURL(a_strRelativeImagePath));
+			}
 
 			if (img == null && (Toolkit.getDefaultToolkit().getColorModel().getPixelSize() <= 16))
 			{
 				// load the image from the low color image path
-				img = loadImageIconInternal(
-					ResourceLoader.getResourceURL(
+				if (strScaledRelativeImagePath != null)
+				{
+					img = loadImageIconInternal(
+									   ResourceLoader.getResourceURL(
+						JAPMessages.getString(MSG_DEFAULT_IMGAGE_PATH_LOWCOLOR) + strScaledRelativeImagePath));
+					if (img != null)
+					{
+						bScalingDone = true;
+					}
+				}
+				if (img == null)
+				{
+					img = loadImageIconInternal(
+									   ResourceLoader.getResourceURL(
 						JAPMessages.getString(MSG_DEFAULT_IMGAGE_PATH_LOWCOLOR) + a_strRelativeImagePath));
+				}
 			}
 
 			if (img == null || img.getImageLoadStatus() == MediaTracker.ERRORED)
 			{
 				// load the image from the default image path
-				img = loadImageIconInternal(
-					ResourceLoader.getResourceURL(
+				if (strScaledRelativeImagePath != null)
+				{
+					img = loadImageIconInternal(
+						ResourceLoader.getResourceURL(
+							JAPMessages.getString(MSG_DEFAULT_IMGAGE_PATH) + strScaledRelativeImagePath));
+						if (img != null)
+						{
+							bScalingDone = true;
+						}
+				}
+				if (img == null)
+				{
+					img = loadImageIconInternal(
+									   ResourceLoader.getResourceURL(
 						JAPMessages.getString(MSG_DEFAULT_IMGAGE_PATH) + a_strRelativeImagePath));
+				}
 			}
 
 			if (img != null)
@@ -285,7 +349,14 @@ public final class GUIUtils
 				}
 
 				// write the image to the cache
-				ms_iconCache.put(a_strRelativeImagePath, img.getImage());
+				if (strScaledRelativeImagePath != null && bScalingDone)
+				{
+					ms_iconCache.put(strScaledRelativeImagePath, img.getImage());
+				}
+				else
+				{
+					ms_iconCache.put(a_strRelativeImagePath, img.getImage());
+				}
 			}
 
 			statusBits = MediaTracker.ABORTED | MediaTracker.ERRORED;
@@ -295,12 +366,11 @@ public final class GUIUtils
 							  "Could not load requested image '" + a_strRelativeImagePath + "'!");
 			}
 		}
-		else
+
+		if (a_bScale && !bScalingDone && ms_loadImages && ms_resizer.getResizeFactor() != 1.0)
 		{
-			img = null;
-		}
-		if (a_bScale && ms_loadImages)
-		{
+			// this image must be scaled
+
 			final ImageIcon image = img;
 			WorkerContentPane.IReturnRunnable run = new WorkerContentPane.IReturnRunnable()
 			{
@@ -827,6 +897,59 @@ public final class GUIUtils
 		return true;
 	}
 
+
+	public static MouseListener addTimedTooltipListener(JComponent c)
+	{
+		Object imap;
+		ToolTipMouseListener listener;
+		Class classInputMap;
+
+		try
+		{
+			//ensure InputMap and ActionMap are created
+			classInputMap = Class.forName("javax.swing.InputMap");
+			imap = JComponent.class.getMethod("getInputMap", new Class[0]).invoke(c, new Object[0]);
+			JComponent.class.getMethod("getActionMap", new Class[0]).invoke(c, new Object[0]);
+
+			//put dummy KeyStroke into InputMap if is empty:
+			boolean removeKeyStroke = false;
+			KeyStroke[] ks =
+				(KeyStroke[]) (classInputMap.getMethod("keys", new Class[0]).invoke(imap, new Object[0]));
+			//KeyStroke[] ks = imap.keys();
+			if (ks == null || ks.length == 0)
+			{
+				classInputMap.getMethod("put", new Class[]
+										{KeyStroke.class, Object.class}).invoke(imap, new Object[]
+					{KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SLASH, 0), "backSlash"});
+				//imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SLASH, 0), "backSlash");
+				removeKeyStroke = true;
+			}
+			//now we can register by ToolTipManager
+			ToolTipManager.sharedInstance().registerComponent(c);
+			//and remove dummy KeyStroke
+			if (removeKeyStroke)
+			{
+				classInputMap.getMethod("remove", new Class[]
+										{KeyStroke.class}).invoke(imap, new Object[]
+					{KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SLASH, 0)});
+				//imap.remove(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SLASH, 0));
+			}
+			//now last part - add appropriate MouseListener and
+			//hear to mouseEntered events
+			listener = new ToolTipMouseListener();
+			c.addMouseListener(listener);
+			return listener;
+		}
+		catch (Exception a_e)
+		{
+			// JDK is too old
+			LogHolder.log(LogLevel.NOTICE, LogType.GUI,
+						  "Could not register component for timed tooltip!", a_e);
+			return null;
+		}
+
+	}
+
 	public static class Screen
 	{
 		private Point m_location;
@@ -1334,6 +1457,41 @@ public final class GUIUtils
 			a_screen = new Screen(new Point(x, y), new Rectangle(width, height));
 		}
 		return a_screen;
+	}
+
+	private static class ToolTipMouseListener extends MouseAdapter
+	{
+		public void mouseEntered(MouseEvent e)
+		{
+			if (!(e.getComponent() instanceof JComponent))
+			{
+				return;
+			}
+
+			JComponent c = (JComponent) e.getComponent();
+			Action action = null;
+			try
+			{
+				Class classActionMap = Class.forName("javax.swing.ActionMap");
+				Object map =  JComponent.class.getMethod(
+								"getActionMap", new Class[0]).invoke(c, new Object[0]);
+				action = (Action)(classActionMap.getMethod("get", new Class[]{Object.class}).invoke(
+								map, new Object[]{"postTip"}));
+			}
+			catch (Exception a_e)
+			{
+				// Should not happen!
+				LogHolder.log(LogLevel.EXCEPTION, LogType.GUI, a_e);
+			}
+
+			//it is also possible to use own Timer to display
+			//ToolTip with custom delay, but here we just
+			//display it immediately
+			if (action != null)
+			{
+				action.actionPerformed(new ActionEvent(c, ActionEvent.ACTION_PERFORMED, "postTip"));
+			}
+		}
 	}
 
 	private static String getTextFromClipboard(Component a_requestingComponent, boolean a_bUseTextArea)

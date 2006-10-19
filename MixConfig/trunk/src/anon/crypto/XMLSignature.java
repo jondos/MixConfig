@@ -174,7 +174,6 @@ public final class XMLSignature implements IXMLEncodable
 			m_digestValue = XMLUtil.parseValue(node, "");
 		}
 
-
 		node = XMLUtil.getFirstChildByName(m_elemSignature, ELEM_SIGNATURE_VALUE);
 		if (node == null)
 		{
@@ -394,11 +393,11 @@ public final class XMLSignature implements IXMLEncodable
 		Vector vecCertPaths = new Vector(a_certificateList.size());
 		for (int i = 0; i < a_certificateList.size(); i++)
 		{
-			vecCertPaths.addElement(new CertPath((JAPCertificate)a_certificateList.elementAt(i)));
+			vecCertPaths.addElement(new CertPath( (JAPCertificate) a_certificateList.elementAt(i)));
 		}
 
 		XMLSignature signature = getVerified(a_node, a_certificateList, vecCertPaths, false);
-	    if(signature != null && signature.isVerified())
+		if (signature != null && signature.isVerified())
 		{
 			return signature;
 		}
@@ -433,8 +432,8 @@ public final class XMLSignature implements IXMLEncodable
 	 *       this is only implemented because of compatibility reasons
 	 */
 	public static XMLSignature getVerified(Node a_node, Vector a_rootCertificates,
-										   Vector a_directCertificatePaths, boolean a_bCheckValidity)
-		throws XMLParseException
+										   Vector a_directCertificatePaths, boolean a_bCheckValidity) throws
+		XMLParseException
 	{
 		XMLSignature signature;
 		Enumeration certificates;
@@ -442,7 +441,7 @@ public final class XMLSignature implements IXMLEncodable
 		JAPCertificate currentCertificate;
 		JAPCertificate nextCertificate = null;
 
-	    // find the signature (this call could throw an XMLParseException)
+		// find the signature (this call could throw an XMLParseException)
 		signature = findXMLSignature(a_node);
 		if (signature == null)
 		{
@@ -450,40 +449,13 @@ public final class XMLSignature implements IXMLEncodable
 			return null;
 		}
 
-		if (a_rootCertificates == null ||a_rootCertificates.size() == 0)
-		{
-			// There are no root certificates! The signature cannot be verified.
-			signature.m_certPath = new CertPath((JAPCertificate)null);
-			return signature;
-		}
-
-	    //start verification
-	    try
+		//start verification
+		try
 		{
 			//get the included certificates
 			LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "Looking for appended certificates...");
 			certificates = signature.getCertificates().elements();
-			if ( (certificates == null) || (!certificates.hasMoreElements()))
-			{
-				//no appended certificates were found, try to verify the signature using the direct certificates
-				LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "No appended certificates found!");
-				LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
-							  "Trying to verify signature against direct certificates...");
-				signature.m_certPath =
-					getVerifier(a_node, signature, a_directCertificatePaths, a_bCheckValidity);
-				if (signature.m_certPath != null)
-				{
-					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
-								  "Trying to verify signature against direct certificates -success");
-				}
-				else
-				{
-					signature.m_certPath = new CertPath((JAPCertificate)null);
-					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
-								  "Trying to verify signature against direct certificates...-failed");
-				}
-			}
-			else
+			if ( (certificates != null) && (certificates.hasMoreElements()))
 			{
 				//we found at least one certificate
 				LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
@@ -538,23 +510,57 @@ public final class XMLSignature implements IXMLEncodable
 					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
 								  "Trying to verify signature against first certifcate -success!");
 				}
-			}
 
-
-			//the first (=Mix) cert could verify the signature
-			LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
-						  "Trying to verify last certificate against root certificates...");
-			currentCertificate = signature.m_certPath.getLatestAddedCertificate();
-			if (currentCertificate != null && currentCertificate.verify(a_rootCertificates))
-			{
-				signature.m_bVerified = true;
+				//the first (=Mix) cert could verify the signature
 				LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
-							  "Trying to verify last certificate against root certificates -success");
+							  "Trying to verify last certificate against root certificates...");
+				currentCertificate = signature.m_certPath.getLatestAddedCertificate();
+				if (currentCertificate != null && currentCertificate.verify(a_rootCertificates))
+				{
+					signature.m_bVerified = true;
+					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
+								  "Trying to verify last certificate against root certificates -success");
+				}
+				else
+				{
+					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
+								  "Trying to verify last certificate against root certificates -failed");
+				}
 			}
 			else
 			{
+				LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "No appended certificates found!");
+			}
+
+			if (!signature.isVerified())
+			{
+				CertPath certPathNew;
+
+				/**
+				 * Either no appended certificates were found, or the appended certificate path could not
+				 * be verified against the root certificates.
+				 * Try to verify the signature using the direct certificates
+				 */
 				LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
-							  "Trying to verify last certificate against root certificates -failed");
+							  "Trying to verify signature against direct certificates...");
+
+				certPathNew = getVerifier(a_node, signature, a_directCertificatePaths, a_bCheckValidity);
+				if (certPathNew != null)
+				{
+					signature.m_certPath = certPathNew;
+					signature.m_bVerified = true;
+					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
+								  "Trying to verify signature against direct certificates -success");
+				}
+				else
+				{
+					if (signature.m_certPath == null)
+					{
+						signature.m_certPath = new CertPath( (JAPCertificate)null);
+					}
+					LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO,
+								  "Trying to verify signature against direct certificates...-failed");
+				}
 			}
 
 			if (!signature.isVerified() && !oneCertAppended) //the last certificate in the Path could not be verified
@@ -586,8 +592,8 @@ public final class XMLSignature implements IXMLEncodable
 			a_directCertificatePaths.addElement(signature.getCertPath());
 		}
 
-	    return signature;
-    }
+		return signature;
+	}
 
 	/**
 	 * Only verifies the signature of an XML node.
@@ -643,7 +649,7 @@ public final class XMLSignature implements IXMLEncodable
 		}
 
 		signature = findXMLSignature(a_node);
-		if(signature != null)
+		if (signature != null)
 		{
 			signature.m_bVerified = false;
 		}
@@ -730,15 +736,15 @@ public final class XMLSignature implements IXMLEncodable
 	public synchronized boolean removeCertificate(JAPCertificate a_certificate)
 	{
 		int index = m_appendedCerts.indexOf(a_certificate);
-		if(index >= 0)
+		if (index >= 0)
 		{
 			m_appendedCerts.removeElementAt(index);
-			if(!(index < m_appendedCertXMLElements.size()))
+			if (! (index < m_appendedCertXMLElements.size()))
 			{
 				m_appendedCertXMLElements.removeElementAt(index);
 				//the certificate was removed from both Vectors
-			return true;
-		}
+				return true;
+			}
 		}
 		//Item was not found
 		return false;
@@ -1026,7 +1032,6 @@ public final class XMLSignature implements IXMLEncodable
 		return m_certPath;
 	}
 
-
 	/**
 	 * Finds the signature element of the given node if present. This signature element is only found
 	 * if it is a direct child of a_node. The signature is not verified.
@@ -1188,6 +1193,7 @@ public final class XMLSignature implements IXMLEncodable
 		return out.toByteArray();
 
 	}
+
 	/**
 	 * Is only used if no digest value is found. Then, the entire document is verified against the signature.
 	 * @todo mark this as deprecated and remove
@@ -1225,6 +1231,7 @@ public final class XMLSignature implements IXMLEncodable
 			return null;
 		}
 	}
+
 	/**
 	 * Creates a byte array from an XML node tree.
 	 * @param inputNode The node (incl. the whole tree) which is flattened to a byte array.
@@ -1288,13 +1295,23 @@ public final class XMLSignature implements IXMLEncodable
 				NamedNodeMap attr = elem.getAttributes();
 				if (attr.getLength() > 0)
 				{
+					// sort attributes by name
+					String[] nodeNames = new String[attr.getLength()];
+					String[] nodeValues = new String[attr.getLength()];
+					for (int i = 0; i < attr.getLength(); i++)
+					{
+						nodeNames[i] = attr.item(i).getNodeName();
+						nodeValues[i] = attr.item(i).getNodeValue();
+					}
+					Util.sort(nodeNames, nodeValues);
+
 					for (int i = 0; i < attr.getLength(); i++)
 					{
 						o.write(' ');
-						o.write(attr.item(i).getNodeName().getBytes());
+						o.write(nodeNames[i].getBytes());
 						o.write('=');
 						o.write('\"');
-						o.write(attr.item(i).getNodeValue().getBytes());
+						o.write(nodeValues[i].getBytes());
 						o.write('\"');
 					}
 				}
@@ -1355,24 +1372,25 @@ public final class XMLSignature implements IXMLEncodable
 	 *
 	 */
 	private static CertPath getVerifier(Node a_node, XMLSignature a_signature,
-											  Vector a_verifyingCertificatePaths,
-			  boolean a_bCheckValidity) throws XMLParseException
+										Vector a_verifyingCertificatePaths,
+										boolean a_bCheckValidity) throws XMLParseException
 	{
 		Enumeration certificates = a_verifyingCertificatePaths.elements();
 		CertPath currentCertificate = null;
 		boolean bVerified = false;
-		while(!bVerified && certificates.hasMoreElements())
+		while (!bVerified && certificates.hasMoreElements())
 		{
-			currentCertificate = (CertPath)certificates.nextElement();
+			currentCertificate = (CertPath) certificates.nextElement();
 			if (currentCertificate.getFirstCertificate() != null)
 			{
 				bVerified = verify(a_node, a_signature,
 								   currentCertificate.getFirstCertificate().getPublicKey())
-					&& (!a_bCheckValidity || (currentCertificate.getFirstCertificate().getValidity().isValid(new Date())));
+					&&
+					(!a_bCheckValidity || (currentCertificate.getFirstCertificate().getValidity().isValid(new Date())));
 			}
 		}
 		//if the verification was successfull return the cert that verified, else return null
-		return bVerified? currentCertificate : null;
+		return bVerified ? currentCertificate : null;
 	}
 
 	/**
@@ -1395,7 +1413,7 @@ public final class XMLSignature implements IXMLEncodable
 
 		if (!checkMessageDigest(a_node, a_signature))
 		{
-			a_signature.m_certPath = new CertPath((JAPCertificate)null);
+			a_signature.m_certPath = new CertPath( (JAPCertificate)null);
 			return false;
 		}
 
@@ -1456,6 +1474,7 @@ public final class XMLSignature implements IXMLEncodable
 			return false;
 		}
 		byte[] buff = toCanonical(a_node, a_signature.getSignatureElement());
+//	String s=new String(buff);
 		digest = sha1.digest(buff);
 		if (!MessageDigest.isEqual(Base64.decode(a_signature.getDigestValue()), digest))
 		{
