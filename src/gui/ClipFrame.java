@@ -44,8 +44,6 @@ import logging.*;
 
 public class ClipFrame extends JAPDialog implements ActionListener, ItemListener
 {
-	private static final String MSG_EMPTY = ClipFrame.class.getName() + "_empty";
-
 	private TextArea m_TextArea;
 	private Choice chooser;
 	private ClipChoice[] choices;
@@ -134,7 +132,7 @@ public class ClipFrame extends JAPDialog implements ActionListener, ItemListener
 		{
 			if (m_TextArea.getText().equals(""))
 			{
-				JAPDialog.showErrorDialog(getOwner(), JAPMessages.getString(MSG_EMPTY), LogType.GUI);
+				JAPDialog.showErrorDialog(getOwner(), "The Text Area is empty!", LogType.GUI);
 			}
 			else
 			{

@@ -167,6 +167,11 @@ public class CertificateStore extends Observable implements IXMLEncodable
 	public int addCertificateWithVerification(CertPath a_certificate, int a_certificateType,
 											  boolean a_onlyHardRemovable)
 	{
+		if (a_certificateType == JAPCertificate.CERTIFICATE_TYPE_ROOT_UPDATE)
+		{
+			new Exception().printStackTrace();
+		}
+
 		int lockId = -1;
 		if ( (a_certificateType == JAPCertificate.CERTIFICATE_TYPE_MIX) ||
 			(a_certificateType == JAPCertificate.CERTIFICATE_TYPE_INFOSERVICE))
@@ -505,7 +510,7 @@ public class CertificateStore extends Observable implements IXMLEncodable
 				catch (Exception e)
 				{
 					LogHolder.log(LogLevel.ERR, LogType.MISC,
-								  "CertificateStore: loadSettingsFromXml: Error while loading a CertificateContainer. Skipping this entry. Error: " +
+								  "Error while loading a CertificateContainer. Skipping this entry. Error: " +
 								  e.toString() + " - Invalid container was: " +
 								  XMLUtil.toString(certificateContainerNode));
 				}
