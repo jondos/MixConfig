@@ -1,6 +1,11 @@
 Agreement for Mix Operator
 
-... (name, address, contact data)
+(Name)
+(Address)
+Phone:
+Fax:
+E-Mail:
+Website:
 
 
 

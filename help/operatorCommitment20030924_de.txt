@@ -1,6 +1,11 @@
 Selbstverpflichtung des Mixbetreibers
 
-... (Name, Anschrift, Kontaktdaten)
+(Name)
+(Anschrift)
+Tel.:
+Fax:
+E-Mail:
+Webseite:
 
 
 
