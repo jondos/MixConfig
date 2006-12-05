@@ -1,0 +1,56 @@
+Selbstverpflichtung des Mixbetreibers
+
+... (Name, Anschrift, Kontaktdaten)
+
+
+
+Version: 24. September 2003
+
+Diese Selbstverpflichtung hat den Zweck, die Vertrauenswürdigkeit 
+des Anonymisierungsdienstes zu sichern bzw. zu erhöhen. Um dies zu 
+erreichen, müssen die Betreiber technische und organisatorische 
+Maßnahmen für einen hohen Grad an Datenschutz und Datensicherheit 
+treffen. 
+
+Der Unterzeichner ist Betreiber einer Anonymisierungsstation 
+(kurz: Mix). Der betriebene Mix bildet zusammen mit anderen Mixen 
+eine logische Folge, die Mix-Kaskade. Eine solche Kaskade besteht 
+aus einem ersten Mix, einem letzten Mix und gegebenenfalls mehreren 
+mittleren Mixen. Dies bedeutet insbesondere, dass ein Mix mit 
+höchstens einem Vorgänger- und höchstens einem Nachfolger-Mix z.B. 
+über das Internet verbunden ist. 
+
+Zusicherungen des Betreibers
+----------------------------
+Bezüglich des Mix-Betriebs sichert der Betreiber Folgendes zu:
+
+- Der Mix-Betreiber hält sich an die gesetzlichen Bestimmungen.
+- Es werden grundsätzlich keine Log-Dateien über die anonymisierten 
+  Verbindungen sowie die inneren Zustände (z.B. Umsortierung der 
+  Nachrichten, verwendete Sitzungsschlüssel) geführt. 
+- Der Austausch bzw. die Weiterleitung von Daten zwischen den Mixen 
+  beschränkt sich auf die in der Software spezifizierten 
+  Kommunikationsprotokolle. Die eingesetzte Mix-Software wird nur 
+  in der bereitgestellten Spezifikation verwendet. 
+- Unbefugten wird der Zugang zu den für den Mix verwendeten Rechnern 
+  verwehrt. Der physische Zutritt zu den Rechnern wird durch 
+  geeignete bauliche, infrastrukturelle und organisatorische 
+  Maßnahmen auf diejenigen Personen beschränkt, die für den Betrieb 
+  erforderlich sind. Es wird mithilfe von Authentifizierungsverfahren 
+  (z.B. Passwortschutz, Biometrie) gewährleistet, dass die 
+  Berechtigten ausschließlich auf die ihrer Zugriffsberechtigung 
+  unterliegenden Daten zugreifen können. Sollen Zugriffe über ein 
+  Netz möglich sein, geschieht dies nur über verschlüsselte 
+  Verbindungen (z.B. SSH). 
+- Für die Systemadministration wird Personal eingesetzt, das die 
+  erforderliche Sachkunde und Zuverlässigkeit besitzt und über 
+  ausreichende zeitliche und sachliche Ressourcen und Know-how 
+  verfügt. 
+- Die Rechner werden nach dem jeweils aktuellen Stand der Technik 
+  so konfiguriert und administriert, dass das Ausspionieren von 
+  Daten durch Dritte (z.B. mittels Viren, Trojanischen Pferden) 
+  verhindert wird. Bekannt gewordene Sicherheitslöcher im System 
+  werden unverzüglich beseitigt. 
+- Der Unterzeichner versichert, die Erfüllung dieser Zusicherungen 
+  von einer unabhängigen Datenschutzkontrollinstanz jederzeit auch 
+  ohne konkreten Anlass überprüfen zu lassen.
