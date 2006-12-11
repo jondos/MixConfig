@@ -31,7 +31,6 @@ package anon.crypto;
  * If you change something - do not forget to add the changes also to the JAP source tree!
  */
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -108,7 +107,7 @@ public final class PKCS12 implements PKCSObjectIdentifiers, X509ObjectIdentifier
 	private static final int SALT_SIZE = 20;
 	private static final int MIN_ITERATIONS = 100;
 
-	private static final String BASE64_TAG = "PKCS12 CERTIFICATE";
+	private static final String BASE64_TAG = "PKCS12";
 
 	public static final String XML_ELEMENT_NAME = "X509PKCS12";
 
