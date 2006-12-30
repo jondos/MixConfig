@@ -1,0 +1,4 @@
+#!/bin/sh
+make distclean
+ulimit -HSn 64000
+./configure  --prefix=/usr/local/squid --enable-storeio="ufs,aufs,coss" --enable-coss-aio-ops --disable-wccp  --disable-wccpv2 --enable-epoll --enable-large-cache-files --disable-ident-lookups  --disable-unlinkd  --with-aufs-threads=32 --with-pthreads --with-aio --with-large-files  --with-maxfd=128000 --enable-removal-policies="heap,lru"
