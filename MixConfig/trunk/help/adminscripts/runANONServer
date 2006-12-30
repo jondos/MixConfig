@@ -1,6 +1,6 @@
 #!/bin/bash
 #. /etc/rc.status
-. /etc/rc.status.anon
+. /home/mix/rc.status.anon
 rc_reset
 
 
@@ -8,6 +8,7 @@ case "$1" in
   start)
 	echo "Starting $PROGRAM_NAME..."
 	cd $INSTALL_PATH
+	ulimit -HSn 4096
 	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS 
 	if [ ! "`$0 process`" ]
 	then
@@ -17,8 +18,8 @@ case "$1" in
 	;;
   stop)
 	echo "Shutting down $PROGRAM_NAME..."
-	ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep | awk '{ print $2 }' | xargs kill 2>/dev/null >/dev/null
-	sleep 3
+	ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep | awk '{ print $2 }' | xargs kill -9 2>/dev/null >/dev/null
+	sleep 1
 	if [ "`ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep`" ]
 	then
 		rc_failed 1

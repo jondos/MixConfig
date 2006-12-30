@@ -1,12 +1,14 @@
 #!/bin/bash
 
 ### Define the installation directory.
-export INSTALL_PATH="/home/mix/Mixproxy"
+export INSTALL_PATH="/home/mix/Mix_Pay_Last"
 ### Script options. There should be only minor changes here.
 export PROGRAM_NAME="mix"
 export PROGRAM="$PROGRAM_NAME"
 export PROGRAM_OPTIONS="--config=$INSTALL_PATH/config.xml"
-export COMPILE_OPTIONS="--with-pools --with-xml-include=/usr/local/xerces-c/include/ --with-xml-lib=/usr/local/xerces-c/lib/"
+#export COMPILE_OPTIONS="--enable-pool --enable-replay_detection --with-xml-include=/usr/include --with-xml-lib=/usr/lib  --enable-payment --enable-crime-detection"
+export COMPILE_OPTIONS="--enable-replay_detection --with-xml-include=/usr/include --with-xml-lib=/usr/lib"
+#export COMPILE_OPTIONS="--with-pools --with-xml-include=/usr/local/xerces-c/include/ --with-xml-lib=/usr/local/xerces-c/lib/ --enable-payment --enable-bandwidth-limitation=0"
 #export COMPILE_OPTIONS="--enable-crime-detection --with-pools --with-xml-include=/usr/local/xerces-c/include/ --with-xml-lib=/usr/local/xerces-c/lib/"
 #export COMPILE_OPTIONS="--enable-debug --with-pools --with-xml-include=/usr/local/xerces-c/include/ --with-xml-lib=/usr/local/xerces-c/lib/"
 export EXECUTE_COMMAND=""

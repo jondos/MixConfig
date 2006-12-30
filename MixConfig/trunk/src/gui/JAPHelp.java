@@ -56,8 +56,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 
 import anon.util.ResourceLoader;
 import gui.JAPHelpContext.IHelpContext;
@@ -253,7 +251,8 @@ public final class JAPHelp extends JAPDialog
 	 */
 	public static JButton createHelpButton(IHelpContext a_helpContext)
 	{
-		JButton helpButton = new JButton(GUIUtils.loadImageIcon(JAPHelp.IMG_HELP, true));
+		//JButton helpButton = new JButton(GUIUtils.loadImageIcon(JAPHelp.IMG_HELP, true));
+		JButton helpButton = new JButton(JAPMessages.getString(MSG_HELP_BUTTON));
 		helpButton.setToolTipText(JAPMessages.getString(MSG_HELP_BUTTON));
 		helpButton.addActionListener(new HelpContextActionListener(a_helpContext));
 		return helpButton;

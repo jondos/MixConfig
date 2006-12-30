@@ -45,11 +45,13 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.IllegalComponentStateException;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.AWTEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
@@ -70,6 +72,7 @@ import javax.swing.JTextPane;
 import javax.swing.LookAndFeel;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.plaf.FontUIResource;
 
@@ -81,6 +84,8 @@ import gui.dialog.WorkerContentPane;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
+import java.awt.EventQueue;
+import java.awt.MenuComponent;
 
 /**
  * This class contains helper methods for the GUI.
@@ -106,6 +111,13 @@ public final class GUIUtils
 	private static final int MAXIMUM_TEXT_LENGTH = 60;
 
 	private static boolean ms_loadImages = true;
+
+	private static boolean ms_bCapturingAWTEvents = false;
+	private static Point ms_mousePosition;
+	private static final Object SYNC_MOUSE_POSITION = new Object();
+	private static AWTEventListener ms_mouseListener;
+
+	private static final Vector AWT_EVENT_LISTENERS = new Vector();
 
 	private static final IIconResizer DEFAULT_RESIZER = new IIconResizer()
 	{
@@ -496,6 +508,11 @@ public final class GUIUtils
 		}
 	}
 
+	public static boolean isAlwaysOnTop(Component a_component)
+	{
+		return isAlwaysOnTop(getParentWindow(a_component));
+	}
+
 	/**
 	 * Returns if the alwaysOnTop method of JRE 1.5 is set on a given Window.
 	 * @param a_Window a Window
@@ -514,6 +531,21 @@ public final class GUIUtils
 		return ms_nativeGUILibrary.isAlwaysOnTop(a_Window);
 	}
 
+	public static void setFontStyle(Component a_component, int a_style)
+	{
+		if (a_component == null)
+		{
+			return;
+		}
+		a_component.setFont(
+			  new Font(a_component.getFont().getName(), a_style, a_component.getFont().getSize()));
+	}
+
+	public static boolean setAlwaysOnTop(Component a_component, boolean a_bOnTop)
+	{
+		return setAlwaysOnTop(getParentWindow(a_component), a_bOnTop);
+	}
+
 	/**
 	 * Tries to use the method setAlwaysOnTop of JRE 1.5.
 	 * @param a_Window Window
@@ -522,6 +554,11 @@ public final class GUIUtils
 	 */
 	public static boolean setAlwaysOnTop(Window a_Window, boolean a_bOnTop)
 	{
+		if (a_Window == null)
+		{
+			return false;
+		}
+
 		try
 		{
 			Class[] c = new Class[1];
@@ -950,6 +987,11 @@ public final class GUIUtils
 
 	}
 
+	public static interface AWTEventListener
+	{
+		public void eventDispatched(AWTEvent event);
+	}
+
 	public static class Screen
 	{
 		private Point m_location;
@@ -1038,6 +1080,10 @@ public final class GUIUtils
 			new Screen(new Point(0, 0), getDefaultScreenBounds(a_window))};
 	}
 
+	public static Screen getCurrentScreen(Component a_component)
+	{
+		return getCurrentScreen(getParentWindow(a_component));
+	}
 
 	public static Screen getCurrentScreen(Window a_window)
 	{
@@ -1395,6 +1441,227 @@ public final class GUIUtils
 		return trim(a_strOriginal, MAXIMUM_TEXT_LENGTH);
 	}
 
+	public static void addAWTEventListener(AWTEventListener a_listener)
+	{
+		synchronized (AWT_EVENT_LISTENERS)
+		{
+			if (!ms_bCapturingAWTEvents)
+			{
+				Runnable run = new Runnable()
+				{
+					public void run()
+					{
+						SwingUtilities.invokeLater(new Runnable()
+						{
+							public void run()
+							{
+								EventQueue theQueue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+								try
+								{
+									while (!JAPDialog.isConsoleOnly())
+									{
+										AWTEvent event = theQueue.getNextEvent();
+
+										Class classActiveEvent;
+										try
+										{
+											// java.awt.ActiveEvent is not known in JDKs < 1.2
+											classActiveEvent = Class.forName("java.awt.ActiveEvent");
+										}
+										catch (ClassNotFoundException a_e)
+										{
+											classActiveEvent = null;
+										}
+										if (classActiveEvent != null && classActiveEvent.isInstance(event))
+										{
+											// ((ActiveEvent) event).dispatch();
+											classActiveEvent.getMethod("dispatch", null).invoke(event, null);
+										}
+										else if (event.getSource() instanceof Component)
+										{
+											try
+											{
+												( (Component) event.getSource()).dispatchEvent(event);
+											}
+											catch (IllegalMonitorStateException a_e)
+											{
+												LogHolder.log(LogLevel.NOTICE, LogType.GUI, a_e);
+											}
+										}
+										else if (event.getSource() instanceof MenuComponent)
+										{
+											( (MenuComponent) event.getSource()).dispatchEvent(event);
+										}
+
+										synchronized (AWT_EVENT_LISTENERS)
+										{
+											for (int i = 0; i < AWT_EVENT_LISTENERS.size(); i++)
+											{
+												((AWTEventListener)AWT_EVENT_LISTENERS.elementAt(i)).
+													eventDispatched(event);
+											}
+										}
+
+										Thread.yield();
+									}
+								}
+								catch (Exception a_e)
+								{
+									LogHolder.log(LogLevel.EXCEPTION, LogType.GUI, a_e);
+								}
+							}
+						});
+					}
+				};
+
+				if (SwingUtilities.isEventDispatchThread())
+				{
+					new Thread(run).start();
+				}
+				else
+				{
+					run.run();
+				}
+
+				/*
+				  Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener()
+				  {
+				 public void eventDispatched(AWTEvent a_event)
+				 {
+				  MouseEvent event =  (MouseEvent) a_event;
+				  if (event.getSource() != null && event.getSource() instanceof Component)
+				  {
+				   Component component = (Component)event.getSource();
+				   synchronized (SYNC_MOUSE_POSITION)
+				   {
+				 try
+				 {
+				  ms_mousePosition = component.getLocationOnScreen();
+				  ms_mousePosition.x += event.getX();
+				  ms_mousePosition.y += event.getY();
+				 }
+				 catch (IllegalComponentStateException a_e)
+				 {
+				  // ignore
+				 }
+				   }
+				  }
+				 }
+				  }, AWTEvent.MOUSE_EVENT_MASK);
+				 */
+				ms_bCapturingAWTEvents = true;
+			}
+
+			if (a_listener == null)
+			{
+				return;
+			}
+
+
+			if (!AWT_EVENT_LISTENERS.contains(a_listener))
+			{
+				AWT_EVENT_LISTENERS.addElement(a_listener);
+			}
+		}
+	}
+
+	public static void removeAWTEventListener(AWTEventListener a_listener)
+	{
+		AWT_EVENT_LISTENERS.removeElement(a_listener);
+	}
+
+
+
+	/**
+	 * Returns the current mouse position on the screen.
+	 * @return the current mouse position on the screen or null if the mouse position is unknown
+	 */
+	public static Point getMousePosition()
+	{
+		synchronized (SYNC_MOUSE_POSITION)
+		{
+			if (ms_mouseListener == null)
+			{
+				ms_mouseListener = new AWTEventListener()
+				{
+					public void eventDispatched(AWTEvent a_event)
+					{
+						if (a_event instanceof MouseEvent)
+						{
+							MouseEvent mouseEvent = (MouseEvent) a_event;
+							if (a_event.getSource() != null && a_event.getSource() instanceof Component)
+							{
+								Component component = (Component) a_event.getSource();
+								try
+								{
+									synchronized (SYNC_MOUSE_POSITION)
+									{
+										ms_mousePosition = component.getLocationOnScreen();
+										ms_mousePosition.x += mouseEvent.getX();
+										ms_mousePosition.y += mouseEvent.getY();
+									}
+								}
+								catch (IllegalComponentStateException a_e)
+								{
+									// ignore
+								}
+							}
+						}
+					}
+				};
+				addAWTEventListener(ms_mouseListener);
+			}
+		}
+		if (ms_mousePosition == null)
+		{
+			return null;
+		}
+		return new Point(ms_mousePosition.x, ms_mousePosition.y);
+	}
+
+	public static Point getRelativePosition(Point a_positionOnScreen, Component a_component)
+	{
+		if (a_positionOnScreen == null || a_component == null)
+		{
+			return null;
+		}
+		Point currentPoint = a_positionOnScreen;
+		if (currentPoint == null)
+		{
+			return null;
+		}
+
+		Point componentPoint;
+		try
+		{
+			componentPoint = a_component.getLocationOnScreen();
+		}
+		catch (IllegalComponentStateException a_e)
+		{
+			componentPoint = a_component.getLocation();
+			//return null;
+		}
+
+
+		if (currentPoint.x < componentPoint.x - 1 ||
+			currentPoint.x > componentPoint.x + a_component.getSize().width + 1 ||
+			currentPoint.y < componentPoint.y - 1 ||
+			currentPoint.y > componentPoint.y + a_component.getSize().height + 1)
+		{
+			return null;
+		}
+
+		currentPoint.x -= componentPoint.x;
+		currentPoint.y -= componentPoint.y;
+
+		return currentPoint;
+	}
+
+	public static Point getMousePosition(Component a_component)
+	{
+		return getRelativePosition(getMousePosition(), a_component);
+	}
+
 	/**
 	 * Checks if a screen overlaps with the default screen and trims the screen area if needed.
 	 * @param a_screen Screen
@@ -1431,7 +1698,8 @@ public final class GUIUtils
 		{
 			// height is overlapping; get the minimum overlapping area as screen
 			bOverlap = true;
-			System.out.println("overlap Y");
+			LogHolder.log(LogLevel.NOTICE, LogType.GUI,
+						  "Found overlapping screen.");
 			y = Math.max(a_screen.getY(), defaultScreen.getY());
 			height = Math.min(a_screen.getY() + a_screen.getHeight(),
 							  defaultScreen.getY() + defaultScreen.getHeight() -
@@ -1642,6 +1910,7 @@ public final class GUIUtils
 			m_icon.paintIcon(c, g, x, y);
 			scale(g, 1.0 / m_scaleWidth, 1.0 / m_scaleHeight);
 		}
+
 		private static void scale(Graphics a_graphics, double a_scaleWidth, double a_scaleHeight)
 		{
 			if (GRAPHICS_2D != null)
