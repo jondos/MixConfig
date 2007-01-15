@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### Define the installation directory.
-export INSTALL_PATH="/home/mix/Mix_Pay_Last"
+export INSTALL_PATH="/home/mix/Mixproxy"
 ### Script options. There should be only minor changes here.
 export PROGRAM_NAME="mix"
 export PROGRAM="$PROGRAM_NAME"
