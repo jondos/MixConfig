@@ -93,7 +93,7 @@ case "$1" in
 	if [ $DO_UPDATE -eq 0 ]
 	then
 		mkdir $CVS_MODULE
-		cvs checkout $CVS_MODULE
+		cvs checkout $CVS_DATE  $CVS_MODULE
 	else
 		cvs update $CVS_MODULE
 	fi
