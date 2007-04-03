@@ -18,7 +18,7 @@ case "$1" in
 	;;
   stop)
 	echo "Shutting down $PROGRAM_NAME..."
-	ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep | awk '{ print $2 }' | xargs kill -9 2>/dev/null >/dev/null
+	ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep | awk '{ print $2 }' | xargs kill -TERM 2>/dev/null >/dev/null
 	sleep 1
 	if [ "`ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep`" ]
 	then
