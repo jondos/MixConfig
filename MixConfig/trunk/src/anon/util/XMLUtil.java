@@ -60,10 +60,13 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 import anon.util.Util;
+import anon.crypto.XMLSignature;
 import logging.LogHolder;
 import logging.LogLevel;
 import java.util.Vector;
 import logging.LogType;
+import java.io.StringReader;
+
 /**
  * This class provides an easy interface to XML methods.
  */
@@ -74,9 +77,25 @@ public class XMLUtil
 	private final static String XML_STR_BOOLEAN_FALSE = "false";
 	private static final String PACKAGE_TRANSFORMER = "javax.xml.transform.";
 	private static final String HIERARCHY_REQUEST_ERR = "HIERARCHY_REQUEST_ERR: ";
-	private static DocumentBuilder ms_DocumentBuilder;
+	private static DocumentBuilderFactory ms_DocumentBuilderFactory;
+
 	private static boolean m_bCheckedHumanReadableFormatting = false;
 	private static boolean m_bNeedsHumanReadableFormatting = true;
+
+	static
+	{
+		if (ms_DocumentBuilderFactory == null)
+		{
+			try
+			{
+				ms_DocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+			}
+			catch (Exception e)
+			{
+
+			}
+		}
+	}
 
 	/**
 	 * Throws an XMLParseException if the given XML node is null.
@@ -110,8 +129,7 @@ public class XMLUtil
 	 * the given node is returned.
 	 * @throws XMLParseException if the given node has not the expected name or if it is null
 	 */
-	public static Node assertNodeName(Node a_node, String a_strExpectedName)
-		throws XMLParseException
+	public static Node assertNodeName(Node a_node, String a_strExpectedName) throws XMLParseException
 	{
 		if (a_node == null)
 		{
@@ -582,7 +600,9 @@ public class XMLUtil
 	public static void setValue(Node a_node, String a_value)
 	{
 		if(a_node==null||a_value==null)
+		{
 			return;
+		}
 		a_node.appendChild(a_node.getOwnerDocument().createTextNode(a_value));
 	}
 
@@ -607,6 +627,17 @@ public class XMLUtil
 	}
 
 	/**
+	 * Inserts a double precision floating point value into an XML node.
+	 * @param a_node an XML node
+	 * @param a_value a double value
+	 */
+	public static void setValue(Node a_node, double a_value)
+	{
+		a_node.appendChild(a_node.getOwnerDocument().createTextNode(Double.toString(a_value)));
+	}
+
+
+	/**
 	 * Inserts a boolean value into an XML node.
 	 * @param a_node an XML node
 	 * @param a_bValue a boolean value
@@ -626,7 +657,9 @@ public class XMLUtil
 	public static void setAttribute(Element a_element, String a_attribute, String a_value)
 	{
 		if(a_value==null||a_attribute==null||a_element==null)
+		{
 			return;
+		}
 		a_element.setAttribute(a_attribute, a_value);
 	}
 
@@ -682,11 +715,11 @@ public class XMLUtil
 	{
 		try
 		{
-			if (ms_DocumentBuilder == null)
+			if (ms_DocumentBuilderFactory == null)
 			{
-				ms_DocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				ms_DocumentBuilderFactory = DocumentBuilderFactory.newInstance();
 			}
-			return ms_DocumentBuilder.newDocument();
+			return ms_DocumentBuilderFactory.newDocumentBuilder().newDocument();
 		}
 		catch (ParserConfigurationException a_e)
 		{
@@ -905,7 +938,8 @@ public class XMLUtil
 
 		try
 		{
-			bytes = toByteArrayOutputStream(a_inputNode).toByteArray();
+			//bytes = toByteArrayOutputStream(a_inputNode).toByteArray();
+			bytes = XMLSignature.toCanonical(a_inputNode, true);
 		}
 		catch (Exception a_e)
 		{
@@ -927,7 +961,8 @@ public class XMLUtil
 		String strXml;
 		try
 		{
-				strXml = toByteArrayOutputStream(a_node).toString("UTF8");
+			//strXml = toByteArrayOutputStream(a_node).toString("UTF8");
+			strXml = new String(toByteArray(a_node), "UTF8");
 		}
 		catch (Exception a_e)
 		{
@@ -1016,15 +1051,17 @@ public class XMLUtil
 	 * @throws IOException if an I/O error occurs
 	 * @throws XMLParseException if the input stream could not be parsed correctly
 	 */
-	public static Document readXMLDocument(InputSource a_inputSource)
-		throws IOException, XMLParseException
+	public static Document readXMLDocument(InputSource a_inputSource) throws IOException, XMLParseException
 	{
 		Document doc = null;
 
 		try
 		{
-			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(a_inputSource);
-			removeComments(doc);
+			if (ms_DocumentBuilderFactory == null)
+			{
+				ms_DocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+			}
+			doc = ms_DocumentBuilderFactory.newDocumentBuilder().parse(a_inputSource);
 		}
 		catch (IOException a_e)
 			{
@@ -1037,7 +1074,7 @@ public class XMLUtil
 					a_e.getMessage());
 			}
 
-
+		//removeComments(doc);
 		return doc;
 	}
 
@@ -1048,8 +1085,7 @@ public class XMLUtil
 	 * @throws IOException if an I/O error occurs
 	 * @throws XMLParseException if the input stream could not be parsed correctly
 	 */
-	public static Document readXMLDocument(InputStream a_inputStream)
-		throws IOException, XMLParseException
+	public static Document readXMLDocument(InputStream a_inputStream) throws IOException, XMLParseException
 	{
 		return readXMLDocument(new InputSource(a_inputStream));
 	}
@@ -1062,8 +1098,7 @@ public class XMLUtil
 	 * @throws IOException if an I/O error occurs
 	 * @throws XMLParseException if the input stream could not be parsed correctly
 	 */
-	public static Document readXMLDocument(Reader a_reader)
-		throws IOException, XMLParseException
+	public static Document readXMLDocument(Reader a_reader) throws IOException, XMLParseException
 	{
 		return readXMLDocument(new InputSource(a_reader));
 	}
@@ -1099,7 +1134,7 @@ public class XMLUtil
 	public static void write(Document a_doc, OutputStream a_outputStream) throws IOException
 	{
 		XMLUtil.formatHumanReadable(a_doc);
-		a_outputStream.write(XMLUtil.toString(a_doc).getBytes());
+		a_outputStream.write(toString(a_doc).getBytes());
 		a_outputStream.flush();
 	}
 
@@ -1142,7 +1177,20 @@ public class XMLUtil
 		{
 			return toXMLDocument((byte[])null);
 		}
-		return toXMLDocument(a_xmlDocument.getBytes());
+		InputSource is = new InputSource(new StringReader(a_xmlDocument));
+		try
+		{
+			return readXMLDocument(is);
+		}
+		catch (XMLParseException ex)
+		{
+			throw ex;
+		}
+		catch (IOException ex)
+		{
+			throw new XMLParseException(
+				XMLParseException.ROOT_TAG, "Could not parse XML document: " + ex.getMessage());
+		}
 	}
 
 	/**
@@ -1154,19 +1202,23 @@ public class XMLUtil
 	 */
 	public static Document toXMLDocument(byte[] a_xmlDocument) throws XMLParseException
 	{
-		ByteArrayInputStream in;
+		ByteArrayInputStream in = new ByteArrayInputStream(a_xmlDocument);
+		InputSource is = new InputSource(in);
 		Document doc;
 		try
 		{
-			in = new ByteArrayInputStream(a_xmlDocument);
-			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
+			doc = readXMLDocument(is);
 		}
-		catch (Exception a_e)
+		catch (XMLParseException ex)
 		{
-			throw new XMLParseException(XMLParseException.ROOT_TAG,
-										"Could not transform bytes into an XML document.");
+			throw ex;
 		}
-		removeComments(doc);
+		catch (Exception ex)
+		{
+			throw new XMLParseException(
+				XMLParseException.ROOT_TAG, "Could not parse XML document: " + ex.getMessage());
+		}
+		//removeComments(doc);
 		return doc;
 	}
 
@@ -1194,14 +1246,10 @@ public class XMLUtil
 	 */
 	public static Element toXMLElement(IXMLEncodable a_xmlEncodable)
 	{
-		Document doc = null;
+		Document doc = createDocument();
 		Element element;
 
-		try
-		{
-			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-		}
-		catch (ParserConfigurationException a_e)
+		if (doc == null)
 		{
 			return null;
 		}
@@ -1217,6 +1265,8 @@ public class XMLUtil
 	 * @param node an XML Node
 	 * @return an XML Node in a ByteArrayOutputStream representation or null if no transformation
 	 * could be done
+	 * @todo this method does not work well on big XML files; e.g. cascades with new payment systems
+	 * cannot be verified after usage!
 	 */
 	private static ByteArrayOutputStream toByteArrayOutputStream(Node node)
 	{
@@ -1287,7 +1337,6 @@ public class XMLUtil
 			javax.xml.transform.Transformer transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
 			javax.xml.transform.Result r = new javax.xml.transform.stream.StreamResult(out);
 			javax.xml.transform.Source s = new javax.xml.transform.dom.DOMSource(node);
-			javax.xml.transform.Source s = new javax.xml.transform.dom.DOMSource(node);
 			transformer.transform(s,r);
    */
 
@@ -1300,10 +1349,14 @@ public class XMLUtil
 			//Object transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
 
 			Class result = Class.forName(PACKAGE_TRANSFORMER + "stream.StreamResult");
-			Object r = result.getConstructor(new Class[]{OutputStream.class}).newInstance(new Object[]{out});
+			Object r = result.getConstructor(new Class[]
+											 {OutputStream.class}).newInstance(new Object[]
+				{out});
 			//javax.xml.transform.Result r = new javax.xml.transform.stream.StreamResult(out);
 			Class source = Class.forName(PACKAGE_TRANSFORMER + "dom.DOMSource");
-			Object s = source.getConstructor(new Class[]{Node.class}).newInstance(new Object[]{node});
+			Object s = source.getConstructor(new Class[]
+											 {Node.class}).newInstance(new Object[]
+				{node});
 			//javax.xml.transform.Source s = new javax.xml.transform.dom.DOMSource(node);
 
 
@@ -1398,7 +1451,10 @@ public class XMLUtil
 			test.appendChild(doc.createElement("test2"));
 			test.appendChild(doc.createElement("test3"));
 			tokenizer = new StringTokenizer(toString(test), "\n");
-			for (lines = 0; tokenizer.hasMoreTokens(); lines++, tokenizer.nextToken());
+			for (lines = 0; tokenizer.hasMoreTokens(); lines++, tokenizer.nextToken())
+			{
+				;
+			}
 			if (lines == 4)
 			{
 				// formatting is done automatically by JDKs < 1.4
@@ -1408,6 +1464,12 @@ public class XMLUtil
 			m_bCheckedHumanReadableFormatting = true;
 		}
 		if (!m_bNeedsHumanReadableFormatting)
+		{
+			return 0;
+		}
+
+		if (a_element.getNodeType() == Document.ELEMENT_NODE &&
+			XMLUtil.parseAttribute(a_element, "xml:space", "").equals("preserve"))
 		{
 			return 0;
 		}
@@ -1501,6 +1563,12 @@ public class XMLUtil
 	 */
 	private static int removeCommentsInternal(Node a_node, Node a_parentNode)
 	{
+		if (a_node.getNodeType() == Document.ELEMENT_NODE &&
+			XMLUtil.parseAttribute(a_node, "xml:space", "").equals("preserve"))
+		{
+			return 0;
+		}
+
 		if (a_node.getNodeType() == Document.COMMENT_NODE)
 		{
 			a_parentNode.removeChild(a_node);
@@ -1525,5 +1593,29 @@ public class XMLUtil
 			}
 		}
 		return 0;
+	}
+	/**
+	 * Takes a SHA-1 hash value, and if it is followed by a newline ("\n"),
+	 * strips off the newline so it will be usable as a pure hashvalue
+	 *
+	 * Call this after reading a hash value from an xml node value
+	 *
+	 * @param hashValue String: a SHA1 hash value
+	 * @return String: the input value, minus a trailing "\n"
+	 */
+	public static String stripNewlineFromHash(String hashValue)
+	{
+		final int SHA1_LENGTH = 27;
+		String lastTwoChars = hashValue.substring(SHA1_LENGTH+1);
+		if (hashValue.length() == SHA1_LENGTH+2 && lastTwoChars.equals("\n") )
+		{
+			hashValue = hashValue.substring(0,SHA1_LENGTH+1);
+		}
+		return hashValue;
+	}
+
+	public static void printXmlEncodable(IXMLEncodable xmlobject)
+	{
+		System.out.println(XMLUtil.toString(XMLUtil.toXMLElement(xmlobject)));
 	}
 }
