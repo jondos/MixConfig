@@ -668,6 +668,7 @@ public class CertPanel extends JPanel implements ActionListener
 		}
 		else if (x509cert != null)
 		{
+			//System.out.println(((anon.crypto.X509SubjectKeyIdentifier)x509cert.getExtensions().getExtension(anon.crypto.X509SubjectKeyIdentifier.IDENTIFIER)).getValue());
 			checkPublicKeyAlgorithm(x509cert.getPublicKey());
 			setCertInfo(x509cert);
 			m_cert = x509cert;

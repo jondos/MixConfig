@@ -52,6 +52,8 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import java.io.DataOutputStream;
+import java.io.PrintWriter;
+import java.io.FileOutputStream;
 
 /**
  * This class stores and creates signatures of XML nodes. The signing and verification processes
@@ -104,7 +106,7 @@ public final class XMLSignature implements IXMLEncodable
 	 * the values have to be at the same index of the Vectors
 	 */
 	private Vector m_appendedCerts;
-	/** Stores the XML represenation of the appended certificates */
+	/** Stores the XML representation of the appended certificates */
 	private Vector m_appendedCertXMLElements;
 	/** Stores the certification Path of this XMLSignature */
 	private CertPath m_certPath;
@@ -222,6 +224,42 @@ public final class XMLSignature implements IXMLEncodable
 	{
 		return signInternal(a_node, a_privateKey);
 	}
+
+	/**
+	 * getHashValueOfElement: takes an XML node and returns its hash value
+	 *
+	 * @param nodeToHash Node
+	 * @return String the SHA1 hash value of the node (might be null if an exception occured)
+	 */
+	public static String getHashValueOfElement(Node nodeToHash)
+	{
+		byte[] digestValue = null;
+		try
+		{
+			digestValue = MessageDigest.getInstance("SHA-1").digest(toCanonical(nodeToHash));
+		}
+		catch (Exception ex)
+		{
+			  LogHolder.log(LogLevel.WARNING, LogType.PAY, "could not create hash value of node");
+			  return null;
+		}
+		return Base64.encode(digestValue, false);
+	}
+	/**
+	 * Same method as getHashValueOfElement,
+	 * except the String returned is already Base64-encoded
+	 *
+	 * necessary to avoid discrepancies between the results of getHashValueOfElement
+	 * between the BI(Java) and PIG (Ruby/Java-bridge)
+	 *
+	 * @param nodeToHash Node
+	 * @return String
+	 */
+	public static String getEncodedHashValue(Element nodeToHash)
+	{
+		return getHashValueOfElement(nodeToHash);
+	}
+
 
 	/**
 	 * Signs an XML node and creates a new XMLSignature from the signature. The signature is added
@@ -1232,6 +1270,11 @@ public final class XMLSignature implements IXMLEncodable
 		}
 	}
 
+	public static byte[] toCanonical(Node inputNode) throws XMLParseException
+	{
+		return toCanonical(inputNode, false);
+	}
+
 	/**
 	 * Creates a byte array from an XML node tree.
 	 * @param inputNode The node (incl. the whole tree) which is flattened to a byte array.
@@ -1239,10 +1282,10 @@ public final class XMLSignature implements IXMLEncodable
 	 * @return the node as a byte array (incl. the whole tree).
 	 * @exception XMLParseException if the node could not be properly transformed into bytes
 	 */
-	private static byte[] toCanonical(Node inputNode) throws XMLParseException
+	public static byte[] toCanonical(Node inputNode, boolean a_bKeepSpaces) throws XMLParseException
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		if (makeCanonical(inputNode, out, false, null) == -1)
+		if (makeCanonical(inputNode, out, false, null, a_bKeepSpaces) == -1)
 		{
 			throw new XMLParseException(inputNode.getNodeName(), "Could not make the node canonical!");
 		}
@@ -1257,6 +1300,32 @@ public final class XMLSignature implements IXMLEncodable
 		return out.toByteArray();
 
 	}
+	/**
+	 * same as toCanonical(Node):byte[], except returning a String
+	 * only necessary for use in Ruby (since handling a Java byte array in Ruby wouldnt work)
+	 *
+	 * @param inputNode Node
+	 * @return String
+	 * @throws XMLParseException
+	 */
+	public static String toCanonicalString(Element input)
+	{
+		try
+		{
+			byte[] canonicalBytes = toCanonical(input);
+			return new String(canonicalBytes);
+		} catch (Exception e)
+		{
+			//nothing to be done from ruby
+			return ("canonicalization error");
+		}
+	}
+
+	private static int makeCanonical(Node node, OutputStream o, boolean bSiblings, Node excludeNode)
+	{
+		return makeCanonical(node, o, bSiblings, excludeNode, false);
+	}
+
 
 	/**
 	 * @todo find a better way to get the data of the node as a bytestream, for
@@ -1270,7 +1339,7 @@ public final class XMLSignature implements IXMLEncodable
 	 * @see http://www.w3.org/TR/xmldsig-core/#sec-CanonicalizationMethod
 	 * @see http://www.w3.org/TR/xml-c14n
 	 */
-	private static int makeCanonical(Node node, OutputStream o, boolean bSiblings, Node excludeNode)
+	private static int makeCanonical(Node node, OutputStream o, boolean bSiblings, Node excludeNode, boolean a_bKeepSpaces)
 	{
 		try
 		{
@@ -1318,7 +1387,7 @@ public final class XMLSignature implements IXMLEncodable
 				o.write('>');
 				if (elem.hasChildNodes())
 				{
-					if (makeCanonical(elem.getFirstChild(), o, true, excludeNode) == -1)
+					if (makeCanonical(elem.getFirstChild(), o, true, excludeNode, a_bKeepSpaces) == -1)
 					{
 						return -1;
 					}
@@ -1327,15 +1396,22 @@ public final class XMLSignature implements IXMLEncodable
 				o.write('/');
 				o.write(elem.getNodeName().getBytes());
 				o.write('>');
-				if (bSiblings && makeCanonical(elem.getNextSibling(), o, true, excludeNode) == -1)
+				if (bSiblings && makeCanonical(elem.getNextSibling(), o, true, excludeNode, a_bKeepSpaces) == -1)
 				{
 					return -1;
 				}
 			}
 			else if (node.getNodeType() == Node.TEXT_NODE)
 			{
+				if (a_bKeepSpaces)
+				{
+					o.write(node.getNodeValue().getBytes());
+				}
+				else
+				{
 				o.write(node.getNodeValue().trim().getBytes());
-				if (makeCanonical(node.getNextSibling(), o, true, excludeNode) == -1)
+				}
+				if (makeCanonical(node.getNextSibling(), o, true, excludeNode, a_bKeepSpaces) == -1)
 				{
 					return -1;
 				}
@@ -1343,7 +1419,7 @@ public final class XMLSignature implements IXMLEncodable
 			}
 			else if (node.getNodeType() == Node.COMMENT_NODE)
 			{
-				if (makeCanonical(node.getNextSibling(), o, true, excludeNode) == -1)
+				if (makeCanonical(node.getNextSibling(), o, true, excludeNode, a_bKeepSpaces) == -1)
 				{
 					return -1;
 				}
@@ -1474,7 +1550,6 @@ public final class XMLSignature implements IXMLEncodable
 			return false;
 		}
 		byte[] buff = toCanonical(a_node, a_signature.getSignatureElement());
-//	String s=new String(buff);
 		digest = sha1.digest(buff);
 		if (!MessageDigest.isEqual(Base64.decode(a_signature.getDigestValue()), digest))
 		{
