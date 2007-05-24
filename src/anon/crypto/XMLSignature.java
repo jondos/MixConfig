@@ -1424,6 +1424,10 @@ public final class XMLSignature implements IXMLEncodable
 			}
 			else if (node.getNodeType() == Node.COMMENT_NODE)
 			{
+				if (a_bKeepSpaces)
+				{
+					o.write(node.getNodeValue().getBytes());
+				}
 				if (makeCanonical(node.getNextSibling(), o, true, excludeNode, a_bKeepSpaces) == -1)
 				{
 					return -1;
