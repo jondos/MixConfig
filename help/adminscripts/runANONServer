@@ -226,8 +226,6 @@ case "$1" in
 	                rc_failed $?
         	fi
 	fi
-	# remove a possible file argument
-	shift 1
 	rc_status -v
 	;;
   *)
