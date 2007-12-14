@@ -85,7 +85,14 @@ Make sure that each of these file is really executable by typing
 
 
 
-<p>You might also need to convert the executable files to the unix format by installing the <em>sysutils</em> package and typing </p>
+<p>You might also need to convert the executable files to the unix format by installing the <em>sysutils</em> or <em>tofrodos</em> package</p>
+<p>e.g. with apt by</p>
+<blockquote>
+	<code>apt-get update<br>
+	apt-get install tofrodos
+    </code>
+</blockquote>
+<p> and typing </p>
 <blockquote>
 	<code>dos2unix &lt;filename&gt; </code>
 </blockquote>
@@ -195,6 +202,20 @@ and after the log file has opened
 <p>The firewall has to be started with 'root' rights. If you do not have 'root'
     rights it's normally also ok to restart the system. This will automatically
     also restart the firewall with 'root' privileges. </p>
+<p>You may need to install some packages in order to compile the code </p>
+<ul>
+  <li> cvs </li>
+  <li>g++</li>
+  <li>gcc</li>
+  <li>gpp</li>
+  <li>make</li>
+  <li>automake</li>
+  <li>postgresql</li>
+  <li>postgresql-dev</li>
+  <li>libssl-dev</li>
+  <li>libxerces27-dev (or newer) </li>
+</ul>
+<p>and dependencies. </p>
 <h3>Runlevel links</h3>
 If you want the services started automatically when starting the server machine, you have
 to set links to the executables in runlevel 3 and runlevel 5.
