@@ -17,9 +17,14 @@ case "$1" in
 	rc_status -v
 	;;
   stop)
-	echo "Shutting down $PROGRAM_NAME..."
+	printf "Shutting down $PROGRAM_NAME..."
 	ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep | awk '{ print $2 }' | xargs kill -TERM 2>/dev/null >/dev/null
-	sleep 1
+	i=1
+	while [ $i -le 90 ] && [ "`ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep`" ]; do
+		printf "."
+		i=$[$i+1]
+		sleep 2
+	done
 	if [ "`ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep`" ]
 	then
 		rc_failed 1
