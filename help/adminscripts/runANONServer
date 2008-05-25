@@ -32,6 +32,11 @@ case "$1" in
 	true
 	rc_status -v
 	;;
+  reload)
+	printf "Reloading $PROGRAM_NAME..."
+	ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep | awk '{ print $2 }' | xargs kill -HUP 2>/dev/null >/dev/null
+	rc_status -v
+	;;
   restart)
 	$0 stop
 	$0 start
