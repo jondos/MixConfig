@@ -9,7 +9,7 @@ case "$1" in
 	echo "Starting $PROGRAM_NAME..."
 	cd $INSTALL_PATH
 	ulimit -HSn 4096
-	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS 
+	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS
 	if [ ! "`$0 process`" ]
 	then
 		rc_failed 1
@@ -35,6 +35,11 @@ case "$1" in
 		rc_failed 6
 	fi
 	true
+	rc_status -v
+	;;
+	reload)
+	printf "Reloading $PROGRAM_NAME..."
+	ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep | awk '{ print $2 }' | xargs kill -HUP 2>/dev/null >/dev/null
 	rc_status -v
 	;;
   restart)
@@ -116,6 +121,50 @@ case "$1" in
 	fi
 	rc_status -v
 	;;
+  svn)
+	DO_UPDATE=0
+
+	if [ $# -gt 1 ]
+	then
+		if [ "$2" = "-update" ]
+		then
+			DO_UPDATE=1
+			shift 1
+		fi
+	fi
+	cd $INSTALL_PATH
+	if [ ! -d svn ]
+	then
+		DO_UPDATE=0
+		mkdir svn
+	fi
+	cd svn
+	if [ -d $SVN_MODULE ]
+	then
+		if [ $DO_UPDATE -eq 0 ]
+		then
+			rm -R $SVN_MODULE
+		fi
+	else
+		DO_UPDATE=0
+	fi
+
+	if [ $DO_UPDATE -eq 0 ]
+	then
+		mkdir $SVN_MODULE
+		svn checkout $SVN_MODULE_URL $SVN_MODULE
+	else
+		svn update $SVN_MODULE
+	fi
+
+	# delete the compiled program if it exists
+	cd $SVN_MODULE
+	if [ -e $PROGRAM ]
+	then
+		rm $PROGRAM
+	fi
+	rc_status -v
+	;;	
   update)
 	OLD_VERSION_OPTION=`$0 version`
   	rc_reset	
@@ -242,11 +291,13 @@ case "$1" in
   	echo ""
   	echo "This script controls an AN.ON service."
 	echo ""
-	echo "Usage: SERVICENAME {start|stop|restart|update|compile [-d {directory}]|status|process|log|version|command {commands}}"
+	echo "Usage: SERVICENAME {start|stop|restart|cvs|svn|compile [-d {directory}]|update|status|process|log|version|command {commands}}"
 	echo ""
 	echo "start|stop|restart:	basic controls of the $PROGRAM_NAME"
 	echo "cvs [-update]:		fetches a new version from CVS; if -update is specified,"
 	echo "			the code is only updated, not fully replaced"
+  echo "svn [-update]:		fetches a new version from SVN; if -update is specified,"
+	echo "			the code is only updated, not fully replaced"	
 	echo "update:			if the program version in the CVS directory is newer than the current version,"
 	echo "			this makes a backup of the old version and replaces it; the service s stopped if update was successful;"
 	echo "compile [-d {dir}]:	compiles the program in the specified directory;"
