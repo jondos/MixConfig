@@ -135,13 +135,13 @@ adapt one or more of the executable scripts and the links to them.
 		<code> ln -s /usr/local/squid/sbin/squid /usr/sbin/squid</code><br>
 		<code> mv /usr/local/squid/etc/squid.conf </code><code>/usr/local/squid/etc/squid.conf~</code><br>
 		<code> ln -s /home/mix/squid.conf /usr/local/squid/etc/squid.conf</code><br>
-<code> ln -s /home/mix/squid-bock.acl /usr/local/squid/etc/squid-block.acl </code></blockquote>
+<code> ln -s /home/mix/squid-block.acl /usr/local/squid/etc/squid-block.acl </code></blockquote>
 Create the cache files
 <blockquote>
 		<code> mkdir /var/spool/squid</code><br>
 		<code> chown proxy:proxy /var/spool/squid</code><br>
 		<code> squid -z -d 3 </code><br>
-<code> ln -s /home/mix/squid-bock.acl /usr/local/squid/etc/squid-block.acl </code></blockquote>
+<code> ln -s /home/mix/squid-block.acl /usr/local/squid/etc/squid-block.acl </code></blockquote>
 <p>and start squid:</p>
 <blockquote>
 		<code> ulimit -HSn 64000 </code><br>
