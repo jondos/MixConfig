@@ -191,12 +191,14 @@ compile the code: </p>
   <li>make</li>
   <li>automake</li>
   <li>postgresql</li>
-  <li>postgresql-dev</li>
+  <li>postgresql-dev or libpq-dev (might other names on different systems)</li>
   <li>libssl-dev</li>
   <li>libxerces27-dev (or newer) </li>
 </ul>
 
-<p>and dependencies. </p>
+<p>and dependencies. If you do not find one or more of these libraries, you
+may, on Debian/Ubuntu systems, look for them using the <code>apt-cache
+search</code> command<code>.</code></p>
 
 <p>You may now update the mix with the newest CVS code by typing</p>
 
@@ -209,28 +211,33 @@ compile the code: </p>
 it is only needed for the first Mix. However, you do not know if you may not
 switch position some time, and therefore also other Mixes should do that. </p>
 <ol>
-  <li><code>su postgres</code> (switch to user <code>postgres</code>)</li>
-  <li><code>createuser -A -D aiuser</code> (create the new user
+  <li><code>su postgres</code> (switches to user <code>postgres</code>)</li>
+  <li><code>createuser -A -D aiuser</code> (creates the new user
     <code>aiuser</code>)</li>
-  <li><code>createdb -O aiuser aidb</code> (create the accounting database)</li>
-  <li><code>psql -d aidb</code> (log into the database environment as user
+  <li><code>createdb -O aiuser aidb</code> (creates the accounting
+  database)</li>
+  <li><code>psql -d aidb</code> (logs you into the database environment as user
     <code>postgres</code>)</li>
-  <li><code>alter user postgres with password '&lt;PASSWORD&gt;';</code> (set
-    the password for this user)</li>
+  <li><code>alter user aiuser with password 'PASSWORD';</code> (set the
+    password for this user)</li>
   <li><code>\q</code> (leave the database environment)</li>
   <li>Edit the postgres configuration file <code>pg_hba.conf</code> located
-    somewhere in <code>/etc/postgresq</code> and allow connections with
-    password. Note that Postgres looks only for the first line matching a
-    connection type, so don't insert several lines for the same connection type.
+    somewhere in <code>/etc/postgresql</code> and allow connections with
+    password. Replace the commands there that enforce <code>ident</code> or
+    <code>md5</code> login. Note that Postgres looks only for the first line
+    matching a connection type, so don't insert several lines for the same
+    connection type. 
     <p><code># All other connections by UNIX sockets</code></p>
     <p><code>local all all password</code></p>
     <p><code># All IPv4 connections from localhost</code></p>
-    <p><code>host all all 127.0.0.1 255.255.255.255 ident password</code></p>
+    <p><code>host all all 127.0.0.1 255.255.255.255 ident
+    password&#x15f;</code></p>
   </li>
   <li>Restart postgres (often done by <code>/etc/init.d/postgresql
     restart</code> or similar commands)</li>
-  <li><code>psql -U aiuser -d aidb &lt; /home/mix/Mixproxy/cvs/proxytest</code>
-    (Fill the accounting database with the accounting tables)</li>
+  <li><code>psql -U aiuser -d aidb &lt;
+    /home/mix/Mixproxy/cvs/proxytest/mixtables.sql</code> (Fill the accounting
+    database with the accounting tables)</li>
   <li><code>psql -U aiuser -d aidb</code> (Login as aiuser with your
   password)</li>
   <li><code>\dt</code> Check if you see the created tables or not... If you do,
@@ -238,8 +245,6 @@ switch position some time, and therefore also other Mixes should do that. </p>
   <li><code>\q</code> (logout)</li>
   <li><code>exit</code> (switch back to your local user)</li>
 </ol>
-
-<p></p>
 
 <h3>Start/Stop/Restart</h3>
 
