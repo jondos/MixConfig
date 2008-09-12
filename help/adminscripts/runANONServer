@@ -54,10 +54,12 @@ case "$1" in
 	echo "Starting $PROGRAM_NAME..."
 	cd $INSTALL_PATH
 	ulimit -HSn 4096
-	echo -n "I need a passwd for the SignKey (if there is none just press ENTER):"
-	read -s MIXPW 
-	export MIXPW=$MIXPW
-	echo
+	if  [ "$2" = "-p" ]; then
+		echo -n "I need a passwd for the SignKey (if there is none just press ENTER):"
+		read -s MIXPW 
+		export MIXPW=$MIXPW
+	fi
+	
 	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS &
 	sleep 2
 	if [ ! "`$0 process`" ]
