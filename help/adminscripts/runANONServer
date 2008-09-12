@@ -3,21 +3,77 @@
 . /home/mix/rc.status.anon
 rc_reset
 
+LAUNCHER_PID=""
+APP_PID=""
+RELAUNCHES=0
+
+function launcher()
+{
+	if [ $# -lt 1 ]; then
+		return 1;
+	fi
+	
+	if ! [ -e $1  ]; then
+		echo "Error: application'" $1 "' not found."	
+		return 1
+	fi
+
+	if ! [ -x $1  ]; then
+		echo "Error: '"$1"' is not executable."	
+		return 1
+	fi
+	
+	echo "launching application $1"
+	RELAUNCHES=0
+	APP_PID=""
+	
+	export -n MIXPW=$MIXPW
+	local LRET="$(echo $MIXPW | $1 $2)"
+	if [ "$(echo $LRET | fgrep Could\ not\ decode\ mix\ certificate)" ]; then
+		echo "Error: Could not decode mix certificate!"
+		return 1	
+	fi
+	while [ "TRUE" ]; do
+		APP_PID=$(ps auxwww | grep --regexp="$1" | grep -v grep | grep -v "$0" | awk '{ print $2 }')
+		if [ -z "${APP_PID}" ]; then
+			RELAUNCHES=$[$RELAUNCHES+1]
+			echo "Relaunch #$RELAUNCHES of application $1"
+			echo $MIXPW | $1 $2
+		fi
+		sleep 2;
+	done;	
+}
 
 case "$1" in
+  launch)
+  	shift 1
+  	launcher $@
+  	exit 0
+  	;;
   start)
 	echo "Starting $PROGRAM_NAME..."
 	cd $INSTALL_PATH
 	ulimit -HSn 4096
-	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS
+	echo -n "I need a passwd for the SignKey (if there is none just press ENTER):"
+	read -s MIXPW 
+	export MIXPW=$MIXPW
+	echo
+	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS &
+	sleep 2
 	if [ ! "`$0 process`" ]
 	then
 		rc_failed 1
+	else
+		echo "Mix successfully launched."
 	fi
 	rc_status -v
 	;;
   stop)
 	printf "Shutting down $PROGRAM_NAME..."
+	LAUNCHER_PID=$(ps auxwww | grep --regexp="$EXECUTE_COMMAND" | grep --regexp="$PROGRAM_NAME" | grep -v grep | awk '{ print $2 }')
+	if [ "${LAUNCHER_PID}" ]; then 
+		kill -TERM "${LAUNCHER_PID}" >& /dev/null
+	fi
 	ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep | awk '{ print $2 }' | xargs kill -TERM 2>/dev/null >/dev/null
 	i=1
 	while [ $i -le 90 ] && [ "`ps auxwww | grep --regexp="$PROGRAM_OPTIONS" | grep -v grep`" ]; do
@@ -122,49 +178,22 @@ case "$1" in
 	rc_status -v
 	;;
   svn)
-	DO_UPDATE=0
-
-	if [ $# -gt 1 ]
-	then
-		if [ "$2" = "-update" ]
-		then
-			DO_UPDATE=1
-			shift 1
-		fi
-	fi
+	
 	cd $INSTALL_PATH
 	if [ ! -d svn ]
 	then
-		DO_UPDATE=0
 		mkdir svn
 	fi
 	cd svn
 	if [ -d $SVN_MODULE ]
 	then
-		if [ $DO_UPDATE -eq 0 ]
-		then
-			rm -R $SVN_MODULE
-		fi
-	else
-		DO_UPDATE=0
+		rm -Rf $SVN_MODULE
 	fi
 
-	if [ $DO_UPDATE -eq 0 ]
-	then
-		mkdir $SVN_MODULE
-		svn checkout $SVN_MODULE_URL $SVN_MODULE
-	else
-		svn update $SVN_MODULE
-	fi
-
-	# delete the compiled program if it exists
-	cd $SVN_MODULE
-	if [ -e $PROGRAM ]
-	then
-		rm $PROGRAM
-	fi
+	svn export $SVN_MODULE_URL $SVN_MODULE
 	rc_status -v
 	;;	
+	
   update)
 	OLD_VERSION_OPTION=`$0 version`
   	rc_reset	
@@ -296,8 +325,7 @@ case "$1" in
 	echo "start|stop|restart:	basic controls of the $PROGRAM_NAME"
 	echo "cvs [-update]:		fetches a new version from CVS; if -update is specified,"
 	echo "			the code is only updated, not fully replaced"
-  echo "svn [-update]:		fetches a new version from SVN; if -update is specified,"
-	echo "			the code is only updated, not fully replaced"	
+    echo "svn :			fetches a new version from SVN"	
 	echo "update:			if the program version in the CVS directory is newer than the current version,"
 	echo "			this makes a backup of the old version and replaces it; the service s stopped if update was successful;"
 	echo "compile [-d {dir}]:	compiles the program in the specified directory;"
