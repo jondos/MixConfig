@@ -60,19 +60,17 @@ case "$1" in
 		export MIXPW=$MIXPW
 	fi
 	
-	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS &
+	$LAUNCHER_COMMAND $EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS &
 	sleep 2
 	if [ ! "`$0 process`" ]
 	then
 		rc_failed 1
-	else
-		echo "Mix successfully launched."
 	fi
 	rc_status -v
 	;;
   stop)
 	printf "Shutting down $PROGRAM_NAME..."
-	LAUNCHER_PID=$(ps auxwww | grep --regexp="$EXECUTE_COMMAND" | grep --regexp="$PROGRAM_NAME" | grep -v grep | awk '{ print $2 }')
+	LAUNCHER_PID=$(ps auxwww | grep --regexp="$EXECUTE_COMMAND" | grep --regexp="$LAUNCHER_COMMAND" | grep --regexp="$PROGRAM_NAME" | grep -v grep | awk '{ print $2 }')
 	if [ "${LAUNCHER_PID}" ]; then 
 		kill -TERM "${LAUNCHER_PID}" >& /dev/null
 	fi
@@ -318,6 +316,8 @@ case "$1" in
 	fi
 	rc_status -v
 	;;
+  -p);;
+
   *)
   	echo ""
   	echo "This script controls an AN.ON service."
@@ -346,7 +346,7 @@ case "$1" in
 esac
 
 # apply further commands if given
-if [ $# -gt 1 ]
+if [ $# -gt 1 ] 
 then
 	shift 1
 	# the commands are only applied if everything was ok so far
