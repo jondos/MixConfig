@@ -27,17 +27,27 @@
  */
 package mixconfig;
 
+import gui.dialog.JAPDialog;
+
+import java.awt.BorderLayout;
 import java.io.IOException;
 import java.util.Vector;
-import java.awt.BorderLayout;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 
-import mixconfig.networkpanel.NextMixProxyPanel;
 import logging.LogType;
-import gui.dialog.JAPDialog;
+import mixconfig.panels.AdvancedPanel;
+import mixconfig.panels.GeneralPanel;
+import mixconfig.panels.MixConfigPanel;
+import mixconfig.panels.NextMixProxyPanel;
+import mixconfig.panels.OwnCertificatesPanel;
+import mixconfig.panels.PaymentPanel;
+import mixconfig.panels.PreviousMixPanel;
+import mixconfig.panels.TermsAndConditionsPanel;
+import anon.util.XMLParseException;
 
 /**
  * The Frame of the MixConfig Application.
@@ -49,17 +59,20 @@ public class ConfigFrame extends JPanel
 
 	public ConfigFrame(JFrame parent) throws IOException
 	{
-		m_panels = new MixConfigPanel[8];
-		m_panels[0] = new MixOnCDPanel();
-		m_panels[1] = new GeneralPanel();
-		m_panels[2] = new OwnCertificatesPanel(parent == null);
-		m_panels[3] = new NextMixProxyPanel();
+		m_panels = new MixConfigPanel[7];
+		
+		// Currently not displayed:
+		//m_panels[0] = new MixOnCDPanel();
+		//m_panels[0] = new CascadePanel();
+		
+		m_panels[0] = new GeneralPanel();
+		m_panels[1] = new AdvancedPanel();
+		m_panels[2] = new PaymentPanel();
+		m_panels[3] = new OwnCertificatesPanel(parent == null);
 		m_panels[4] = new PreviousMixPanel();
-		m_panels[5] = new CascadePanel();
-		m_panels[6] = new AdvancedPanel();
-		m_panels[7] = new PaymentPanel();
-
-
+		m_panels[5] = new NextMixProxyPanel();
+		m_panels[6] = new TermsAndConditionsPanel();
+		
 		m_tabbedPane = new JTabbedPane();
 		for (int i = 0; i < m_panels.length; i++)
 		{
@@ -74,7 +87,7 @@ public class ConfigFrame extends JPanel
 	}
 
 	/**
-	 * Calls the load-Methode of each Panel
+	 * Call the load-method of each Panel
 	 * This is necessary if you change the view (expert|wizard)
 	 */
 	protected void load()
@@ -89,7 +102,7 @@ public class ConfigFrame extends JPanel
 		catch (Exception io)
 		{
 			JAPDialog.showErrorDialog(MixConfig.getMainWindow(),
-									   "Error on loading the MixConfiguration", LogType.MISC, io);
+									   "Error while loading MixConfiguration", LogType.MISC, io);
 		}
 		if (!m_tabbedPane.getSelectedComponent().isEnabled())
 		{
@@ -100,14 +113,12 @@ public class ConfigFrame extends JPanel
 	/** Decision which panel active at the moment
 	*  Necessary if you change from Wizard -> Expert view
 	*/
-
 	protected void setActivePanel(Class a_panelClass)
 	{
 		if (a_panelClass == null)
 		{
 			return;
 		}
-
 		for (int i = 0; i < m_panels.length; i++)
 		{
 			if (m_panels[i].getClass().equals(a_panelClass))
@@ -115,7 +126,6 @@ public class ConfigFrame extends JPanel
 				m_tabbedPane.setSelectedComponent(m_panels[i]);
 				return;
 			}
-
 		}
 	}
 
@@ -193,8 +203,6 @@ public class ConfigFrame extends JPanel
 				}
 			}
 		}
-
 		return asString;
 	}
-
 }

@@ -27,31 +27,26 @@
  */
 package gui.dialog;
 
-import java.util.Calendar;
-import java.util.Date;
+import gui.DatePanel;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.util.Calendar;
+import java.util.Date;
 
-import anon.crypto.Validity;
-import gui.JAPJIntField;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+
 import logging.LogType;
+import anon.crypto.Validity;
 
 public class ValidityContentPane extends DialogContentPane implements
 	DialogContentPane.IWizardSuitable
 {
-	private DateTextField m_dateFrom, m_dateTo;
+	private DatePanel m_dateFrom, m_dateTo;
 
 	public ValidityContentPane(JAPDialog a_parent)
 	{
@@ -62,7 +57,7 @@ public class ValidityContentPane extends DialogContentPane implements
 	{
 		super(a_parent,
 			  new Layout("Please choose a validity", MESSAGE_TYPE_QUESTION),
-			  new Options(OPTION_TYPE_OK_CANCEL, a_previousContentPane));
+			  new DialogContentPaneOptions(OPTION_TYPE_OK_CANCEL, a_previousContentPane));
 		setDefaultButtonOperation(BUTTON_OPERATION_WIZARD);
 
 		GridBagLayout layout = new GridBagLayout();
@@ -84,7 +79,7 @@ public class ValidityContentPane extends DialogContentPane implements
 		gbc.gridx = 1;
 		gbc.weightx = 5;
 		Date now = new Date(System.currentTimeMillis());
-		m_dateFrom = new DateTextField(now);
+		m_dateFrom = new DatePanel(now);
 		layout.setConstraints(m_dateFrom, gbc);
 		getContentPane().add(m_dateFrom);
 		gbc.gridx = 2;
@@ -116,7 +111,7 @@ public class ValidityContentPane extends DialogContentPane implements
 		Calendar cal2 = Calendar.getInstance();
 		cal2.setTime(now);
 		cal2.add(Calendar.YEAR, 1);
-		m_dateTo = new DateTextField(cal2.getTime());
+		m_dateTo = new DatePanel(cal2.getTime());
 		layout.setConstraints(m_dateTo, gbc);
 		getContentPane().add(m_dateTo);
 		gbc.gridx = 2;
@@ -168,172 +163,5 @@ public class ValidityContentPane extends DialogContentPane implements
 			return null;
 		}
 		return new Validity(m_dateFrom.getDate(), m_dateTo.getDate());
-	}
-
-	private class DateTextField extends JPanel implements ItemListener, FocusListener
-	{
-		private JAPJIntField day, year;
-		private JComboBox month;
-
-		public void focusLost(FocusEvent a_event)
-		{
-			if (a_event.getSource() == day)
-			{
-				day.updateBounds();
-			}
-			else if (a_event.getSource() == year)
-			{
-				year.updateBounds();
-			}
-		}
-
-		public void focusGained(FocusEvent a_event)
-		{
-		}
-
-		public void itemStateChanged(ItemEvent a_event)
-		{
-			day.updateBounds();
-		}
-
-		class DayBounds implements JAPJIntField.IIntFieldBounds
-		{
-			private final int daysPerMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-			public int getAllowZeros()
-			{
-				return JAPJIntField.ALLOW_ZEROS_NONE;
-			}
-
-			public int getMaximum()
-			{
-				int max = (month == null) ? 0 : (month.getSelectedIndex());
-				if (max == 1)
-				{
-					int y = Integer.parseInt(year.getText());
-					if ( (y % 4) == 0 && ( (y % 100) != 0 || (y % 400) == 0))
-					{
-						max = 29;
-					}
-					else
-					{
-						max = 28;
-					}
-				}
-				else
-				{
-					max = daysPerMonth[max];
-				}
-				return max;
-			}
-		}
-
-
-		private void initDateTextField(Date date)
-		{
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(date);
-			JLabel label;
-
-			GridBagLayout layout = new GridBagLayout();
-			setLayout(layout);
-
-			GridBagConstraints gbc = new GridBagConstraints();
-			gbc.anchor = GridBagConstraints.WEST;
-			gbc.fill = GridBagConstraints.HORIZONTAL;
-			gbc.insets = new Insets(5, 5, 5, 5);
-			gbc.gridx = 0;
-			gbc.gridy = 0;
-
-			day = new JAPJIntField(new DayBounds(), true);
-			day.setMinimumSize(day.getPreferredSize());
-			day.addFocusListener(this);
-			day.setInt(cal.get(Calendar.DAY_OF_MONTH));
-			gbc.weightx = 1;
-			gbc.insets.right = 1;
-			layout.setConstraints(day, gbc);
-			add(day);
-			gbc.gridx++;
-			label = new JLabel(".");
-			gbc.weightx = 0;
-			gbc.insets.right = 5;
-			gbc.insets.left = 1;
-			layout.setConstraints(label, gbc);
-			add(label);
-			gbc.gridx++;
-			gbc.insets.left = 5;
-
-			month =
-				new JComboBox(
-				new String[]
-				{
-				"January",
-				"February",
-				"March",
-				"April",
-				"May",
-				"June",
-				"July",
-				"August",
-				"September",
-				"Oktober",
-				"November",
-				"December"});
-			month.setKeySelectionManager(new JComboBox.KeySelectionManager()
-			{
-				public int selectionForKey(
-					char key,
-					javax.swing.ComboBoxModel cbm)
-				{
-					int nr = key - '0';
-					if (nr < 0 || nr > 9)
-					{
-						return -1;
-					}
-
-					if (nr < 3 && month.getSelectedIndex() == 0)
-					{
-						nr = 10 + nr;
-
-					}
-					return nr - 1;
-				}
-			});
-			month.addItemListener(this);
-			gbc.weightx = 1;
-			layout.setConstraints(month, gbc);
-			add(month);
-			gbc.gridx++;
-
-			year = new JAPJIntField(3000, true);
-			year.addFocusListener(this);
-			year.setInt(cal.get(Calendar.YEAR));
-			gbc.weightx = 1;
-			layout.setConstraints(year, gbc);
-			add(year);
-
-			month.setSelectedIndex(cal.get(Calendar.MONTH));
-		}
-
-		public DateTextField(Date date)
-		{
-			initDateTextField(date);
-		}
-
-		public void setDate(Date date)
-		{
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(date);
-			day.setInt(cal.get(Calendar.DAY_OF_MONTH));
-			month.setSelectedIndex(cal.get(Calendar.MONTH));
-			year.setInt(cal.get(Calendar.YEAR));
-		}
-
-		public Calendar getDate() throws NumberFormatException
-		{
-			Calendar cal = Calendar.getInstance();
-			cal.set(year.getInt(), month.getSelectedIndex(), day.getInt());
-			return cal;
-		}
 	}
 }

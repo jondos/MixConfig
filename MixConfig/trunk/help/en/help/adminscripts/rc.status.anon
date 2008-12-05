@@ -1,0 +1,58 @@
+#!/bin/bash
+_rc_status=0
+_rc_todo=$1
+
+function rc_reset()
+{
+	_rc_status=0
+	return $_rc_status
+}
+
+function rc_check()
+{
+	_rc_status_ret=$?
+    	test $_rc_status_ret -eq 0 || _rc_status=$_rc_status_ret
+	return $_rc_status_ret
+}
+
+function rc_status()
+{
+	rc_check
+	if [ "$1" == "-v" ]
+	then
+		rc_string="unknown"
+
+		case "$_rc_status" in
+			0)
+				if [ $_rc_todo == "status" ]
+				then
+					rc_string="running"
+				else
+					rc_string="done"
+				fi
+			;;
+			3)
+				rc_string="unused"
+			;;
+			5)
+				rc_string="skipped"
+			;;
+			*)	rc_string="failed"
+			;;
+		esac
+
+		echo "..$rc_string"
+	fi
+	return $_rc_status
+}
+
+function rc_failed()
+{
+	_rc_status=$1
+	return $_rc_status
+}
+
+function rc_exit()
+{
+	exit $_rc_status
+}

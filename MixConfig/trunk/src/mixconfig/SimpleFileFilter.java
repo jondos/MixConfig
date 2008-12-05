@@ -28,7 +28,6 @@
 package mixconfig;
 
 import java.io.File;
-import javax.swing.filechooser.FileFilter;
 
 import anon.crypto.PKCS10CertificationRequest;
 

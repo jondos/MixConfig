@@ -27,15 +27,20 @@
  */
 package mixconfig;
 
-import java.awt.Point;
+import gui.dialog.JAPDialog;
+
 import java.awt.CardLayout;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.ComponentEvent;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import logging.LogType;
-import mixconfig.wizard.ConfigWizard;
 import javax.swing.JRootPane;
-import gui.dialog.JAPDialog;
+
+import logging.LogType;
+import mixconfig.panels.StartScreenPanel;
+import mixconfig.wizard.ConfigWizard;
 
 /**
  * Shows the StartScreen when you run the "Mix Configuration Tool" in a CardLayout.
@@ -46,7 +51,9 @@ import gui.dialog.JAPDialog;
 
 public class ChoicePanel extends JPanel
 {
-	private static final Dimension DEFAULT_SIZE = new Dimension(785, 600);
+	// Make the default size available to other classes, esp. MixConfig to set the size of m_mainWindow
+	// XXX: Rather move this constant to the class MixConfig?
+	public static final Dimension DEFAULT_SIZE = new Dimension(785, 600);
 
 	private static final String CARD_WIZ = "card_mainPanel_wiz";
 	private static final String CARD_EXPERT = "card_mainPanel_expert";
@@ -83,6 +90,20 @@ public class ChoicePanel extends JPanel
 		{
 			m_Parent.setResizable(true);
 		}
+		
+		// Add a listener for catching resize events
+		this.addComponentListener(new java.awt.event.ComponentAdapter() {
+	        public void componentResized(ComponentEvent event) 
+			{
+			  ChoicePanel component = (ChoicePanel)event.getComponent();
+			  if (component.getWidth() < ChoicePanel.DEFAULT_SIZE.width ||
+			     component.getHeight() < ChoicePanel.DEFAULT_SIZE.height)
+			  {
+				// Reset the size to default
+			    component.setDefaultSize();
+			  }
+			}
+		});
 
 		m_cardLayout = new CardLayout();
 		this.setLayout(m_cardLayout);
@@ -92,7 +113,7 @@ public class ChoicePanel extends JPanel
 			/* Create the Panel where you can choose:
 			   - Create new Configuration
 			   - Load existing Configuration
-			   - Configure Casade
+			   - Configure Cascade
 			 */
 
 
@@ -115,9 +136,7 @@ public class ChoicePanel extends JPanel
 		catch (Exception e)
 		{
 			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, e);
-
 		}
-
 	}
 
 	/**
@@ -134,7 +153,7 @@ public class ChoicePanel extends JPanel
 	/**
 	 * Set the Wizard-Card visible
 	 */
-	protected void setWizardVisible()
+	public void setWizardVisible()
 	{
 		m_cardLayout.show(this, CARD_WIZ);
 		activeCard = WIZARD;
@@ -188,7 +207,7 @@ public class ChoicePanel extends JPanel
 
 	/**
 	 * Set the message title in the window
-	 * Automaticaly set the correct step numbers
+	 * Automatically set the correct step numbers
 	 */
 	public void setMessageTitle()
 	{
@@ -225,5 +244,4 @@ public class ChoicePanel extends JPanel
 		{
 		}
 	}
-
 }
