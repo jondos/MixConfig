@@ -10,16 +10,8 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>com.omondo.uml.std.Builder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>com.togethersoft.selena.profiles.incolor.uml_in_color_nature</nature>
-		<nature>com.togethersoft.selena.profiles.sdp.sdp_nature</nature>
-		<nature>com.omondo.uml.std.Nature</nature>
 	</natures>
 </projectDescription>

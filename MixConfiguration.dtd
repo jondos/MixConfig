@@ -15,7 +15,9 @@
 	<!ELEMENT SysLog (#PCDATA)>
 	<!ELEMENT Console (#PCDATA)>
 
-<!ELEMENT Network (ListenerInterfaces, (NextMix|Proxies), InfoService)>
+<!ELEMENT Network (InfoServices, ListenerInterfaces, (NextMix|Proxies))>
+    <!ELEMENT InfoServices (InfoService+)>
+    <!ELEMENT InfoService (ListenerInterfaces)>
     <!ELEMENT ListenerInterfaces (ListenerInterface+)>
 	<!ELEMENT ListenerInterface (NetworkProtocol,((Host,IP?,Port)|File))>
     <!ELEMENT NextMix (NetworkProtocol,((Host,IP?,Port)|File))>
@@ -26,7 +28,6 @@
 	    <!ELEMENT Host (#PCDATA)>
 	    <!ELEMENT IP (#PCDATA)>
 	    <!ELEMENT Port (#PCDATA)>
-    <!ELEMENT InfoService (Host, IP?, Port)>
 
 <!ELEMENT Certificates (OwnCertificate, PrevMixCertificate?, NextMixCertificate?)>
     <!ELEMENT OwnCertificate (X509PKCS12, X509Certificate)>

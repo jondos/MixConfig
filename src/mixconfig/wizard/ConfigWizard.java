@@ -27,16 +27,18 @@
  */
 package mixconfig.wizard;
 
+import gui.dialog.JAPDialog;
+
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import gui.dialog.JAPDialog;
 import logging.LogType;
 import mixconfig.ChoicePanel;
 import mixconfig.Menu;
@@ -95,7 +97,7 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 			{
 				if (e.getSource() == getButtonForward())
 				{
-					m_wizPanel.forward();
+					m_wizPanel.checkAndForward();
 				}
 				else if (e.getSource() == getButtonBack())
 				{
@@ -132,7 +134,11 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 					String[] msg = cce.getMessages();
 					if (msg != null && msg.length > 0)
 					{
-						MixConfig.info("Errors", msg);
+						if (JAPDialog.showYesNoDialog(this, msg[0] + " Continue anyway?", "Errors"))
+						{
+							m_wizPanel.doForward();
+						}
+						//MixConfig.info("Errors", msg);
 					}
 				}
 				else if ( (i & ConfigWizardPanel.STATE_END) > 0)
@@ -204,9 +210,7 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 	public void reset()
 	{
 		m_wizPanel.reset();
-
 	}
-
 
 	/**
 	 * Change button Label to "Next ->"
@@ -222,7 +226,6 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 		return m_wizPanel.getHelpContext();
 	}
 
-
 	public int getPageCount()
 	{
 		return m_wizPanel.getPageCount();
@@ -236,12 +239,13 @@ public class ConfigWizard extends WizardLayout implements ActionListener, Change
 	/** Decision of which class an instance is of
 	 * Necessary if you change from Wizard -> Expert view
 	 */
-
 	public Class getCurrentPageClass()
 	{
 			return m_wizPanel.getCurrentPage().getClass();
 	}
 
-
-
+	public Container getHelpExtractionDisplayContext() 
+	{
+		return null;
+	}
 }

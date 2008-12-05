@@ -26,21 +26,21 @@
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
  */
 
-
 package mixconfig.wizard;
+
+import gui.AutoScaleImage;
+import gui.GUIUtils;
+import gui.JAPHelpContext;
+import gui.help.JAPHelp;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import gui.AutoScaleImage;
-import gui.JAPHelp;
-import gui.JAPHelpContext;
-import gui.GUIUtils;
 
 public abstract class WizardLayout extends JPanel implements JAPHelpContext.IHelpContext
 {
@@ -51,13 +51,13 @@ public abstract class WizardLayout extends JPanel implements JAPHelpContext.IHel
 	private static final String IMG_RIGHT = WizardLayout.class.getName() + "_right.gif";
 
 	/** The forward navigation button */
-		private JButton m_bttnForward;
+	private JButton m_bttnForward;
 
-		/** The back navigation button */
-		private JButton m_bttnBack;
+	/** The back navigation button */
+	private JButton m_bttnBack;
 
-		/** The cancel navigation button */
-		private JButton m_bttnCancel;
+	/** The cancel navigation button */
+	private JButton m_bttnCancel;
 
 	public WizardLayout()
 	{

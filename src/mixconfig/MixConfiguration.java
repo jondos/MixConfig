@@ -27,38 +27,59 @@
  */
 package mixconfig;
 
+import gui.dialog.JAPDialog;
+
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.Vector;
 
+import javax.swing.JFileChooser;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
+import mixconfig.infoservice.InfoServiceData;
+import mixconfig.infoservice.InfoServiceTableModel;
+import mixconfig.network.IncomingConnectionTableModel;
+import mixconfig.network.OutgoingConnectionTableModel;
+import mixconfig.network.ProxyTableModel;
+import mixconfig.panels.CascadePanel;
+import mixconfig.panels.GeneralPanel;
+import mixconfig.panels.MixOnCDPanel;
+import mixconfig.panels.PaymentPanel;
+import mixconfig.panels.PriceCertPanel;
+import mixconfig.panels.TermsAndConditionsPanel;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
-import anon.util.Base64;
-import anon.util.XMLUtil;
-import anon.util.XMLParseException;
-import logging.LogHolder;
-import logging.LogLevel;
-import logging.LogType;
-import mixconfig.networkpanel.IncomingConnectionTableModel;
-import mixconfig.networkpanel.OutgoingConnectionTableModel;
-import java.io.File;
-import java.io.FileWriter;
-import javax.swing.JFileChooser;
-import gui.dialog.JAPDialog;
 
-/** This class provides unified access to the Mix configuration. The configuration
- * is stored as a DOM document.
+import anon.pay.xml.XMLPriceCertificate;
+import anon.util.Base64;
+import anon.util.ResourceLoader;
+import anon.util.XMLParseException;
+import anon.util.XMLUtil;
+
+/** 
+ * This class provides unified access to the Mix 
+ * configuration that is stored as a DOM document.
+ * 
  * @author ronin &lt;ronin2@web.de&gt;
+ * @author Johannes Renner
  */
 public class MixConfiguration
 {
@@ -84,11 +105,8 @@ public class MixConfiguration
 	public static final int LOG_DIRECTORY = 3;
 
 	/** An array containing the Mix types as String values. The indices correspond to
-	 * the MIXTYPE_xxx constants.
-	 */
-	private static final String MIXTYPE_NAME[] =
-		{
-		"FirstMix", "MiddleMix", "LastMix"};
+	   the MIXTYPE_xxx constants */
+	private static final String MIXTYPE_NAME[] = {"FirstMix", "MiddleMix", "LastMix"};
 
 	/** The configuration file information version number. */
 	private static final String VERSION = "0.61";
@@ -101,15 +119,15 @@ public class MixConfiguration
 	private boolean m_bSavedToFile = true;
 
 	/** A list of <CODE>ChangeListener</CODE>s receiving events from this object
-	 * whenever the value of an attribute changes
-	 */
-	private Vector m_changeListeners = new Vector();
+	 * whenever the value of an attribute changes */
+	private Vector<ChangeListener> m_changeListeners = new Vector<ChangeListener>();
 
+	// -------------------- CONSTRUCTORS --------------------
+	
 	/** Constructs a new instance of <CODE>MixConfiguration</CODE>. The configuration
 	 * contains only the root element and empty elements on the second level. The leaf
 	 * elements are created as soon as the corresponding attributes are set.
-	 * @throws XMLParseException If parsing the configuration string causes an error
-	 */
+	 * @throws XMLParseException If parsing the configuration string causes an error */
 	public MixConfiguration() throws XMLParseException
 	{
 		String mixConfigXML =
@@ -118,21 +136,8 @@ public class MixConfiguration
 			"</MixConfiguration>";
 
 		m_configuration = XMLUtil.toXMLDocument(mixConfigXML);
-
-		//setValue("Network/InfoService/Host", "infoservice.inf.tu-dresden.de");
-		//setValue("Network/InfoService/Port", "80");
-		setValue("General/MixType", "FirstMix");
-		setValue("General/MixName", "AN.ON Mix");
-		setValue("Network/InfoService/Host", "80.237.206.62");
-		setValue("Network/InfoService/Port", "6543");
-
-		setValue("Network/ListenerInterfaces/ListenerInterface/NetworkProtocol",
-				 "RAW/TCP");
-		setValue("Network/ListenerInterfaces/ListenerInterface/Port","6544");
-		/*
-		   setValue(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK + "/" + MixOnCDPanel.XMLVALUE_NETWORKINTERFACE,
-		   "eth0");*/
-		setSavedToFile();
+		this.setDefaults();
+		this.setSavedToFile();
 	}
 
 	/** Constructs a new instance of <CODE>MixConfiguration</CODE>. The configuration is
@@ -143,13 +148,15 @@ public class MixConfiguration
 	 */
 	public MixConfiguration(Reader r) throws XMLParseException, IOException
 	{
-		if (!setMixConfiguration(r))
+		if (!this.setMixConfiguration(r))
 		{
-			throw new IOException("Loading of configuration has been canceled!");
+			throw new IOException("Error while loading configuration!");
 		}
-		setSavedToFile();
+		this.setSavedToFile();
 	}
 
+	// -------------------- PUBLIC METHODS --------------------
+	
 	/** Set's a new <CODE>MixConfiguration</CODE>. Without creating a new Instance
 	 * The configuration is read from the specified <CODE>java.io.Reader</CODE>
 	 * @param r A <CODE>Reader</CODE> providing the configuration
@@ -159,18 +166,23 @@ public class MixConfiguration
 	 */
 	public boolean setMixConfiguration(Reader r) throws XMLParseException, IOException
 	{
+		// Create the document from input source
 		Document configuration = open(new InputSource(r));
-
 		if (configuration == null)
 		{
 			return false;
 		}
-
-		m_configuration = configuration;
-		setSavedToFile();
-		return true;
+		else
+		{
+			// Set the configuration
+			this.m_configuration = configuration;
+			// Call the compatibility checker
+			this.initCheck();
+			this.setSavedToFile();
+			return true;	
+		}
 	}
-
+	
 	public static String getMixTypeAsString(int a_mixType)
 	{
 		String strMixType = "";
@@ -217,23 +229,21 @@ public class MixConfiguration
 		m_changeListeners.removeElement(a_changeListener);
 	}
 
-	/** Write the configuration to the specified <CODE>java.io.Writer</CODE>. Normally,
-	 * the Writer is a FileWriter to which an XML file is to be written.
+	/** 
+	 * Write the configuration to the specified <CODE>java.io.Writer</CODE>. 
+	 * Normally this is a FileWriter to which an XML file is to be written.
 	 * @param a_writer A <CODE>java.io.Writer</CODE> to which to write the XML
 	 * @throws IOException If an error occurs while writing
 	 */
 	public void save(Writer a_writer) throws IOException
 	{
-		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Writing configuration...");
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Writing configuration ..");
 		XMLUtil.write(m_configuration, a_writer);
-		if (a_writer instanceof FileWriter)
-		{
-			m_bSavedToFile = true;
-		}
+		if (a_writer instanceof FileWriter) m_bSavedToFile = true;
 	}
 
 	/**
-	 * Returns if the configuration has been saved to a file.
+	 * Return if the configuration has been saved to a file.
 	 * @return true if the configuration has been saved to a file; false otherwise
 	 */
 	public boolean isSavedToFile()
@@ -308,7 +318,7 @@ public class MixConfiguration
 	 */
 	public String[] getValues(String a_xmlPath, String a_attribute, String a_attributeValue)
 	{
-		Vector values = new Vector();
+		Vector<String> values = new Vector<String>();
 		String[] strValues;
 		String temp;
 		String strParentNode = a_xmlPath.substring(0, a_xmlPath.lastIndexOf("/"));
@@ -362,8 +372,9 @@ public class MixConfiguration
 	}
 
 	/**
-	 * Returns if the mix may be configured by the info service.
-	 * @return true if the mix may be configured by the info service; false otherwise
+	 * Return true, if the mix may be configured by an info service
+	 * 
+	 * @return true, if the mix may be configured by an info service; false otherwise
 	 */
 	public boolean isAutoConfigurationAllowed()
 	{
@@ -377,10 +388,12 @@ public class MixConfiguration
 	}
 
 	/**
-	 * Checks if there is a <Accounting> tag in the XML configuration structure
+	 * Check if there is a tag <Accounting> in the XML
+	 * TODO: Remove since it is not referenced?
+	 * 
 	 * @return boolean
 	 */
-	public boolean isPaymentPresent()
+	public boolean isAccountingNodePresent()
 	{
 		NodeList list = m_configuration.getElementsByTagName("Accounting");
 		if (list.getLength() > 0)
@@ -393,14 +406,65 @@ public class MixConfiguration
 		}
 	}
 
+	/**
+	 * Add the node 'Accounting' and set default values
+	 */
+	public void addAccounting()
+	{
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Adding 'Accounting' to the configuration");
+		// Defaults for the PaymentPanel
+		setValue(PaymentPanel.XMLPATH_SOFTLIMIT, "1200000");
+		setValue(PaymentPanel.XMLPATH_HARDLIMIT, "500000");
+		setValue(PaymentPanel.XMLPATH_PREPAIDINTERVAL, "3000000");
+		setValue(PaymentPanel.XMLPATH_SETTLEINTERVAL, "20");		
+		// Load default JPI certificate from file 'Payment_Instance.cer'		
+		try
+		{			
+			byte[] cert = ResourceLoader.loadResource(PaymentPanel.FILESYSTEM_PATH_PI_CERT);
+			setValue("Accounting/PaymentInstance/Certificate/X509Certificate", cert);
+		}
+		// One of either FileNotFoundException or IOException
+		catch (Exception e)
+		{
+			LogHolder.log(LogLevel.ERR, LogType.PAY, "Error while loading default JPI-certificate: "+e.getMessage());
+		}
+		// JPI port and host
+ 		setValue(PaymentPanel.XMLPATH_PI_PORT, "3018");
+		setValue(PaymentPanel.XMLPATH_PI_HOST, "pi.jondopay.de");
+		// Database defaults
+		setValue(PaymentPanel.XMLPATH_DATABASE_HOST, "localhost");
+		setValue(PaymentPanel.XMLPATH_DATABASE_PORT, "5432");
+		setValue(PaymentPanel.XMLPATH_DATABASE_NAME, "aidb");
+		setValue(PaymentPanel.XMLPATH_DATABASE_USERNAME, "aiuser");
+	}
+	
+	/**
+	 * Add the node 'TermsAndConditionsOperatorData' and set defaults
+	 * TODO: Add this node to configurations that do not have it?
+	 * TODO: Support several languages?
+	 */
+	public void addTermsAndConditions()
+	{
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Adding 'TermsAndConditionsOperatorData' to the configuration");
+				
+		// Set the "locale" attribute and add default URLs to terms and conditions	
+		setAttribute(TermsAndConditionsPanel.XMLPATH_TERMS, "locale", "en");		
+		setValue(TermsAndConditionsPanel.XMLPATH_TERMS_URLPP, "https://www.jondos.de/en/privacy");
+		setValue(TermsAndConditionsPanel.XMLPATH_TERMS_URLLO, "https://www.jondos.de/en/legalOpinions");
+		setValue(TermsAndConditionsPanel.XMLPATH_TERMS_URLOA, "https://www.jondos.de/en/operationalAgreement");
+	}
+	
+	/**
+	 * Return the MixType as an {@link Integer}
+	 * 
+	 * @return mixtype
+	 */
 	public int getMixType()
 	{
 		int mixtype;
-
 		try
 		{
 			mixtype = Integer.valueOf(getValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE)).intValue();
-
 			if (mixtype < MIXTYPE_FIRST)
 			{
 				mixtype = MIXTYPE_FIRST;
@@ -414,7 +478,6 @@ public class MixConfiguration
 		{
 			mixtype = MIXTYPE_FIRST;
 		}
-
 		return mixtype;
 	}
 
@@ -467,65 +530,75 @@ public class MixConfiguration
 		return v;
 	}
 
-	/** Sets the value of the attribute with the specified name. The name must be of
-	 * the form &quot;RootElement/ChildElement/ChildElement/... etc.&quot;, similar to
-	 * the XPath syntax, but XPath functions and relative paths are not allowed.
+	/** 
+	 * Set a {@link String} node value
+	 * 
 	 * @param a_xmlPath The path to the DOM element
-	 * @param value The new value for the attribute as a <CODE>String</CODE>
+	 * @param a_value The new value for the attribute as a <CODE>String</CODE>
 	 */
-	public void setValue(String a_xmlPath, String value)
+	public void setValue(String a_xmlPath, String a_value)
 	{
-		LogHolder.log(LogLevel.DEBUG, LogType.MISC, a_xmlPath + ":" + value, true);
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Setting value: " + a_xmlPath + ":" + a_value);
 
-		//if (a_xmlPath != null) we should keep this for debgging
+		//if (a_xmlPath != null) we should keep this for debugging
 		{
-			setValue(a_xmlPath, value, null, a_xmlPath.endsWith("MixID"));
+			setValue(a_xmlPath, a_value, null, a_xmlPath.endsWith("MixID"));
 		}
 	}
 
-	/** Sets the value of the attribute with the specified name. The name must be of
+	/** 
+	 * Sets the value of the attribute with the specified name. The name must be of
 	 * the form &quot;RootElement/ChildElement/ChildElement/... etc.&quot;, similar to
 	 * the XPath syntax, but XPath functions and relative paths are not allowed.
+	 * 
 	 * @param a_xmlPath The path to the DOM element
-	 * @param a_value The new value for the attribute as a <CODE>String</CODE>
-	 * @param a_attribute A DOM attribute to be added to the DOM element where the attribute is stored
-	 * @param urlEncode Determines if the stored value is to be URL encoded (<CODE>true</CODE>) or not (<CODE>false</CODE>)
+	 * @param a_value The new node value for the element as a <CODE>String</CODE>
+	 * @param a_attribute Optional DOM attribute to be added to the DOM element
+	 * @param urlEncode Determines if the stored value is to be URL encoded (<CODE>true</CODE> or <CODE>false</CODE>)
 	 */
 	public void setValue(String a_xmlPath, String a_value, Attr a_attribute, boolean urlEncode)
 	{
+		// Get the desired node, create if it is non-existent
 		Node n = getNode(a_xmlPath, true);
-
-		// clear the elements child nodes
+		// Clear this nodes children
 		NodeList nl = n.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++)
 		{
+			//LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Removing value from node '" + n.getNodeName() + "'");
 			n.removeChild(nl.item(i));
 			i--;
 		}
-
+		// Check urlEncode
 		if (urlEncode)
 		{
-			a_value = URLEncoder.encode(a_value);
+			try
+			{
+				a_value = URLEncoder.encode(a_value, "UTF-8");				
+				LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Encoded in UTF-8: " + a_value);
+			}
+			catch (UnsupportedEncodingException uee)
+			{
+				LogHolder.log(LogLevel.EXCEPTION, LogType.MISC, "Error while encoding URL: " + uee.getMessage());
+			}
 		}
+		// Set the actual value by creating a TextNode
 		if (a_value != null && a_value.trim().length() > 0)
 		{
 			n.appendChild(this.m_configuration.createTextNode(a_value));
 		}
-
+		// Set an additional attribute
 		if (n instanceof Element && a_attribute != null)
 		{
-			( (Element) n).setAttributeNode(a_attribute);
+			((Element)n).setAttributeNode(a_attribute);
 		}
-
-		fireStateChanged(a_xmlPath, a_value);
+		this.fireStateChanged(a_xmlPath, a_value);
 	}
 
-	/** Sets the value of the attribute with the specified name. The name must be of
-	 * the form &quot;RootElement/ChildElement/ChildElement/... etc.&quot;, similar to
-	 * the XPath syntax, but XPath functions and relative paths are not allowed.
+	/** 
+	 * Set a {@link Boolean} node value
+	 * 
 	 * @param a_xmlPath The path to the DOM element
-	 * @param a_value The new value for the attribute. The <CODE>boolean</CODE> will be converted to a
-	 * <CODE>String</CODE> before being saved.
+	 * @param a_value The new (<CODE>boolean</CODE>) value for the node (to be converted to a <CODE>String</CODE>).
 	 */
 	public void setValue(String a_xmlPath, boolean a_value)
 	{
@@ -539,15 +612,15 @@ public class MixConfiguration
 		}
 	}
 
-	/** Sets the value of the attribute with the specified name. The name must be of
-	 * the form &quot;RootElement/ChildElement/ChildElement/... etc.&quot;, similar to
-	 * the XPath syntax, but XPath functions and relative paths are not allowed.
+	/** 
+	 * Set an {@link Integer} node value
+	 * 
 	 * @param a_xmlPath The path to the DOM element
-	 * @param a_value The new value for the attribute. The <CODE>int</CODE> will be converted to a
-	 * <CODE>String</CODE> before being saved.
+	 * @param a_value The new (<CODE>int</CODE>) value for the node (to be converted to a <CODE>String</CODE>).
 	 */
 	public void setValue(String a_xmlPath, int a_value)
 	{
+		// Check if we are setting the MixType
 		if (a_xmlPath.indexOf(GeneralPanel.XMLPATH_GENERAL_MIXTYPE) >= 0)
 		{
 			setValue(a_xmlPath, getMixTypeAsString(a_value));
@@ -612,6 +685,7 @@ public class MixConfiguration
 	 * In the case that there is more than one value for a specified path, this
 	 * method creates as many nodes with the same name as values. For each value it is possible
 	 * to add one optional attribute.
+	 * 
 	 * @param a_xmlPath String
 	 * @param a_values String[]
 	 * @param a_attribute String
@@ -652,43 +726,93 @@ public class MixConfiguration
 			}
 			n.appendChild(valueNode);
 		}
-
-		fireStateChanged(a_xmlPath, a_values);
+		this.fireStateChanged(a_xmlPath, a_values);
 	}
 
-	/** Converts the specified table model to a DOM tree and integrates it below the
-	 * existing element with the specified name.
-	 * @param a_xmlPath The path to the DOM parent element of the connection element to be set
-	 * @param a_inConnModel An incoming connection table model
+	/**
+	 * TODO: Refactor this one with the next one?
+	 * @param a_xmlPath
+	 * @param a_infoServiceModel
 	 */
-	public void setValue(String a_xmlPath, IncomingConnectionTableModel a_inConnModel)
+	public void setValue(String a_xmlPath, InfoServiceTableModel a_infoServiceModel)
 	{
-		Element f = a_inConnModel.createAsElement(m_configuration);
-
+		Element elem = a_infoServiceModel.createAsElement(m_configuration);
 		Node n = getNode(a_xmlPath, true);
 		NodeList nl = n.getChildNodes();
-
 		for (int i = 0; i < nl.getLength(); i++)
 		{
 			Node o = nl.item(i);
-			if (o.getNodeName().equals(f.getNodeName()))
+			if (o.getNodeName().equals(elem.getNodeName()))
 			{
 				n.removeChild(o);
 				i--;
 			}
 		}
-		n.insertBefore(f, null);
-
-		fireStateChanged(a_xmlPath + "/" + f.getNodeName(), a_inConnModel);
+		// Insert 'InfoServices' as the first child of network
+		n.insertBefore(elem, n.getFirstChild());
+		fireStateChanged(a_xmlPath + "/" + elem.getNodeName(), a_infoServiceModel);
+	}
+	
+	/** 
+	 * Converts the specified table model to a DOM tree and integrates it below the
+	 * existing element with the specified name.
+	 * 
+	 * @param a_xmlPath The path to the DOM parent element of the connection element to be set
+	 * @param a_inConnModel An incoming connection table model
+	 */
+	public void setValue(String a_xmlPath, IncomingConnectionTableModel a_inConnModel)
+	{
+		Element elem = a_inConnModel.createAsElement(m_configuration);
+		Node n = getNode(a_xmlPath, true);
+		NodeList nl = n.getChildNodes();
+		for (int i = 0; i < nl.getLength(); i++)
+		{
+			Node o = nl.item(i);
+			if (o.getNodeName().equals(elem.getNodeName()))
+			{
+				n.removeChild(o);
+				i--;
+			}
+		}
+		n.insertBefore(elem, null);
+		fireStateChanged(a_xmlPath + "/" + elem.getNodeName(), a_inConnModel);
 	}
 
-	/** Converts the specified table model to a DOM tree and integrates it below the
+	/** 
+	 * Converts the specified table model to a DOM tree and integrates it below the
 	 * existing element with the specified name.
+	 * 
 	 * @param a_xmlPath The path to the DOM parent element of the connection element to be set
 	 * @param a_outConnModel An outgoing connection table model
 	 */
 	public void setValue(String a_xmlPath, OutgoingConnectionTableModel a_outConnModel)
 	{
+		// Create the element
+		Element elementNextMix = a_outConnModel.createMixAsElement(m_configuration);
+		// Remove old elements
+		this.removeNode("Network/NextMix");
+		this.removeNode("Network/Proxies");
+		// Get the parent
+		Node parent = getNode(a_xmlPath, true);
+		NodeList nl = parent.getChildNodes();
+		if (elementNextMix != null)
+		{
+			// XXX This might be unnecessary
+			for (int i = 0; i < nl.getLength(); i++)
+			{
+				Node n = nl.item(i);
+				if (n.getNodeName().equals(elementNextMix.getNodeName()))
+				{
+					parent.removeChild(n);
+					i--;
+				}
+			}
+			// Do the actual work
+			parent.insertBefore(elementNextMix, null);
+			fireStateChanged(a_xmlPath + "/" + elementNextMix.getNodeName(), a_outConnModel);
+		}
+		
+		/*
 		Element a;
 		Element f = a_outConnModel.createMixAsElement(m_configuration);
 		Element g = a_outConnModel.createProxiesAsElement(m_configuration);
@@ -726,32 +850,151 @@ public class MixConfiguration
 		if (g != null)
 		{
 			fireStateChanged(a_xmlPath + "/" + g.getNodeName(), a_outConnModel);
+		}*/
+	}
+	
+	public void setValue(String a_xmlPath, ProxyTableModel a_proxyTableModel)
+	{
+		// Create the element
+		Element elementProxies = a_proxyTableModel.createProxiesAsElement(m_configuration);
+		// Remove old elements
+		this.removeNode("Network/NextMix");
+		this.removeNode("Network/Proxies");
+		// Get the parent
+		Node parent = getNode(a_xmlPath, true);
+		NodeList nl = parent.getChildNodes();
+		if (elementProxies != null)
+		{
+			// XXX This might be unnecessary
+			for (int i = 0; i < nl.getLength(); i++)
+			{
+				Node n = nl.item(i);
+				if (n.getNodeName().equals(elementProxies.getNodeName()))
+				{
+					parent.removeChild(n);
+					i--;
+				}
+			}
+			// Do the actual work
+			parent.insertBefore(elementProxies, null);
+			fireStateChanged(a_xmlPath + "/" + elementProxies.getNodeName(), a_proxyTableModel);
 		}
 	}
 
+	/**
+	 * Save a price certificate to the configuration
+	 * 
+	 * @param a_xmlPath
+	 * @param a_cert
+	 */
+	public void setValue(String a_xmlPath, XMLPriceCertificate a_cert)
+	{
+		// XXX: Is it necessary to remove the old node??
+		this.removeNode(PriceCertPanel.XMLPATH_PRICECERT);
+		// Create the new element to insert
+		Element priceCertElement = a_cert.toXmlElement(m_configuration);
+		// Find the node 'Accounting', create if it doesn't exist
+		Node accountingNode = getNode(PaymentPanel.XMLPATH_ACCOUNTING, true);
+		// Append the price certificate in 'Accounting'
+		accountingNode.appendChild(priceCertElement);
+		this.fireStateChanged(a_xmlPath, a_cert);
+	}
+	
+	/**
+	 * Set a {@link Boolean} attribute that needs to be capitalized for whatever reason
+	 * 
+	 * @param a_xmlPath
+	 * @param a_attribute
+	 * @param a_Boolean
+	 */
 	public void setAttribute(String a_xmlPath, String a_attribute, boolean a_Boolean)
 	{
-		// this kludge is necessary as compatibility with older version
-		// of the XML file requires string representations of boolean
+		// This kludge is necessary as compatibility with older version of 
+		// the XML file that require string representations of boolean
 		// values to be capitalized
 		String s = new Boolean(a_Boolean).toString();
 		s = Character.toUpperCase(s.charAt(0)) + s.substring(1);
-
-		Attr at = getDocument().createAttribute(a_attribute);
-		at.setNodeValue(s);
-
-		setValue(a_xmlPath, null, at, false);
+		// Call the standard method
+		this.setAttribute(a_xmlPath, a_attribute, s);
 	}
-
+	
+	/**
+	 * Set an attribute to an element specified by an XML path, create the element if not existent
+	 * 
+	 * @param a_xmlPath Path to a DOM node
+	 * @param a_attribute Attribute name
+	 * @param a_value Attribute value
+	 */
 	public void setAttribute(String a_xmlPath, String a_attribute, String a_value)
 	{
-		Attr at = getDocument().createAttribute(a_attribute);
-		at.setNodeValue(a_value);
-
-		setValue(a_xmlPath, null, at, false);
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Setting attribute: " + a_attribute + "@" + a_xmlPath + ":" + a_value);
+		// Create the attribute and set its value
+		Attr attr = getDocument().createAttribute(a_attribute);
+		attr.setNodeValue(a_value);
+		// Create the element if necessary
+		Node n = getNode(a_xmlPath, true);
+		// This should always be the case:
+		if (n instanceof Element)
+		{
+			// Set the attribute to the element
+			((Element)n).setAttributeNode(attr);
+			this.fireStateChanged(a_xmlPath, a_value);
+		}
 	}
-
-	/** Removes the attribute with the specified name from the configuration.
+		
+	/**
+	 * Check the existence of a specific attribute at a certain xmlPath
+	 * 
+	 * @param a_xmlPath
+	 * @param a_attribute
+	 * @return
+	 */
+	public boolean hasAttribute(String a_xmlPath, String a_attribute)
+	{
+		boolean ret = false;
+		// Get the targeted node
+		Node targetNode = getNode(a_xmlPath, false);
+		if (targetNode != null)
+		{
+			NamedNodeMap attributes = targetNode.getAttributes();
+			Node attributeNode = attributes.getNamedItem(a_attribute);
+			if (attributeNode != null)
+			{
+			    ret = true;	
+			}
+		}
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Checking for attribute "+a_attribute+"@"+a_xmlPath+": "+ret);
+		return ret;
+	}
+	
+	/**
+	 * Return the value of a certain attribute or null if the attribute does not exist
+	 * 
+	 * @param a_xmlPath
+	 * @param a_attribute
+	 * @return
+	 */
+	public String getAttributeValue(String a_xmlPath, String a_attribute)
+	{
+		String ret = null;
+		// Get the targeted node
+		Node targetNode = getNode(a_xmlPath, false);
+		if (targetNode != null)
+		{
+			NamedNodeMap attributes = targetNode.getAttributes();
+			Node attributeNode = attributes.getNamedItem(a_attribute);
+			if (attributeNode != null)
+			{
+			    ret = attributeNode.getNodeValue();	
+			}
+		}
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Getting value of "+a_attribute+"@"+a_xmlPath+": "+ret);
+		return ret;
+	}
+	
+	/**
+	 * Remove the node with the specified name from the configuration
+	 * 
 	 * @param a_xmlPath The path to the DOM element
 	 */
 	public void removeNode(String a_xmlPath)
@@ -759,16 +1002,38 @@ public class MixConfiguration
 		Node n = getNode(a_xmlPath, false);
 		if (n != null)
 		{
+			LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Removing node: "+a_xmlPath);
 			n.getParentNode().removeChild(n);
 			this.fireStateChanged(a_xmlPath, null);
 		}
 	}
+	
+	/**
+	 * Remove an attribute from a DOM element if existent
+	 * 
+	 * @param a_xmlPath
+	 * @param a_attribute
+	 */
+	public void removeAttribute(String a_xmlPath, String a_attribute)
+	{
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Removing attribute: " + a_attribute + "@" + a_xmlPath);
+		// Get the node if existent
+		Node n = getNode(a_xmlPath, false);
+		// Set the attribute to the element
+		if (n != null && n instanceof Element)
+		{
+			((Element)n).removeAttribute(a_attribute);
+			this.fireStateChanged(a_xmlPath, null);
+		}
+	}
+		
+	// -------------------- PROTECTED METHODS --------------------
 
-	// ------------- protected methods --------------
-
-	/** Sends a <CODE>ConfigurationEvent</CODE> with the specified attribute name and
-	 * value to all <CODE>ChangeListener</CODE>s. This method is called whenever the value of an attribute
-	 * changes.
+	/** 
+	 * Sends a <CODE>ConfigurationEvent</CODE> with the specified attribute name and
+	 * value to all <CODE>ChangeListener</CODE>s. This method is called whenever the 
+	 * value of a node or attribute changes.
+	 * 
 	 * @param a_name The name of the changed attribute
 	 * @param a_value The new value
 	 */
@@ -782,26 +1047,148 @@ public class MixConfiguration
 		ChangeEvent c = new ConfigurationEvent(this, a_name, a_value);
 		for (int i = 0; i < m_changeListeners.size(); i++)
 		{
-			( (ChangeListener) m_changeListeners.elementAt(i)).stateChanged(c);
+			((ChangeListener)m_changeListeners.elementAt(i)).stateChanged(c);
 		}
-
 	}
 
-	/** Sends a <CODE>ChangeEvent</CODE> to all <CODE>ChangeListener</CODE>s. This method is called whenever the value of an attribute
-	 * changes.
+	/** 
+	 * Sends a <CODE>ChangeEvent</CODE> to all <CODE>ChangeListener</CODE>s. This 
+	 * method is called whenever the value of an attribute changes.
+	 * 
+	 * @deprecated since never called?
 	 */
 	protected void fireStateChanged()
 	{
 		ChangeEvent c = new ChangeEvent(this);
 		for (int i = 0; i < m_changeListeners.size(); i++)
 		{
-			( (ChangeListener) m_changeListeners.elementAt(i)).stateChanged(c);
+			((ChangeListener)m_changeListeners.elementAt(i)).stateChanged(c);
 		}
 	}
+			
+	// -------------------- PRIVATE METHODS --------------------
 
-	// ------------- private methods ----------------
-
-
+	/**
+	 * Set an initial default configuration 
+	 * TODO: Rather split this to the single panels?
+	 */
+	private void setDefaults()
+	{
+		// General defaults
+		setValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE, "FirstMix");
+		setValue(GeneralPanel.XMLPATH_GENERAL_MIXNAME, "AN.ON Mix");
+		// Set the payment attribute
+		setAttribute(GeneralPanel.XMLPATH_GENERAL_MIXTYPE, GeneralPanel.XML_ATTRIBUTE_PAYMENT, true);
+		
+		// Create a dummy TableModel for adding default InfoServices
+		InfoServiceTableModel dummyTableModel = new InfoServiceTableModel();
+		// XXX: Test-InfoService
+		//dummyTableModel.addData(new InfoServiceData("InfoService", "87.230.20.187", 80));
+		dummyTableModel.addData(new InfoServiceData("InfoService", "infoservice.inf.tu-dresden.de", 80));
+		dummyTableModel.addData(new InfoServiceData("InfoService", "85.31.187.19", 80));
+		dummyTableModel.addData(new InfoServiceData("InfoService", "87.230.56.74", 80));
+		setValue("Network", dummyTableModel);
+		
+		// Set a default ListenerInterface
+		setValue("Network/ListenerInterfaces/ListenerInterface/NetworkProtocol", "RAW/TCP");
+		setValue("Network/ListenerInterfaces/ListenerInterface/Port", "6544");
+		//setValue("Network/ListenerInterfaces/ListenerInterface/Host", "localhost");		
+		
+		// Set defaults for ServerMonitoring
+		setValue("Network/ServerMonitoring/Port", "8080");
+		setValue("Network/ServerMonitoring/Host", "0.0.0.0");
+		
+		// Add nodes 'Accounting' and 'TermsAndConditionsOperatorData'
+		this.addAccounting();
+		this.addTermsAndConditions();
+		
+		// TODO: Remove MixOnCD element?
+		/* setValue(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK + "/" + MixOnCDPanel.XMLVALUE_NETWORKINTERFACE, "eth0"); */		
+	}
+	
+	/**
+	 * Check for the existence of certain elements, attributes and set values accordingly.
+	 * Call this method when loading a configuration e.g. from file.
+	 */
+	private void initCheck()
+	{
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Performing compatibility check");
+		// Set the 'payment'-attribute in case it is not already there
+		if (!this.hasAttribute(GeneralPanel.XMLPATH_GENERAL_MIXTYPE, GeneralPanel.XML_ATTRIBUTE_PAYMENT))
+		{
+			if (this.isAccountingNodePresent())
+			{
+				this.setAttribute(GeneralPanel.XMLPATH_GENERAL_MIXTYPE, GeneralPanel.XML_ATTRIBUTE_PAYMENT, true);	
+			}
+			else
+			{
+				this.setAttribute(GeneralPanel.XMLPATH_GENERAL_MIXTYPE, GeneralPanel.XML_ATTRIBUTE_PAYMENT, false);
+			}
+		}
+		// Add terms and conditions stuff if it is not yet there
+		// XXX: Do this only if this is a payment mix?
+		if (this.getNode(TermsAndConditionsPanel.XMLPATH_TERMS, false) == null)
+		{
+			this.addTermsAndConditions();
+		}
+	}
+	
+	/**
+	 * FIXME: Rather make this a private method?
+	 * 
+	 * Perform a check by writing out the document to a string and reloading it again. 
+	 * To be called before the XML document is saved.
+	 * @return true if the check succeeds, false otherwise
+	 */
+	public boolean performReloadCheck()
+	{	
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Performing 'save-and-reload' check ..");
+		boolean ret = false;
+        // Write the document to a string
+		StringWriter sw = new StringWriter();
+		try 
+		{
+			LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Writing document to string");
+			XMLUtil.write(m_configuration, sw);
+		} 
+		catch (IOException e) 
+		{
+		    JAPDialog.showErrorDialog(MixConfig.getMainWindow(), e.getMessage(), LogType.MISC);
+		}
+		String xmlString = sw.toString();
+		// Reload the document from the string
+		StringReader sr = new StringReader(xmlString);
+		try 
+		{
+			LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Reading document from string");
+			Document doc = XMLUtil.readXMLDocument(sr);
+			if (doc != null) 
+		    {
+				ret = true;
+				// Reset to null for the garbage collection
+				doc = null;
+		    }
+		} 
+		// XMLParseException or IOException
+		catch (XMLParseException e) 
+		{
+			LogHolder.log(LogLevel.WARNING, LogType.MISC, e.getMessage());
+		    JAPDialog.showErrorDialog(MixConfig.getMainWindow(), 
+		    		"This configuration contains invalid characters! Once saved it cannot be loaded " +
+		    		"again by the mix software or this tool. Please re-check this configuration!!", 
+		    		LogType.MISC);
+		}
+		catch (IOException ioe)
+		{
+			LogHolder.log(LogLevel.WARNING, LogType.MISC, ioe.getMessage());
+		    JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ioe.getMessage(), LogType.MISC);
+		}
+		// Log something
+		if (ret == true) LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Reload-check successful :-)");
+		else LogHolder.log(LogLevel.ERR, LogType.MISC, "Reload-check NOT successful :-(");
+		return ret;
+	}
+	
 	/** Returns the MIXTYPE_xxx constant corresponding to the specified Mix type name.
 	 * @param a_s A <CODE>String</CODE> representing a Mix type (first, middle or last)
 	 * @return One of the MIXTYPE_xxx constants
@@ -811,7 +1198,7 @@ public class MixConfiguration
 		int mixType = 0;
 		if (a_s != null)
 		{
-			for (int i = 0; i < this.MIXTYPE_NAME.length; i++)
+			for (int i = 0; i < MIXTYPE_NAME.length; i++)
 			{
 				if (a_s.indexOf(MIXTYPE_NAME[i]) >= 0)
 				{
@@ -819,21 +1206,23 @@ public class MixConfiguration
 				}
 			}
 		}
-
 		return mixType;
 	}
 
-	private Node getAttribute(Node n, String a_namedItem)
+	/**
+	 * Return a node's attribute given by name
+	 * @param n
+	 * @param a_namedItem
+	 * @return The named attribute node
+	 */
+	private Node getAttributeNode(Node n, String a_namedItem)
 	{
-		Node m;
-
 		if (n instanceof Element)
 		{
-			m = n.getAttributes().getNamedItem(a_namedItem);
+			Node m = n.getAttributes().getNamedItem(a_namedItem);
 			return m;
 		}
-
-		return null;
+		else return null;
 	}
 
 	/** Gets the DOM node with the specified name. The name must be of
@@ -885,7 +1274,7 @@ public class MixConfiguration
 				}
 
 				// no such node? try one of its attributes
-				n = getAttribute(n, headPart);
+				n = getAttributeNode(n, headPart);
 				if (n != null)
 				{
 					return n;
@@ -898,7 +1287,6 @@ public class MixConfiguration
 			//{
 			//System.out.println("No element named " + headPart + " found.");
 			//}
-
 
 			// if no such node exists, create one
 			if (n == null)
@@ -913,7 +1301,7 @@ public class MixConfiguration
 			}
 			else
 			{
-				m = getAttribute(n, tailPart);
+				m = getAttributeNode(n, tailPart);
 				if (m != null)
 				{
 					return m;
@@ -925,12 +1313,12 @@ public class MixConfiguration
 
 		}
 		while (headPart != tailPart); // indicates that traversal is complete
-
 		return n;
 	}
 
-	/** Opens the specified input source (normally a <CODE>Reader</CODE> corresponding
-	 * to an XML file) and reads the DOM tree from it.
+	/** 
+	 * Open the specified input source (normally a <CODE>Reader</CODE> corresponding
+	 * to an XML file) and read the DOM tree from it.
 	 * @param r the input source
 	 * @throws XMLParseException If an error occurs while parsing the input
 	 * @throws IOException If an error occurs while reading the configuration
@@ -941,7 +1329,7 @@ public class MixConfiguration
 		Document doc;
 		Node root;
 
-		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Reading configuration...");
+		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Reading configuration ..");
 		doc = XMLUtil.readXMLDocument(r);
 		root = XMLUtil.assertNodeName(doc, "MixConfiguration");
 
@@ -950,7 +1338,7 @@ public class MixConfiguration
 		{
 			if (!JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
 				"This file does not contain any version information,\n" +
-				"thus information may be lost.\nDo you want to continue?",
+				"thus information might be lost.\nDo you want to continue?",
 				"XML file version unknown"))
 			{
 				return null;
@@ -982,10 +1370,7 @@ public class MixConfiguration
 				return null;
 			}
 		}
-
-		XMLUtil.setAttribute( (Element) root, XML_ATTRIBUTE_VERSION, VERSION);
-
+		XMLUtil.setAttribute((Element)root, XML_ATTRIBUTE_VERSION, VERSION);
 		return doc;
-	}
-
+	}	
 }

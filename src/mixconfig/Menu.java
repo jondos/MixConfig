@@ -28,6 +28,16 @@
 
 package mixconfig;
 
+import gui.GUIUtils;
+import gui.JAPHelpContext;
+import gui.JAPMessages;
+import gui.dialog.CADialog;
+import gui.dialog.JAPDialog;
+import gui.help.JAPHelp;
+
+import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -35,8 +45,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -46,16 +54,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JRootPane;
 import javax.swing.event.ChangeEvent;
 
-import anon.util.XMLParseException;
-import gui.GUIUtils;
-import gui.JAPHelp;
-import gui.JAPHelpContext;
-import gui.JAPMessages;
-import gui.dialog.JAPDialog;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
+import mixconfig.tools.CertificationTool;
+import mixconfig.tools.EmailComposer;
+import mixconfig.tools.EncryptedLogTool;
 import mixconfig.wizard.ConfigWizard;
+import anon.util.XMLParseException;
 
 public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 {
@@ -75,7 +81,9 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 	private static final String MSG_FILE = Menu.class.getName() + "_file";
 	private static final String MSG_TOOLS = Menu.class.getName() + "_tools";
 	private static final String MSG_VIEW = Menu.class.getName() + "_view";
-
+	private static final String MSG_EMAIL = Menu.class.getName() + "_email";
+	private static final String MSG_IGNORE_INCONSISTENCIES = Menu.class.getName() + "_ignoreInconsistencies";
+	
 	private JFrame m_mainWin;
 	private JMenuBar m_MenuBar;
 
@@ -92,13 +100,12 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 	private JMenuItem m_newMenuItem;
 	private JMenuItem m_openMenuItem;
 	private JMenuItem m_openclipItem;
-	private JMenuItem m_helpTopics;
+	protected JMenuItem m_helpTopics;
 
 	private JMenu m_toolsMenu;
 	private JMenu m_fileMenu;
 
-	public Menu(JFrame mainWin, JRootPane rootPane, ConfigWizard configWiz_Panel,
-				ConfigFrame configFrame_Panel)
+	public Menu(JFrame mainWin, JRootPane rootPane, ConfigWizard configWiz_Panel, ConfigFrame configFrame_Panel)
 	{
 		m_mainWin = mainWin;
 
@@ -128,10 +135,10 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		helpMenu.setMnemonic(JAPMessages.getString(JAPHelp.MSG_HELP_BUTTON).charAt(0));
 		m_MenuBar.add(helpMenu);
 
-		//items for "file"
+		// items for "File"
 		m_newMenuItem = new JMenuItem("New");
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
-		m_openMenuItem = new JMenuItem("Open...");
+		m_openMenuItem = new JMenuItem("Open ...");
 		m_openclipItem = new JMenuItem("Open from clipboard");
 
 		m_checkItem = new JMenuItem("Check");
@@ -148,7 +155,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_saveclipItem = new JMenuItem("Save to clipboard");
 		m_saveclipItem.setEnabled(false);
 
-		m_saveAsMenuItem = new JMenuItem("Save as...");
+		m_saveAsMenuItem = new JMenuItem("Save as ...");
 		m_saveAsMenuItem.setEnabled(false);
 
 		m_newMenuItem.addActionListener(this);
@@ -187,16 +194,22 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_fileMenu.addSeparator();
 		m_fileMenu.add(exitMenuItem);
 
-		//items for "tools"
+		// Items for "Tools"
+		JMenuItem toolEmailMenuItem = new JMenuItem(JAPMessages.getString(MSG_EMAIL));
+		m_toolsMenu.add(toolEmailMenuItem);
+		//toolEmailMenuItem.setEnabled(false);
+		toolEmailMenuItem.setActionCommand("toolEmailMenuItem");
+		toolEmailMenuItem.addActionListener(this);
+		
 		JMenuItem toolCertSigMenuItem = new JMenuItem("Sign X.509 certificate ...");
 		m_toolsMenu.add(toolCertSigMenuItem);
 		toolCertSigMenuItem.setActionCommand("toolCertSigMenuItem");
 		toolCertSigMenuItem.addActionListener(this);
 
-		JMenuItem toolPGPMenuItem = new JMenuItem("Convert PGP to X.509 ...");
-		m_toolsMenu.add(toolPGPMenuItem);
-		toolPGPMenuItem.setActionCommand("toolPGPMenuItem");
-		toolPGPMenuItem.addActionListener(this);
+		//JMenuItem toolPGPMenuItem = new JMenuItem("Convert PGP to X.509 ...");
+		//m_toolsMenu.add(toolPGPMenuItem);
+		//toolPGPMenuItem.setActionCommand("toolPGPMenuItem");
+		//toolPGPMenuItem.addActionListener(this);
 
 		JMenuItem toolEncLogMenuItem = new JMenuItem("Display encrypted mix log ...");
 		m_toolsMenu.add(toolEncLogMenuItem);
@@ -209,7 +222,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		toolCertViewMenuItem.addActionListener(this);
 
 
-		//items for "view"
+		// Items for "View"
 		m_changeViewToWizMenuItem = new JCheckBoxMenuItem("Wizard", false);
 		viewMenu.add(m_changeViewToWizMenuItem);
 		m_changeViewToWizMenuItem.setActionCommand("ChangeViewToWiz");
@@ -224,7 +237,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_defaultSize.addActionListener(this);
 		viewMenu.add(m_defaultSize);
 
-		//items for "help"
+		// Items for "Help"
 		JMenuItem aboutMenuItem = new JMenuItem("About...");
 		helpMenu.add(JAPHelp.createHelpMenuItem(this));
 		helpMenu.add(aboutMenuItem);
@@ -291,7 +304,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			reset();
 			if (!a_bStartNewConfiguration)
 			{
-				cp.setStartScreenVisible(); //set correct button lables
+				cp.setStartScreenVisible(); //set correct button labels
 			}
 			m_configWiz_Panel.changeButtonLabelToNext();
 			m_configWiz_Panel.stateChanged(new ChangeEvent(this));
@@ -302,6 +315,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 	{
 		try
 		{
+			// Get the mix configuration object
 			MixConfiguration mixConf = MixConfig.getMixConfiguration();
 
 			if (evt.getActionCommand().equals(CMD_RESET))
@@ -310,7 +324,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			}
 			else if (evt.getSource() == m_defaultSize)
 			{
-				( (ChoicePanel) m_configWiz_Panel.getParent()).setDefaultSize();
+				((ChoicePanel)m_configWiz_Panel.getParent()).setDefaultSize();
 			}
 			else if (evt.getActionCommand().equals("New") || evt.getActionCommand().equals(CMD_NEW_FROM_CANCEL))
 			{
@@ -331,34 +345,35 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 				{
 					JAPDialog.showMessageDialog(MixConfig.getMainWindow(), "Configuration is valid.", "Check");
 				}
+				// XXX: Additionally perform the NEW reload-check here
+				mixConf.performReloadCheck();
 			}
 			else if (evt.getActionCommand().equals("Save"))
 			{
-				if (ignoreInconsistenciesForSaving() && MixConfig.getCurrentFileName() != null)
+				if (ignoreInconsistenciesForSaving() && MixConfig.getCurrentFileName() != null && 
+						mixConf.performReloadCheck())
 				{
 					mixConf.save(new FileWriter(MixConfig.getCurrentFileName()));
 				}
 			}
 			else if (evt.getActionCommand().equals("SaveAs"))
 			{
-				if (ignoreInconsistenciesForSaving())
+				if (ignoreInconsistenciesForSaving() && mixConf.performReloadCheck())
 				{
 					JFileChooser fileChooser =
 						MixConfig.showFileDialog(MixConfig.getMainWindow(), MixConfig.SAVE_DIALOG,
-												 MixConfig.FILTER_XML);
+								     MixConfig.FILTER_XML);
 					if (fileChooser == null)
 					{
 						return;
 					}
 					File file = fileChooser.getSelectedFile();
-
 					if (file != null)
 					{
 						String fname = file.getName();
 						if (!fname.toLowerCase().endsWith(".xml"))
 						{
 							file = new File(file.getParent(), fname + ".xml");
-
 						}
 						mixConf.save(new FileWriter(file.getCanonicalPath()));
 						m_saveMenuItem.setText("Save [" + file.getName() + "] ");
@@ -369,27 +384,25 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			}
 			else if (evt.getActionCommand().equals("SaveClip"))
 			{
-				if (ignoreInconsistenciesForSaving())
+				if (ignoreInconsistenciesForSaving() && mixConf.performReloadCheck())
 				{
 					StringWriter sw = new StringWriter();
 					MixConfig.getMixConfiguration().save(sw);
 					String xmlString = sw.toString();
 					GUIUtils.saveTextToClipboard(xmlString, MixConfig.getMainWindow());
-					//MixConfig.getMixConfiguration().setSavedToFile();
+					//mixConf.setSavedToFile();
 				}
 			}
 			else if (evt.getActionCommand().equals("OpenClip"))
 			{
+				// Read XML from the clipboard into a string
 				String xmlString = GUIUtils.getTextFromClipboard(m_MenuBar);
-
-				//m_configFrame_Panel.setConfiguration(new MixConfiguration(new StringReader(xmlString)));
 				StringReader sr = new StringReader(xmlString);
-				MixConfiguration mixconfig = MixConfig.getMixConfiguration();
 				try
 				{
-					mixconfig.setMixConfiguration(sr);
-					m_configFrame_Panel.setConfiguration(mixconfig);
-					m_configWiz_Panel.setConfiguration(mixconfig);
+					mixConf.setMixConfiguration(sr);
+					m_configFrame_Panel.setConfiguration(mixConf);
+					m_configWiz_Panel.setConfiguration(mixConf);
 
 					//if you choose "open using clipboard", when the start-screen is in top, then start the expert-mode
 					ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
@@ -405,34 +418,30 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 				catch (XMLParseException a_e)
 				{
 					JAPDialog.showErrorDialog(MixConfig.getMainWindow(),
-											  JAPMessages.getString(MSG_NO_VALID_CLIPDOC),
-											  JAPMessages.getString(MSG_COULD_NOT_PARSE), LogType.GUI, a_e);
+							     JAPMessages.getString(MSG_NO_VALID_CLIPDOC),
+								 JAPMessages.getString(MSG_COULD_NOT_PARSE), LogType.GUI, a_e);
 				}
 			}
 			else if (evt.getActionCommand().equals(CMD_OPEN_FILE) ||
 					 evt.getActionCommand().equals(CMD_OPEN_FILE_WIZARD))
 			{
-
 				File file = null;
-				JFileChooser chooser = MixConfig.showFileDialog(
-								MixConfig.getMainWindow(), MixConfig.OPEN_DIALOG, MixConfig.FILTER_XML);
+				JFileChooser chooser = MixConfig.showFileDialog(MixConfig.getMainWindow(), 
+						                            MixConfig.OPEN_DIALOG, MixConfig.FILTER_XML);
 				if (chooser != null)
 				{
 					file = chooser.getSelectedFile();
 				}
-
-				MixConfiguration mixconfig = MixConfig.getMixConfiguration();
-
-				if (file != null && mixconfig.setMixConfiguration(new FileReader(file)))
+				if (file != null && mixConf.setMixConfiguration(new FileReader(file)))
 				{
-					m_configFrame_Panel.setConfiguration(mixconfig);
-					m_configWiz_Panel.setConfiguration(mixconfig);
+					m_configFrame_Panel.setConfiguration(mixConf);
+					m_configWiz_Panel.setConfiguration(mixConf);
 
 					m_saveMenuItem.setText("Save [" + file.getName() + "] ");
 					m_saveMenuItem.setEnabled(true);
 					MixConfig.setCurrentFilename(file.getCanonicalPath());
 
-					//if you choose "open", when the start-screen is in top, then start the expert-mode
+					// If "open" is chosen, when the start-screen is in top, then start expert-mode
 					ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
 					if (evt.getActionCommand().equals(CMD_OPEN_FILE))
 					{
@@ -444,9 +453,14 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 					}
 					m_configFrame_Panel.reset(); //show the first leaf
 					m_configWiz_Panel.reset(); //show the first leaf
-					MixConfig.getMixConfiguration().setSavedToFile();
+					mixConf.setSavedToFile();
 				}
 			}
+			else if (evt.getActionCommand().equals("toolEmailMenuItem"))
+			{
+				// FIXME: How to call a non-static method in OwnCertificatesPanel from here?
+				EmailComposer.composeEmail();
+			}			
 			else if (evt.getActionCommand().equals("toolCertSigMenuItem"))
 			{
 				new CertificationTool(MixConfig.getMainWindow());
@@ -454,10 +468,6 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			else if (evt.getActionCommand().equals("toolEncLogMenuItem"))
 			{
 				new EncryptedLogTool(MixConfig.getMainWindow());
-			}
-			else if (evt.getActionCommand().equals("toolPGPMenuItem"))
-			{
-				new PGPtoX509Tool(MixConfig.getMainWindow());
 			}
 			else if (evt.getActionCommand().equals("toolCertViewMenuItem"))
 			{
@@ -469,42 +479,38 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			}
 			else if (evt.getActionCommand().equals("ChangeViewToWiz"))
 			{
-				LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Set Wizard Visible");
+				LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Switching to Wizard View");
 				ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
-				boolean bSavedToFile = MixConfig.getMixConfiguration().isSavedToFile();
+				boolean bSavedToFile = mixConf.isSavedToFile();
 				cp.setWizardVisible();
 				m_configWiz_Panel.load();
 				if (bSavedToFile)
 				{
-					MixConfig.getMixConfiguration().setSavedToFile();
+					mixConf.setSavedToFile();
 				}
 			}
 			else if (evt.getActionCommand().equals("ChangeViewToExpert"))
 			{
-				LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Set Expert Visible");
+				LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Switching to Expert View");
 				ChoicePanel cp = (ChoicePanel) m_configFrame_Panel.getParent();
-				boolean bSavedToFile = MixConfig.getMixConfiguration().isSavedToFile();
+				boolean bSavedToFile = mixConf.isSavedToFile();
 				cp.setExpertVisible();
 				m_configFrame_Panel.load();
 				m_configFrame_Panel.setActivePanel(m_configWiz_Panel.getCurrentPageClass());
 				if (bSavedToFile)
 				{
-					MixConfig.getMixConfiguration().setSavedToFile();
+					mixConf.setSavedToFile();
 				}
 			}
-
 		}
 		catch (Exception e)
 		{
 			JAPDialog.showErrorDialog(MixConfig.getMainWindow(),
-									  JAPMessages.getString(JAPDialog.MSG_ERROR_UNKNOWN), LogType.GUI, e);
+					     JAPMessages.getString(JAPDialog.MSG_ERROR_UNKNOWN), LogType.GUI, e);
 		}
-
-		//set MessageTitle
-		( (ChoicePanel) m_configWiz_Panel.getParent()).setMessageTitle();
+		// Set MessageTitle
+		((ChoicePanel)m_configWiz_Panel.getParent()).setMessageTitle();
 	}
-
-
 
 	/** Clears all data in the panels and restarts with a new configuration object.
 	 * @throws IOException If a communication error occurs
@@ -515,7 +521,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_saveMenuItem.setText("Save [none]");
 		m_saveMenuItem.setEnabled(false);
 		MixConfig.setCurrentFilename(null);
-		//create a new empty MixConfiguration Instace
+		// Create a new empty instance of MixConfiguration
 		MixConfiguration mixconfig = new MixConfiguration();
 		m_configFrame_Panel.setConfiguration(mixconfig);
 		m_configWiz_Panel.setConfiguration(mixconfig);
@@ -529,13 +535,12 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		{
 			cp.setWizardVisible();
 		}
-
 	}
 
 	protected void checkUnuseableMenuItem()
 	{
 		ChoicePanel cp = (ChoicePanel) m_configWiz_Panel.getParent();
-		//grey the unusable Menuitem in "view"
+		// Inactivate MenuItems in "view"
 		if (cp.getActiveCard().equals(WIZARD))
 		{
 			m_changeViewToWizMenuItem.setEnabled(false);
@@ -550,7 +555,6 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			m_saveAsMenuItem.setEnabled(true);
 			m_saveclipItem.setEnabled(true);
 			m_checkItem.setEnabled(true);
-
 		}
 		else if (cp.getActiveCard().equals(EXPERT))
 		{
@@ -566,7 +570,6 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			m_saveAsMenuItem.setEnabled(true);
 			m_saveclipItem.setEnabled(true);
 			m_checkItem.setEnabled(true);
-
 		}
 		else if (cp.getActiveCard().equals(START))
 		{
@@ -582,34 +585,31 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			m_saveAsMenuItem.setEnabled(false);
 			m_saveclipItem.setEnabled(false);
 			m_checkItem.setEnabled(false);
-
 		}
-
 	}
 
 	/**
-	 * If there are inconsistencies in the current configuration the user is asked if
-	 * he wants to ignore them for saving.
+	 * If there are inconsistencies in the current configuration, ask the user if
+	 * she wants to ignore them for saving.
 	 * @throws IOException
-	 * @return true if there are no inconsistencies or all inconsistencies are ignored;
-	 *         fasle otherwise
+	 * @return true if there are no inconsistencies or inconsistencies should be ignored
+	 *         false otherwise
 	 */
 	private boolean ignoreInconsistenciesForSaving() throws IOException
 	{
+		// Return value
 		boolean bIgnore = true;
-
 		if (m_configFrame_Panel.check().length > 0)
 		{
-			bIgnore = JAPDialog.showYesNoDialog(MixConfig.getMainWindow(),
-												"The configuration is not consistent! " +
-												"The mix will not run properly if you do not " +
-												"correct the remaining errors." +
-												"Please choose '" + "" + "' for details. \n" +
-												"Do you really want to save this configuration?",
-												"Inconsistencies found");
+			bIgnore = JAPDialog.showYesNoDialog(MixConfig.getMainWindow(), 
+					               JAPMessages.getString(MSG_IGNORE_INCONSISTENCIES), 
+					               "Inconsistencies found");
 		}
-
 		return bIgnore;
 	}
 
+	public Container getHelpExtractionDisplayContext() 
+	{
+		return null;
+	}
 }

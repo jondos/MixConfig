@@ -28,10 +28,9 @@
 package mixconfig;
 
 import java.util.Vector;
-import javax.swing.ImageIcon;
 
-import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;
+import anon.crypto.X509Extensions;
 
 /** This interface contains methods that provide information needed for generating
  * new certificates. Classes that use <CODE>CertPanel</CODE> must implement this
@@ -67,5 +66,5 @@ public interface ICertCreationValidator
 	 * certificate are not met.
 	 * @return A warning about the prerequisites
 	 */
-	Vector getInvalidityMessages();
+	Vector<String> getInvalidityMessages();
 }

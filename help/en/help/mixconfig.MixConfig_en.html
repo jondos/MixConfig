@@ -1,0 +1,56 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>The MixConfig Tool</h2>
+
+Since creating a Mix configuration for operating a Mix server is quite a 
+complex task, we developed a configuration tool called <b>MixConfig</b>. It 
+is both a tool for creating the XML file that is used later on by your Mix 
+server, as well as a certificate management tool for the server's cryptographic
+keys. MixConfig is a Java application which will run on a Java Runtime 
+Environments or on Microsoft JView. The tool can be downloaded
+from <a href="http://anon.inf.tu-dresden.de/develop/MixConfig.html">this</a> 
+page or directly from 
+<a href="http://anon.inf.tu-dresden.de/develop/MixConfig.jar">here</a>. 
+The MixConfig tool can be started by typing the following command:
+
+<blockquote>
+	<code>java -jar MixConfig.jar</code>
+</blockquote>
+
+<!-- If you are using Java 1.1 you may additionally need the Swing classes. After 
+obtaining these, the tool can be started using
+
+<blockquote>
+	<code>java -classpath MixConfig.jar:swingall.jar mixconfig.MixConfig<code>
+</blockquote> -->
+
+You can query a list of possible options with
+
+<blockquote>
+	<code>java -jar MixConfig.jar --help</code>
+</blockquote>
+
+If you are a user of Microsoft Windows XP, these commands will do the 
+respective:
+
+<blockquote>
+<pre>
+<code>
+jview /cp MixConfig.jar mixconfig.MixConfig
+jview /cp MixConfig.jar mixconfig.MixConfig --help
+</code>
+</pre>
+</blockquote>
+
+<!-- JView command for Java 1.1 -->
+<!-- jview /cp MixConfig.jar:swingall.jar mixconfig.MixConfig -->
+
+<!--#include virtual="/footer_en.html"-->
+</body>
+</html>

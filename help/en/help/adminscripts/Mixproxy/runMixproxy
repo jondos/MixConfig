@@ -1,0 +1,21 @@
+#!/bin/bash
+
+### Define the installation directory.
+export INSTALL_PATH="/home/mix/Mixproxy"
+### Script options. There should be only minor changes here.
+export PROGRAM_NAME="mix"
+export PROGRAM="$PROGRAM_NAME"
+export PROGRAM_OPTIONS="--config=$INSTALL_PATH/config.xml"
+export COMPILE_OPTIONS="--enable-payment --enable-server_monitoring"
+export EXECUTE_COMMAND=""
+export LOGFILE="$INSTALL_PATH/messages"
+export VERSION_OPTION="-version"
+export CVS_MODULE="proxytest"
+#export CVS_DATE="-D 2007-03-19"
+export CVSROOT=":pserver:anonymous@cvs.inf.tu-dresden.de:/home/sk13/cvssource"
+
+export SVN_MODULE="Mix"
+export SVN_MODULE_URL="https://svn.jondos.de/svnpub/Mix/trunk"
+
+### Call the common start script
+$INSTALL_PATH/../runANONServer $*

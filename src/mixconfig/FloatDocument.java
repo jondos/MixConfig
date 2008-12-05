@@ -30,19 +30,20 @@ package mixconfig;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
+
 import anon.util.Util;
 
 /**
  *  A document that accepts only floating points.
  */
-class FloatDocument extends PlainDocument
+public class FloatDocument extends PlainDocument
 {
 	private float max, min;
 	private int aCDigits_max = 0;
 
 	// minval should be < 0 maxval > 0
 	// String s is seen as a format pattern
-	FloatDocument(String minval, String maxval)
+	public FloatDocument(String minval, String maxval)
 	{
 		super();
 		 // Float.parseFloat() not available in JDK 1.1.8 !!!
@@ -53,7 +54,7 @@ class FloatDocument extends PlainDocument
 	}
 
 	/**
-	 * counts the digits after a comma
+	 * Count the digits in front of the comma in a float
 	 * @param a_float float
 	 * @return int
 	 */
@@ -77,7 +78,7 @@ class FloatDocument extends PlainDocument
 	 }
 
 	/**
-	 * counts the digits in front of a comma in a float
+	 * Count the digits after the comma in a float
 	 * @param a_float float
 	 * @return int
 	 */
@@ -91,7 +92,7 @@ class FloatDocument extends PlainDocument
 	}
 
 	/**
-	 * counts the digits in front of a comma in a string
+	 * Count the digits after the comma in a string
 	 * @param a_string String
 	 * @return int
 	 */
@@ -104,26 +105,24 @@ class FloatDocument extends PlainDocument
 	}
 
 	/**
-	 *
 	 * @param offset int
 	 * @param str String
 	 * @param attr AttributeSet
 	 * @throws BadLocationException
 	 */
-
 	public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException
 	{
 		if (str == null)
 		{
 			return;
 		}
-
+		
 		String p1 = getText(0, offset);
 		String p2 = getText(offset, getLength() - offset);
 		String res = "";
-
+	
 		boolean hasPoint = p1.indexOf('.') >= 0 || p2.indexOf(',') >= 0;
-
+		// Insert the single characters		
 		for (int i = 0; i < str.length(); i++)
 		{
 			if (str.charAt(i) == '.' || str.charAt(i) == ',')
@@ -160,6 +159,7 @@ class FloatDocument extends PlainDocument
 					String all = p1 + p2;
 					int idx = all.indexOf(".");
 					int pt = all.length() - idx;
+					// XXX: What is this check for?
 					if (pt > aCDigits_max)
 					{
 						java.awt.Toolkit.getDefaultToolkit().beep();
@@ -167,9 +167,13 @@ class FloatDocument extends PlainDocument
 					else
 					{
 						String sstr = str.substring(i, i + 1);
-						float val = (new Float(p1 + res + sstr + p2)).floatValue();
-
+						float val = (new Float(p1 + res + sstr + p2)).floatValue();						
 						if ( (max > 0 && val > max) || (min < 0 && val < min))
+						{
+							java.awt.Toolkit.getDefaultToolkit().beep();
+						}
+						// Check the number of digits after the comma against aCDigits_max
+						else if (getACDigits(val) > aCDigits_max)
 						{
 							java.awt.Toolkit.getDefaultToolkit().beep();
 						}

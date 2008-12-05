@@ -27,17 +27,21 @@
  */
 package mixconfig;
 
+import gui.GUIUtils;
+import gui.JAPMessages;
+import gui.dialog.JAPDialog;
+import gui.help.JAPHelp;
+
+import java.awt.Component;
+import java.awt.Frame;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.Calendar;
 
-import java.awt.Frame;
-import java.awt.event.WindowAdapter;
-import java.awt.Component;
-import java.awt.event.WindowEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JFileChooser;
@@ -45,30 +49,27 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import org.w3c.dom.Document;
-import anon.crypto.PKCS12;
-import anon.crypto.Validity;
-import anon.crypto.X509DistinguishedName;
-import anon.crypto.X509SubjectKeyIdentifier;
-import anon.util.ResourceLoader;
-import anon.util.XMLUtil;
-import anon.util.ClassUtil;
-import gui.GUIUtils;
-import gui.dialog.JAPDialog;
-import gui.dialog.DialogContentPane;
-import gui.JAPHelp;
-import gui.JAPMessages;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import logging.SystemErrLog;
-import platform.AbstractOS;
+import mixconfig.tools.CertificateGenerator;
+
+import org.w3c.dom.Document;
+
+import anon.crypto.PKCS12;
+import anon.crypto.X509DistinguishedName;
+import anon.crypto.X509SubjectKeyIdentifier;
+import anon.util.ClassUtil;
+import anon.util.ResourceLoader;
+import anon.util.XMLUtil;
 
 public class MixConfig extends JApplet
 {
 	static
 	{
-		LogHolder.setLogInstance(new SystemErrLog(LogLevel.WARNING, LogType.ALL));
+		// Set log level here
+		LogHolder.setLogInstance(new SystemErrLog(LogLevel.DEBUG, LogType.ALL));
 	}
 
 	public final static int SAVE_DIALOG = 1;
@@ -82,8 +83,9 @@ public class MixConfig extends JApplet
 	public final static int FILTER_P10 = 32;
 	public final static int FILTER_B64_P10 = 64;
 
-	public final static String VERSION = "00.04.147"; //NEVER change the layout of this line!!
-
+	//public final static String VERSION = "00.04.147"; //NEVER change the layout of this line!!
+	public final static String VERSION = "00.05.003";
+	
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
 	private static final String MSG_COULD_NOT_INITIALISE =
@@ -93,9 +95,9 @@ public class MixConfig extends JApplet
 	private static final String MSG_ERROR_OPEN_FILE =
 		MixConfig.class.getName() + "_errorOpenFile";
 
-        /** The configuration object edited by this <CODE>MixConfig</CODE> application. */
+    /** The configuration object edited by this <CODE>MixConfig</CODE> application. */
 	private static MixConfiguration m_mixConfiguration;
-	private static JPanel m_mainPanel;
+	protected static JPanel m_mainPanel;
 	private static ChoicePanel m_startPanel;
 	private static Frame m_MainWindow;
 	private static File m_fileCurrentDir = new File(ClassUtil.getUserDir());
@@ -171,15 +173,17 @@ public class MixConfig extends JApplet
 
 			m_MainWindow = new JFrame();
 			((JFrame)m_MainWindow).setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+			
+			// Initially do not allow resizing
 			m_MainWindow.setResizable(false);
-			JAPHelp.init(m_MainWindow, AbstractOS.getInstance(), AbstractOS.getInstance());
+			JAPHelp.init(m_MainWindow, null);
 
 			if (m_currentFileName != null && (f = new File(m_currentFileName)).exists())
 			{
 				LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Load a configuration file...");
 				m_mixConfiguration = new MixConfiguration(new FileReader(f));
 			}
-			else //no existig file is given
+			else //no existing file is given
 			{
 				if (m_currentFileName != null)
 				{
@@ -197,7 +201,7 @@ public class MixConfig extends JApplet
 			((JFrame)m_MainWindow).setContentPane(m_startPanel);
 			m_MainWindow.pack();
 			GUIUtils.centerOnScreen(m_MainWindow);
-			LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Show the GUI startScreen...");
+			LogHolder.log(LogLevel.DEBUG, LogType.GUI, "Show the GUI's main window");
 			m_MainWindow.setVisible(true);
 
 			ImageIcon icon = GUIUtils.loadImageIcon(IMG_MAIN);
@@ -222,8 +226,7 @@ public class MixConfig extends JApplet
 			m_startPanel.setMessageTitle(); //set Message Title
 			m_mixConfiguration.setSavedToFile(); // tell the GUI that this configuration has not changed
 
-			LogHolder.log(LogLevel.INFO, LogType.MISC,
-						  "Startup time: " + (System.currentTimeMillis() - startTime));
+			LogHolder.log(LogLevel.INFO, LogType.MISC, "Startup time: "+(System.currentTimeMillis()-startTime)+" ms");
 /*
 			JAPDialog dialog = new JAPDialog(getMainWindow(), "Test", true);
 			//javax.swing.JDialog dialog = new javax.swing.JDialog(getMainWindow(), "Test", true);
@@ -239,14 +242,13 @@ public class MixConfig extends JApplet
 			dialog.setVisible(true);
 			System.out.println("hello");
 */
-			LogHolder.log(LogLevel.INFO, LogType.CRYPTO, "Initialising secure random generator...");
+			LogHolder.log(LogLevel.INFO, LogType.CRYPTO, "Initialising secure random generator ..");
 			new SecureRandom().nextDouble();
 			LogHolder.log(LogLevel.INFO, LogType.CRYPTO, "Secure random generator is initialised!");
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorDialog(getMainWindow(), JAPMessages.getString(MSG_COULD_NOT_INITIALISE),
-									  LogType.MISC, e);
+			JAPDialog.showErrorDialog(getMainWindow(), JAPMessages.getString(MSG_COULD_NOT_INITIALISE), LogType.MISC, e);
 			System.exit(1);
 		}
 	}
@@ -291,10 +293,10 @@ public class MixConfig extends JApplet
 			JAPMessages.init("MixConfigMessages");
 			m_MainWindow = (Frame)GUIUtils.getParentWindow(this);
 			m_mixConfiguration = new MixConfiguration();
-			JAPHelp.init(m_MainWindow, AbstractOS.getInstance(), AbstractOS.getInstance());
+			JAPHelp.init(m_MainWindow, null);
 
 			m_mainPanel = new ConfigFrame(null);
-			m_startPanel = new ChoicePanel(null,getRootPane());
+			m_startPanel = new ChoicePanel(null, getRootPane());
 
 			setContentPane(m_startPanel);
 		}
@@ -341,15 +343,15 @@ public class MixConfig extends JApplet
 		return m_currentFileName;
 	}
 
-	/** Displays an info message dialog
+	/** 
+	 * Display an info message dialog
 	 * @param a_title The title of the message dialog
 	 * @param a_message The messages to be displayed. Each message will be displayed in a single
 	 * line.
 	 */
 	public static void info(String a_title, String[] a_message)
 	{
-		String message = "";
-
+		//String message = "";
 		if (a_message == null || a_message.length == 0)
 		{
 			JAPDialog.showMessageDialog(getMainWindow(), "", a_title);
@@ -483,8 +485,8 @@ public class MixConfig extends JApplet
 			catch (IOException e)
 			{
 				JAPDialog.showErrorDialog(getMainWindow(),
-										   JAPMessages.getString(MSG_ERROR_OPEN_FILE, file.toString()),
-										   LogType.MISC, e);
+										  JAPMessages.getString(MSG_ERROR_OPEN_FILE, file.toString()),
+										  LogType.MISC, e);
 			}
 		}
 		return null;
@@ -497,8 +499,7 @@ public class MixConfig extends JApplet
 
 		// create mix certificate
 		X509DistinguishedName dn = new X509DistinguishedName("CN=");
-		CertificateGenerator certificateGenerator =
-			new CertificateGenerator(dn, null, new Validity(Calendar.getInstance(), 1), true);
+		CertificateGenerator certificateGenerator = new CertificateGenerator(dn, null, true);
 		certificateGenerator.run();
 		PKCS12 privateCert = certificateGenerator.getCertificate();
 		configuration.setValue("Certificates/OwnCertificate/X509PKCS12", privateCert.toByteArray());
