@@ -42,6 +42,23 @@ import java.net.URL;
  */
 public class WindowsOS extends AbstractOS
 {
+	public static final int HKEY_CLASSES_ROOT = 0x80000000;
+	public static final int HKEY_CURRENT_USER = 0x80000001;
+	public static final int HKEY_LOCAL_MACHINE = 0x80000002;
+	
+	public static final int DELETE = 0x10000;
+	public static final int KEY_QUERY_VALUE = 0x0001;
+	public static final int KEY_SET_VALUE = 0x0002;
+	public static final int KEY_CREATE_SUB_KEY = 0x0004;
+	public static final int KEY_ENUMERATE_SUB_KEYS = 0x0008;
+	public static final int KEY_READ = 0x20019;
+	public static final int KEY_WRITE = 0x20006;
+	public static final int KEY_ALL_ACCESS = 0xf003f;
+	
+	public static final int ERROR_SUCCESS = 0;
+	public static final int ERROR_FILE_NOT_FOUND = 2;
+	public static final int ERROR_ACCESS_DENIED = 5;
+    
 	public WindowsOS() throws Exception
 	{
 		String osName = System.getProperty("os.name", "").toLowerCase();
@@ -49,19 +66,32 @@ public class WindowsOS extends AbstractOS
 		{
 			throw new Exception("Operating system is not Windows");
 		}
+		
+		if (osName.indexOf("windows 9") > -1) 
+		{
+			initEnv("command.com /c set");
+		}
+		else  
+		{
+			initEnv("cmd.exe /c set");
+		} 
 	}
 
 	protected boolean openLink(String a_link)
 	{
 		try
 		{
+			//java.awt.Desktop.getDesktop().browse(new java.net.URI(a_link));			
 			Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + a_link);
+			//Runtime.getRuntime().exec(
+				//	new String[]{"C:\\Program Files\\Mozilla Firefox\\firefox.exe", a_link});
+			
 			return true;
 		}
 		catch (Exception ex)
 		{
 			LogHolder.log(LogLevel.ERR, LogType.MISC,
-						  "Cannot open '" + a_link + "' in Windows default program.");
+						  "Cannot open '" + a_link + "' in Windows default program.", ex);
 		}
 
 		return false;
@@ -69,10 +99,36 @@ public class WindowsOS extends AbstractOS
 
 	protected String getAsString(URL a_url)
 	{
-		return "\"" + super.getAsString(a_url) +"\"";
+		String strURL = super.getAsString(a_url);
+		if (new StringTokenizer(strURL).countTokens() > 1)
+		{
+			return "\"" + strURL +"\"";
+		}
+		else
+		{
+			return strURL;
+		}
 	}
 
-	public String getConfigPath()
+	public boolean isHelpAutoInstalled()
+	{
+		return true;
+	}
+	
+	public String getDefaultHelpPath(String a_applicationName)
+	{
+		//String dir = getEnvPath(a_applicationName, "ALLUSERSPROFILE"); 
+//		 ALLUSERSPROFILE has become virtual in Vista
+		String dir = getAppdataDefaultDirectory(a_applicationName);
+		if (dir == null)
+		{
+			dir = super.getDefaultHelpPath(a_applicationName);
+		}
+		
+		return dir;
+	}
+	
+	public String getConfigPath(String a_applicationName)
 	{
 		String vendor = System.getProperty("java.vendor", "unknown");
 		String dir = "";
@@ -104,16 +160,77 @@ public class WindowsOS extends AbstractOS
 			}
 			if (dir == null)
 			{
-				dir = System.getProperty("user.dir", ".");
+				dir = System.getProperty("user.dir");
 			}
 		}
 		else
 		{
-			dir = System.getProperty("user.home", ".");
+			dir = getAppdataDefaultDirectory(a_applicationName);
+			if (dir == null)
+			{
+				dir = System.getProperty("user.home");
+			}
 		}
-
 
 		return dir + File.separator;
 	}
-
+	
+	public String getAppdataDefaultDirectory(String a_applicationName)
+	{
+		return getEnvPath(a_applicationName, "APPDATA");
+	}
+	
+	public String getTempPath()
+	{
+		String tempDir = super.getTempPath();
+		
+		if (tempDir == null)
+		{
+			tempDir = getenv("TEMP");
+		}
+		
+		if (tempDir == null)
+		{
+			tempDir = getenv("TMP");
+		}
+		
+		if (tempDir != null && !tempDir.endsWith(File.separator))
+		{
+			tempDir += File.separator;
+		}
+		
+		return tempDir;
+	}
+	
+	private String getEnvPath(String a_applicationName, String a_envPath)
+	{
+		if (a_applicationName == null)
+		{
+			throw new IllegalArgumentException("Application name is null!");
+		}
+		
+		String path = null;
+		File directory;
+	
+		path = getenv(a_envPath);
+	
+		if (path != null && path.trim().length() > 0 && new File(path).exists())
+		{
+			//dirAllUsers += "\\Application Data\\" + a_applicationName;
+			path += File.separator + a_applicationName;
+			directory = new File(path + File.separator);
+			if (!directory.exists() && !directory.mkdir())
+			{
+				LogHolder.log(LogLevel.ERR, LogType.MISC,
+						"Could not create storage directory: " + path);
+				path = null;
+			}
+		}
+		else
+		{
+			path = null;
+		}
+		
+		return path;
+	}
 }

@@ -30,7 +30,6 @@ package platform;
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
-import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -59,14 +58,14 @@ public class LinuxOS extends AbstractOS
 		try
 		{
 			properties.load(Runtime.getRuntime().exec("env").getInputStream());
-			System.out.println(properties.getProperty("KDE_FULL_SESSION"));
 			m_bKDE = Boolean.valueOf(properties.getProperty("KDE_FULL_SESSION")).booleanValue();
 		}
 		catch (Exception a_e)
 		{
 		}
 		m_bGnome = properties.getProperty("GNOME_DESKTOP_SESSION_ID") != null;
-
+		
+		initEnv("env");
 	}
 
 	protected boolean openLink(String a_link)
@@ -105,7 +104,7 @@ public class LinuxOS extends AbstractOS
 		return false;
 	}
 
-	public String getConfigPath()
+	public String getConfigPath(String a_applicationName)
 	{
 		//Return path in user's home directory with hidden file (preceded by ".")
 		return System.getProperty("user.home", "") + "/.";
