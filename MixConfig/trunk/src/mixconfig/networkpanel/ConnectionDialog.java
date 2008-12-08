@@ -52,7 +52,7 @@ import gui.JAPMessages;
 import gui.dialog.JAPDialog;
 import gui.JAPJIntField;
 import javax.swing.JComponent;
-import mixconfig.MixOnCDPanel;
+import mixconfig.panels.MixOnCDPanel;
 
 abstract class ConnectionDialog extends JAPDialog
 {
