@@ -33,7 +33,7 @@ import org.w3c.dom.Node;
 import anon.util.XMLUtil;
 import gui.JAPMessages;
 import anon.util.IXMLEncodable;
-import mixconfig.MixOnCDPanel;
+import mixconfig.panels.MixOnCDPanel;
 
 final public class ConnectionData implements IXMLEncodable, Cloneable
 {
