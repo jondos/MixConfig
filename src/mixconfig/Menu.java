@@ -58,6 +58,7 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import mixconfig.tools.CertificationTool;
+import mixconfig.tools.DataRetentionLogDecrypt;
 import mixconfig.tools.EmailComposer;
 import mixconfig.tools.EncryptedLogTool;
 import mixconfig.wizard.ConfigWizard;
@@ -215,6 +216,11 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_toolsMenu.add(toolEncLogMenuItem);
 		toolEncLogMenuItem.setActionCommand("toolEncLogMenuItem");
 		toolEncLogMenuItem.addActionListener(this);
+
+		JMenuItem toolDataRetentionLogMenuItem = new JMenuItem("Process retained Data ...");
+		m_toolsMenu.add(toolDataRetentionLogMenuItem);
+		toolDataRetentionLogMenuItem.setActionCommand("toolDataRetentionLogMenuItem");
+		toolDataRetentionLogMenuItem.addActionListener(this);
 
 		JMenuItem toolCertViewMenuItem = new JMenuItem("View accepted CAs ...");
 		m_toolsMenu.add(toolCertViewMenuItem);
@@ -468,6 +474,10 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			else if (evt.getActionCommand().equals("toolEncLogMenuItem"))
 			{
 				new EncryptedLogTool(MixConfig.getMainWindow());
+			}
+			else if (evt.getActionCommand().equals("toolDataRetentionLogMenuItem"))
+			{
+				new DataRetentionLogDecrypt(MixConfig.getMainWindow());
 			}
 			else if (evt.getActionCommand().equals("toolCertViewMenuItem"))
 			{
