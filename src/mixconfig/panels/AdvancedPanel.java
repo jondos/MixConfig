@@ -36,21 +36,35 @@ import gui.TitledGridBagPanel;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
 import java.util.Vector;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
 import mixconfig.ConfigurationEvent;
 import mixconfig.MixConfiguration;
+import mixconfig.tools.dataretention.ANONSCLog;
 import anon.crypto.JAPCertificate;
+import anon.crypto.MyRSAPublicKey;
 import anon.infoservice.ListenerInterface;
 import anon.util.Base64;
 
@@ -60,7 +74,7 @@ import anon.util.Base64;
  * @author Tobias Bayer
  * @author Johannes Renner
  */
-public class AdvancedPanel extends MixConfigPanel implements ChangeListener
+public class AdvancedPanel extends MixConfigPanel implements ChangeListener,ActionListener
 {
 	/** XML-Paths */
 	private static final String XMLPATH_TRAFFIC_SHAPING = "Ressources";
@@ -97,9 +111,11 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 	private static final String MSG_COMPRESS_LOG = AdvancedPanel.class.getName() + "_compressLog";
 	private static final String MSG_LOG_SYSLOG = AdvancedPanel.class.getName() + "_logSyslog";
 
+	private static final String ACTIONCOMMAND_IMPORTDATARETENTIONKEY="impordataretentionkey";
 	// Panels
 	private TitledGridBagPanel m_panelLogging, m_panelMonitoring, m_panelTrafficShaping, m_panelMisc;
 	private CertPanel m_panelLogCert;
+	private JPanel m_panelDataRetention;
 	
 	// Filename (Logging)
 	private MixConfigTextField m_tfFileName;
@@ -115,9 +131,13 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 	
 	// Other components:
 	private JLabel m_lblMaxUsers; // Might be disabled
-	private JCheckBox m_cbDaemon, m_cbCompressLog;
+	private JCheckBox m_cbDaemon, m_cbCompressLog,m_cbDoDataRetention;
 	private JRadioButton m_rbConsole, m_rbFile, m_rbSyslog, m_rbNoLog;
 	private ButtonGroup m_loggingButtonGroup;
+	
+	
+	private JButton m_bttnImportDataRetentionKey;
+	private JTextField m_tfDataRetentionKey;
 
 	private String m_logFilePath = "General/Logging/File";
 
@@ -274,6 +294,30 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 		m_cbDaemon.setName("General/Daemon");
 		m_cbDaemon.addItemListener(this);
 		m_panelMisc.addRow(m_cbDaemon, null);
+		
+
+		//Data Retention Panel
+		m_panelDataRetention = new JPanel(new GridBagLayout());
+		m_panelDataRetention.setBorder(new TitledBorder("Data Retention"));
+		constraints.gridy++;
+		this.add(m_panelDataRetention, constraints);
+		//Enable / Disable
+		m_cbDoDataRetention=new JCheckBox("Enable Data Retention Logs");
+		GridBagConstraints c=new GridBagConstraints();
+		m_panelDataRetention.add(m_cbDoDataRetention,c);
+		
+		//Import public key
+		m_bttnImportDataRetentionKey=new JButton("Import public key...");
+		m_bttnImportDataRetentionKey.setActionCommand(ACTIONCOMMAND_IMPORTDATARETENTIONKEY);
+		m_bttnImportDataRetentionKey.addActionListener(this);
+		c.gridy=1;
+		m_panelDataRetention.add(m_bttnImportDataRetentionKey,c);
+
+		m_tfDataRetentionKey=new JTextField();
+		c.gridy=2;
+		c.weightx=1.0;
+		c.fill=GridBagConstraints.HORIZONTAL;
+		m_panelDataRetention.add(m_tfDataRetentionKey,c);
 		
 		// Keep the panels in place
 		constraints.gridx++;
@@ -601,5 +645,32 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener
 	public Container getHelpExtractionDisplayContext() 
 	{
 		return null;
+	}
+
+	private void importDataRetentionKey()
+	{
+		try{
+		ANONSCLog smartcard=new ANONSCLog();
+		smartcard.ConnectToANONCard();
+		MyRSAPublicKey key=smartcard.retrievePublicKey();
+		m_tfDataRetentionKey.setText(key.toString());
+		MixConfiguration c=getConfiguration();
+		Document doc=c.getDocument();
+		Element elem=key.toXmlElement(doc);
+		c.setValue("DataRetention/PublicEncryptionKey", elem);
+		}
+		catch(Exception e)
+		{
+			LogHolder.log(LogLevel.DEBUG,LogType.MISC,"Error accesing smart card "+ e.getMessage());
+			e.printStackTrace();
+		}
+		
+	}
+	@Override
+	public void actionPerformed(ActionEvent arg) {
+		if(arg.getActionCommand().equals(ACTIONCOMMAND_IMPORTDATARETENTIONKEY))
+			importDataRetentionKey();
+
+		
 	}
 }

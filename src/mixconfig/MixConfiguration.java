@@ -901,6 +901,23 @@ public class MixConfiguration
 	}
 	
 	/**
+	 * Save a XML Element to the configuration
+	 * 
+	 * @param a_xmlPath
+	 * @param a_cert
+	 */
+	public void setValue(String a_xmlPath, Element a_elem)
+	{
+		// XXX: Is it necessary to remove the old node??
+		this.removeNode(a_xmlPath);
+		// Find the node, create if it doesn't exist
+		Node n = getNode(a_xmlPath, true);
+		// Append the price certificate in 'Accounting'
+		n.appendChild(a_elem);
+		this.fireStateChanged(a_xmlPath, a_elem);
+	}
+
+	/**
 	 * Set a {@link Boolean} attribute that needs to be capitalized for whatever reason
 	 * 
 	 * @param a_xmlPath

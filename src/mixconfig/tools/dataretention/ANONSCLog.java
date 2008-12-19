@@ -9,17 +9,15 @@ import java.util.List;
 import javax.smartcardio.*;
 import java.security.*;
 import javax.crypto.*;
-import java.security.spec.*;
 import java.math.BigInteger;
 //import org.bouncycastle.crypto.engines.*;
 
-import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.crypto.params.AEADParameters;
 
+import anon.crypto.MyRSAPublicKey;
 
 /**
  *
@@ -144,8 +142,8 @@ public class ANONSCLog {
      * @returns retrieved public key
      *
      */
-    public PublicKey RetrievePublicKey() throws Exception {
-        PublicKey     key = null;
+    public MyRSAPublicKey retrievePublicKey() throws Exception {
+    	MyRSAPublicKey     key = null;
         byte[]  exponent = null;
         byte[]  modulus = null;
         short   modulusOffset = 0;
@@ -201,10 +199,7 @@ public class ANONSCLog {
         System.out.println("Key modulus is :" + modulusInt);
         BigInteger exponentInt = new BigInteger(1,exponent);
         System.out.println("Key exponent is :" + exponentInt);
-
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(modulusInt, exponentInt);
-        key = kf.generatePublic(publicKeySpec);
+        key=new MyRSAPublicKey(modulusInt, exponentInt);
 
         return key;
     }
