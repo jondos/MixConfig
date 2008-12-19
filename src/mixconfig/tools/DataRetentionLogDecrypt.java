@@ -82,7 +82,7 @@ private void initComponents() {
 	constraintsPanel.insets=new Insets(10,10,10,10);
 	panelLogfile.add(label,constraintsPanel);
 	
-	label=new JLabel("Schlüsselspeicher:");
+	label=new JLabel("Schluesselspeicher:");
 	constraintsPanel.gridx=0;
 	constraintsPanel.gridy=1;
 	constraintsPanel.anchor=GridBagConstraints.WEST;
@@ -98,7 +98,7 @@ private void initComponents() {
 	constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
 	panelLogfile.add(tf,constraintsPanel);
 	
-	label=new JLabel("Chipkarte in Kobil Lesegerät");
+	label=new JLabel("Chipkarte in Kobil Lesegeraet");
 	Font f=label.getFont();
 	label.setFont(f.deriveFont(Font.BOLD));
 	label.setForeground(Color.blue);
@@ -116,7 +116,7 @@ private void initComponents() {
 	constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
 	panelLogfile.add(bttn,constraintsPanel);
 
-	bttn=new JButton("Auswählen ...");
+	bttn=new JButton("Auswaehlen ...");
 	constraintsPanel.gridx=2;
 	constraintsPanel.gridy=1;
 	constraintsPanel.weightx=0;
