@@ -37,7 +37,7 @@ public class RetentionDlg extends javax.swing.JFrame {
 
                 m_logs.append("Retriving public key... ");
                 try {
-                    if ((m_publicKey = anonLog.RetrievePublicKey()) != null) {
+                    if ((m_publicKey = anonLog.retrievePublicKey()) != null) {
                         m_logs.append("OK\n");
                         m_logs.append(m_publicKey.toString() + "\n");
                     }
