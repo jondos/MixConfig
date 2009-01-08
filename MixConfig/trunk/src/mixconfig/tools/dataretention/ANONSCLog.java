@@ -318,8 +318,15 @@ public class ANONSCLog {
      */
     public byte[] DecryptLogLineKey(byte[] logKey, byte[] encrData, byte[] iv) throws Exception {
         // DECRYPT AND VERIFY AUTHENTICATION TAG
-        GCMBlockCipher gcmCipher = new GCMBlockCipher(new AESFastEngine());
-        //byte iv[] = new byte[16];
+      /*  GCMBlockCipher gcmCipher = new GCMBlockCipher(new AESFastEngine());
+        byte iv1[] = new byte[12];
+        gcmCipher.init(true, new AEADParameters(new KeyParameter(logKey), GCM_AUTH_TAG_LENGTH, iv1, null));
+        int tmp = gcmCipher.getOutputSize(encrData.length);
+        byte[] plainText = new byte[128];
+        int outL = gcmCipher.processBytes(plainText, 0, 16, plainText, 64);
+        gcmCipher.doFinal(plainText, outL+64);
+*/
+    	GCMBlockCipher gcmCipher = new GCMBlockCipher(new AESFastEngine());
         gcmCipher.init(false, new AEADParameters(new KeyParameter(logKey), GCM_AUTH_TAG_LENGTH, iv, null));
         int tmp = gcmCipher.getOutputSize(encrData.length);
         byte[] plainText = new byte[tmp];
@@ -516,7 +523,12 @@ public class ANONSCLog {
         ResponseAPDU resp = sendAPDU(apdu);
         if (resp.getSW() != 0x9000) {
             System.out.println("Fail to decrypt key");
-            return null;
+            {//HACK!
+            	byte[] bh=new byte[16];
+            	System.arraycopy(encryptedKey, 0, bh, 0, 16);
+            	return bh;
+            }
+            //return null;
         }
         else {
             System.out.println(bytesToHex(resp.getBytes()));
@@ -539,12 +551,12 @@ public class ANONSCLog {
     * @return Array with initialization vector.
      */
     public byte[] CreateIV(int blocksCounter) {
-        byte[] iv = new byte[AES_BLOCK_LENGTH];
+        byte[] iv = new byte[12];
         for (int i = 0; i < iv.length; i++) iv[i] = 0;
-        iv[AES_BLOCK_LENGTH-4] = (byte) (blocksCounter >> 24 & 0xff);
-        iv[AES_BLOCK_LENGTH-3] = (byte) (blocksCounter >> 16 & 0xff);
-        iv[AES_BLOCK_LENGTH-2] = (byte) (blocksCounter >> 8 & 0xff);
-        iv[AES_BLOCK_LENGTH-1] = (byte) (blocksCounter & 0xff);
+        iv[8] = (byte) (blocksCounter >> 24 & 0xff);
+        iv[9] = (byte) (blocksCounter >> 16 & 0xff);
+        iv[10] = (byte) (blocksCounter >> 8 & 0xff);
+        iv[11] = (byte) (blocksCounter & 0xff);
         return iv;
     }
 
@@ -571,9 +583,9 @@ public class ANONSCLog {
     * @return Number of blocks that should be present in file.
      */
     public int VerifyFooter(byte[] logKey, byte[] footer, int counter) throws Exception {
-        byte[] iv = CreateIV(counter);
+        byte[] iv = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
         byte[] data = DecryptLogLineKey(logKey, footer, iv);
-        int numBlocks = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
+        int numBlocks = data[0] << 24 | ((data[1] << 16)&0x00FF0000) | ((data[2] << 8)&0x00FF00) | (data[3]&0x00FF);
         return numBlocks;
     }
     
