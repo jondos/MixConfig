@@ -183,6 +183,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private int m_certAlgorithm;
 
 	private boolean m_bCreateDSACerts;
+	private int m_nKeySize=1024;
 	private boolean m_bCertificateSaved = true;
 
 	/** The certificate */
@@ -224,7 +225,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	public CertPanel(String a_name, String a_toolTip, JAPCertificate a_certificate, 
 			int a_certAlgorithm, int a_certType)
 	{
-		this(a_name, a_toolTip, (ICertificate) a_certificate, false, a_certAlgorithm, a_certType);
+		this(a_name, a_toolTip, (ICertificate) a_certificate, false, a_certAlgorithm, a_certType,1024);
 	}
 
 	/**
@@ -239,9 +240,26 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	public CertPanel(String a_name, String a_toolTip, PKCS12 a_certificate, 
 			int a_certAlgorithm, int a_certType)
 	{
-		this(a_name, a_toolTip, (ICertificate) a_certificate, true, a_certAlgorithm, a_certType);
+		this(a_name, a_toolTip, (ICertificate) a_certificate, true, a_certAlgorithm, a_certType,1024);
 	}
 	
+	/**
+	 * Constructs a new instance of <CODE>CertPanel</CODE> with the specified name, the
+	 * specified tool tip and the specified PKCS12 certificate. The keysize is used, if a new certificate is created.
+	 * @param a_name A name that will be displayed above the panel.
+	 * @param a_toolTip A text that will be displayed as a tool tip when the user moves the
+	 * mouse over the panel.
+	 * @param a_certificate the certificate (PKCS12)
+	 * @param a_certAlgorithm the certificate algorithm that is supported by this panel
+	 * @param a_certType ?
+	 * @param a_keysize keysize (in bits) used if a new key is created
+	 */
+	public CertPanel(String a_name, String a_toolTip, PKCS12 a_certificate, 
+			int a_certAlgorithm, int a_certType, int keysize)
+	{
+		this(a_name, a_toolTip, (ICertificate) a_certificate, true, a_certAlgorithm, a_certType,keysize);
+	}
+
 	/**
 	 * Constructs a new instance of <CODE>CertPanel</CODE> with the specified name, the
 	 * specified tool tip and the specified certificate.
@@ -253,7 +271,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	 * @param a_certAlgorithm the certificate algorithm that is supported by this panel
 	 */
 	private CertPanel(String a_name, String a_toolTip, ICertificate a_certificate, boolean a_pkcs12,
-					  int a_certAlgorithm, int a_certType)
+					  int a_certAlgorithm, int a_certType,int keysize)
 	{
 		// Add this CertPanel to the vector
 		ms_certpanels.addElement(this);
@@ -278,6 +296,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		m_certType = a_certType;
 		// Set the name
 		m_name = a_name;
+		//Set the keySize
+		m_nKeySize=keysize;
 		
 		//LogHolder.log(LogLevel.DEBUG, LogType.CRYPTO, "Creating a CertPanel with CertType " + m_certType);
 		
@@ -1168,7 +1188,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		
 		// Create the worker for certificate generation
 		final CertificateGenerator.CertificateWorker worker = CertificateGenerator.createWorker(dialog, 
-				passwordContentPane, m_validator.getSigName(), m_validator.getExtensions(), m_bCreateDSACerts);
+				passwordContentPane, m_validator.getSigName(), m_validator.getExtensions(), m_bCreateDSACerts,m_nKeySize);
 		
 		final FinishedContentPane finishedContentPane = new CertPanelFinishedContentPane(dialog, worker);
 		

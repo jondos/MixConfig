@@ -33,9 +33,11 @@ import gui.JAPMessages;
 import gui.MixConfigTextField;
 import gui.TitledGridBagPanel;
 
+import java.awt.CardLayout;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -63,8 +65,11 @@ import logging.LogType;
 import mixconfig.ConfigurationEvent;
 import mixconfig.MixConfiguration;
 import mixconfig.tools.dataretention.ANONSCLog;
+import mixconfig.tools.dataretention.DataRetentionEncryptionCertCreationValidator;
+import anon.crypto.ICertificate;
 import anon.crypto.JAPCertificate;
 import anon.crypto.MyRSAPublicKey;
+import anon.crypto.PKCS12;
 import anon.infoservice.ListenerInterface;
 import anon.util.Base64;
 
@@ -136,9 +141,12 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener,Acti
 	private ButtonGroup m_loggingButtonGroup;
 	
 	
+	//Data retention
 	private JButton m_bttnImportDataRetentionKey;
 	private JTextField m_tfDataRetentionKey;
-
+	private JPanel m_panelDataRetentionKeyStoreCards;
+	private JTextField m_tfDataRetentionLogDir;
+	
 	private String m_logFilePath = "General/Logging/File";
 
 	/**
@@ -300,24 +308,139 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener,Acti
 		m_panelDataRetention = new JPanel(new GridBagLayout());
 		m_panelDataRetention.setBorder(new TitledBorder("Data Retention"));
 		constraints.gridy++;
-		this.add(m_panelDataRetention, constraints);
+		constraints.gridwidth=2;
+		add(m_panelDataRetention, constraints);
 		//Enable / Disable
 		m_cbDoDataRetention=new JCheckBox("Enable Data Retention Logs");
 		GridBagConstraints c=new GridBagConstraints();
+		c.anchor=GridBagConstraints.NORTHWEST;
+		c.fill=GridBagConstraints.HORIZONTAL;
+		c.gridwidth=2;
+		c.weightx=1;
 		m_panelDataRetention.add(m_cbDoDataRetention,c);
 		
-		//Import public key
-		m_bttnImportDataRetentionKey=new JButton("Import public key...");
+		//Type of key storage
+		JPanel panelKeyStore=new JPanel(new GridBagLayout());
+		panelKeyStore.setBorder(new TitledBorder("Encryption Key Storage"));
+		c.gridy=0;
+		c.gridx=3;
+		c.gridwidth=1;
+		c.gridheight=2;
+		c.weightx=0;
+		m_panelDataRetention.add(panelKeyStore,c);
+		
+		JRadioButton radiobuttonSmartCard=new JRadioButton("Store on SmartCard");
+		JRadioButton radiobuttonDisk=new JRadioButton("Store on Disk (USB-Stick etc.)");
+		ButtonGroup bttngrpDataRetentionKeyStore=new ButtonGroup();
+		bttngrpDataRetentionKeyStore.add(radiobuttonDisk);
+		bttngrpDataRetentionKeyStore.add(radiobuttonSmartCard);
+		radiobuttonDisk.setSelected(true);
+		radiobuttonSmartCard.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				((CardLayout)m_panelDataRetentionKeyStoreCards.getLayout()).show(m_panelDataRetentionKeyStoreCards,"smartcard");
+			}
+			
+		});
+		radiobuttonDisk.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				((CardLayout)m_panelDataRetentionKeyStoreCards.getLayout()).show(m_panelDataRetentionKeyStoreCards,"disk");
+			}
+			
+		});
+
+		JPanel panelDataRetentionKeyStoreSelection=new JPanel();
+		panelDataRetentionKeyStoreSelection.add(radiobuttonDisk);
+		panelDataRetentionKeyStoreSelection.add(radiobuttonSmartCard);
+		
+		GridBagConstraints constriantsPanelKeyStore=new GridBagConstraints();
+		constriantsPanelKeyStore.gridy=0;
+		panelKeyStore.add(panelDataRetentionKeyStoreSelection,constriantsPanelKeyStore);
+		
+		//switch Panel for key on smartcard or disk
+		m_panelDataRetentionKeyStoreCards=new JPanel(new CardLayout());
+		constriantsPanelKeyStore.gridy=1;
+		constriantsPanelKeyStore.gridx=0;
+		constriantsPanelKeyStore.fill=GridBagConstraints.BOTH;
+		constriantsPanelKeyStore.weightx=1;
+		constriantsPanelKeyStore.weighty=1;
+		panelKeyStore.add(m_panelDataRetentionKeyStoreCards,constriantsPanelKeyStore);
+		
+		//Use key from disk
+		JPanel p=new JPanel(new GridBagLayout());
+		GridBagConstraints cp=new GridBagConstraints();
+		final CertPanel certp=new CertPanel("Log encryption key (USB stick or similar external storage)","This key is used to encrypt the data retention logs",(PKCS12)null,CertPanel.CERT_ALGORITHM_RSA,0,2048);
+		certp.setCertCreationValidator(new DataRetentionEncryptionCertCreationValidator());
+		certp.addChangeListener(new ChangeListener()
+		{
+			public void stateChanged(ChangeEvent arg0) {
+				MixConfiguration c=getConfiguration();
+				Document doc=c.getDocument();
+				ICertificate cert=certp.getCert();
+				if(cert==null)
+				{
+					c.removeNode("DataRetention/PublicEncryptionKey");
+				}
+				else
+				{
+				MyRSAPublicKey key=(MyRSAPublicKey)(cert.getPublicKey());
+				Element elem=key.toXmlElement(doc);
+				c.setValue("DataRetention/PublicEncryptionKey", elem);
+				}
+			}
+			
+		});
+		cp.gridy=0;
+		cp.weightx=1.0;
+		cp.weighty=1.0;
+		cp.fill=GridBagConstraints.BOTH;
+		p.add(certp,cp);
+		
+		m_panelDataRetentionKeyStoreCards.add(p, "disk");
+
+		//Import public key from smart card
+		p=new JPanel(new GridBagLayout());
+		m_bttnImportDataRetentionKey=new JButton("Import public key from Smart Card...");
 		m_bttnImportDataRetentionKey.setActionCommand(ACTIONCOMMAND_IMPORTDATARETENTIONKEY);
 		m_bttnImportDataRetentionKey.addActionListener(this);
-		c.gridy=1;
-		m_panelDataRetention.add(m_bttnImportDataRetentionKey,c);
+		cp.gridy=0;
+		p.add(m_bttnImportDataRetentionKey,cp);
 
 		m_tfDataRetentionKey=new JTextField();
-		c.gridy=2;
-		c.weightx=1.0;
+		cp.gridy=1;
+		cp.weightx=1.0;
+		cp.fill=GridBagConstraints.HORIZONTAL;
+		p.add(m_tfDataRetentionKey,cp);
+		
+		m_panelDataRetentionKeyStoreCards.add(p, "smartcard");
+
+
+		JLabel l=new JLabel("Log directory:");
+		c.anchor=GridBagConstraints.NORTHWEST;
 		c.fill=GridBagConstraints.HORIZONTAL;
-		m_panelDataRetention.add(m_tfDataRetentionKey,c);
+		c.weightx=0;
+		c.gridy=1;
+		c.gridx=0;
+		c.gridwidth=1;
+		c.gridheight=1;
+		m_panelDataRetention.add(l,c);
+		
+		m_tfDataRetentionLogDir=new JTextField();
+		m_tfDataRetentionLogDir.setName("DataRetention/LogDir");
+		m_tfDataRetentionLogDir.addFocusListener(this);
+		c.anchor=GridBagConstraints.NORTHWEST;
+		c.fill=GridBagConstraints.HORIZONTAL;
+		c.weightx=1;
+		c.gridy=1;
+		c.gridx=1;
+		c.gridwidth=1;
+		c.gridheight=1;
+		c.insets=new Insets(0,10,0,10);
+		m_panelDataRetention.add(m_tfDataRetentionLogDir,c);
+		
 		
 		// Keep the panels in place
 		constraints.gridx++;
@@ -544,6 +667,12 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener,Acti
 			if (m_tfMonitoringPort.getText().equals("")) c.removeNode(m_tfMonitoringPort.getName());
 			else save(m_tfMonitoringPort);
 		}		
+		
+		//Dat retention
+		else if(a_event.getSource()==m_tfDataRetentionLogDir)
+		{
+			save(m_tfDataRetentionLogDir);
+		}
 		else
 		{
 			super.focusLost(a_event);
