@@ -63,6 +63,8 @@ public class CertificateGenerator implements Runnable
 	private X509Extensions m_extensions;
 
 	private boolean m_bDSA;
+	
+	private int m_nKeySize=1024;
 
 	/** The newly generated certificate. */
 	private PKCS12 m_cert;
@@ -77,6 +79,21 @@ public class CertificateGenerator implements Runnable
 		m_name = a_name;
 		m_extensions = a_extensions;
 		m_bDSA = a_bDSA;
+		m_nKeySize=1024;
+	}
+
+	/** Constructor for <CODE>CertificateGenerator</CODE>
+	 * @param a_name The signer name
+	 * @param a_extensions the extensions for the certificate (optional, may be null)
+	 * @param a_bDSA if true, DSA is used; otherwise an RSA certificate is created
+	 * @param a_keyize size of newly generated key in bits
+	 */
+	public CertificateGenerator(X509DistinguishedName a_name, X509Extensions a_extensions, boolean a_bDSA,int keysize)
+	{
+		m_name = a_name;
+		m_extensions = a_extensions;
+		m_bDSA = a_bDSA;
+		m_nKeySize=keysize;
 	}
 
 	/** Retrieve the newly generated certificate.
@@ -107,11 +124,11 @@ public class CertificateGenerator implements Runnable
 		{
 			if (m_bDSA)
 			{
-				keyPair = DSAKeyPair.getInstance(new SecureRandom(), 1024, 80);
+				keyPair = DSAKeyPair.getInstance(new SecureRandom(), m_nKeySize, 80);
 			}
 			else
 			{
-				keyPair = RSAKeyPair.getInstance(new SecureRandom(), 1024, 80);
+				keyPair = RSAKeyPair.getInstance(new SecureRandom(),m_nKeySize, 80);
 			}
 
 			/**
@@ -154,7 +171,7 @@ public class CertificateGenerator implements Runnable
 												 DialogContentPane a_previousContentPane,
 												 X509DistinguishedName a_name,
 												 X509Extensions a_extensions,
-												 boolean a_bDSA)
+												 boolean a_bDSA,int keysize)
 	{
 		// FIXME: Please, let us remove this hack completely! 
 		// (It shall find a ValidityContentPane in the previous panes that exist in this dialog)		
@@ -177,7 +194,7 @@ public class CertificateGenerator implements Runnable
 		}*/
 
 		CertificateWorker worker = new CertificateWorker(a_parentDialog, a_previousContentPane,
-	       new CertificateGenerator(a_name, a_extensions, a_bDSA));
+	       new CertificateGenerator(a_name, a_extensions, a_bDSA,keysize));
 
 		return worker;
 	}

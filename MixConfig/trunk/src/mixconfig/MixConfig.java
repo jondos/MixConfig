@@ -84,7 +84,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_B64_P10 = 64;
 
 	//public final static String VERSION = "00.04.147"; //NEVER change the layout of this line!!
-	public final static String VERSION = "00.05.003";
+	public final static String VERSION = "00.05.004";
 	
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
