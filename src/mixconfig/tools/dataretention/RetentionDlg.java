@@ -171,7 +171,7 @@ public class RetentionDlg extends javax.swing.JFrame {
             }
         });
 
-        m_logsPeriod.setText("11102008");
+        m_logsPeriod.setText("31122008");
 
         jLabel4.setText("Logs date  (ddmmyyy)");
 
@@ -406,6 +406,17 @@ public class RetentionDlg extends javax.swing.JFrame {
                 out.write(decrData);
                 counter++;
             }
+            int extraEntries=0;
+            if(numLogLinesEntries*encrLogLineLength< (fileLength - header.GetLength() - FOOTER_LENGTH))
+            		{ //some remaining entries
+            			byte tmpBuff[]=new byte[(int)((fileLength - header.GetLength() - FOOTER_LENGTH)-numLogLinesEntries*encrLogLineLength)];
+            			in.read(tmpBuff);
+                        iv = anonLog.CreateIV(counter);
+                        decrData = anonLog.DecryptLogLineKey(decrLogKey, tmpBuff, iv);
+                        m_logs.append(" Log line " + counter + " : " + anonLog.bytesToHex(decrData) + "\n");
+                        extraEntries=tmpBuff.length/ANONSCLog.entity_entry_lengths[header.logging_entity];
+            		}
+            
 
             // DECRYPT FOOTER, VERIFY NUMBER OF BLOCKS
             byte[] footer = new byte[FOOTER_LENGTH];
@@ -415,7 +426,7 @@ public class RetentionDlg extends javax.swing.JFrame {
             m_logs.append("OK\n");
             m_logs.append("Number of log entries from footer: " + footerNumLogLines + "\n");
 
-            if (numLogLinesEntries != footerNumLogLines) {
+            if (numLogLinesEntries*header.nr_of_log_entries_per_encrypted_log_line +extraEntries!= footerNumLogLines) {
                 m_logs.append("ERROR: Number of log entries from footer differ from observed logs");
                 throw new Exception();
             }

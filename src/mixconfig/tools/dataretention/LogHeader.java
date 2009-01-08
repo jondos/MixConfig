@@ -68,11 +68,12 @@ public class LogHeader {
         logged_fields = (byte) file.read();
         nr_of_log_entries_per_encrypted_log_line = (byte) file.read();
         nr_of_keys = (byte) file.read();
+        int ret=0;
         for (int i = 0; i < nr_of_keys; i++) {
             keys[i].encryptedKeyBlock = new byte[t_encrypted_key.ENCRYPTED_KEY_LENGTH];
-            file.read(keys[i].encryptedKeyBlock);
+            ret=file.read(keys[i].encryptedKeyBlock);
         }
-        file.read(auth_tag);
+        ret=file.read(auth_tag);
     }
 
     public int GetLength() {
