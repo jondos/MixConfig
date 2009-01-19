@@ -552,12 +552,15 @@ private void doVerifyLogFiles() {
 						model.setValueAt("ok", model.getRowCount()-1, 3);
 						int lines=anonLogFile.getNrOfLogLines();
 						labelCurrentFileStatus.setText("Try to verify log line 1/"+lines);
+						int goodLines=0,badLines=0;
 						try
 						{
 						anonLogFile.verifyFirstLogLine();
+						goodLines++;
 						}catch(Exception e)
 						{
 							labelCurrentFileStatus.setText("Try to verify log line 1/"+lines+" (1 Error, last error message: "+e.getMessage()+")");
+							badLines++;
 						}
 						for(int i=2;i<=lines&&bRun;i++)
 						{
@@ -565,11 +568,15 @@ private void doVerifyLogFiles() {
 							try
 							{
 								anonLogFile.verifyNextLogLine();
+								goodLines++;
 							}catch(Exception e)
 							{
 								labelCurrentFileStatus.setText("Try to verify log line "+i+"/"+lines+" (1 Error, last error message: "+e.getMessage()+")");
+								badLines++;
 							}
-						}//for each log line		
+						}//for each log line
+						model.setValueAt(goodLines+" ok / "+badLines+" failed" , model.getRowCount()-1, 2);
+
 					}// skip next
 				}//if is files
 //next_files:
