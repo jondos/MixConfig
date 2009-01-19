@@ -16,7 +16,9 @@ import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.AEADParameters;
-
+import org.bouncycastle.crypto.digests.SHA512Digest;
+import anon.crypto.MyRSA;
+import anon.crypto.MyRSAPrivateKey;
 import anon.crypto.MyRSAPublicKey;
 
 /**
@@ -303,7 +305,7 @@ public class ANONSCLog {
         // RETRIEVE KEY FROM CARD
         byte[] plainKey = null;
         
-        if ((plainKey = User_DecryptLogKey(encrLogKey)) != null) {
+        if ((plainKey = User_DecryptLogKey(encrLogKey,null)) != null) {
             return DecryptLogLineKey(plainKey, encrData, iv);
         }
         else return null;
@@ -486,8 +488,23 @@ public class ANONSCLog {
      * @param encryptedKey block containing encrypted log key with usage date.
      * @return decrypted lo key, if key can be retrieved, null otherwise
      */
-    public byte[] User_DecryptLogKey(byte[] encryptedKey) throws Exception {
-        int remainingLength = encryptedKey.length;
+    public byte[] User_DecryptLogKey(byte[] encryptedKey, MyRSAPrivateKey privKey) throws Exception {
+        if(privKey!=null)
+        {//usr privKey for decryption
+        	MyRSA rsa=new MyRSA();
+        	rsa.init(privKey);
+        	byte[] decBlock=rsa.processBlockPKCS1(encryptedKey,0, encryptedKey.length);
+        	byte[] key=new byte[16];
+        	SHA512Digest sha=new SHA512Digest();
+        	sha.update(decBlock, 16, 4);
+        	byte digest[]=new byte[sha.getDigestSize()];
+        	sha.doFinal(digest,0);
+        	for(int i=0;i<16;i++)
+        		key[i]=(byte)(decBlock[i]^digest[i]);
+         return key;
+        }
+    	
+    	int remainingLength = encryptedKey.length;
         byte apduCounter = 0;
         int offset = 0;
         while (remainingLength > APDU_DATA_LENGTH) {

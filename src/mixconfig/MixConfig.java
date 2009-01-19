@@ -74,6 +74,7 @@ public class MixConfig extends JApplet
 
 	public final static int SAVE_DIALOG = 1;
 	public final static int OPEN_DIALOG = 2;
+	public final static int CHOOSE_DIR_DIALOG = 3;
 	public final static int FILTER_ALL = 0;
 	public final static int FILTER_CER = 1;
 	public final static int FILTER_XML = 2;
@@ -414,7 +415,10 @@ public class MixConfig extends JApplet
 									  LogType.MISC);
 			return null;
 		}
-		fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		if(type==MixConfig.CHOOSE_DIR_DIALOG)
+			fd2.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		else
+			fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		if ( (filter_type & FILTER_CER) != 0)
 		{
 			fd2.addChoosableFileFilter(active = new SimpleFileFilter(FILTER_CER));
@@ -463,7 +467,14 @@ public class MixConfig extends JApplet
 		}
 
 		m_fileCurrentDir = fd2.getCurrentDirectory();
+		if(type==MixConfig.CHOOSE_DIR_DIALOG) //seems that the JFileChosser always sets the parent of the selected item
+			                                  //that means if we select are directory, the parent of that directory become the current directory...
+											//so we change this back here...
+		{
+			m_fileCurrentDir=fd2.getSelectedFile();
+		}
 		return fd2;
+		
 	}
 
 	public static byte[] openFile(Component a_component, int type)
