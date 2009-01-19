@@ -16,6 +16,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.File;
 
+import anon.crypto.MyRSAPrivateKey;
+import anon.crypto.PKCS12;
+
 public class RetentionDlg extends javax.swing.JFrame {
     static ANONSCLog    anonLog = new ANONSCLog();
 
@@ -223,7 +226,7 @@ public class RetentionDlg extends javax.swing.JFrame {
         createTestLogs.setText("Generate test logs");
         createTestLogs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                createTestLogsActionPerformed(evt);
+              //  createTestLogsActionPerformed(evt);
             }
         });
 
@@ -364,7 +367,7 @@ public class RetentionDlg extends javax.swing.JFrame {
             m_logs.append("Writing into file '" + fileNameOut + "'\n");
 
             // READ AND PARSE HEADER
-            LogHeader   header = new LogHeader();
+            DataRetentionLogFileHeader   header = new DataRetentionLogFileHeader();
             m_logs.append("Parsing header... ");
             header.parseFromFile(in);
             m_logs.append("OK\n");
@@ -374,7 +377,9 @@ public class RetentionDlg extends javax.swing.JFrame {
             // TODO: solve probelm with multiple keys
             byte[] decrLogKey = null;
             m_logs.append("Retrieving log key... ");
-            if ((decrLogKey = anonLog.User_DecryptLogKey(header.keys[0].encryptedKeyBlock)) != null) {
+            PKCS12 pkcs12=PKCS12.getInstance(new FileInputStream("c:/dataretentiontest.pfx"),"");
+            MyRSAPrivateKey privKey=(MyRSAPrivateKey)pkcs12.getPrivateKey();
+            if ((decrLogKey = anonLog.User_DecryptLogKey(header.getEncryptedKey(0),privKey)) != null) {
                 m_logs.append("OK\n");
                 m_logs.append("Log key: " + anonLog.bytesToHex(decrLogKey) + "\n");
             }
@@ -384,13 +389,14 @@ public class RetentionDlg extends javax.swing.JFrame {
             }
 
             // COMPUTE EXPECTED ENCRYPTED LENGTH OF LOG LINE
-            int encrLogLineLength = anonLog.GetExpectedLogLineLength(header.nr_of_log_entries_per_encrypted_log_line * ANONSCLog.entity_entry_lengths[header.logging_entity]);
+            int encrLogLineLength = header.getSizeOfLogLine();//
+            //anonLog.GetExpectedLogLineLength(header.nr_of_log_entries_per_encrypted_log_line * ANONSCLog.entity_entry_lengths[header.logging_entity]);
             m_logs.append("Expected length of single log line: " + encrLogLineLength + "\n");
 
             // ESTIMATE NUMBER ENCRYPTED LOG LINES
             File file = new File(fileName);
             long fileLength = file.length();
-            int numLogLinesEntries = (int) ((fileLength - header.GetLength() - FOOTER_LENGTH) / encrLogLineLength);
+            int numLogLinesEntries = (int) ((fileLength - header.getLength() - FOOTER_LENGTH) / encrLogLineLength);
             m_logs.append("Expected number of log entries: " + numLogLinesEntries + "\n");
             byte[] encrLogLine = new byte[encrLogLineLength];
             byte[] decrData = null;
@@ -407,14 +413,15 @@ public class RetentionDlg extends javax.swing.JFrame {
                 counter++;
             }
             int extraEntries=0;
-            if(numLogLinesEntries*encrLogLineLength< (fileLength - header.GetLength() - FOOTER_LENGTH))
+            if(numLogLinesEntries*encrLogLineLength< (fileLength - header.getLength() - FOOTER_LENGTH))
             		{ //some remaining entries
-            			byte tmpBuff[]=new byte[(int)((fileLength - header.GetLength() - FOOTER_LENGTH)-numLogLinesEntries*encrLogLineLength)];
+            			byte tmpBuff[]=new byte[(int)((fileLength - header.getLength() - FOOTER_LENGTH)-numLogLinesEntries*encrLogLineLength)];
             			in.read(tmpBuff);
                         iv = anonLog.CreateIV(counter);
                         decrData = anonLog.DecryptLogLineKey(decrLogKey, tmpBuff, iv);
                         m_logs.append(" Log line " + counter + " : " + anonLog.bytesToHex(decrData) + "\n");
-                        extraEntries=tmpBuff.length/ANONSCLog.entity_entry_lengths[header.logging_entity];
+                        extraEntries=tmpBuff.length/header.getSizeOfLogEntry();//
+                        //ANONSCLog.entity_entry_lengths[header.logging_entity];
             		}
             
 
@@ -426,7 +433,7 @@ public class RetentionDlg extends javax.swing.JFrame {
             m_logs.append("OK\n");
             m_logs.append("Number of log entries from footer: " + footerNumLogLines + "\n");
 
-            if (numLogLinesEntries*header.nr_of_log_entries_per_encrypted_log_line +extraEntries!= footerNumLogLines) {
+            if (numLogLinesEntries*header.getNrOfLogEntriesPerLogLine() +extraEntries!= footerNumLogLines) {
                 m_logs.append("ERROR: Number of log entries from footer differ from observed logs");
                 throw new Exception();
             }
@@ -442,7 +449,7 @@ public class RetentionDlg extends javax.swing.JFrame {
             m_logs.append("FAIL\n");
         }
     }//GEN-LAST:event_retrieveLogsActionPerformed
-
+/*
     private void createTestLogsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createTestLogsActionPerformed
         m_logs.append("\n");
         // TEST CREATION OF ENCRYPTED LOG KEY BLOCK
@@ -463,7 +470,7 @@ public class RetentionDlg extends javax.swing.JFrame {
             //
             // LOG HEADER
             //
-            LogHeader   header = new LogHeader();
+            DataRetentionLogFileHeader   header = new DataRetentionLogFileHeader();
             header.version = 0;
             header.day = logDay;
             header.month = logMonth;
@@ -537,7 +544,7 @@ public class RetentionDlg extends javax.swing.JFrame {
             m_logs.append("FAIL\n");
         }
     }//GEN-LAST:event_createTestLogsActionPerformed
-
+*/
     /**
     * @param args the command line arguments
     */
