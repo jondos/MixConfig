@@ -388,7 +388,7 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener
 				if (cert != null)
 				{
 					// Set the attribute to Accounting/PaymentInstance
-					String ski = cert.getSubjectKeyIdentifier();
+					String ski = cert.getSubjectKeyIdentifierConcatenated();
 					if (ski != null)
 					{
 						getConfiguration().setAttribute(XMLPATH_PAYMENT_INSTANCE, XML_ATTRIBUTE_ID, ski);

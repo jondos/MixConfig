@@ -88,6 +88,7 @@ import anon.crypto.MyDSAPublicKey;
 import anon.crypto.MyRSAPublicKey;
 import anon.crypto.PKCS10CertificationRequest;
 import anon.crypto.PKCS12;
+import anon.crypto.SignatureVerifier;
 import anon.util.IMiscPasswordReader;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
@@ -115,13 +116,21 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	
 	// Paths to certificates
 	private static final String CERTPATH = "certificates/";
-	private static final String CERTPATH_MIX = CERTPATH + "acceptedMixCAs/";
-	private static final String CERTPATH_PAYMENT = CERTPATH + "acceptedPaymentCAs/";
+	public static final String CERTPATH_MIX = CERTPATH + "acceptedMixCAs/";
+	public static final String CERTPATH_PAYMENT = CERTPATH + "acceptedPaymentInstances/";
 	
 	static {
 		// Add default certificates to the certificate store
-		addDefaultCertificates(CERTPATH_MIX, JAPCertificate.CERTIFICATE_TYPE_MIX);
+		addDefaultCertificates(CERTPATH_MIX, JAPCertificate.CERTIFICATE_TYPE_MIX); /** TODO should be root mix instead */
+		addDefaultCertificates(CERTPATH_MIX, JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX); // TODO use this instead of above line!
 		addDefaultCertificates(CERTPATH_PAYMENT, JAPCertificate.CERTIFICATE_TYPE_PAYMENT);
+		// needed for applet version (no dynamic loading is possible)
+		addDefaultCertificates(CERTPATH_MIX + "japmixroot.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
+		addDefaultCertificates(CERTPATH_MIX + "Operator_CA.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
+		addDefaultCertificates(CERTPATH_PAYMENT + "Payment_Instance.cer", JAPCertificate.CERTIFICATE_TYPE_PAYMENT);		
+		// TODO use these instead of above lines!
+		addDefaultCertificates(CERTPATH_MIX + "japmixroot.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
+		addDefaultCertificates(CERTPATH_MIX + "Operator_CA.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
 	}
 
 	private static final String CERT_VALID = "cert.gif";
@@ -489,7 +498,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			cert = (JAPCertificate) certificates.nextElement();
 			m_trustedCertificates.addCertificateWithoutVerification(cert, iType, true, true);
+			SignatureVerifier.getInstance().getVerificationCertificateStore().addCertificateWithoutVerification(cert, iType, true, true);
 		}
+		
 		// No certificates found
 		if (cert == null)
 		{
