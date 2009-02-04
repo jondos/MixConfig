@@ -132,11 +132,9 @@ private void initComponents() {
 	panelLogfile.add(m_labelPrivateKeyStorage,constraintsPanel);
 	
 	JButton bttn=new JButton("Select...");
-	bttn.addActionListener(new ActionListener(){
-
-		@Override
+	bttn.addActionListener(new ActionListener()
+	{
 		public void actionPerformed(ActionEvent arg0) {
-			// TODO Auto-generated method stub
 			doSelectLogDir();
 		}
 
@@ -151,9 +149,8 @@ private void initComponents() {
 
 	bttn=new JButton("Select...");
 	bttn.addActionListener(new ActionListener(){
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void actionPerformed(ActionEvent arg0) 
+		{
 			doSelectSecretKey();// TODO Auto-generated method stub
 			
 		}
@@ -277,9 +274,8 @@ private void initComponents() {
 
 	bttn=new JButton("Verify Log Files...");
 	bttn.addActionListener(new ActionListener(){
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void actionPerformed(ActionEvent arg0) 
+		{
 			doVerifyLogFiles();// TODO Auto-generated method stub
 			
 		}
@@ -296,10 +292,10 @@ private void initComponents() {
 
 	bttn=new JButton("Suche");
 	bttn.setFont(bttn.getFont().deriveFont(Font.BOLD));
-	bttn.addActionListener(new ActionListener(){
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
+	bttn.addActionListener(new ActionListener()
+	{
+		public void actionPerformed(ActionEvent arg0) 
+		{
 			// TODO Auto-generated method stub
 			doLogDecrpyt();
 		}
@@ -599,10 +595,10 @@ private void doVerifyLogFiles() {
 
 	final Thread threadDoVerify=new Thread(runnableDoVerify);
 
-	bttnClose.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
+	bttnClose.addActionListener(new ActionListener()
+	{
+			public void actionPerformed(ActionEvent e)
+			{
 				// TODO Auto-generated method stub
 				runnableDoVerify.stopIt();
 				try {
@@ -688,10 +684,10 @@ private void doSelectSecretKey()
 	contentPane.add(tfSecretKeyFile,constraintsContentPane);
 	
 	JButton bttnSelect=new JButton("Select...");
-	bttnSelect.addActionListener(new ActionListener(){
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
+	bttnSelect.addActionListener(new ActionListener()
+	{
+		public void actionPerformed(ActionEvent arg0) 
+		{
 			JFileChooser fileChosser = MixConfig.showFileDialog(dlgKeySelect.getOwner(), MixConfig.OPEN_DIALOG, MixConfig.FILTER_PFX);
 			File f=fileChosser.getSelectedFile();
 			if(f!=null)
@@ -712,10 +708,10 @@ private void doSelectSecretKey()
 	contentPane.add(radiobttnStoreSmartCard,constraintsContentPane);
 	radiobttnStoreSmartCard.setEnabled(false);
 	JButton bttnOk=new JButton("Ok");
-	bttnOk.addActionListener(new ActionListener(){
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
+	bttnOk.addActionListener(new ActionListener()
+	{
+		public void actionPerformed(ActionEvent arg0) 
+		{
 			setPrivateKeyFile(tfSecretKeyFile.getText());
 			dlgKeySelect.dispose();
 		}

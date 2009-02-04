@@ -57,6 +57,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import mixconfig.panels.CertPanel;
+
 import anon.crypto.CertificateInfoStructure;
 import anon.crypto.JAPCertificate;
 import anon.crypto.SignatureVerifier;
@@ -95,7 +97,7 @@ public class CADialog extends JAPDialog implements Observer //JAPHelpContext.IHe
 		super(parent, "View accepted Certification Authorities", true);
 		m_rootPanel = new JPanel();
 		recreateRootPanel();
-		loadDefaultCertificates();
+		//loadDefaultCertificates();
 		SignatureVerifier.getInstance().getVerificationCertificateStore().addObserver(this);
 		update(SignatureVerifier.getInstance().getVerificationCertificateStore(), null);
 		setSize(550, 500);
@@ -508,15 +510,16 @@ public class CADialog extends JAPDialog implements Observer //JAPHelpContext.IHe
 
 	/**
 	 * loads the integrated certificates in the "certificates/acceptedCAs/" Directory
-	 * This is necessary beacause the certificates are not loaded at the startup
+	 * This is necessary because the certificates are not loaded at the startup
 	 * of the application. In the future this should be changed for being able to
 	 * practically use the Enable/Disable/Import/Remove-features of this dialog
+	 * @TOD fix this !!!!! Certificates should only be loaded once!
 	 */
 	public void loadDefaultCertificates()
 	{
 		JAPCertificate defaultRootCert = null;
 		/* each certificate in the directory for the default mix-certs is loaded */
-		Enumeration mixCertificates = JAPCertificate.getInstance("certificates/acceptedMixCAs/", true).elements();
+		Enumeration mixCertificates = JAPCertificate.getInstance(CertPanel.CERTPATH_MIX, true).elements();
 		while (mixCertificates.hasMoreElements())
 		{
 			defaultRootCert = (JAPCertificate) mixCertificates.nextElement();
@@ -524,12 +527,12 @@ public class CADialog extends JAPDialog implements Observer //JAPHelpContext.IHe
 				addCertificateWithoutVerification(defaultRootCert, JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX, true, true);
 		}
 		// Additionally load the PaymentCAs
-		mixCertificates = JAPCertificate.getInstance("certificates/acceptedPaymentCAs/", true).elements();
+		mixCertificates = JAPCertificate.getInstance(CertPanel.CERTPATH_PAYMENT, true).elements();
 		while (mixCertificates.hasMoreElements())
 		{
 			defaultRootCert = (JAPCertificate) mixCertificates.nextElement();
 			SignatureVerifier.getInstance().getVerificationCertificateStore().
-				addCertificateWithoutVerification(defaultRootCert, JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX, true, true);
+				addCertificateWithoutVerification(defaultRootCert, JAPCertificate.CERTIFICATE_TYPE_PAYMENT, true, true);
 		}
 	}
 }

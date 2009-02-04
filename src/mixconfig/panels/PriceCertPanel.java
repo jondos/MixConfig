@@ -509,6 +509,8 @@ public class PriceCertPanel extends JPanel implements ActionListener, ChangeList
 			}
 			else
 			{
+				System.out.println(this.m_cert.getBiID());
+				System.out.println(sPaymentInstanceID);
 				bPIIDFits = false;
 				LogHolder.log(LogLevel.ERR, LogType.MISC, "The ID of the PI does not fit the PI-ID in the price certificate!");
 				// Construct error message and tooltip

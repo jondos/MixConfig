@@ -128,7 +128,7 @@ public final class InfoServiceData implements IXMLEncodable, Cloneable {
 			{
 				child = child.getNextSibling();
 			}
-			if (child.getNodeName().equals("ListenerInterfaces"))
+			if (child.getNodeName().equals(ListenerInterface.XML_ELEMENT_CONTAINER_NAME))
 			{
 				child = child.getFirstChild();
 				ListenerInterface[] ifaceList = new ListenerInterface[0];
