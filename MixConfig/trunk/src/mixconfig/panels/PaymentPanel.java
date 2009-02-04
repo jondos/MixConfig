@@ -397,7 +397,15 @@ public class PaymentPanel extends MixConfigPanel implements ChangeListener
 				else
 				{
 					// Certificate is null --> remove the attribute
-					getConfiguration().removeAttribute(XMLPATH_PAYMENT_INSTANCE, XML_ATTRIBUTE_ID);
+					try
+					{
+						getConfiguration().removeAttribute(XMLPATH_PAYMENT_INSTANCE, XML_ATTRIBUTE_ID);
+					}
+					catch (Exception a_e)
+					{
+						// ignore org.apache.crimson.tree.DomEx: org.apache.crimson.tree/D-007
+						LogHolder.log(LogLevel.WARNING, LogType.GUI, a_e);
+					}
 					// FIXME: If there are no more children left, remove the element itself as well?
 				}
 			}
