@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.engines.AESFastEngine;
@@ -41,6 +42,7 @@ public class DataRetentionLogFileHeader {
 	private byte day = 0;
 	private byte month = 0;
 	private short year = 0;
+	private long m_BaseTime;
 	private byte logging_entity = 0;
 	private byte logged_fields = 0;
 	private short nr_of_log_entries_per_encrypted_log_line = 0;
@@ -54,7 +56,7 @@ public class DataRetentionLogFileHeader {
 		keys = new t_encrypted_key[MAX_nr_of_keys];
 		for (int i = 0; i < MAX_nr_of_keys; i++)
 			keys[i] = new t_encrypted_key();
-		auth_tag = new byte[ANONSCLog.GCM_AUTH_TAG_LENGTH / 8];
+		auth_tag = new byte[DataRetentionSmartCard.GCM_AUTH_TAG_LENGTH / 8];
 	}
 
 	public void writeToFile(FileOutputStream file) throws Exception {
@@ -96,6 +98,8 @@ public class DataRetentionLogFileHeader {
 		short year1 = (short) file.read();
 		short year2 = (short) file.read();
 		year = (short) ((year1 << 8) | year2);
+		Date d=new Date(year-1900,month-1,day);
+		m_BaseTime=d.getTime()/1000;
 		logging_entity = (byte) file.read();
 		logged_fields = (byte) file.read();
 		nr_of_log_entries_per_encrypted_log_line = (short) file.read();
@@ -113,7 +117,7 @@ public class DataRetentionLogFileHeader {
 
 	public int getLength() {
 		return 12 + (t_encrypted_key.ENCRYPTED_KEY_LENGTH * nr_of_keys)
-				+ (ANONSCLog.GCM_AUTH_TAG_LENGTH / 8); // simple values +
+				+ (DataRetentionSmartCard.GCM_AUTH_TAG_LENGTH / 8); // simple values +
 														// t_encrypted_key[nr_of_keys]
 														// + auth_tag[]
 	}
@@ -172,11 +176,27 @@ public class DataRetentionLogFileHeader {
 		return m_sizeOfLogEntry;
 	}
 	
+	public long getBaseTime()
+	{
+		return m_BaseTime;
+	}
+	
 	public static int decryptAndVerify(byte[] in, byte[] iv, byte[] key,
 			byte[] plainOut) throws Exception {
 		return decryptAndVerify(in,0,in.length, iv,key,plainOut);
 	}
 
+	/** Decrypts and verifes an AES_GCM encrypted buffer.
+	 * 
+	 * @param in ciphertext
+	 * @param inOff ciphtertext offset
+	 * @param inLen length of ciphertext
+	 * @param iv IV
+	 * @param key key
+	 * @param plainOut plaintext
+	 * @return length of plntext
+	 * @throws Exception
+	 */
 	public static int decryptAndVerify(byte[] in,int inOff,int inLen, byte[] iv, byte[] key,
 			byte[] plainOut) throws Exception {
 		GCMBlockCipher gcmCipher = new GCMBlockCipher(new AESFastEngine());
@@ -195,7 +215,7 @@ public class DataRetentionLogFileHeader {
 		verifyMac(in,0,in.length, tag,0, iv,key);
 
 	}
-	private static void verifyMac(byte[] in,int inOff,int inLen, byte[] tag,int tagOff, byte[] iv,
+	static void verifyMac(byte[] in,int inOff,int inLen, byte[] tag,int tagOff, byte[] iv,
 			byte[] key)throws Exception {
 		GCMBlockCipher gcmCipher = new GCMBlockCipher(new AESFastEngine());
 		gcmCipher.init(true, new AEADParameters(new KeyParameter(key), 128,
