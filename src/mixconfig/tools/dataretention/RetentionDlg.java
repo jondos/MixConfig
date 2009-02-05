@@ -20,7 +20,7 @@ import anon.crypto.MyRSAPrivateKey;
 import anon.crypto.PKCS12;
 
 public class RetentionDlg extends javax.swing.JFrame {
-    static ANONSCLog    anonLog = new ANONSCLog();
+    static DataRetentionSmartCard    anonLog = new DataRetentionSmartCard();
 
     private static byte  testLogKey[] = {(byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31, (byte) 0x31};
     PublicKey           m_publicKey = null;
@@ -35,7 +35,7 @@ public class RetentionDlg extends javax.swing.JFrame {
 
         try {
             m_logs.append("Connecting to ANON card... ");
-            if (anonLog.ConnectToANONCard()) {
+            if (anonLog.connectToSmartCard()) {
                 m_logs.append("OK\n");
 
                 m_logs.append("Retriving public key... ");
@@ -338,7 +338,7 @@ public class RetentionDlg extends javax.swing.JFrame {
         // LOG USER
         m_logs.append("Authenticating user by PIN... ");
         try {
-            if (anonLog.User_Authenticate(m_userPIN.getText().getBytes())) {
+            if (anonLog.authenticateUser(m_userPIN.getText().getBytes())) {
                 m_logs.append("OK\n");
             }
             else m_logs.append("FAIL\n");
@@ -379,7 +379,7 @@ public class RetentionDlg extends javax.swing.JFrame {
             m_logs.append("Retrieving log key... ");
             PKCS12 pkcs12=PKCS12.getInstance(new FileInputStream("c:/dataretentiontest.pfx"),"");
             MyRSAPrivateKey privKey=(MyRSAPrivateKey)pkcs12.getPrivateKey();
-            if ((decrLogKey = anonLog.User_DecryptLogKey(header.getEncryptedKey(0),privKey)) != null) {
+            if ((decrLogKey = anonLog.decrpytSymmetricKey(header.getEncryptedKey(0))) != null) {
                 m_logs.append("OK\n");
                 m_logs.append("Log key: " + anonLog.bytesToHex(decrLogKey) + "\n");
             }

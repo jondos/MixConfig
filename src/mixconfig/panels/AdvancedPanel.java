@@ -64,7 +64,7 @@ import logging.LogLevel;
 import logging.LogType;
 import mixconfig.ConfigurationEvent;
 import mixconfig.MixConfiguration;
-import mixconfig.tools.dataretention.ANONSCLog;
+import mixconfig.tools.dataretention.DataRetentionSmartCard;
 import mixconfig.tools.dataretention.DataRetentionEncryptionCertCreationValidator;
 import anon.crypto.ICertificate;
 import anon.crypto.JAPCertificate;
@@ -779,8 +779,8 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener,Acti
 	private void importDataRetentionKey()
 	{
 		try{
-		ANONSCLog smartcard=new ANONSCLog();
-		smartcard.ConnectToANONCard();
+		DataRetentionSmartCard smartcard=new DataRetentionSmartCard();
+		smartcard.connectToSmartCard();
 		MyRSAPublicKey key=smartcard.retrievePublicKey();
 		m_tfDataRetentionKey.setText(key.toString());
 		MixConfiguration c=getConfiguration();
@@ -795,7 +795,6 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener,Acti
 		}
 		
 	}
-
 	public void actionPerformed(ActionEvent arg) 
 	{
 		if(arg.getActionCommand().equals(ACTIONCOMMAND_IMPORTDATARETENTIONKEY))

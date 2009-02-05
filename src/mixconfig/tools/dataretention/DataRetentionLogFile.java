@@ -107,6 +107,117 @@ public class DataRetentionLogFile {
 		DataRetentionLogFileHeader.decryptAndVerify(buff,0,ret, createIV(m_currentLogVerifyLine-1), m_SymKey,null);
 			
 	}
+	
+	public DataRetentionLogFileEntry[] search(long t_out,int d_t) throws Exception
+	{
+		int lowInd=0;
+		int maxInd=getExpectedNrOfLogEntries()-1;
+		int upInd=maxInd;
+		int midInd=lowInd+(upInd-lowInd)/2;
+		long l=getToutOfLogEntry(lowInd);
+		long u=getToutOfLogEntry(upInd);
+		long m=getToutOfLogEntry(midInd);
+		long t_min=t_out-d_t;
+		long t_max=t_out+d_t;
+		if(u<t_min || t_max<l)
+			return null;
+		for(;;)
+		{
+			if(t_out<m)
+			{
+				upInd=midInd-1;
+			}
+			else if(t_out>m)
+			{
+				lowInd=midInd+1;
+			}
+			else
+				break;
+			if(upInd<=lowInd)
+				break;
+			midInd=lowInd+(upInd-lowInd)/2;
+			m=getToutOfLogEntry(midInd);
+		}
+		
+		lowInd=midInd;
+		for(;;)
+		{
+			l=getToutOfLogEntry(lowInd);
+			if(t_min<=l&&l<=t_max&&lowInd>0)
+				{
+					lowInd--;
+					continue;
+				}	
+			else
+				break;
+		}
+		
+		upInd=midInd;
+		for(;;)
+		{
+			u=getToutOfLogEntry(upInd);
+			if(t_min<=u&&u<=t_max&&upInd<maxInd)
+				{
+					upInd++;
+					continue;
+				}	
+			else
+				break;
+		}
+		
+		return getAllLogEntries(lowInd+1,upInd-1);		
+	}
+	
+	private DataRetentionLogFileEntry[] getAllLogEntries(int lowInd, int upInd) throws Exception{
+		int l=lowInd/m_Header.getNrOfLogEntriesPerLogLine();
+		byte[]logLine=this.readAndDecrpytLogLine(l);
+		int off=(lowInd%m_Header.getNrOfLogEntriesPerLogLine())*m_Header.getSizeOfLogEntry();
+		DataRetentionLogFileEntry entries[]=new DataRetentionLogFileEntry[upInd-lowInd+1];
+		int i=0;
+		for(;;)
+		{
+			entries[i++]=new DataRetentionLogFileEntry(logLine,off,m_Header);
+			lowInd++;
+			if(lowInd>upInd)
+				break;
+			if((lowInd%m_Header.getNrOfLogEntriesPerLogLine())==0)
+			{
+				l++;
+				logLine=this.readAndDecrpytLogLine(l);
+				off=0;
+			}
+			else
+				off+=m_Header.getSizeOfLogEntry();
+		}
+		return entries;
+	}
+
+	byte[] readAndDecrpytLogLine(int lineNr) throws Exception
+	{
+		FileInputStream fin=new FileInputStream(m_File);
+		fin.skip(m_Header.getLength());
+		if(lineNr>0)
+			fin.skip(lineNr*m_Header.getSizeOfLogLine());
+
+		int size=m_Header.getSizeOfLogLine();
+		//last log line might be special --> if not completely filled...
+		if(lineNr==getNrOfLogLines()-1&&(getExpectedNrOfLogEntries()%m_Header.getNrOfLogEntriesPerLogLine())!=0)
+			size=(getExpectedNrOfLogEntries()%m_Header.getNrOfLogEntriesPerLogLine())*m_Header.getSizeOfLogEntry()+16;
+		byte[]buff=new byte[size];
+		byte[]plain=new byte[size-16];
+		fin.read(buff);
+		DataRetentionLogFileHeader.decryptAndVerify(buff,0,size, createIV(lineNr), m_SymKey,plain);		
+		fin.close();
+		return plain;
+	}
+
+	private long getToutOfLogEntry(int ind) throws Exception {
+		byte[] logLine=readAndDecrpytLogLine(ind/m_Header.getNrOfLogEntriesPerLogLine());
+		int i=(ind%m_Header.getNrOfLogEntriesPerLogLine())*m_Header.getSizeOfLogEntry()+4;
+		long t=((logLine[i]<<24)&0x00FF000000L)|((logLine[i+1]<<16)&0x00FF0000L)|((logLine[i+2]<<8)&0x00FF00L)|(logLine[i+3]&0x00FFL);
+		return t/*+m_Header.getBaseTime()*/;
+	}
+
 	/**
      * Method creates proper raw initialization vector from value of blocksCounter.
      * @param blocksCounter Actual counter of blocks (aka log lines)

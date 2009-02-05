@@ -21,6 +21,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Date;
 import java.util.EventObject;
 
 import javax.swing.ButtonGroup;
@@ -61,6 +62,7 @@ import mixconfig.MixConfig;
 import mixconfig.panels.CertPanel;
 import mixconfig.tools.dataretention.DataRetentionLogFile;
 import mixconfig.tools.dataretention.DataRetentionLogFileHeader;
+import mixconfig.tools.dataretention.DataRetentionSmartCard;
 import mixconfig.tools.dataretention.JTreeTable;
 import mixconfig.tools.dataretention.LogFilesModel;
 
@@ -70,6 +72,7 @@ public class DataRetentionLogDecrypt extends JAPDialog
 	JAPJIntField m_tfDay,m_tfYear,m_tfMonth,m_tfHour,m_tfSecond,m_tfMinute;
 	private String m_privateKeyFile;
 	private JLabel m_labelPrivateKeyStorage;
+	private boolean m_bUseSmartCardforPrivateKey;
 	private JTextField m_tfLogDir;
 	
 public DataRetentionLogDecrypt(Frame parent)
@@ -124,7 +127,7 @@ private void initComponents() {
 	Font f=m_labelPrivateKeyStorage.getFont();
 	m_labelPrivateKeyStorage.setFont(f.deriveFont(Font.BOLD));
 	m_labelPrivateKeyStorage.setForeground(Color.blue);
-	setPrivateKeyFile(m_privateKeyFile);
+	setPrivateKeyFile(false,m_privateKeyFile);
 	constraintsPanel.gridx=1;
 	constraintsPanel.gridy=1;
 	constraintsPanel.weightx=1.0;
@@ -184,47 +187,47 @@ private void initComponents() {
 	constraintsPanel.weightx=0;
 	panelRequest.add(label,constraintsPanel);
 
-	m_tfDay=new JAPJIntField(2);
+	m_tfDay=new JAPJIntField(31);
 	constraintsPanel.gridx=1;
 	constraintsPanel.gridy=0;
 	constraintsPanel.weightx=0;
 	constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
 	panelRequest.add(m_tfDay,constraintsPanel);
 
-	m_tfMonth=new JAPJIntField(2);
-	constraintsPanel.gridx=1;
-	constraintsPanel.gridy=1;
+	m_tfMonth=new JAPJIntField(12);
+	constraintsPanel.gridx=3;
+	constraintsPanel.gridy=0;
 	constraintsPanel.weightx=0;
 	constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
 	panelRequest.add(m_tfMonth,constraintsPanel);
 
-	m_tfYear=new JAPJIntField(2);
-	constraintsPanel.gridx=3;
+	m_tfYear=new JAPJIntField(2050);
+	constraintsPanel.gridx=5;
 	constraintsPanel.gridy=0;
 	constraintsPanel.weightx=0;
 	constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
 	panelRequest.add(m_tfYear,constraintsPanel);
 
-	JTextField tf=new JAPJIntField(2);
+	m_tfHour=new JAPJIntField(23);
+	constraintsPanel.gridx=1;
+	constraintsPanel.gridy=1;
+	constraintsPanel.weightx=0;
+	constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
+	panelRequest.add(m_tfHour,constraintsPanel);
+	
+	m_tfMinute=new JAPJIntField(59);
 	constraintsPanel.gridx=3;
 	constraintsPanel.gridy=1;
 	constraintsPanel.weightx=0;
 	constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
-	panelRequest.add(tf,constraintsPanel);
+	panelRequest.add(m_tfMinute,constraintsPanel);
 	
-	tf=new JTextField(4);
-	constraintsPanel.gridx=5;
-	constraintsPanel.gridy=0;
-	constraintsPanel.weightx=0;
-	constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
-	panelRequest.add(tf,constraintsPanel);
-	
-	tf=new JTextField(4);
+	m_tfSecond=new JAPJIntField(59);
 	constraintsPanel.gridx=5;
 	constraintsPanel.gridy=1;
 	constraintsPanel.weightx=0;
 	constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
-	panelRequest.add(tf,constraintsPanel);
+	panelRequest.add(m_tfSecond,constraintsPanel);
 	
 	label=new JLabel(".");
 	constraintsPanel.gridx=2;
@@ -290,14 +293,19 @@ private void initComponents() {
 	constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
 	panelRequest.add(bttn,constraintsPanel);
 
-	bttn=new JButton("Suche");
+	bttn=new JButton("Search Records...");
 	bttn.setFont(bttn.getFont().deriveFont(Font.BOLD));
 	bttn.addActionListener(new ActionListener()
 	{
 		public void actionPerformed(ActionEvent arg0) 
 		{
 			// TODO Auto-generated method stub
-			doLogDecrpyt();
+			try {
+				doLogDecrpyt();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	
@@ -345,41 +353,115 @@ private void initComponents() {
 
 }
 
-private void doVerifyLogFiles() {
-	
-    	PKCS12 pkcs12;
+
+private Object doSetSecretPrivateKey()
+{
 		final MyRSAPrivateKey privKey;
-		File filePrivKey;
-		try{
-			filePrivKey=new File(m_privateKeyFile);
-			if(!filePrivKey.isFile()||!filePrivKey.canRead())
+		final DataRetentionSmartCard smartcard;
+		if(!m_bUseSmartCardforPrivateKey)
+		{
+			smartcard=null;
+			PKCS12 pkcs12=null;
+			File filePrivKey=null;
+			try{
+				filePrivKey=new File(m_privateKeyFile);
+				if(!filePrivKey.isFile()||!filePrivKey.canRead())
+				{
+					doErrorPrivKey(this);
+				return null;
+				}	
+			}catch(Exception e)
 			{
 				doErrorPrivKey(this);
-			return;
+				return null;
 			}	
-		}catch(Exception e)
+			try {
+				for(;;){
+					JAPDialog dlg=new JAPDialog(this,"Password for private key");
+					PasswordContentPane passwd=new PasswordContentPane(dlg,PasswordContentPane.PASSWORD_ENTER,"Password");
+					passwd.updateDialog();
+					dlg.pack();
+				pkcs12 = PKCS12.getInstance(new FileInputStream(filePrivKey),passwd);
+				if(pkcs12!=null||passwd.getButtonValue()==PasswordContentPane.RETURN_VALUE_CANCEL)
+					break;
+				dlg.dispose();
+				} 
+				if(pkcs12==null)
+					return null;
+				privKey=(MyRSAPrivateKey)pkcs12.getPrivateKey();
+				} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				doErrorPrivKey(this);
+				return null;
+			}
+			return privKey;	
+		}		
+		else
 		{
-			doErrorPrivKey(this);
-		return;
-		}	
-		try {
-			for(;;){
-				JAPDialog dlg=new JAPDialog(this,"Password for private key");
-				PasswordContentPane passwd=new PasswordContentPane(dlg,PasswordContentPane.PASSWORD_ENTER,"Password");
-				passwd.updateDialog();
-				dlg.pack();
-			pkcs12 = PKCS12.getInstance(new FileInputStream(filePrivKey),passwd);
-			if(pkcs12!=null||passwd.getButtonValue()==PasswordContentPane.RETURN_VALUE_CANCEL)
-				break;
-			dlg.dispose();
-			} 
-			if(pkcs12==null)
-				return;
-			privKey=(MyRSAPrivateKey)pkcs12.getPrivateKey();
+			privKey=null;
+			smartcard=new DataRetentionSmartCard();
+			boolean bFoundCard=false;
+			try {
+				bFoundCard=smartcard.connectToSmartCard();
+				smartcard.retrievePublicKey();
 			} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			doErrorPrivKey(this);
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			if(!bFoundCard)
+			{
+				doErrorSmartCard(this);
+				return null;
+			}
+			boolean bUserAuth=false;
+			try {
+				for(;;){
+					JAPDialog dlg=new JAPDialog(this,"Password for SamrtCard");
+					PasswordContentPane passwd=new PasswordContentPane(dlg,PasswordContentPane.PASSWORD_ENTER,"Password");
+					passwd.updateDialog();
+					dlg.pack();
+					dlg.setVisible(true);
+					dlg.dispose();
+					if(passwd.getButtonValue()==PasswordContentPane.RETURN_VALUE_CANCEL)
+						return null;
+					byte[] pin=new String(passwd.getPassword()).getBytes();
+					try{
+					bUserAuth=smartcard.authenticateUser(pin);
+					}
+					catch(Exception e)
+					{
+						bUserAuth=false;
+					}
+					if(bUserAuth)
+						break;
+				} 
+				
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return null;
+			}
+			return smartcard;
+		}//if bSmartCard
+
+}
+
+private void doVerifyLogFiles() {
+	final MyRSAPrivateKey privKey;
+	final DataRetentionSmartCard smartcard;
+	
+		Object oPrivKeyOrSmartCard=doSetSecretPrivateKey();
+		if(oPrivKeyOrSmartCard==null)
 			return;
+		if(oPrivKeyOrSmartCard instanceof DataRetentionSmartCard)
+		{
+			privKey=null;
+			smartcard=(DataRetentionSmartCard)oPrivKeyOrSmartCard;
+		}
+		else
+		{
+			smartcard=null;
+			privKey=(MyRSAPrivateKey)oPrivKeyOrSmartCard;
 		}
 		final JAPDialog dlgVerify=new JAPDialog(this,"Verify Log Files");
 		Container contentPane=dlgVerify.getContentPane();
@@ -513,19 +595,38 @@ private void doVerifyLogFiles() {
 							byte[] encKey=anonLogFile.getEncryptedKey(0);
 							byte[] symKey=null;
 							labelCurrentFileStatus.setText("Try to decrypt symmetric key");
-							try
+							if(m_bUseSmartCardforPrivateKey)
+								try
 							{
-							symKey=DataRetentionLogFileHeader.decryptSymKey(encKey, privKey);
-							anonLogFile.setDecryptionKey(symKey);
+								symKey=smartcard.decrpytSymmetricKey(encKey);
 							}catch(Exception e)
 							{
 								labelCurrentFileStatus.setText("Error while getting symmetric Key: "+e.getMessage());
 								bSkipNext=true;
 							}
+							else
+							{
+								try
+								{
+									symKey=DataRetentionLogFileHeader.decryptSymKey(encKey, privKey);
+								}catch(Exception e)
+								{
+									labelCurrentFileStatus.setText("Error while getting symmetric Key: "+e.getMessage());
+									bSkipNext=true;
+								}
+							}
+							if(symKey==null)
+							{
+								labelCurrentFileStatus.setText("Error while getting symmetric Key: Sym key is NULL");
+								bSkipNext=true;
+							}
+							else
+							{
+								anonLogFile.setDecryptionKey(symKey);
+							}
 						}
 						if(!bSkipNext)
 						{
-						
 						labelCurrentFileStatus.setText("Try to verify log file header");
 						try
 						{
@@ -626,6 +727,11 @@ private void doErrorPrivKey(JAPDialog parent) {
 	JAPDialog.showErrorDialog(parent, "The given private key could not be read. Plaese check if the provided location is correct.", 0);
 }
 
+private void doErrorSmartCard(JAPDialog parent) {
+	// TODO Auto-generated method stub
+	JAPDialog.showErrorDialog(parent, "Could not find any SmartCard reader which contains a valid SmartCard. Plaese check your readers and the inserted SmartCard",0);
+}
+
 private void doErrorLogDir() {
 	// TODO Auto-generated method stub
 	JAPDialog.showErrorDialog(this, "The given log dir could not be read. Plaese check if the provided location is correct.", 0);
@@ -640,8 +746,68 @@ private void doSelectLogDir() {
 	
 }
 
-protected void doLogDecrpyt() {
+protected void doLogDecrpyt() throws Exception {
 	// TODO Auto-generated method stub
+	final MyRSAPrivateKey privKey;
+	final DataRetentionSmartCard smartcard;
+	
+		Object oPrivKeyOrSmartCard=doSetSecretPrivateKey();
+		if(oPrivKeyOrSmartCard==null)
+			return;
+		if(oPrivKeyOrSmartCard instanceof DataRetentionSmartCard)
+		{
+			privKey=null;
+			smartcard=(DataRetentionSmartCard)oPrivKeyOrSmartCard;
+		}
+		else
+		{
+			smartcard=null;
+			privKey=(MyRSAPrivateKey)oPrivKeyOrSmartCard;
+		}
+
+		File logFiles[]=null;
+		try{
+		File dir=new File(m_tfLogDir.getText());
+		if(!dir.isDirectory()||!dir.canRead())
+			{
+			doErrorLogDir();
+			return;
+			}
+		logFiles=dir.listFiles();
+		}
+		catch(Exception e)
+		{
+			doErrorLogDir();
+			return;					
+		}
+		for(File logFile:logFiles)
+		{
+			if(logFile.isFile())
+			{
+				DataRetentionLogFile anonLogFile=new DataRetentionLogFile(logFile);
+				byte[] encKey=anonLogFile.getEncryptedKey(0);
+				byte[] symKey=null;
+				if(m_bUseSmartCardforPrivateKey)
+					try
+				{
+					symKey=smartcard.decrpytSymmetricKey(encKey);
+				}catch(Exception e)
+				{
+				}
+				else
+				{
+					try
+					{
+						symKey=DataRetentionLogFileHeader.decryptSymKey(encKey, privKey);
+					}catch(Exception e)
+					{
+					}
+				}
+				anonLogFile.setDecryptionKey(symKey);
+				Date d=new Date(m_tfYear.getInt()-1900,m_tfMonth.getInt()-1,m_tfDay.getInt(),m_tfHour.getInt(),m_tfMinute.getInt(),m_tfSecond.getInt());
+				anonLogFile.search(d.getTime()/1000, 10);
+			}
+		}
 	
 }
 
@@ -655,7 +821,7 @@ private void doSelectSecretKey()
 	contentPane.setLayout(new GridBagLayout());
 	
 	JRadioButton radiobttnStoreDisk=new JRadioButton("Stored on disk / USB-Stick etc.");
-	JRadioButton radiobttnStoreSmartCard=new JRadioButton("Stored on SmartCard");
+	final JRadioButton radiobttnStoreSmartCard=new JRadioButton("Stored on SmartCard");
 	ButtonGroup bttngrpStore=new ButtonGroup();
 	bttngrpStore.add(radiobttnStoreDisk);
 	bttngrpStore.add(radiobttnStoreSmartCard);
@@ -706,13 +872,11 @@ private void doSelectSecretKey()
 	constraintsContentPane.insets=new Insets(10,10,10,10);
 	constraintsContentPane.anchor=GridBagConstraints.NORTHWEST;
 	contentPane.add(radiobttnStoreSmartCard,constraintsContentPane);
-	radiobttnStoreSmartCard.setEnabled(false);
 	JButton bttnOk=new JButton("Ok");
-	bttnOk.addActionListener(new ActionListener()
-	{
-		public void actionPerformed(ActionEvent arg0) 
-		{
-			setPrivateKeyFile(tfSecretKeyFile.getText());
+	bttnOk.addActionListener(new ActionListener(){
+
+		public void actionPerformed(ActionEvent arg0) {
+			setPrivateKeyFile(radiobttnStoreSmartCard.isSelected(),tfSecretKeyFile.getText());
 			dlgKeySelect.dispose();
 		}
 		
@@ -729,8 +893,14 @@ private void doSelectSecretKey()
 	dlgKeySelect.setVisible(true);
 }
 
-private void setPrivateKeyFile(String text) {
+private void setPrivateKeyFile(boolean bSmartCard,String text) {
 	// TODO Auto-generated method stub
+	m_bUseSmartCardforPrivateKey=bSmartCard;
+	if(bSmartCard)
+	{
+		m_labelPrivateKeyStorage.setText("SmartCard");
+		return;
+	}
 	if(text==null||text.length()==0)
 		{
 			m_labelPrivateKeyStorage.setText("Unspecified");
