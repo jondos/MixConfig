@@ -35,6 +35,10 @@ public class DataRetentionLogFileHeader {
 
 	public static final byte MAX_nr_of_keys = 10;
 
+	public static final int LOGGING_ENTITY_FIRST_MIX=1;
+	public static final int LOGGING_ENTITY_MIDDLE_MIX=2;
+	public static final int LOGGING_ENTITY_LAST_MIX=3;
+	
 	private byte version = 0;
 	private byte reserved1 = 0;
 	private byte reserved2 = 0;
@@ -174,6 +178,11 @@ public class DataRetentionLogFileHeader {
 	public int getSizeOfLogEntry()
 	{
 		return m_sizeOfLogEntry;
+	}
+	
+	public int getLoggingEntity()
+	{
+		return logging_entity;
 	}
 	
 	public long getBaseTime()

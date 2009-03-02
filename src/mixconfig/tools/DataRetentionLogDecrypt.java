@@ -61,6 +61,7 @@ import anon.crypto.PKCS12;
 import mixconfig.MixConfig;
 import mixconfig.panels.CertPanel;
 import mixconfig.tools.dataretention.DataRetentionLogFile;
+import mixconfig.tools.dataretention.DataRetentionLogFileEntry;
 import mixconfig.tools.dataretention.DataRetentionLogFileHeader;
 import mixconfig.tools.dataretention.DataRetentionSmartCard;
 import mixconfig.tools.dataretention.JTreeTable;
@@ -805,7 +806,14 @@ protected void doLogDecrpyt() throws Exception {
 				}
 				anonLogFile.setDecryptionKey(symKey);
 				Date d=new Date(m_tfYear.getInt()-1900,m_tfMonth.getInt()-1,m_tfDay.getInt(),m_tfHour.getInt(),m_tfMinute.getInt(),m_tfSecond.getInt());
-				anonLogFile.search(d.getTime()/1000, 10);
+				DataRetentionLogFileEntry[] entriesFound=anonLogFile.search(d.getTime()/1000, 10);
+				if(entriesFound!=null)
+				{
+				for(int i=0;i<entriesFound.length;i++)
+				{
+					System.out.println((i+1)+". entry: "+entriesFound[i].toString());				
+				}
+				}
 			}
 		}
 	
