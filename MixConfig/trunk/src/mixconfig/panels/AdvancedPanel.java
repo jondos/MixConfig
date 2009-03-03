@@ -29,7 +29,6 @@ package mixconfig.panels;
 
 import gui.JAPHelpContext;
 import gui.JAPJIntField;
-import gui.JAPMessages;
 import gui.MixConfigTextField;
 import gui.TitledGridBagPanel;
 
@@ -72,6 +71,7 @@ import anon.crypto.MyRSAPublicKey;
 import anon.crypto.PKCS12;
 import anon.infoservice.ListenerInterface;
 import anon.util.Base64;
+import anon.util.JAPMessages;
 
 /**
  * The panel for advanced settings

@@ -29,9 +29,7 @@ package gui.dialog;
 
 import gui.CAListCellRenderer;
 import gui.CertDetailsDialog;
-import gui.CountryMapper;
 import gui.JAPHelpContext;
-import gui.JAPMessages;
 import gui.dialog.JAPDialog;
 
 import java.awt.Frame;
@@ -63,6 +61,8 @@ import anon.crypto.CertificateInfoStructure;
 import anon.crypto.JAPCertificate;
 import anon.crypto.SignatureVerifier;
 import anon.crypto.X509DistinguishedName;
+import anon.util.CountryMapper;
+import anon.util.JAPMessages;
 
 /**
  * <p>class CADialog</p>

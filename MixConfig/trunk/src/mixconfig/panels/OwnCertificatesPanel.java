@@ -27,8 +27,6 @@
  */
 package mixconfig.panels;
 
-import gui.CountryMapper;
-import gui.JAPMessages;
 import gui.MapBox;
 import gui.MixConfigTextField;
 import gui.TitledGridBagPanel;
@@ -71,6 +69,8 @@ import anon.crypto.Validity;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509SubjectAlternativeName;
+import anon.util.CountryMapper;
+import anon.util.JAPMessages;
 import anon.util.Util;
 
 public class OwnCertificatesPanel extends MixConfigPanel implements ActionListener, ChangeListener

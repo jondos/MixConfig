@@ -30,11 +30,11 @@ package mixconfig;
 import java.util.Vector;
 import anon.crypto.JAPCertificate;
 import anon.crypto.ICertificate;
-import gui.CountryMapper;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectAlternativeName;
 import anon.crypto.AbstractX509AlternativeName;
+import anon.util.CountryMapper;
 
 /**
  * Stores the information that should be present in an operator certificate.

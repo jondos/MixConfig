@@ -28,7 +28,6 @@
 package mixconfig;
 
 import gui.GUIUtils;
-import gui.JAPMessages;
 import gui.dialog.JAPDialog;
 import gui.help.JAPHelp;
 
@@ -61,6 +60,7 @@ import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectKeyIdentifier;
 import anon.util.ClassUtil;
+import anon.util.JAPMessages;
 import anon.util.ResourceLoader;
 import anon.util.XMLUtil;
 
@@ -108,7 +108,10 @@ public class MixConfig extends JApplet
 		File f = null;
 		long startTime = System.currentTimeMillis();
 
-		JAPMessages.init("MixConfigMessages");
+		if (!JAPMessages.init("MixConfigMessages"))
+		{
+			GUIUtils.exitWithNoMessagesError("MixConfigMessages");
+		}
 
 		try
 		{
@@ -290,7 +293,10 @@ public class MixConfig extends JApplet
 	{
 		try
 		{
-			JAPMessages.init("MixConfigMessages");
+			if (!JAPMessages.init("MixConfigMessages"))
+			{
+				GUIUtils.exitWithNoMessagesError("MixConfigMessages");
+			}
 			m_MainWindow = (Frame)GUIUtils.getParentWindow(this);
 			m_mixConfiguration = new MixConfiguration();
 			JAPHelp.init(m_MainWindow, null);
@@ -458,7 +464,7 @@ public class MixConfig extends JApplet
 		}
 		else
 		{
-			returnValue = fd2.showOpenDialog(a_component);
+			returnValue = GUIUtils.showMonitoredFileChooser(fd2, a_component);
 		}
 		if (returnValue == JFileChooser.CANCEL_OPTION)
 		{

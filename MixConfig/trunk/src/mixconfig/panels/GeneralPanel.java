@@ -27,7 +27,6 @@
  */
 package mixconfig.panels;
 
-import gui.JAPMessages;
 import gui.MixConfigTextField;
 import gui.TitledGridBagPanel;
 
@@ -77,6 +76,7 @@ import mixconfig.network.ConnectionData;
 import mixconfig.network.IncomingConnectionTableModel;
 import mixconfig.network.IncomingDialog;
 import anon.infoservice.ListenerInterface;
+import anon.util.JAPMessages;
 
 public class GeneralPanel extends MixConfigPanel implements ActionListener, TableModelListener, ChangeListener
 {

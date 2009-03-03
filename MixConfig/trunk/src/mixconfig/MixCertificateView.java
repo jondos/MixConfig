@@ -30,7 +30,7 @@ package mixconfig;
 import java.util.Vector;
 import anon.crypto.JAPCertificate;
 import anon.crypto.ICertificate;
-import gui.CountryMapper;
+import anon.util.CountryMapper;
 import anon.util.Util;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;

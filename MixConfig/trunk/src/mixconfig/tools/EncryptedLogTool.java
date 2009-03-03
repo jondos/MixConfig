@@ -28,7 +28,6 @@
 package mixconfig.tools;
 
 import gui.JAPHelpContext;
-import gui.JAPMessages;
 import gui.dialog.JAPDialog;
 import gui.help.JAPHelp;
 
@@ -65,6 +64,7 @@ import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509Extensions;
 import anon.util.Base64;
+import anon.util.JAPMessages;
 
 public class EncryptedLogTool extends JAPDialog
 	implements ActionListener, ChangeListener, JAPHelpContext.IHelpContext

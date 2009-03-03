@@ -30,7 +30,6 @@ package mixconfig;
 
 import gui.GUIUtils;
 import gui.JAPHelpContext;
-import gui.JAPMessages;
 import gui.dialog.CADialog;
 import gui.dialog.JAPDialog;
 import gui.help.JAPHelp;
@@ -62,6 +61,7 @@ import mixconfig.tools.DataRetentionLogDecrypt;
 import mixconfig.tools.EmailComposer;
 import mixconfig.tools.EncryptedLogTool;
 import mixconfig.wizard.ConfigWizard;
+import anon.util.JAPMessages;
 import anon.util.XMLParseException;
 
 public class Menu implements ActionListener, JAPHelpContext.IHelpContext
