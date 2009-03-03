@@ -28,7 +28,6 @@
 package mixconfig.panels;
 
 import gui.JAPHtmlMultiLineLabel;
-import gui.JAPMessages;
 import gui.TitledGridBagPanel;
 import gui.dialog.JAPDialog;
 
@@ -43,6 +42,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
+
+import anon.util.JAPMessages;
 
 import logging.LogType;
 import mixconfig.ChoicePanel;

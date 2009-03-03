@@ -30,7 +30,6 @@ package mixconfig.panels;
 
 import gui.ClipFrame;
 import gui.GUIUtils;
-import gui.JAPMessages;
 import gui.dialog.DialogContentPane;
 import gui.dialog.DialogContentPaneOptions;
 import gui.dialog.JAPDialog;
@@ -62,6 +61,7 @@ import mixconfig.ConfigurationEvent;
 import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
 import anon.pay.xml.XMLPriceCertificate;
+import anon.util.JAPMessages;
 
 /**
  * JPanel-representation of a {@link XMLPriceCertificate}:

@@ -28,7 +28,6 @@
 package mixconfig.tools;
 
 import gui.JAPHelpContext;
-import gui.JAPMessages;
 import gui.dialog.JAPDialog;
 import gui.dialog.ValidityContentPane;
 import gui.help.JAPHelp;
@@ -50,6 +49,7 @@ import javax.swing.event.ChangeListener;
 import mixconfig.panels.CertPanel;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
+import anon.util.JAPMessages;
 
 public class CertificationTool extends JAPDialog
 	implements ActionListener, ChangeListener, JAPHelpContext.IHelpContext

@@ -27,7 +27,6 @@
  */
 package mixconfig.network;
 
-import gui.JAPMessages;
 import mixconfig.panels.MixOnCDPanel;
 
 import org.w3c.dom.Document;
@@ -35,6 +34,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import anon.util.IXMLEncodable;
+import anon.util.JAPMessages;
 import anon.util.XMLUtil;
 
 /**

@@ -28,7 +28,6 @@
 package mixconfig.network;
 
 import gui.JAPJIntField;
-import gui.JAPMessages;
 import gui.MixConfigTextField;
 import gui.dialog.JAPDialog;
 
@@ -54,6 +53,7 @@ import javax.swing.border.TitledBorder;
 
 import mixconfig.panels.MixOnCDPanel;
 import anon.infoservice.ListenerInterface;
+import anon.util.JAPMessages;
 
 abstract class ConnectionDialog extends JAPDialog
 {

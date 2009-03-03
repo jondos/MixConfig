@@ -30,7 +30,6 @@ package mixconfig.panels;
 import gui.CertDetailsDialog;
 import gui.ClipFrame;
 import gui.GUIUtils;
-import gui.JAPMessages;
 import gui.dialog.DialogContentPane;
 import gui.dialog.DialogContentPaneOptions;
 import gui.dialog.FinishedContentPane;
@@ -90,6 +89,7 @@ import anon.crypto.PKCS10CertificationRequest;
 import anon.crypto.PKCS12;
 import anon.crypto.SignatureVerifier;
 import anon.util.IMiscPasswordReader;
+import anon.util.JAPMessages;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>

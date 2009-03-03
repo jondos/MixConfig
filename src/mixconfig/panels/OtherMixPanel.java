@@ -28,7 +28,6 @@
 package mixconfig.panels;
 
 import gui.JAPHelpContext;
-import gui.JAPMessages;
 import gui.MapBox;
 import gui.TitledGridBagPanel;
 import gui.dialog.JAPDialog;
@@ -54,6 +53,7 @@ import mixconfig.MixCertificateView;
 import mixconfig.MixConfig;
 import mixconfig.OperatorCertificateView;
 import anon.crypto.JAPCertificate;
+import anon.util.JAPMessages;
 
 /**
  * This class is an abstract superclass for NextMixProxyPanel and PreviousMixPanel

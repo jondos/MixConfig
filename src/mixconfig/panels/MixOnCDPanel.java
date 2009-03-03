@@ -28,7 +28,6 @@
 package mixconfig.panels;
 
 import gui.IPTextField;
-import gui.JAPMessages;
 import gui.MixConfigTextField;
 import gui.TitledGridBagPanel;
 import gui.dialog.JAPDialog;
@@ -54,6 +53,7 @@ import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
 import anon.crypto.DESCrypt;
 import anon.crypto.MD5Crypt;
+import anon.util.JAPMessages;
 
 /**
  * This panel stores the MixOnCD configuration.
