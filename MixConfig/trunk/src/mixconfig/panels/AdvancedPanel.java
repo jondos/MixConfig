@@ -207,7 +207,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener,Acti
 		// Encrypted Log Certificate
 		m_panelLogCert = new CertPanel("Encrypted Log Certificate",
 									"This is the certificate your Mix will use to encrypt the log file",
-									(JAPCertificate)null, CertPanel.CERT_ALGORITHM_RSA, JAPCertificate.CERTIFICATE_TYPE_UNKNOWN);
+									(JAPCertificate)null, CertPanel.CERT_ALGORITHM_RSA, JAPCertificate.CERTIFICATE_TYPE_ROOT);
 		m_panelLogCert.addChangeListener(this);
 		m_panelLogCert.setEnabled(false);
 		constraints.gridx++;
@@ -795,6 +795,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener,Acti
 		}
 		
 	}
+
 	public void actionPerformed(ActionEvent arg) 
 	{
 		if(arg.getActionCommand().equals(ACTIONCOMMAND_IMPORTDATARETENTIONKEY))

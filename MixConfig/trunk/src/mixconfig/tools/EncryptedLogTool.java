@@ -144,7 +144,7 @@ public class EncryptedLogTool extends JAPDialog
 		constraintsContentPane.weighty = 0;
 		constraintsContentPane.fill = GridBagConstraints.NONE;
 		m_privateCertPanel = new CertPanel(JAPMessages.getString(MSG_CERT_HEADLINE), null, (PKCS12)null, 
-				CertPanel.CERT_ALGORITHM_RSA, JAPCertificate.CERTIFICATE_TYPE_UNKNOWN);
+				CertPanel.CERT_ALGORITHM_RSA, JAPCertificate.CERTIFICATE_TYPE_ROOT);
 		m_privateCertPanel.setCertCreationValidator(new LogCertCreationValidator());
 		m_privateCertPanel.addChangeListener(this);
 

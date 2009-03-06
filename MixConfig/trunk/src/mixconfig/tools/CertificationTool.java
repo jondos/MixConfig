@@ -79,7 +79,7 @@ public class CertificationTool extends JAPDialog
 		constraints.insets = new Insets(5, 5, 5, 5);
 		m_publicCertPanel = new CertPanel("Public certificate",
 										  "Hint: Public Certificate to be signed ", (JAPCertificate)null,
-										  CertPanel.CERT_ALGORITHM_BOTH, JAPCertificate.CERTIFICATE_TYPE_UNKNOWN);
+										  CertPanel.CERT_ALGORITHM_BOTH, JAPCertificate.CERTIFICATE_TYPE_ROOT);
 		m_publicCertPanel.setName("Public Certificate");
 		m_publicCertPanel.addChangeListener(this);
 		getContentPane().add(m_publicCertPanel, constraints);
@@ -90,7 +90,7 @@ public class CertificationTool extends JAPDialog
 		m_privateCertPanel = new CertPanel("Private certificate",
 										   "Hint: Private Certificate to sign a Public Certificate",
 										   (PKCS12)null, CertPanel.CERT_ALGORITHM_BOTH, 
-										   JAPCertificate.CERTIFICATE_TYPE_UNKNOWN);
+										   JAPCertificate.CERTIFICATE_TYPE_ROOT);
 		m_privateCertPanel.setName("Private Certificate");
 		m_privateCertPanel.addChangeListener(this);
 		getContentPane().add(m_privateCertPanel, constraints);
