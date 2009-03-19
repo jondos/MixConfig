@@ -740,10 +740,12 @@ private void doErrorLogDir() {
 
 private void doSelectLogDir() {
 	JFileChooser fileChosser=MixConfig.showFileDialog(getOwner(), MixConfig.CHOOSE_DIR_DIALOG,MixConfig.FILTER_ALL);
-	File f=fileChosser.getSelectedFile();
-	if(f!=null)
-		m_tfLogDir.setText(f.getAbsolutePath());
-	// TODO Auto-generated method stub
+	if (fileChosser != null)
+	{
+		File f=fileChosser.getSelectedFile();
+		if(f!=null)
+			m_tfLogDir.setText(f.getAbsolutePath());
+	}
 	
 }
 
@@ -863,9 +865,12 @@ private void doSelectSecretKey()
 		public void actionPerformed(ActionEvent arg0) 
 		{
 			JFileChooser fileChosser = MixConfig.showFileDialog(dlgKeySelect.getOwner(), MixConfig.OPEN_DIALOG, MixConfig.FILTER_PFX);
-			File f=fileChosser.getSelectedFile();
-			if(f!=null)
-				tfSecretKeyFile.setText(f.getAbsolutePath());
+			if (fileChosser != null)
+			{
+				File f=fileChosser.getSelectedFile();
+				if(f!=null)
+					tfSecretKeyFile.setText(f.getAbsolutePath());
+			}
 		}
 		
 	});
