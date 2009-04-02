@@ -146,16 +146,16 @@ public class MixConfig extends JApplet
 					{
 						i++;
 						int j;
-						for (j = 0; j < LogLevel.STR_Levels.length; j++)
+						for (j = 0; j < LogLevel.getLevelCount(); j++)
 						{
-							if (argv[i].trim().equalsIgnoreCase(LogLevel.STR_Levels[j].trim()))
+							if (argv[i].trim().equalsIgnoreCase(LogLevel.getLevelName(j).trim()))
 							{
 								LogHolder.setLogInstance(new SystemErrLog(j, LogType.ALL));
 								break;
 							}
 						}
 
-						if (j >= LogLevel.STR_Levels.length)
+						if (j >= LogLevel.getLevelCount())
 						{
 							throw new Exception();
 						}
@@ -263,9 +263,9 @@ public class MixConfig extends JApplet
 	{
 		String logLevels = "";
 
-		for (int i= 0; i < LogLevel.STR_Levels.length; i++)
+		for (int i= 0; i < LogLevel.getLevelCount(); i++)
 		{
-			logLevels += LogLevel.STR_Levels[i].trim() + ",";
+			logLevels += LogLevel.getLevelName(i).trim() + ",";
 		}
 		if (logLevels.length() > 0)
 		{
