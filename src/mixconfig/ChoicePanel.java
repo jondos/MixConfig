@@ -55,13 +55,13 @@ public class ChoicePanel extends JPanel
 	// XXX: Rather move this constant to the class MixConfig?
 	public static final Dimension DEFAULT_SIZE = new Dimension(785, 600);
 
-	private static final String CARD_WIZ = "card_mainPanel_wiz";
-	private static final String CARD_EXPERT = "card_mainPanel_expert";
-	private static final String CARD_CHOICE = "card_choicePanel";
+	public static final String CARD_WIZ = "card_mainPanel_wiz";
+	public static final String CARD_EXPERT = "card_mainPanel_expert";
+	public static final String CARD_CHOICE = "card_choicePanel";
 
-	private static final String WIZARD = "wizard";
-	private static final String EXPERT = "expert";
-	private static final String START = "start";
+	public static final String WIZARD = "wizard";
+	public static final String EXPERT = "expert";
+	public static final String START = "start";
 	private String activeCard = START;
 
 	/** Panel, which contains the Start-Screen where you make your choice.
@@ -82,6 +82,27 @@ public class ChoicePanel extends JPanel
 
 	public ChoicePanel(JFrame parent, JRootPane rootPane)
 	{
+		this(parent, rootPane, CARD_CHOICE);
+	}
+	
+	public ChoicePanel(JFrame parent, JRootPane rootPane, String startPanel)
+	{
+		//choose the start panel
+		String panelToStart = startPanel;
+		if(panelToStart.equals(CARD_WIZ))
+		{
+			activeCard = WIZARD;
+		}
+		else if (panelToStart.equals(CARD_EXPERT))
+		{
+			activeCard = EXPERT;
+		}
+		//default is CARD_CHOICE
+		else 
+		{
+			panelToStart = CARD_CHOICE;
+			activeCard = START;
+		}
 		//set size
 		setDefaultSize();
 
@@ -127,7 +148,7 @@ public class ChoicePanel extends JPanel
 			this.add(m_mainPanel_expert, CARD_EXPERT);
 
 			//show the StartScreen
-			m_cardLayout.show(this, CARD_CHOICE);
+			m_cardLayout.show(this, panelToStart);
 
 			//show the Menu
 			m_menu = new Menu(parent, rootPane, m_mainPanel_wiz, m_mainPanel_expert);

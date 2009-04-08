@@ -183,7 +183,7 @@ public class DatePanel extends JPanel implements ItemListener
 	{
 		boolean ret = false;
 		// Get the current date
-		Calendar newCal = this.getDate();
+		Calendar newCal = this.getCalendar();
 		// Check if the date has changed by comparing day, month and year only
 		if (m_cal == null ||
 			m_cal.get(Calendar.DAY_OF_MONTH) != newCal.get(Calendar.DAY_OF_MONTH) ||
@@ -219,7 +219,7 @@ public class DatePanel extends JPanel implements ItemListener
 	}
 
 	/** Set a calendar to the given date and return it */
-	public Calendar getDate() throws NumberFormatException
+	public Calendar getCalendar() throws NumberFormatException
 	{
 		// Get calendar and clear
 		Calendar cal = Calendar.getInstance();
@@ -231,6 +231,11 @@ public class DatePanel extends JPanel implements ItemListener
 		// Set the calendar object to the specified date
 		cal.set(year, month, day);
 		return cal;
+	}
+	
+	public Date getDate()
+	{
+		return getCalendar().getTime();
 	}
 	
 	/** Implement ItemListener */

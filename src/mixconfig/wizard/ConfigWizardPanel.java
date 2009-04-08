@@ -119,7 +119,7 @@ public class ConfigWizardPanel extends JPanel implements ChangeListener, JAPHelp
 		m_pages[3] = new OwnCertificatesPanel(false);
 		m_pages[4] = new PreviousMixPanel();		
 		m_pages[5] = new NextMixProxyPanel();
-		m_pages[6] = new TermsAndConditionsPanel();
+		m_pages[6] = TermsAndConditionsPanel.get();
 		m_pages[7] = new WizardFinishPanel();
 
 		setConfiguration(null);

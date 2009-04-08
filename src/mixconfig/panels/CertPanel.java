@@ -619,6 +619,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			else if (source == this.m_bttnCreateCert)
 			{
 				bCertChanged = generateNewCert();
+				if(bCertChanged)
+				{
+					TermsAndConditionsPanel.loadOperator();
+				}
 			}
 			else if (source == this.m_bttnExportCert)
 			{
