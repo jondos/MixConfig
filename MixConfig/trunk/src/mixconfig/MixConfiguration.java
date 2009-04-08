@@ -439,22 +439,6 @@ public class MixConfiguration
 	}
 	
 	/**
-	 * Add the node 'TermsAndConditionsOperatorData' and set defaults
-	 * TODO: Add this node to configurations that do not have it?
-	 * TODO: Support several languages?
-	 */
-	public void addTermsAndConditions()
-	{
-		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Adding 'TermsAndConditionsOperatorData' to the configuration");
-				
-		// Set the "locale" attribute and add default URLs to terms and conditions	
-		setAttribute(TermsAndConditionsPanel.XMLPATH_TERMS, "locale", "en");		
-		setValue(TermsAndConditionsPanel.XMLPATH_TERMS_URLPP, "https://www.jondos.de/en/privacy");
-		setValue(TermsAndConditionsPanel.XMLPATH_TERMS_URLLO, "https://www.jondos.de/en/legalOpinions");
-		setValue(TermsAndConditionsPanel.XMLPATH_TERMS_URLOA, "https://www.jondos.de/en/operationalAgreement");
-	}
-	
-	/**
 	 * Return the MixType as an {@link Integer}
 	 * 
 	 * @return mixtype
@@ -1117,7 +1101,6 @@ public class MixConfiguration
 		
 		// Add nodes 'Accounting' and 'TermsAndConditionsOperatorData'
 		this.addAccounting();
-		this.addTermsAndConditions();
 		
 		// TODO: Remove MixOnCD element?
 		/* setValue(MixOnCDPanel.XMLPATH_MIXONCD_NETWORK + "/" + MixOnCDPanel.XMLVALUE_NETWORKINTERFACE, "eth0"); */		
@@ -1141,12 +1124,6 @@ public class MixConfiguration
 			{
 				this.setAttribute(GeneralPanel.XMLPATH_GENERAL_MIXTYPE, GeneralPanel.XML_ATTRIBUTE_PAYMENT, false);
 			}
-		}
-		// Add terms and conditions stuff if it is not yet there
-		// XXX: Do this only if this is a payment mix?
-		if (this.getNode(TermsAndConditionsPanel.XMLPATH_TERMS, false) == null)
-		{
-			this.addTermsAndConditions();
 		}
 	}
 	
@@ -1246,7 +1223,7 @@ public class MixConfiguration
 	 * the form &quot;RootElement/ChildElement/ChildElement/... etc.&quot;, similar to
 	 * the XPath syntax, but XPath functions and relative paths are not allowed.
 	 * @param a_xmlPath The path to the DOM element
-	 * @param create if <CODE>true</CODE>, the node is create if it does not exist
+	 * @param create if <CODE>true</CODE>, the node is created if it does not exist
 	 * @return The node with the specified path, or <CODE>null</CODE> there is no such node and
 	 * <CODE>create</CODE> was set to <CODE>false</CODE>
 	 */

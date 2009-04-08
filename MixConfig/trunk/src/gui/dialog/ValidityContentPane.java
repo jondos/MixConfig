@@ -124,7 +124,7 @@ public class ValidityContentPane extends DialogContentPane implements
 			{
 				if (ev.getActionCommand().equals("1 Year"))
 				{
-					Calendar cal = m_dateFrom.getDate();
+					Calendar cal = m_dateFrom.getCalendar();
 					cal.add(Calendar.YEAR, 1);
 					m_dateTo.setDate(cal.getTime());
 				}
@@ -162,6 +162,6 @@ public class ValidityContentPane extends DialogContentPane implements
 		{
 			return null;
 		}
-		return new Validity(m_dateFrom.getDate(), m_dateTo.getDate());
+		return new Validity(m_dateFrom.getCalendar(), m_dateTo.getCalendar());
 	}
 }

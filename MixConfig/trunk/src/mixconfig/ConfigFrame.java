@@ -71,7 +71,7 @@ public class ConfigFrame extends JPanel
 		m_panels[3] = new OwnCertificatesPanel(parent == null);
 		m_panels[4] = new PreviousMixPanel();
 		m_panels[5] = new NextMixProxyPanel();
-		m_panels[6] = new TermsAndConditionsPanel();
+		m_panels[6] = TermsAndConditionsPanel.get();
 		
 		m_tabbedPane = new JTabbedPane();
 		for (int i = 0; i < m_panels.length; i++)

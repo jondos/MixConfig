@@ -181,10 +181,13 @@ public class MixConfig extends JApplet
 			m_MainWindow.setResizable(false);
 			JAPHelp.init(m_MainWindow, null);
 
+			boolean fileLoaded = false;
 			if (m_currentFileName != null && (f = new File(m_currentFileName)).exists())
 			{
 				LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Load a configuration file...");
 				m_mixConfiguration = new MixConfiguration(new FileReader(f));
+				//If a file could be loaded, start with the expert view.
+				fileLoaded = true;
 			}
 			else //no existing file is given
 			{
@@ -198,9 +201,9 @@ public class MixConfig extends JApplet
 
 				m_mixConfiguration = new MixConfiguration();
 			}
-
-			m_startPanel = new ChoicePanel((JFrame)m_MainWindow,null);
-
+			// start with the expert view if a file was loaded.
+			m_startPanel = new ChoicePanel((JFrame)m_MainWindow, null, 
+					(fileLoaded ? ChoicePanel.CARD_EXPERT : ChoicePanel.CARD_CHOICE));
 			((JFrame)m_MainWindow).setContentPane(m_startPanel);
 			m_MainWindow.pack();
 			GUIUtils.centerOnScreen(m_MainWindow);
