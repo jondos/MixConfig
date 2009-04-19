@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>Advanced</h2>
+
+<h3>Logging</h3>
+
+<p>The Mix log contains debug messages that may help you and the developers for
+recognizing and fixing errors.</p>
+<ul>
+  <li><b>Log disabled</b><br>
+    Do not log any messages. NOT recommended. </li>
+  <li><b>Log to console</b><br>
+    Log everything to the current console. </li>
+  <li><b>Log to directory</b><br>
+    <strong>Recommended option.</strong> Please enter a directory where the log
+    file (which is named <code>messages</code>) should be stored. Most people
+    will enter <code>/home/mix/Mixproxy</code> here. </li>
+  <li><b>Log to syslog</b><br>
+    If you have a running syslog daemon, you may use this option. Please not
+    that then, only the messages in the current syslog log level will be
+    printed. </li>
+</ul>
+
+<h3>Encrypted Log Certificate</h3>
+
+<p>You will only need this if you have something to hide in your logs, e.g.
+crime detection data. You do not need it for normal debug logs. Just leave this
+alone if you do not need it.</p>
+
+<h3>Miscellaneous</h3>
+<ul>
+  <li><b>User name on execution</b> <br>
+    <strong>Recommended:</strong> For security reasons, you may start the Mix
+    as another user. Then your server will be protected from attackers that
+    might hack your Mix. For example, you may type the value
+    <strong>mix</strong> into this field. Then the Mix will start with the
+    rights of the the user <code>mix</code>. This option does only work if you
+    start the Mix as the root user. </li>
+  <li><b>Max. number of FDs</b><br>
+    This might be important if you are running a first Mix and have to handle a
+    lot of users (more than thousand). Then you should allow enough system file
+    descriptors for incoming connections. 
+    <p><strong>Recommended value: 4096</strong> </p>
+  </li>
+  <li><b>Max. number of users</b><br>
+    Limits the number of users that may use a cascade. This option currently
+    only has an effect if you are a first Mix. (In the future, however, the
+    first Mix may respect a user limit set by other Mixes in the cascade)</li>
+  <li><b>Run as daemon</b><br>
+    <strong>Recommended:</strong> You will need the Mix to run as daemon, so
+    that the process does not stop when you close your login shell. </li>
+</ul>
+
+<h3>Traffic Shaping</h3>
+
+<p>These options do only have an effect if you have compiled your mix with the
+option <code>--enable-user-bandwidth-limitation</code>. They limit the users
+speed and latency.</p>
+</body>
+</html>

@@ -37,8 +37,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.security.SecureRandom;
 
 import javax.swing.ImageIcon;
@@ -84,7 +84,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_P10 = 32;
 	public final static int FILTER_B64_P10 = 64;
 
-	public final static String VERSION = "00.05.006";  //NEVER change the layout of this line!!
+	public final static String VERSION = "00.05.007";  //NEVER change the layout of this line!!
 	
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -185,7 +185,10 @@ public class MixConfig extends JApplet
 			if (m_currentFileName != null && (f = new File(m_currentFileName)).exists())
 			{
 				LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Load a configuration file...");
-				m_mixConfiguration = new MixConfiguration(new FileReader(f));
+				//Force UTF-8 as standard input charset. 
+				InputStreamReader reader = new InputStreamReader(new FileInputStream(f), "UTF-8");
+				m_mixConfiguration = new MixConfiguration(reader);
+				//m_mixConfiguration = new MixConfiguration(new FileReader(f));
 				//If a file could be loaded, start with the expert view.
 				fileLoaded = true;
 			}
