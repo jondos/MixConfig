@@ -1,73 +1,80 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="xhelpfrms.css">
 </head>
+
 <body>
 <!--#include virtual="/header_en.html"-->
 
 <h2>Responsibilities of Mix Operators</h2>
+Due to the inherent insecurity of the Internet, all sent and received messages
+in the AN.ON/JonDonym system are signed cryptographically. 
 
-Due to the inherent insecurity of the Internet, all sent and received messages should be signed
-cryptographically.
 <h3>Mix certificates</h3>
+In the process of configuring your Mix with the MixConfig tool, you will create
+a cryptographic certificate that identifies your Mix and enables it to sign
+messages. This certificate must be sent to the operators of your neighbouring
+Mixes, and you must receive their certificates to get the Mixes connected. In a
+<a href="operatorResponsibilities_en.html#dynamicCascades">static
+configuration</a>, you will have to exchange the certificates by e-mail or
+other means with the neighbouring Operators (an automatic exchange and
+verification is in preparation, however). 
 
-In the process of configuring your Mix with the MixConfig tool, you will create a cryptographic
-certificate that identifies your Mix and enables it to sign messages. This certificate must
-be sent to the operators of your neighbouring Mixes, and you must receive their certificates
-to get the Mixes connected. In the case of
-<a href="operatorResponsibilities_en.html#dynamicCascades">dynamic cascades</a>,
+<h3>Operator certificates</h3>
 
-the certificate distribution is automatically done by the InfoService (but this is not fully
-functional yet). In a
-<a href="operatorResponsibilities_en.html#dynamicCascades">static configuration</a>,
-you will have to exchange the certificates by e-mail or other means with the neighbouring
-Operators.
+<p>The Operators in the AN.ON / JonDonym system may run more than one Mix. For
+the purpose of identifying which Mix belongs to which Operator, each Operators
+has to create a so-called <em>Operator certificate</em>. This certificate
+identifies the Operator as private individual or as organisation.</p>
 
 <h3>Trust</h3>
-Certificates and keys itself don't provide communication security, as anyone who has a computer
-is able to create them. Therefore, so-called <i>certificate infrastructures</i>
-exist, where trusted
-authorities sign the certificates and keys of people or organisations that have proven their
-identity and the ownership of the certificate/key to them. Each Mix Operator has to decide
-which authorities he will trust. If you operate a first Mix, its certificate must be trusted by
-the JAP users as well. They need to, like in browsers, have the certificate of the authority
-that signed your certificate installed in their software. At the moment, the JAP-Team is,
-by default, the only trusted authority, and its certificate is included in the MixConfig tool,
-the Mix code, the JAP client and the InfoService. Soon you will be able to add or remove
-trusted authorities from/to the Mix configuration.
+Certificates and keys itself don't provide communication security, as anyone
+who has a computer is able to create them. Therefore, so-called <i>certificate
+infrastructures</i> exist: trusted authorities sign the certificates and keys
+of people or organisations that have proven their identity and the ownership of
+the certificate/key. The AN.ON / JonDonym service supports more than one of
+these certification authorities. For example, you may get Operator certificates
+signed by the <a href="http://anon.inf.tu-dresden.de">TU Dresden</a>, the <a
+href="http://www.jondos.com">JonDos GmbH</a> and the <a
+href="http://www.privacyfoundation.de">German Privacy Foundation</a>. Please
+not that your Mixes will neither ve visible nor usable for clients if you do
+not have a valid certificate. 
 
-<p>Certificates and keys are uniquely identified by their hash values, too. If you get a
-certificate from someone that is not signed by an authority you trust in, you can still verify
-if it is really his/her certificate by comparing the SHA1/MD5 fingerprint with the fingerprint
-he/she will tell you. This is, for example, the SHA1 fingerprint of the JAP-Team certificate:</p>
+<p>Certificates and keys are uniquely identified by their hash values, too. If
+you get a certificate from someone that is not signed by an authority you trust
+in, you can still verify if it is really his/her certificate by comparing the
+SHA1/MD5 fingerprint with the fingerprint he/she will tell you. This is, for
+example, the SHA1 fingerprint of the JAP-Team certificate:</p>
 
 <blockquote>
-4D CF 81 F5 92 4B 11 19 6B 44 2A CD 53 E2 46 E1 0D 9A 16 F6
-</blockquote>
-
+  4D CF 81 F5 92 4B 11 19 6B 44 2A CD 53 E2 46 E1 0D 9A 16 F6 </blockquote>
 
 <h3>Secure communication with the JAP-Team</h3>
-The best way to contact us is by <a href="mailto:jap@inf.tu-dresden.de">e-mail</a>
-There is no need to encrypt messages for us, since we will not exchange any secret information.
-Signing your e-mails is no bad idea, though, as this will provide some transparency and reassurance
-in case of doubt. Here is the source of our PGP key and it's fingerprint (this key is optional
-and only for e-mail communication and has nothing to do with the Mix network):
+The best way to contact us is by <a
+href="mailto:jap@inf.tu-dresden.de">e-mail</a> There is no need to encrypt
+messages for us, since we will not exchange any secret information. Signing
+your e-mails is no bad idea, though, as this will provide some transparency and
+reassurance in case of doubt. Here is the source of our PGP key and it's
+fingerprint (this key is optional and only for e-mail communication and has
+nothing to do with the Mix network): 
+
 <blockquote>
-
-    <li><a href="http://anon.inf.tu-dresden.de/jappgp.asc">http://anon-inf.tu-dresden.de/jappgp.asc</a></li>
+  <ul>
+    <li><a
+      href="http://anon.inf.tu-dresden.de/jappgp.asc">http://anon-inf.tu-dresden.de/jappgp.asc</a></li>
     <li>B965 99E4 05EB 4202 895C 27DC D022 60C9 73EE 1DD1</li>
-
+  </ul>
 </blockquote>
-If you do not know how to sign or how to check the signature of digital documents with
-PGP/GPG, you will find a short manual
-<a href="http://anon.inf.tu-dresden.de/pgp/sigtest_en.html">here</a>.
+If you do not know how to sign or how to check the signature of digital
+documents with PGP/GPG, you will find a short manual <a
+href="http://anon.inf.tu-dresden.de/pgp/sigtest_en.html">here</a>. 
 
-<p>
-If you don't trust this document itself you should confirm the key's fingerprint by some other
-means, e.g. calling us by phone. If you simply send us your public PGP or GPG key in an
-unsecured way (e.g. e-mail), we will also not trust it until it has been confirmed by some other
-means, like a phone call, or a signature by an authority we trust in.</p>
-
+<p>If you don't trust this document itself you should confirm the key's
+fingerprint by some other means, e.g. calling us by phone. If you simply send
+us your public PGP or GPG key in an unsecured way (e.g. e-mail), we will also
+not trust it until it has been confirmed by some other means, like a phone
+call, or a signature by an authority we trust in.</p>
 <!--#include virtual="/footer_en.html"-->
 </body>
 </html>

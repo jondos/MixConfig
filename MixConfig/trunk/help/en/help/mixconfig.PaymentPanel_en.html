@@ -1,43 +1,68 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="xhelpfrms.css">
 </head>
+
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<H2>Payment</H2>
+<h2>Payment</h2>
+If you have a Premium Mix, you may setup your payment configuration options
+using this panel. 
 
-If your Mix is the first Mix of a payment cascade, you can setup your payment configuration options in this panel.
+<h3>JPI Certificate</h3>
 
-<H3>Configuration</H3>
+<p>This is the certificate of the payment instance that your Mix contacts to
+settle user payments. </p>
 
-<UL>
-  <LI><B>Enable Payment</B><BR>
-	 If you want to setup a payment cascade, tick this box.
- </LI>
-  <LI><B>General Settings</B><BR></LI>
-  <UL>
-    <LI><B>SoftLimit (Bytes)</B>
-    The SoftLimit tells the Accounting Instance when to ask a connected JAP for a signed cost confirmation. Everytime the number of bytes in this field has been transferred between the mix and the JAP, the JAP must send this cost confirmation.
-    </LI>
-    <LI><B>HardLimit (Bytes)</B>
-    The HardLimit is the number of bytes that may be transmitted without receiving a cost confirmation from the JAP. When the HardLimit is reached, the mix will cut the connection to the JAP. HardLimit should be much greater than SoftLimit. (Typical values are 1500000 for HardLimit and 250000 for SoftLimit.) 
-    </LI>
-    <LI><B>SettleInterval (seconds)</B>
-    The settle interval tells the Accounting Instance how often to contact the Payment Instance to settle cost confirmations. The longer this interval, the less the communication effort and the less the accuracy of the displayed balance in the JAP. (You should set a value between 30 and 120 seconds here.) 
-    </LI>
-  </UL>
-  <LI><B>PostgreSQL database for accounting</B><BR>
-  For accounting to function properly, your mix will need access to a PostgreSQL database. Enter the correct data for the database here.
-  </LI>
-  <LI><B>JPI Certificate</B><BR>
-  In order to be able to communicate with the Payment Instance, you will have to import its public certificate in this panel. If you do not have the certificate, ask the Payment Instance operator about it.
-  </LI>  
-  <LI><B>JPI (Java Payment Instance)</B><BR>
-  Enter the hostname, port and id of the Payment Instance you want to use for settling your cost confirmations.
-  </LI>   
-</UL>
+<p><strong>Please leave the default certificate unchanged if you do not need
+to.</strong></p>
 
-<!--#include virtual="/footer_en.html"-->
-</body>
+<h3>Price Certificate</h3>
+
+<p>By issuing this certificate, the payment instance provider guarantees you a
+certain price per anonymised GB for your Mix traffic. An anonymised GB is about
+2 normal GB, as the user's traffic has to go in and out of your Mix. Please
+note that the payment instance provider may invalidate price certificates, for
+example if you have requested a new one: in this case, users will not be able
+to connect to your Mix until you have set a new valid price certificate.</p>
+
+<p>A price certificate is issued on each of your Mix certificates. If you want
+a new Mix to be registered at the payment system, you therefore have to send
+your public Mix certificate (.cer file, X509) to the payment instance
+provider.</p>
+
+<h3>JPI (Java Payment Instance)</h3>
+
+<p>Enter the hostname, port and id of the Payment Instance you want to use for
+settling your cost confirmations</p>
+
+<p><strong>Please do not change the default values if you do not need
+to.</strong></p>
+
+<h3>General Settings</h3>
+<ul>
+  <li><b>SoftLimit (Bytes)</b> The SoftLimit tells the Accounting Instance when
+    to ask a connected JAP for a signed cost confirmation. Everytime the number
+    of bytes in this field has been transferred between the mix and the JAP,
+    the JAP must send this cost confirmation. </li>
+  <li><b>HardLimit (Bytes)</b> The HardLimit is the number of bytes that may be
+    transmitted without receiving a cost confirmation from the JAP. When the
+    HardLimit is reached, the mix will cut the connection to the JAP. HardLimit
+    should be much greater than SoftLimit.</li>
+  <li><b>Prepaid Interval (bytes)</b> The (maximum) number of bytes that a user has to
+    pay before he is allowed to use the Mix.</li>
+  <li><b>SettleInterval (seconds)</b> The settle interval tells the Accounting
+    Instance how often to contact the Payment Instance to settle cost
+    confirmations. The longer this interval, the less the communication effort
+    and the less the accuracy of the displayed balance in the JAP.</li>
+</ul>
+
+<p><strong>Please do not change the default values if you do not need
+to.</strong></p>
+
+<h3>PostgreSQL database for accounting</h3>
+For accounting to function properly, your Mix will need access to a PostgreSQL
+database. Enter the correct data for the database here. </body>
 </html>

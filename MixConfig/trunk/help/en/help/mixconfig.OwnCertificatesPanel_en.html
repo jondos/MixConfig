@@ -1,69 +1,138 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="xhelpfrms.css">
 </head>
+
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<H2>Own Certificates Panel</H2>
-This panel contains your private Mix certificates. These certificates are used to sign
-information sent by your Mix. Without them, no one will trust your mix' messages and no
-one will be able to connect to your mix. To prove that you are trustworthy, you will also
-have to let an accepted certificate authority, like the <em>JAP Team</em>
-(<a href="mailto:jap@inf.tu-dresden.de">jap@inf.tu-dresden.de</a>), sign your certificates.
+<h2>Certificates</h2>
+Due to the inherent insecurity of the Internet, all sent and received messages
+in the AN.ON/JonDonym system are signed cryptographically. 
 
-<P>If you want to connect to other Mixes in a cascade, and other Mixes in the cascade
-	should be able to connect to you, you will have to send your public certificates to
-	those neighbour mixes. If you do this, please verify if the other mixes have received
-	the right certificates by comparing your certificates' hash values with the hash values
-	of the certificates your communication partners have received.</P>
+<h3>General information about certificates</h3>
 
-<P>It is recommended to protect your private certificates with a password.</P>
+<p>Certificates are digital envelopes for cryptographic key pairs. They contain
+a private key, a corresponding public key and information about the owner of
+those keys. In the scope of digital signatures, the owner may use his private
+key to digitally sign messages. Other people may use the certificate to verify
+the public key belongs to the owner of the private key, and may then verify
+documents signed by the owner with the public key. The private key must be kept
+secret by its owner, as otherwise third parties may sign documents in his
+name.</p>
 
-<h3>General Certificate Options</h3>
-<UL>
-  <LI><B>Import</B><BR>
-	This option allows you to import private certificates that contain both your
-	private key for signing and the corresponding public key for verifying your
-	signatures, or a public certificate that fits to your private one and may be
-	signed by yourself or by a certificate authority, from a file. To import a public
-	certificate (which contains your public key and some information about your Mix or
-	organisation and the signer) you always need the corresponding private certificate.
- </LI>
-  <LI><B>Export</B><BR>
-      The export button is used to save either the public (.cer) oder both the private
-	  and the public part (.pfx) of a certificate. If you want to give a certificate
-	  to a certificate authority for signing or to another mix for building a connection,
-	  you always have to export the public certificate only. But remind this: NEVER give
-	  your private certificates away!
-   </LI>
-  <LI><B>Remove</B><BR>
-      Deletes the certificate. Please make sure you either have a backup of the certificate
-	  of you really don't need it any more.
-  </LI>
-  <LI><B>Create</B><BR>
-      Creates a new DSA certificate. You may enter a validity and a password. Please
-	  note that the validity might be changed by the signer of your certificate at his will.
-	  The creation process itself may take some seconds.
-  </LI>
-  <LI><B>Change Password</B><BR>
-      Creates, deletes or changes the password as you like.
-  </LI>
-</UL>
+<p>In the scope of Mixes, certificates are important to let the users identify
+the Mixes and especially their Operators. This is part of the security model of
+the AN.ON / JonDonym service. It prevents arbitrary, possibly malicious people
+from running Mixes and enables the users to choose whom they want to trust.</p>
 
-<h3>Mix Location and Own Mix Certificate</h3>
-In the text fields, you should enter information about the location of your mix server.
-	By creating the Mix certificate, you proof that this information is correct.
+<p><strong>Mix certificates</strong></p>
+In the process of configuring your Mix with the MixConfig tool, you will create
+a cryptographic <em>Mix certificate</em> that identifies your Mix and enables
+it to sign messages. You have to send this certificate to the Operators of your
+neighbouring Mixes, and you have to receive and register their certificates in
+your configuration to get the Mixes connected. (Please note that an automatic
+certificate exchange is in preparation.) 
 
-<h3>Operator and Operator Certificate</h3>
-These fields contain information about the mix operator, that means you or your organisation.
-The operator certificate containing this information must be signed by a certificate
-authority to proof that it is correct. You can use your operator certificate for different Mixes,
-just export and import it into an other configuration.
+<p><strong>Operator certificates</strong></p>
 
+<p>The Operators in the AN.ON / JonDonym system may run more than one Mix. For
+the purpose of identifying which Mix belongs to which Operator, each Operator
+has to create a so-called <em>Operator certificate</em>. This certificate
+identifies the Operator as private individual or as organisation. With your
+Operator certificate, you may sign as many Mix certificates as you want. </p>
 
+<p><strong>Trust</strong></p>
+Certificates and keys itself don't provide communication security, as anyone
+who has a computer is able to create them. Therefore, so-called <i>certificate
+infrastructures</i> exist: trusted authorities sign the certificates and keys
+of people or organisations that have proven their identity and the ownership of
+the certificate/key. The AN.ON / JonDonym service supports more than one of
+these certification authorities. For example, you may get Operator certificates
+signed by the <a href="http://anon.inf.tu-dresden.de">TU Dresden</a>, the <a
+href="http://www.jondos.com">JonDos GmbH</a> and the <a
+href="http://www.privacyfoundation.de">German Privacy Foundation</a>. Please
+not that your Mixes will neither be visible nor usable for clients if you do
+not have a valid certificate. 
 
+<p>Certificates and keys are uniquely identifyable by their hash values. Before
+doing a signature, certification authorities will therefore ask you to compare
+your certificates subject key identifier (SKI) or SHA1/MD5 fingerprint with the
+certificate they got from you. If you think that you got a wrong Mix
+certificate from another operator, you may also compare its subjekt key
+identifier with the one that he/she tells you.</p>
 
-<!--#include virtual="/footer_en.html"-->
+<p><strong>Certification</strong></p>
+
+<p>Only your Operator certificate is certified by certification authorities.
+Please export it into a certificaion request file (.p10) and send it to the
+authority. You may then take the certified file from the CA and just import it
+"over" your current Operator certificate. Done.</p>
+
+<h3>General certificate options</h3>
+
+<p>The certificate panels show you the status and some options to both your Mix
+and Operator certificate. As status, you can see an image indicating if a
+certificate may be verified against one of the root certificates of valid
+certificate authorities. You also get the subject key identifier (SKI) of each
+certificate as copyable character string. You should compare it with the SKIs
+of the certificates that your neighbour Operators got from you in case of
+connection problems. </p>
+
+<p>If you click on a certificate image, you will get even more detailed
+information about the certificate.</p>
+<ul>
+  <li><b>Import</b><br>
+    This option allows you to import private certificates that contain both
+    your private key for signing and the corresponding public key for verifying
+    your signatures, or a public certificate that fits to your private one and
+    may be signed by yourself or by a certificate authority, from a file. To
+    import a public certificate (which contains your public key and some
+    information about your Mix or organisation and the signer) you always need
+    the corresponding private certificate. </li>
+  <li><b>Export</b><br>
+    The export button is used to save either the public (.cer) oder both the
+    private and the public part (.pfx) of a certificate. If you want to give a
+    certificate to a certificate authority for signing or to another mix for
+    building a connection, you always have to export the public certificate
+    only. But remind this: NEVER give your private (PKCS12) certificates away!
+    They contain your secrets keys that must be kept private.</li>
+  <li><b>Remove</b><br>
+    Deletes the certificate. Please make sure you either have a backup of the
+    certificate or that you really don't need it any more. </li>
+  <li><b>Create</b><br>
+    Creates a new DSA certificate. You may enter a validity and a password. The
+    creation process itself may take some seconds. Currently, only certificates
+    with the DSA algorithm may be created. Support for RSA and elliptic curves,
+    and even for more than one certificate chain are close at hand.</li>
+  <li><b>Sign</b> <br>
+    This option is only available for your Mix certificate. The Mix certificate
+    should always be signed with your Operator certificate. If this is, for
+    some reason, not the case, you can sign it by using this button.</li>
+  <li><b>(Change) Password</b><br>
+    This button allows you to set, remove or change the password fora
+    certificate. To delete a password, just let the feals for the new password
+    empty. You should choose strong passwords for your certificates, so that an
+    unnoticed loss of your certificate data will not endanger the security of
+    your Mixes. If others get your certificates, they might fake the connection
+    to your Mix and thereby trap users. While this scenario is not very
+    probable, it might nevertheless happen if all Operators would be careless
+    with their certificates.</li>
+</ul>
+
+<h3>Mix Location</h3>
+In the text fields, you should enter information about the location of your Mix
+server. By creating the Mix certificate you state that this information is
+correct. 
+
+<h3>Operator</h3>
+
+<p>These fields contain information about the Mix Operator, that means you or
+your organisation. The Operator certificate containing this information must be
+signed by a certificate authority to proof that it is correct. You may only use
+one Operator certificate at a time for all you Mixes. Just export and import it
+into an other configuration. <!--#include virtual="/footer_en.html"-->
+</p>
 </body>
 </html>

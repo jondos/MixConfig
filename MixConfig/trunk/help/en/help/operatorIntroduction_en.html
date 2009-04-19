@@ -1,55 +1,52 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="xhelpfrms.css">
 </head>
 
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<h2>General introduction to AN.ON Mix Servers</h2>
+<h2>General introduction to Mix Servers</h2>
+The AN.ON/JonDonym anonymity service is based on so called Mix cascades: A
+cascade consists of several consecutive single Mix servers (a first Mix, zero
+or more middle Mixes and a last Mix) and one terminating web-proxy. For a
+working Mix cascade at least two Mixes and the web-proxy are needed. Each Mix
+opens a port where users (in case of the first Mix) or the previous Mix (in
+case of a middle or last Mix) may connect to. The users send their web requests
+to the first Mix that passes them on to the next one and so on until they have
+reached the last mix and the web proxy, respective. The web response takes the
+same way back. Many users use the cascade to send messages at the same time,
+and all message packets are encrypted for each mix. Therbeby no one, even the
+Mixes and their operators themselves, knows which user requests which
+information. Only if the operators of all Mixes work together, the conenctions
+of a user may be uncovered. This provides a high level of anonymity. 
 
-The AN.ON anonymity service is based on so called Mix cascades: A cascade consists of several
-	consecutive single Mix servers (a first Mix, zero or more middle Mixes and a last Mix) and one
-	terminating web-proxy. For a working Mix cascade at least two Mixes and the web-proxy are
-	needed. Each Mix opens a port where users (in case of the first Mix) or the previous Mix
-	(in case of a middle or last Mix) may connect to. The users send their web requests to the
-	first Mix that passes them on to the next one and so on until they have reached the last
-	mix and the web proxy, respective. The web response takes the same way back. As many users
-	send messages at the same time, and as the packets are encrypted for each mix, no one,
-	even the Mixes theirselves, know which user requests which information. Only if the
-	operators of all Mixes work together, the interests of a user are identified. This provides a
-	high level of anonymity.
-
-<p>The AN.ON network provides information about presently working Mix cascades, the number of
-connected users on a cascade and the amount of data they send. This is useful, as it gives the
-users the possibility to find active cacades to connect to and information about their relative
-anonymity. This information is distributed to the user clients by components called
-<em><a name="infoservice">InfoService</a></em> that collect the data from the Mixes and act as a distributed
-information database.</p>
-
+<p>The AN.ON/JonDonym network provides information about presently working Mix
+cascades, the number of connected users on a cascade and the amount of data
+they send. This is useful, as it gives the users the possibility to find active
+cacades to connect to and information about their relative anonymity. This
+information is distributed to the user clients by distributed server components
+called <em><a name="infoservice">InfoService</a></em>. They collect the data
+from the Mixes and act as a distributed and redundant information database.</p>
 
 <h3>What is this document about?</h3>
-
-What you're reading right now is about how to run an AN.ON Mix as an anonymity provider,
-in the following called <em> Operator </em>.
-
+What you're reading right now is about how to run an AN.ON/JonDonym Mix as an
+anonymity provider, in the following called <em>Operator </em>. 
 
 <h3>What this document is not about</h3>
-It's explicitly not an introduction or documentation about how to use the AN.ON service just
-as a user or with a client, respective. If you're seeking just for how to use the client
-you're wrong here. For information about the client program called JAP, please refer to the
-<a href="http://anon.inf.tu-dresden.de/fragen/index_en.html">Questions regarding JAP</a>
-or to the
-<a href="http://anon.inf.tu-dresden.de/help/index_en.html">JAP help section</a>.
+It's explicitly not an introduction or documentation about how to use the
+AN.ON/JonDonym service or the JAP/JonDo program for anonymisation. If you're
+seeking just for how to use the client you're wrong here. For information about
+the client program called JAP or JonDo, respective, please refer to the
+information on the sites of its maintainers (<a
+href="http://anon.inf.tu-dresden.de">TU Dresden</a>, <a
+href="http://www.jondos.com">JonDos GmbH</a>). 
 
-
-<p>If you want to participate in the further development you're also wrong here.
-	You find detailed information about all development topics on the
-<a href="http://anon.inf.tu-dresden.de/develop/sources_en.html">AN.ON developer sites</a>.
-There is also information about the
-	General Coding Styles and theDevelopment Environment
-	used in the AN.ON project.</p>
-
+<p>If you want to participate in the further development you're also wrong
+here. You find detailed information about all development topics on the sites
+of the code maintainers (<a href="http://anon.inf.tu-dresden.de">TU
+Dresden</a>, <a href="http://www.jondos.com">JonDos GmbH</a>).</p>
 <!--#include virtual="/footer_en.html"-->
 </body>
 </html>

@@ -38,9 +38,11 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -60,6 +62,7 @@ import mixconfig.tools.CertificationTool;
 import mixconfig.tools.DataRetentionLogDecrypt;
 import mixconfig.tools.EmailComposer;
 import mixconfig.tools.EncryptedLogTool;
+import mixconfig.tools.TemplateSigningTool;
 import mixconfig.wizard.ConfigWizard;
 import anon.util.JAPMessages;
 import anon.util.XMLParseException;
@@ -226,8 +229,12 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_toolsMenu.add(toolCertViewMenuItem);
 			toolCertViewMenuItem.setActionCommand("toolCertViewMenuItem");
 		toolCertViewMenuItem.addActionListener(this);
-
-
+		
+		JMenuItem toolTemplateSignerMenuItem = new JMenuItem("Sign T&C templates");
+		m_toolsMenu.add(toolTemplateSignerMenuItem);
+		toolTemplateSignerMenuItem.setActionCommand("toolTemplateSignerMenuItem");
+		toolTemplateSignerMenuItem.addActionListener(this);
+		
 		// Items for "View"
 		m_changeViewToWizMenuItem = new JCheckBoxMenuItem("Wizard", false);
 		viewMenu.add(m_changeViewToWizMenuItem);
@@ -359,7 +366,12 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 				if (ignoreInconsistenciesForSaving() && MixConfig.getCurrentFileName() != null && 
 						mixConf.performReloadCheck())
 				{
-					mixConf.save(new FileWriter(MixConfig.getCurrentFileName()));
+					//Force UTF-8 as standard output charset. 
+					OutputStreamWriter writer = 
+						new OutputStreamWriter(new FileOutputStream(MixConfig.getCurrentFileName()), "UTF-8");
+					mixConf.save(writer);
+					writer.close();
+					//mixConf.save(new FileWriter(MixConfig.getCurrentFileName()));
 				}
 			}
 			else if (evt.getActionCommand().equals("SaveAs"))
@@ -482,6 +494,10 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			else if (evt.getActionCommand().equals("toolCertViewMenuItem"))
 			{
 				new CADialog(MixConfig.getMainWindow());
+			}
+			else if (evt.getActionCommand().equals("toolTemplateSignerMenuItem"))
+			{
+				new TemplateSigningTool(MixConfig.getMainWindow());
 			}
 			else if (evt.getActionCommand().equals("About"))
 			{
