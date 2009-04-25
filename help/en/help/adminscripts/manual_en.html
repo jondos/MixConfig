@@ -162,6 +162,17 @@ still necessary, but dante will add more features to your Mix.</p>
 
 <p><code>apt-get install dante-server</code></p>
 
+<p>For non-Debian-Systems, you might have to use a non-apt package</p>
+
+<p><a href="ftp://ftp.inet.no/pub/socks/dante-1.1.19.tar.gz">Download Dante
+1.1.9 (FTP)</a> (<a href="ftp://ftp.inet.no/pub/socks/">or try the general
+download directory</a>)</p>
+
+<p>For Debian Lenny, this trick might work:</p>
+
+<p><a
+href="http://forums.debian.net/viewtopic.php?p=200782&amp;sid=0ac40513a6bd89bbb5b052640ae09253">http://forums.debian.net/viewtopic.php?p=200782&amp;sid=0ac40513a6bd89bbb5b052640ae09253</a></p>
+
 <p>Now you may use the prepared configuration. It will block outgoing mail
 ports to prevent spam. Of you do not care about that, you may open them,
 though. The configuration also contains the list of blocked web sites (for the
@@ -171,7 +182,14 @@ squid configuration, this is a separate list, not so for dante).</p>
 <code>ln -s /home/mix/danted.conf /etc/danted.conf</code><br>
 </p>
 
-<p>Then you should restart the dante server:</p>
+<p>Please edit the danted.conf so that your exit IP address is marked as
+external, e.g.</p>
+
+<p><code>external: 87.230.20.185 </code>(This is the example
+entry)<code></code></p>
+
+<p>Otherwise dante will not start. Then you should start or restart the dante
+server:</p>
 
 <p><code>/etc/init.d/danted restart</code></p>
 
