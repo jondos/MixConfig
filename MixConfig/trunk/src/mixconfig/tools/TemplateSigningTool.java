@@ -58,7 +58,7 @@ import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
 import anon.crypto.SignatureCreator;
 import anon.infoservice.Database;
-import anon.infoservice.TermsAndConditionsTemplate;
+import anon.terms.template.TermsAndConditionsTemplate;
 import anon.util.XMLParseException;
 import anon.util.XMLUtil;
 

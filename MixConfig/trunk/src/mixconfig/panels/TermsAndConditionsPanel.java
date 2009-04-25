@@ -41,6 +41,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -67,23 +68,33 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.TreeMap;
 import java.util.Vector;
 import java.util.zip.InflaterInputStream;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
 import javax.swing.MutableComboBoxModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -106,9 +117,12 @@ import anon.crypto.JAPCertificate;
 import anon.infoservice.Database;
 import anon.infoservice.OperatorAddress;
 import anon.infoservice.ServiceOperator;
-import anon.infoservice.TermsAndConditions;
-import anon.infoservice.TermsAndConditionsTemplate;
-import anon.infoservice.TermsAndConditionsTranslation;
+import anon.terms.TCComponent;
+import anon.terms.TermsAndConditions;
+import anon.terms.TermsAndConditionsTranslation;
+import anon.terms.template.Paragraph;
+import anon.terms.template.Section;
+import anon.terms.template.TermsAndConditionsTemplate;
 import anon.util.Base64;
 import anon.util.IXMLEncodable;
 import anon.util.JAPMessages;
@@ -120,57 +134,51 @@ import anon.util.XMLUtil;
  * This panel is used by mix operators to enter customized 
  * information to the standard terms and conditions.
  * 
- * @author renner
+ * @author renner, simon
  */
 public class TermsAndConditionsPanel extends MixConfigPanel implements ActionListener, DateListener, ChangeListener {
 	
-	private static final String MSG_TC_CAPTION = TermsAndConditionsPanel.class.getName() + "_caption";
-	//private static final String MSG_TITLE_TC = TermsAndConditionsPanel.class.getName() + "_titletc";
-	private static final String MSG_TITLE_OP_GENERAL = TermsAndConditionsPanel.class.getName() + "_titleopGeneral";
-	private static final String MSG_TITLE_OP_WITH_LANG = TermsAndConditionsPanel.class.getName() + "_titleopWithLang";
-	private static final String MSG_TITLE_URLS = TermsAndConditionsPanel.class.getName() + "_titleurls";
-	private static final String MSG_ADD_TRANSLATIONS_DIALOG = TermsAndConditionsPanel.class.getName() + "_addTranslationsDialog";
-	//private static final String MSG_ADD_TEMPLATE_DIALOG = TermsAndConditionsPanel.class.getName() + "_addTemplateDialog";
-	private static final String MSG_TEMPLATE_MISMATCH = TermsAndConditionsPanel.class.getName() + "_templateMismatch";
-	//private static final String MSG_EDIT_TEMPLATE_DIALOG_ERROR = TermsAndConditionsPanel.class.getName() + "_editTemplateDialogError";
-	private static final String MSG_INFOSERVICE = TermsAndConditionsPanel.class.getName() + "_infoservice";
-	private static final String MSG_PREVIEW = TermsAndConditionsPanel.class.getName() + "_preview";
-	private static final String MSG_URL = TermsAndConditionsPanel.class.getName() + "_url";
-	private static final String MSG_PATH = TermsAndConditionsPanel.class.getName() + "_path";
-	private static final String MSG_FILE = TermsAndConditionsPanel.class.getName() + "_file";
-	private static final String MSG_LOAD = TermsAndConditionsPanel.class.getName() + "_load";
-	//private static final String MSG_EDIT = TermsAndConditionsPanel.class.getName() + "_edit";
-	//private static final String MSG_CUSTOM = TermsAndConditionsPanel.class.getName() + "_custom";
-	private static final String MSG_ADD = TermsAndConditionsPanel.class.getName() + "_add";
-	private static final String MSG_DELETE = TermsAndConditionsPanel.class.getName() + "_delete";
-	private static final String MSG_EXPORT = TermsAndConditionsPanel.class.getName() + "_export";
-	private static final String MSG_DEFAULT_TRANSLATION = TermsAndConditionsPanel.class.getName() + "_defaultTranslation";
-	//private static final String MSG_TODAY = TermsAndConditionsPanel.class.getName() + "_today";
-	private static final String MSG_AVAIL_LANG_LABEL = TermsAndConditionsPanel.class.getName() + "_availableLanguagesLabel";
-	private static final String MSG_VALID_LABEL = TermsAndConditionsPanel.class.getName() + "_validLabel";
-	private static final String MSG_TEMPLATE_LABEL = TermsAndConditionsPanel.class.getName() + "_templateLabel";
-	private static final String MSG_LANGUAGE_LABEL = TermsAndConditionsPanel.class.getName() + "_languageLabel";
-	private static final String MSG_TRANSLATION_LABEL = TermsAndConditionsPanel.class.getName() + "_translationLabel";
-	private static final String MSG_STREET_LABEL = TermsAndConditionsPanel.class.getName() + "_streetLabel";
-	private static final String MSG_ZIP_LABEL = TermsAndConditionsPanel.class.getName() + "_zipLabel";
-	private static final String MSG_CITY_LABEL = TermsAndConditionsPanel.class.getName() + "_cityLabel";
-	private static final String MSG_FAX_LABEL = TermsAndConditionsPanel.class.getName() + "_faxLabel";
-	private static final String MSG_VAT_LABEL = TermsAndConditionsPanel.class.getName() + "_vatLabel";
-	private static final String MSG_VENUE_LABEL = TermsAndConditionsPanel.class.getName() + "_venueLabel";
-	private static final String MSG_PRIVACY_POLICY_LABEL = TermsAndConditionsPanel.class.getName() + "_privacyPolicyURLLabel";
-	private static final String MSG_LEGAL_OPINIONS_LABEL = TermsAndConditionsPanel.class.getName() + "_legalOpinionsURLLabel";
-	private static final String MSG_OP_AGREEMENT_LABEL = TermsAndConditionsPanel.class.getName() + "_operationalAgreementURLLabel";
-	private static final String MSG_PHOLDER_NONE_AVAIL = TermsAndConditionsPanel.class.getName() + "_pholderNoneAvail";
-	private static final String MSG_PHOLDER_ADD_TRANSLATION = TermsAndConditionsPanel.class.getName() + "_pholderAddTranslation";
-	private static final String MSG_PHOLDER_UPDATE = TermsAndConditionsPanel.class.getName() + "_pholderUpdate";
-	private static final String MSG_FILE_EXISTS = TermsAndConditionsPanel.class.getName() + "_fileExists";
-	private static final String MSG_SAVE_FILE_ERROR = TermsAndConditionsPanel.class.getName() + "_saveFileError";
-	private static final String MSG_LOAD_FILE_ERROR = TermsAndConditionsPanel.class.getName() + "_loadFileError";
-	
-	//private static final String ACTION_CMD_DELETE = "delete";
-	//private static final String ACTION_CMD_OK = "ok";
-	private static final String ACTION_CMD_ADD_TRANSLATION = "addTranslation";
-	//private static final String ACTION_CMD_DEFAULT_TRANSLATION = "setDefaultTranslation";
+	static final String MSG_TC_CAPTION = TermsAndConditionsPanel.class.getName() + "_caption";
+	static final String MSG_TITLE_OP_GENERAL = TermsAndConditionsPanel.class.getName() + "_titleopGeneral";
+	static final String MSG_TITLE_OP_WITH_LANG = TermsAndConditionsPanel.class.getName() + "_titleopWithLang";
+	static final String MSG_TITLE_URLS = TermsAndConditionsPanel.class.getName() + "_titleurls";
+	static final String MSG_ADD_TRANSLATIONS_DIALOG = TermsAndConditionsPanel.class.getName() + "_addTranslationsDialog";
+	static final String MSG_TEMPLATE_MISMATCH = TermsAndConditionsPanel.class.getName() + "_templateMismatch";
+	static final String MSG_INFOSERVICE = TermsAndConditionsPanel.class.getName() + "_infoservice";
+	static final String MSG_PREVIEW = TermsAndConditionsPanel.class.getName() + "_preview";
+	static final String MSG_URL = TermsAndConditionsPanel.class.getName() + "_url";
+	static final String MSG_PATH = TermsAndConditionsPanel.class.getName() + "_path";
+	static final String MSG_FILE = TermsAndConditionsPanel.class.getName() + "_file";
+	static final String MSG_LOAD = TermsAndConditionsPanel.class.getName() + "_load";
+	static final String MSG_ADD = TermsAndConditionsPanel.class.getName() + "_add";
+	static final String MSG_RESET = TermsAndConditionsPanel.class.getName() + "_reset";
+	static final String MSG_DELETE = TermsAndConditionsPanel.class.getName() + "_delete";
+	static final String MSG_EXPORT = TermsAndConditionsPanel.class.getName() + "_export";
+	static final String MSG_DEFAULT_TRANSLATION = TermsAndConditionsPanel.class.getName() + "_defaultTranslation";
+	static final String MSG_AVAIL_LANG_LABEL = TermsAndConditionsPanel.class.getName() + "_availableLanguagesLabel";
+	static final String MSG_VALID_LABEL = TermsAndConditionsPanel.class.getName() + "_validLabel";
+	static final String MSG_TEMPLATE_LABEL = TermsAndConditionsPanel.class.getName() + "_templateLabel";
+	static final String MSG_LANGUAGE_LABEL = TermsAndConditionsPanel.class.getName() + "_languageLabel";
+	static final String MSG_TRANSLATION_LABEL = TermsAndConditionsPanel.class.getName() + "_translationLabel";
+	static final String MSG_STREET_LABEL = TermsAndConditionsPanel.class.getName() + "_streetLabel";
+	static final String MSG_ZIP_LABEL = TermsAndConditionsPanel.class.getName() + "_zipLabel";
+	static final String MSG_CITY_LABEL = TermsAndConditionsPanel.class.getName() + "_cityLabel";
+	static final String MSG_FAX_LABEL = TermsAndConditionsPanel.class.getName() + "_faxLabel";
+	static final String MSG_VAT_LABEL = TermsAndConditionsPanel.class.getName() + "_vatLabel";
+	static final String MSG_VENUE_LABEL = TermsAndConditionsPanel.class.getName() + "_venueLabel";
+	static final String MSG_PRIVACY_POLICY_LABEL = TermsAndConditionsPanel.class.getName() + "_privacyPolicyURLLabel";
+	static final String MSG_LEGAL_OPINIONS_LABEL = TermsAndConditionsPanel.class.getName() + "_legalOpinionsURLLabel";
+	static final String MSG_OP_AGREEMENT_LABEL = TermsAndConditionsPanel.class.getName() + "_operationalAgreementURLLabel";
+	static final String MSG_PHOLDER_NONE_AVAIL = TermsAndConditionsPanel.class.getName() + "_pholderNoneAvail";
+	static final String MSG_PHOLDER_ADD_TRANSLATION = TermsAndConditionsPanel.class.getName() + "_pholderAddTranslation";
+	static final String MSG_PHOLDER_UPDATE = TermsAndConditionsPanel.class.getName() + "_pholderUpdate";
+	static final String MSG_FILE_EXISTS = TermsAndConditionsPanel.class.getName() + "_fileExists";
+	static final String MSG_SAVE_FILE_ERROR = TermsAndConditionsPanel.class.getName() + "_saveFileError";
+	static final String MSG_LOAD_FILE_ERROR = TermsAndConditionsPanel.class.getName() + "_loadFileError";
+	static final String ACTION_CMD_ADD_TRANSLATION = "addTranslation";
+	static final String MSG_SECTION = TermsAndConditionsPanel.class.getName() + "_section";
+	static final String MSG_PARAGRAPH = TermsAndConditionsPanel.class.getName() + "_paragraph";
+	static final String MSG_CONTENT = TermsAndConditionsPanel.class.getName() + "_content";
 	
 	public static final String XML_ELEMENT_TEMPLATES = "Templates"; 
 	public static final String XML_ELEMENT_TEMPLATE = "Template";
@@ -179,28 +187,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	
 	/** Terms and conditions paths */
 	public static final String XMLPATH_TERMS_OPTIONS = XML_ELEMENT_TC_OPTIONS;
-	/*public static final String XMLPATH_TERMS = XMLPATH_TERMS_OPTIONS + "/TermsAndConditions";
-	public static final String XMLPATH_TERMS_IMPORTS = XMLPATH_TERMS + "/TCTranslationImports";
-	public static final String XMLPATH_TERMS_TRANSLATION = XMLPATH_TERMS + "/TCTranslation";
-	public static final String XMLPATH_TERMS_IMPORTS_ADDRESS = XMLPATH_TERMS_IMPORTS+"/"+ServiceOperator.XML_ELEMENT_NAME;*/
-	
-	/*public static final String XMLPATH_TERMS_URLPP = XMLPATH_TERMS_IMPORTS + "/PrivacyPolicyUrl";
-	public static final String XMLPATH_TERMS_URLLO = XMLPATH_TERMS_IMPORTS + "/LegalOpinionsUrl";
-	public static final String XMLPATH_TERMS_URLOA = XMLPATH_TERMS_IMPORTS + "/OperationalAgreementUrl";*/
-	
-	/** general operator infos */
-	/*public static final String XMLPATH_TERMS_GENERAL_STREET = 
-		XMLPATH_TERMS_IMPORTS + "/Operator/"+OperatorAddress.NODE_NAME_STREET;
-	public static final String XMLPATH_TERMS_GENERAL_POSTCODE = 
-		XMLPATH_TERMS_IMPORTS + "/Operator/"+OperatorAddress.NODE_NAME_POSTALCODE;
-	public static final String XMLPATH_TERMS_GENERAL_CITY = 
-		XMLPATH_TERMS_IMPORTS + "/Operator/"+OperatorAddress.NODE_NAME_CITY;
-	public static final String XMLPATH_TERMS_GENERAL_FAX =
-		XMLPATH_TERMS_IMPORTS + "/Operator/"+OperatorAddress.NODE_NAME_FAX;
-	public static final String XMLPATH_TERMS_GENERAL_VAT = 
-		XMLPATH_TERMS_IMPORTS + "/Operator/"+OperatorAddress.NODE_NAME_VAT;
-	public static final String XMLPATH_TERMS_GENERAL_VENUE = 
-		XMLPATH_TERMS_IMPORTS + "/Operator/"+OperatorAddress.NODE_NAME_VENUE;*/
 	
 	public final static String PRIVACY_POLICY_TAG ="PrivacyPolicyUrl";
 	public final static String LEGAL_OPINIONS_TAG ="LegalOpinionsUrl";
@@ -224,6 +210,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	private JButton m_btnFileTemplate;
 	private JButton m_btnExportTemplate;
 	private JButton m_btnDeleteTemplate;
+	
+	private JButton m_btnContent;
 	
 	/** Date panel + button */
 	private DatePanel m_pnlDate;
@@ -314,7 +302,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		m_tf_templateReferenceId = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_templateReferenceId.addFocusListener(this);
 		
-		m_tf_templateURL = new MixConfigTextField(20);
+		//m_tf_templateURL = new MixConfigTextField(20);
+		m_tf_templateURL = new MixConfigTextField(17);
 		m_tf_templateURL.addFocusListener(this);
 		// Add the update button
 		m_btnInfoServiceTemplate = new JButton(JAPMessages.getString(MSG_INFOSERVICE));
@@ -342,6 +331,9 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		m_btnExportTemplate.addActionListener(this);
 		m_btnDeleteTemplate = new JButton(JAPMessages.getString(MSG_DELETE));
 		m_btnDeleteTemplate.addActionListener(this);
+		m_btnContent = new JButton(JAPMessages.getString(MSG_CONTENT));
+		m_btnContent.addActionListener(this);
+		//m_btnContent.setEnabled(false);
 		
 		JPanel translationButtonPanel = new JPanel();
 		translationButtonPanel.add(m_btnAddTranslation);
@@ -354,7 +346,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		templateButtonPanel.add(m_btnExportTemplate);
 		
 		JPanel templateURLPanel = new JPanel();
-		templateURLPanel.add(createLabel(MSG_URL, MSG_PATH));
+		templateURLPanel.add( createLabel(MSG_URL, MSG_PATH));
 		templateURLPanel.add(m_tf_templateURL);
 		
 		// The current date
@@ -396,15 +388,15 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		m_tf_general_Fax.addFocusListener(this);
 		panelOperatorLeft.addRow(createLabel(MSG_FAX_LABEL), m_tf_general_Fax, null);
 		
-		// VAT
-		m_tf_general_VAT = new MixConfigTextField(MAX_COLUMN_LENGTH);
-		m_tf_general_VAT.addFocusListener(this);
-		panelOperatorLeft.addRow(createLabel(MSG_VAT_LABEL), m_tf_general_VAT, null);
-		
 		// Venue
 		m_tf_general_Venue = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_general_Venue.addFocusListener(this);
 		panelOperatorLeft.addRow(createLabel(MSG_VENUE_LABEL), m_tf_general_Venue, null);
+		
+		// VAT
+		m_tf_general_VAT = new MixConfigTextField(MAX_COLUMN_LENGTH);
+		m_tf_general_VAT.addFocusListener(this);
+		panelOperatorLeft.addRow(createLabel(MSG_VAT_LABEL), m_tf_general_VAT, null);
 		
 		// Operator information ---------------------------
 		
@@ -435,15 +427,16 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		panelOperatorRight.addRow(createLabel(MSG_FAX_LABEL), m_tf_lang_Fax, null);
 		
 		// VAT
-		m_tf_lang_VAT = new MixConfigTextField(MAX_COLUMN_LENGTH);
-		m_tf_lang_VAT.addFocusListener(this);
-		panelOperatorRight.addRow(createLabel(MSG_VAT_LABEL), m_tf_lang_VAT, null);
+		//m_tf_lang_VAT = new MixConfigTextField(MAX_COLUMN_LENGTH);
+		//m_tf_lang_VAT.addFocusListener(this);
+		//panelOperatorRight.addRow(createLabel(MSG_VAT_LABEL), m_tf_lang_VAT, null);
 		
 		// Venue
 		m_tf_lang_Venue = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_lang_Venue.addFocusListener(this);
 		panelOperatorRight.addRow(createLabel(MSG_VENUE_LABEL), m_tf_lang_Venue, null);	
-						
+		
+		panelOperatorRight.addRow(m_btnContent);
 		// Translations -------------------------------------------
 		
 		TitledGridBagPanel panelURLs = new TitledGridBagPanel(JAPMessages.getString(MSG_TITLE_URLS));
@@ -548,8 +541,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_POSTALCODE), m_tf_lang_Post),
 			new PropertyToComponentMapping<JTextField>
 				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_FAX), m_tf_lang_Fax),
-			new PropertyToComponentMapping<JTextField>
-				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_VAT), m_tf_lang_VAT),
+			/*new PropertyToComponentMapping<JTextField>
+				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_VAT), m_tf_lang_VAT),*/
 			new PropertyToComponentMapping<JTextField>
 				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_VENUE), m_tf_lang_Venue)
 		};
@@ -678,12 +671,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				m_cbReferenceIDs.setSelectedItem(m_modelReferenceIDs.getElementAt(0));
 			}
 		}
-		/*else if ( ae.getSource() == m_btnToday )
-		{
-			// Reset the DatePanel to today
-			Date now = new Date(System.currentTimeMillis());
-			m_pnlDate.setDate(now);
-		}*/
 		else if( ae.getSource() == m_btnAddTranslation )
 		{
 			actionAddTranslation();
@@ -712,14 +699,15 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		{
 			actionDeleteTemplate();
 		}
-		/*else if (ae.getSource() == m_btnSetTemplateURL )
-		{
-			actionSetTemplatePath();
-		}*/
 		else if (ae.getSource() == m_btnExportTranslation )
 		{
 			actionExportTranslation();
 		}
+		else if (ae.getSource() == m_btnContent )
+		{
+			showContentDialog();
+		}
+		
 		saveAndLog();
 		enableComponents();
 	}
@@ -978,17 +966,23 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	
 	protected void enableComponents() 
 	{
+		boolean previewPossible = isPreviewTranslationPossible();
 		//Buttons
 		m_btnDeleteTranslation.setEnabled(isDeleteTranslationPossible());
 		m_btnDefaultTranslation.setEnabled(isDefaultLanguagePossible());
-		m_btnPreview.setEnabled(isPreviewTranslationPossible());
 		//cannot be shown because only becomes visible when on the preview dialog
+		
 		//m_btnExportTranslation.setEnabled(isPreviewTranslationPossible());
 		m_btnDeleteTemplate.setEnabled(isDeleteTemplatePossible());
 		m_btnExportTemplate.setEnabled(isExportTemplatePossible());
-		
+	
 		//other components
 		panelOperatorRight.setEnabled(isATranslationLoaded());
+		//this enable check must take place after checking the right oprator panel, 
+		//otherwise the button can be falsely reactivated.
+		m_btnContent.setEnabled(previewPossible);
+		m_btnPreview.setEnabled(previewPossible);
+		
 		m_tf_templateURL.setEnabled(isDeleteTemplatePossible());
 		if(m_cbReferenceIDs.getItemCount() == 0)
 		{
@@ -1002,6 +996,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 			m_cbTranslations.addItem(
 					ComboBoxPlaceHolder.createPlaceHolder(MSG_PHOLDER_ADD_TRANSLATION));
 		}
+		
 		repaint();
 	}
 	
@@ -1091,6 +1086,16 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		return ((result.getCommand() != null) && result.getResult() != null) ? result : null;
 	}
 	
+	private void showContentDialog()
+	{
+		TemplateReferenceID refId = getSelectedTemplateReferenceID();
+		TermsAndConditionsTemplate template = (refId != null) ? 
+			TermsAndConditionsTemplate.getById(refId.getReferenceID(), false) : null;
+		TermsAndConditionsContentDialog dialog = 
+			new TermsAndConditionsContentDialog(this, template, getSelectedTranslation());
+		dialog.pack();
+		dialog.setVisible(true);
+	}
 	// -- action methods - invoked if a corresponding action event occures --
 	private void actionAddTranslation()
 	{
@@ -1284,7 +1289,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 					template = getTemplateFromURL(newTemplateUrl);
 					if(template != null)
 					{
-						//if the template loaded from  the specified URL does not match the corresponding referenceId
+						//if the template loaded from  the specified URL does not match the corresponding referenceId
 						if(!template.getId().equals(refId.getReferenceID()))
 						{
 							JAPDialog.showErrorDialog(this, 
@@ -1372,14 +1377,14 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				}
 				if(confirmed)
 				{
-					exportTemplate.importData(exportTranslation);
+					//ÍexportTemplate.importData(exportTranslation);
 					try 
 					{
 						//Make sure the exported HTML is ISO-Latin-1 encoded
 						OutputStreamWriter exportWriter = 
 							new OutputStreamWriter(new FileOutputStream(selectedFile), TRANSLATION_HTML_EXPORT_ENCODING);
 						
-						exportTemplate.transform(exportWriter);
+						exportTemplate.transform(exportWriter, exportTranslation);
 						exportWriter.flush();
 						exportWriter.close();
 					} 
@@ -1409,6 +1414,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		}
 	}
 	
+	
+	
 	// --- private load and save functions ---
 	
 	private void loadDate()
@@ -1418,7 +1425,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Loading date " + date);
 		//a null-pointer for date must be a bug.
 		m_pnlDate.setDate(date);
-		
 	}
 	
 	private void loadTranslation(TermsAndConditionsTranslation translation)
@@ -1679,8 +1685,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	}
 	
 	/** loads a TC template from the corresponding URL saves it in the IS Database
-	 * puts it's ReferenceID in the corresponding combobox and returns this 
-	 * ReferenceID
+	 * puts it's ReferenceID in the corresponding combobox and returns the template if it could be loaded.
 	 * @param templateURL
 	 * @return
 	 * @throws IOException 
@@ -1794,7 +1799,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		    } catch (MalformedURLException mue) {
 		    	LogHolder.log(LogLevel.EXCEPTION, LogType.NET, "Error: " + mue.getMessage());
 		    } catch (IOException ioe) {
-		    	LogHolder.log(LogLevel.EXCEPTION, LogType.NET, "Error: " + ioe.getMessage(), ioe);
+		    	LogHolder.log(LogLevel.EXCEPTION, LogType.NET, "Error: " + ioe.getMessage());
 		    } catch (SAXException se) {
 		    	LogHolder.log(LogLevel.EXCEPTION, LogType.MISC, "Error: " + se.getMessage());
 		    } catch (ParserConfigurationException pce) {
@@ -2106,17 +2111,17 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		}
 	}
 	
-	private static JLabel createLabel(String messageKey)
+	static JLabel createLabel(String messageKey)
 	{
 		return createLabel(new String[]{messageKey});
 	}
 	
-	private static JLabel createLabel(String messageKey1, String messageKey2)
+	static JLabel createLabel(String messageKey1, String messageKey2)
 	{
 		return createLabel(new String[]{messageKey1, messageKey2});
 	}
 	
-	private static JLabel createLabel(String[] messageKeys)
+	static JLabel createLabel(String[] messageKeys)
 	{
 		StringBuffer labelName = new StringBuffer("");
 		for (int i = 0; i < messageKeys.length; i++) 

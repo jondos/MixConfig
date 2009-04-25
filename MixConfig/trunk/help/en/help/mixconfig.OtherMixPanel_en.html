@@ -1,40 +1,58 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="xhelpfrms.css">
 </head>
+
 <body>
 <!--#include virtual="/header_en.html"-->
 
-<H2>Next/Previous Mix and Proxy Panel</H2>
-This panel contains information about one of your neighbour servers.
+<h2>Next/Previous Mix and Proxy Panel</h2>
+This panel contains information about one of your neighbour servers. 
 
 <h3>Previous/Next Mix Certificate</h3>
-The certificates are needed
-<UL>
-  <LI><B>Import</B><BR>
-	Reads a certificate that you have received from a neighbour mix from a file. After you imported it, you
-	should check whether the certificate's hash value is the same as the value that the other mix' operator
-	told you. Otherwise some attacker might have replaced this certificate by his own.
- </LI>
-  <LI><B>Export</B><BR>
-	Saves the certificate to a file.
-   </LI>
-  <LI><B>Remove</B><BR>
-      Deletes the certificate. Please make sure you either have a backup of the certificate of you really don't need it any more.
-  </LI>
-</UL>
+The certificates are needed 
+<ul>
+  <li><b>Import</b><br>
+    Reads a certificate that you have received from a neighbour mix from a
+    file. After you imported it, you should check whether the certificate's
+    hash value is the same as the value that the other mix' operator told you.
+    Otherwise some attacker might have replaced this certificate by his own.
+  </li>
+  <li><b>Export</b><br>
+    Saves the certificate to a file. </li>
+  <li><b>Remove</b><br>
+    Deletes the certificate. Please make sure you either have a backup of the
+    certificate of you really don't need it any more. </li>
+</ul>
 
-<h3>Mix Location and Own Mix Certificate</h3>
-In the text fields, you should enter information about the location of your mix server. By creating
-the mix certificate, you proof that this information is correct.
+<h3>Location</h3>
+This is the location of the neighbour Mix. It is certified by the neighbour Mix
+operator.
 
-<h3>Operator and Operator Certificate</h3>
-These fields contain information about the mix operator, that means you or your organisation.
-The operator certificate containing this information must be signed by a certificate
-authority to proof that it is correct. You can use your operator certificate for different mixes, just export and import it into an other configuration.
+<h3>Operator</h3>
+Here you find information about your neighbour operator. It is checked by a
+certification authority.
 
+<h3>Next Mix</h3>
 
+<p>If you are running a middle Mix, please enter here the connection data (IP
+address / host name and port) of your next neighbout Mix. The port is often
+6544.</p>
 
-<!--#include virtual="/footer_en.html"-->
+<h3>Proxy</h3>
+
+<p>If you are running a last Mix, please enter here the information about your
+cache proxies and/or SOCKS proxies. You have to enter one cache/HTTP proxy at
+east. If you have locally installed a squid proxy, this is usually
+host=localhost and port=3128.</p>
+
+<p>If ou are using dante as SOCKS proxy, this is usually host=localhost and
+port=1080.</p>
+
+<p>You may enter as many proxies as you want.</p>
+
+<p><!--#include virtual="/footer_en.html"-->
+</p>
 </body>
 </html>
