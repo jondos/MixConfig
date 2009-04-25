@@ -14,7 +14,7 @@ hand-work on each update.
 
 <h3>Preparing the server</h3>
 <ul>
-  <li><strong>Encrypt the file system of your server</strong>
+  <li><strong>Encrypt the file system of your server</strong> 
     <p>We propose Operators to encrypt their server file system before
     installation. This will prevent an automatic restart of your server, but
     gives you some protection from possibly manipulating server hosters.</p>
@@ -102,6 +102,9 @@ scripts and the links to them.
     <dd>config file for squid proxy </dd>
   <dt><a href="squid-block.acl">/home/mix/squid-block.acl</a></dt>
     <dd>a file containing blocked websites </dd>
+  <dt><a href="danted.conf">/home/mix/danted.conf</a></dt>
+    <dd>configuration file for dante SOCKS server, also containing blocked
+      websites </dd>
 </dl>
 
 <h3>Squid proxy installation (for last mixes) </h3>
@@ -150,6 +153,28 @@ Create the cache files
   <code>ulimit -HSn 64000 </code><br>
   <code>squid </code></blockquote>
 
+<h3>Dante SOCKS server installation (for last Premium Mixes)</h3>
+
+<p>Dante is a SOCKS server you may add to your last Mix BESIDES squid. Squid is
+still necessary, but dante will add more features to your Mix.</p>
+
+<p>For installation with apt, this command should be sufficient:</p>
+
+<p><code>apt-get install dante-server</code></p>
+
+<p>Now you may use the prepared configuration. It will block outgoing mail
+ports to prevent spam. Of you do not care about that, you may open them,
+though. The configuration also contains the list of blocked web sites (for the
+squid configuration, this is a separate list, not so for dante).</p>
+
+<p><code>mv /etc/danted.conf </code><code>/etc/danted.conf~</code><br>
+<code>ln -s /home/mix/danted.conf /etc/danted.conf</code><br>
+</p>
+
+<p>Then you should restart the dante server:</p>
+
+<p><code>/etc/init.d/danted restart</code></p>
+
 <h3>Link to the executable</h3>
 You should set some system-wide links, so that you can use the startup scripts
 from every directoy: 
@@ -179,6 +204,17 @@ compile the code: </p>
 may, on Debian/Ubuntu systems, look for them using the <code>apt-cache
 search</code> command<code>.</code></p>
 
+<p>If you do not run a Premium Mix but only a free one, please remove the
+respective compile command "<code>--enable-payment</code>" from the
+<code>runMixproxy</code> script first:</p>
+
+<p><code>...</code></p>
+
+<p><code>export COMPILE_OPTIONS="--enable-payment
+--enable-server_monitoring"</code></p>
+
+<p><code>...</code></p>
+
 <p>You may now update the mix with the newest CVS code by typing</p>
 
 <blockquote>
@@ -189,17 +225,19 @@ search</code> command<code>.</code></p>
 <p>If, for some reason, the scripts do not work on your system, you should
 first check the script options in <code>runMixproxy</code>.</p>
 <ul>
-  <li>COMPILE_OPTIONS
+  <li>COMPILE_OPTIONS 
     <p>Maybe you find some unnecessary options here? if you do not run a
-    premoum Mix, you have to remove the option <code>--enable-payment</code>,
+    Premium Mix, you have to remove the option <code>--enable-payment</code>,
     for example.</p>
   </li>
-  <li>CVS_DATE
+  <li>CVS_DATE 
     <p>Maybe you forgot to comment this option? If CVS_DATE is uncommented, the
     scripts will fetch the code for a specific date. That means that you will
     not necessarily get the latest code. You might want to put a <code>#</code>
     before this line to comment it out, like</p>
     <p># CVS_DATE...</p>
+    <p>The date command is useful when you would like to stick to a stable
+    version until the next one comes out.</p>
   </li>
 </ul>
 
@@ -302,10 +340,10 @@ example by typing</p>
 <p>If your Mix does not start by using the scripts, you maybe should start it
 "by hand"</p>
 <ul>
-  <li>got to the directory where the Mix is located
+  <li>got to the directory where the Mix is located 
     <p><code>cd /home/mix/Mixproxy</code></p>
   </li>
-  <li>execute this command
+  <li>execute this command 
     <p><code>./mix --config=config.xml</code></p>
   </li>
 </ul>

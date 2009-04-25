@@ -1,0 +1,124 @@
+<html>
+<head>
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>Creating a Mix configuration</h2>
+
+<p>You may create and change a Mix configuration with the <a
+href="mixconfig.MixConfig_en.html">config tool</a>. This documents tells you
+the typical steps that are needed to create your configuration.</p>
+
+<h3>Find partners</h3>
+<ul>
+  <li>you might ask JonDos or one of the other certification authorities if
+    there are any partners willing to form a cascade with you</li>
+  <li>you could also just write an e-mail to one of the many other operators to
+    make up a cascad with you</li>
+</ul>
+
+<h3>General settings</h3>
+<ul>
+  <li>First, go to the <a href="mixconfig.GeneralPanel_en.html">General
+    panel</a></li>
+  <li>if you have a Premium Mix, choose "Enable payment"; if you are running a
+    free Mix, let this box unchecked</li>
+  <li>choose the type for your Mix: a first Mix accepts user connections; a
+    last Mix sends our user data to the internet</li>
+  <li>choose a name for your Mix; you might first imagine some kind of name
+    scheme for all of your Mixes (etc. famous artists, TV characters,...);
+    please do not choose locations on earth as scheme; now choose a short name
+    for your Mix after that scheme</li>
+  <li>if you have a first Mix, you should choose the name of the cascade where
+    it runs now; typical cascade names are composed by the names of Mixes, e.g.
+    Euklid-Rose-ExarKun for the Mixes Eukild, Rose and ExarKun</li>
+  <li>in general, you may leave the InfoService field on its default values</li>
+  <li>set the listener interfaces to the port(s) and hostnames where your mix
+    should listen to; teh recommended ports are 6544 80, 443; first Mixes
+    should listen on all of them</li>
+</ul>
+
+<h3>Advanced settings</h3>
+<ul>
+  <li>first, go to the <a href="mixconfig.AdvancedPanel.html">Advanced
+  panel</a></li>
+  <li>choose "Log to Directory" and enter "/home/mix/Mixproxy" as directory (if
+    you follow <a href="adminscripts/manual_en.html">the usual setup
+    instructions</a>)</li>
+  <li>set "mix" as "user Name on Execution" so that your Mix may switch from
+    the root user to the user "mix"; this might protect your server from
+    hackers attacking your Mix</li>
+  <li>set 4096 as Max. nr. of File Descriptors</li>
+  <li>choose "Run as daemon"</li>
+</ul>
+
+<p>If you are running a free Mix, you should also set the traffic shaping
+values <a href="mixconfig.AdvancedPanel.html">described here</a>.</p>
+
+<h3>Certificate creation</h3>
+<ul>
+  <li>first, go to the <a
+    href="mixconfig.OwnCertificatesPanel_en.html">Certificates Panel</a></li>
+  <li>if you already have an Operator certificate, import it; otherwise, enter
+    your operator information and create an operator certificate</li>
+  <li>enter the information about your Mix here and create a Mix
+  certificate</li>
+  <li>If your operator certificate is not signed yet, please send it to JonDos.
+    You may use the function <em>Tools-&gt;E-Mail certificate request...</em>
+    for that.</li>
+  <li>This tools command will put all your public certificates into the clip
+    board; just paste them into an e-mail</li>
+</ul>
+
+<h3>Previous Mix</h3>
+<ul>
+  <li>ask your neighbour Mix operator or JonDos to send you his
+  certificates</li>
+  <li>import these certificates, and check whether the signatures are OK</li>
+  <li>if they are not OK, you might have the wrong certificates; request them
+    again</li>
+  <li></li>
+</ul>
+
+<h3>Next Mix / Proxy settings</h3>
+<ul>
+  <li>if you have a First or Middle mix, ask the next Mix operators and/or
+    JonDos for the certificates first</li>
+  <li>the next Mix operator should also send you the connection information
+    (hostname, port) of his Mix, so that you may enter this information</li>
+  <li>if you are running a last mix, you have to enter your proxy settings,
+    instead of a next mix</li>
+  <li>depending <a href="adminscripts/manual_en.html">on your installation</a>,
+    you might have set up a squid HTTP, proxy, for example, or an additional
+    dante SOCKS proxy</li>
+  <li>for the squid proxy, just create a proxy with host=localhost and
+  port=3128</li>
+  <li>for an additional dante SOCKS proxy, create a second entry with
+    host=localhost and port=1080</li>
+</ul>
+
+<h3>Payment settings</h3>
+
+<p>If you use the <a href="adminscripts/manual_en.html">default installation
+procedure</a>, you just have to change two things:</p>
+<ul>
+  <li>set the database password to the password that you have chosen for aiuser
+    in the installation process</li>
+  <li>let JonDos create you a price certificate that confirms the price for
+    your Mix; JonDos does this if you have a respective contract and if you
+    have sent your public Mix certificates to JonDos (see above, "Certificate
+    creation")</li>
+</ul>
+
+<p><strong>Done! Now your configuration is complete. </strong></p>
+
+<h3>Troubleshooting</h3>
+
+<p>If you nevertheless see any warnings on saving your configuration, click on
+File-&gt;Check to see what values are wrong.</p>
+</body>
+</html>
