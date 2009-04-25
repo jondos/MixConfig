@@ -1377,7 +1377,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				}
 				if(confirmed)
 				{
-					//êexportTemplate.importData(exportTranslation);
+					//exportTemplate.importData(exportTranslation);
 					try 
 					{
 						//Make sure the exported HTML is ISO-Latin-1 encoded
