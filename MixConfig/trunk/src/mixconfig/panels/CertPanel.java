@@ -125,10 +125,12 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		addDefaultCertificates(CERTPATH_MIX, JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX); // TODO use this instead of above line!
 		addDefaultCertificates(CERTPATH_PAYMENT, JAPCertificate.CERTIFICATE_TYPE_PAYMENT);
 		// needed for applet version (no dynamic loading is possible)
+		addDefaultCertificates(CERTPATH_MIX + "gpf_jondonym_ca.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "japmixroot.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "Operator_CA.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
 		addDefaultCertificates(CERTPATH_PAYMENT + "Payment_Instance.cer", JAPCertificate.CERTIFICATE_TYPE_PAYMENT);		
 		// TODO use these instead of above lines!
+		addDefaultCertificates(CERTPATH_MIX + "gpf_jondonym_ca.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "japmixroot.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "Operator_CA.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
 	}
