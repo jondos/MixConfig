@@ -174,7 +174,7 @@ download directory</a>)</p>
 href="http://forums.debian.net/viewtopic.php?p=200782&amp;sid=0ac40513a6bd89bbb5b052640ae09253">http://forums.debian.net/viewtopic.php?p=200782&amp;sid=0ac40513a6bd89bbb5b052640ae09253</a></p>
 
 <p>Now you may use the prepared configuration. It will block outgoing mail
-ports to prevent spam. Of you do not care about that, you may open them,
+ports to prevent spam. If you do not care about that, you may open them,
 though. The configuration also contains the list of blocked web sites (for the
 squid configuration, this is a separate list, not so for dante).</p>
 
@@ -192,6 +192,10 @@ entry)<code></code></p>
 server:</p>
 
 <p><code>/etc/init.d/danted restart</code></p>
+
+<p><strong>Please note: You will have to <a
+href="../mixconfig.OtherMixPanel_en.html">edit the Mix configuration</a> and
+restart the Mix before it can use the Dante server.</strong></p>
 
 <h3>Link to the executable</h3>
 You should set some system-wide links, so that you can use the startup scripts
