@@ -190,14 +190,16 @@ external, e.g.</p>
 <p><code>external: 87.230.20.185 </code>(This is the example
 entry)<code></code></p>
 
-<p>Otherwise dante will not start. Then you should start or restart the dante
-server:</p>
-
-<p><code>/etc/init.d/danted restart</code></p>
+<p>Otherwise dante will not start. </p>
 
 <p><strong>Please note: You will have to <a
-href="../mixconfig.OtherMixPanel_en.html">edit the Mix configuration</a> and
-restart the Mix before it can use the Dante server.</strong></p>
+href="../mixconfig.OtherMixPanel_en.html">edit the Mix configuration</a>, add
+the SOCKS proxy with the right host and port (localhost, 1080) and restart the
+Mix before it can use the Dante server.</strong></p>
+
+<p>Then you should start or restart the dante server:</p>
+
+<p><code>/etc/init.d/danted restart</code></p>
 
 <h3>Link to the executable</h3>
 You should set some system-wide links, so that you can use the startup scripts
