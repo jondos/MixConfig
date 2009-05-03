@@ -101,8 +101,6 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	public static final int MAX_COMBO_BOX_LENGTH = 27;
 	public static final int MAX_COORDINATE_FIELD_LENGTH = 7;
 
-	public static final String CN_ANON_OPERATOR_CERTIFICATE = "AN.ON Operator Certificate";
-
 	public static final String MSG_WARNING_NO_MIX_CERT = MixConfigPanel.class.getName() + "_warningNoMixCert";
 	public static final String MSG_ERROR_BLANK_FIELD = MixConfigPanel.class.getName() + "_errorBlankField";
 
@@ -601,11 +599,10 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	 * not save the value directly, but tries to retrieve the radio button's group and
 	 * invokes the appropriate save method.
 	 * @param a A radio button
-	 * @throws UnsupportedEncodingException String values are encoded with <CODE>javax.net.URLEncoder.encode(String, String)</CODE>;
 	 * the encoding is UTF-8. If this encoding is not supported, an exception is
 	 * thrown.
 	 */
-	protected void save(JRadioButton a) throws UnsupportedEncodingException
+	protected void save(JRadioButton a)
 	{
 		try
 		{

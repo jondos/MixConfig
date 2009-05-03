@@ -141,20 +141,6 @@ public class CertificateGenerator implements Runnable
 			}
 			extensions.addElement(ski);
 
-			/**
-			 * @todo Remove this hack and rewrite mix/infoservice/jap code appropriately.
-			 * If the common name is not set it is assumed that a mix certificate
-			 * is created. Hack: The common name is replaced by an XML structure containing
-			 * a hash of the public key.
-			 */
-			if (m_name.getCommonName() == null || m_name.getCommonName().trim().length() == 0)
-			{
-				Hashtable name;
-				name = m_name.getDistinguishedName();
-				name.put(X509DistinguishedName.IDENTIFIER_CN, "<Mix id=" + ski.getValueWithoutColon() + "/>");
-				m_name = new X509DistinguishedName(name);
-			}
-
 			m_cert = new PKCS12(m_name, keyPair, m_validity, new X509Extensions(extensions));
 		}
 		catch (Exception e)
