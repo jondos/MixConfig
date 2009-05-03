@@ -57,7 +57,7 @@ import mixconfig.panels.GeneralPanel;
 import mixconfig.panels.MixOnCDPanel;
 import mixconfig.panels.PaymentPanel;
 import mixconfig.panels.PriceCertPanel;
-import mixconfig.panels.TermsAndConditionsPanel;
+
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -68,6 +68,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
+import anon.infoservice.MixInfo;
 import anon.pay.xml.XMLPriceCertificate;
 import anon.util.Base64;
 import anon.util.ResourceLoader;
@@ -1051,21 +1052,6 @@ public class MixConfiguration
 			((ChangeListener)m_changeListeners.elementAt(i)).stateChanged(c);
 		}
 	}
-
-	/** 
-	 * Sends a <CODE>ChangeEvent</CODE> to all <CODE>ChangeListener</CODE>s. This 
-	 * method is called whenever the value of an attribute changes.
-	 * 
-	 * @deprecated since never called?
-	 */
-	protected void fireStateChanged()
-	{
-		ChangeEvent c = new ChangeEvent(this);
-		for (int i = 0; i < m_changeListeners.size(); i++)
-		{
-			((ChangeListener)m_changeListeners.elementAt(i)).stateChanged(c);
-		}
-	}
 			
 	// -------------------- PRIVATE METHODS --------------------
 
@@ -1077,7 +1063,8 @@ public class MixConfiguration
 	{
 		// General defaults
 		setValue(GeneralPanel.XMLPATH_GENERAL_MIXTYPE, "FirstMix");
-		setValue(GeneralPanel.XMLPATH_GENERAL_MIXNAME, "AN.ON Mix");
+		setAttribute(GeneralPanel.XMLPATH_GENERAL_MIXNAME, MixInfo.XML_ATTRIBUTE_NAME_FOR_CASCADE, 
+				MixInfo.NAME_TYPE_MIX);
 		// Set the payment attribute
 		setAttribute(GeneralPanel.XMLPATH_GENERAL_MIXTYPE, GeneralPanel.XML_ATTRIBUTE_PAYMENT, true);
 		

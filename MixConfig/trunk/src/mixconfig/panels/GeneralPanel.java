@@ -76,6 +76,7 @@ import mixconfig.network.ConnectionData;
 import mixconfig.network.IncomingConnectionTableModel;
 import mixconfig.network.IncomingDialog;
 import anon.infoservice.ListenerInterface;
+import anon.infoservice.MixInfo;
 import anon.util.JAPMessages;
 
 public class GeneralPanel extends MixConfigPanel implements ActionListener, TableModelListener, ChangeListener
@@ -86,6 +87,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	public static final String XMLPATH_GENERAL_CASCADENAME = XMLPATH_GENERAL + "/CascadeName";
 	public static final String XMLPATH_GENERAL_MIN_CASCADELENGTH = XMLPATH_GENERAL + "/MinCascadeLength";
 	public static final String XMLPATH_GENERAL_MIXNAME = XMLPATH_GENERAL + "/MixName";
+	public static final String XMLPATH_GENERAL_OPERATORNAME = XMLPATH_GENERAL + "/OperatorName";
 	public static final String XMLPATH_GENERAL_MIXID = XMLPATH_GENERAL + "/MixID";
 	public static final String XMLPATH_AUTOCONFIGURATION = "Network/InfoService/AllowAutoConfiguration";
 
@@ -113,7 +115,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	private JComboBox m_combxMixType, m_combxConfiguration, m_combxCascadeLength;
 	private JCheckBox m_cbxDynamicFallback;
 	// TextFields
-	private JTextField m_tfMixName;
+	//private JTextField m_tfMixName;
 	private JTextField m_tfCascadeName;
 	
 	private JLabel m_cascadeNameLabel, m_lblCascadeLength;
@@ -128,6 +130,8 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	
 	// JCheckBox to (de-)activate the payment panel
 	private JCheckBox m_cbxPayment;
+	
+	private JCheckBox m_cbxIgnoreOwnName;
 	
 	// InfoService stuff
 	private JPanel m_infoServicePanel;
@@ -209,13 +213,14 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		//							  GridBagConstraints.HORIZONTAL);
 
 		// Mix Name JTextField
+		/*
 		m_tfMixName = new MixConfigTextField(20);
 		m_tfMixName.setText("");
 		m_tfMixName.setName(XMLPATH_GENERAL_MIXNAME);
 		m_tfMixName.addFocusListener(this);
 		m_panelGeneralSettings.addRow(new JLabel(MSG_MIX_NAME), m_tfMixName,
 									  GridBagConstraints.HORIZONTAL);
-
+*/
 		// Cascade Name JTextField; this field is disabled by selecting a middle mix type
 		m_tfCascadeName = new MixConfigTextField(20);
 		m_tfCascadeName.setName(XMLPATH_GENERAL_CASCADENAME);
@@ -233,9 +238,14 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		m_lblCascadeLength = new JLabel("Minimum cascade length");
 		m_lblCascadeLength.setVisible(false); /** @todo  not needed any more; remove... */
 
+		
+		m_cbxIgnoreOwnName = new JCheckBox("Ignore own short name");
+		m_cbxIgnoreOwnName.setName(GeneralPanel.XMLPATH_GENERAL_MIXNAME);
+		m_cbxIgnoreOwnName.addItemListener(this);
+		
 		m_cascadeNameLabel = new JLabel(MSG_CASCADE_NAME);
-		m_panelGeneralSettings.addRow(m_cascadeNameLabel, m_tfCascadeName,
-									  m_lblCascadeLength, m_combxCascadeLength);
+		m_panelGeneralSettings.addRow(m_cascadeNameLabel, m_tfCascadeName, m_cbxIgnoreOwnName);
+									 // m_lblCascadeLength, m_combxCascadeLength);
 
 		// Initialize both of the tables here
 		initInfoServicesTable(c);		
@@ -641,10 +651,19 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				else m_cbxPayment.setSelected(false);
 			}
 		}
-		// TODO: Remove
-		//else if (a_cbx == m_cbxFirstMix || a_cbx == m_cbxMiddleMix || a_cbx == m_cbxLastMix)
-		//{			
-		//}
+		else if (a_cbx == m_cbxIgnoreOwnName)
+		{
+			String str = getConfiguration().getAttributeValue(a_cbx.getName(),  
+					MixInfo.XML_ATTRIBUTE_NAME_FOR_CASCADE);
+			if (str != null && (str.equals(MixInfo.NAME_TYPE_MIX) || str.equals(MixInfo.NAME_TYPE_OPERATOR)))
+			{
+				m_cbxIgnoreOwnName.setSelected(false);
+			}
+			else
+			{
+				m_cbxIgnoreOwnName.setSelected(true);
+			}
+		}
 		else
 		{
 			super.load(a_cbx);
@@ -734,10 +753,28 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		{
 			getConfiguration().setAttribute(XMLPATH_GENERAL_MIXTYPE, XML_ATTRIBUTE_PAYMENT, m_cbxPayment.isSelected());
 		}
-		// TODO: Remove
-		//else if (a_cbx == m_cbxFirstMix || a_cbx == m_cbxMiddleMix || a_cbx == m_cbxLastMix)
-		//{
-		//}
+		else if (a_cbx == m_cbxIgnoreOwnName)
+		{
+			if (a_cbx.isSelected())
+			{
+				getConfiguration().removeAttribute(a_cbx.getName(), MixInfo.XML_ATTRIBUTE_NAME_FOR_CASCADE);
+			}
+			else
+			{
+				String str = getConfiguration().getAttributeValue(a_cbx.getName(), 
+						MixInfo.XML_ATTRIBUTE_NAME_FOR_CASCADE);
+				if (str != null && (str.equals(MixInfo.NAME_TYPE_MIX) || str.equals(MixInfo.NAME_TYPE_OPERATOR)))
+				{
+					// do nothing
+				}
+				else
+				{
+					// set default
+					getConfiguration().setAttribute(a_cbx.getName(), MixInfo.XML_ATTRIBUTE_NAME_FOR_CASCADE, 
+							MixInfo.NAME_TYPE_MIX);
+				}
+			}
+		}
 		else
 		{
 			super.save(a_cbx);
@@ -881,12 +918,6 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 		MixConfiguration mixConf = getConfiguration();
 		String s;
 		int mixType;
-
-		s = mixConf.getValue(XMLPATH_GENERAL_MIXNAME);
-		if (s == null || s.equals(""))
-		{
-			errors.addElement("Mix Name not entered.");
-		}
 
 		try
 		{

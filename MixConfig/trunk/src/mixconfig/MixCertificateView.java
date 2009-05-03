@@ -32,6 +32,7 @@ import anon.crypto.JAPCertificate;
 import anon.crypto.ICertificate;
 import anon.util.CountryMapper;
 import anon.util.Util;
+import anon.crypto.X509BasicConstraints;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectAlternativeName;
@@ -43,12 +44,13 @@ import anon.crypto.AbstractX509Extension;
  */
 public class MixCertificateView implements ICertificateView
 {
-	private boolean m_bMixCertificate;
+	private boolean m_bCA;
 	private CountryMapper m_CountryMapper;
 	private String m_strLocalityName;
 	private String m_strStateOrProvince;
 	private String m_strLongitude;
 	private String m_strLatitude;
+	private String m_strCommonName;
 
 	public MixCertificateView()
 	{
@@ -59,12 +61,13 @@ public class MixCertificateView implements ICertificateView
 	{
 		if (a_certificate == null)
 		{
-			m_bMixCertificate = true;
+			m_bCA = false;
 			m_CountryMapper = new CountryMapper();
 			m_strLocalityName = "";
 			m_strStateOrProvince = "";
 			m_strLongitude = "";
 			m_strLatitude = "";
+			m_strCommonName = "";
 			return;
 		}
 		JAPCertificate certificate = a_certificate.getX509Certificate();
@@ -72,7 +75,7 @@ public class MixCertificateView implements ICertificateView
 		X509Extensions extensions;
 		X509SubjectAlternativeName alternativeName;
 		Vector coordinates;
-		String strCommonName;
+		X509BasicConstraints extConstraints;
 
 		dn = certificate.getSubject();
 		extensions = certificate.getExtensions();
@@ -84,10 +87,22 @@ public class MixCertificateView implements ICertificateView
 		{
 		}
 
+		extConstraints = (X509BasicConstraints)
+			certificate.getExtensions().getExtension(X509BasicConstraints.IDENTIFIER);
+		if (extConstraints != null && extConstraints.isCA())
+			
+		{
+			m_bCA = true;
+		}
+		else
+		{
+			m_bCA = false;
+		}
+			
 		m_strLocalityName = formatDNField(dn.getLocalityName());
 		m_strStateOrProvince = formatDNField(dn.getStateOrProvince());
-		strCommonName = formatDNField(dn.getCommonName());
-		m_bMixCertificate = (strCommonName != null && strCommonName.toLowerCase().indexOf("mix") >= 0);
+		m_strCommonName = formatDNField(dn.getCommonName());
+		
 		AbstractX509Extension extension =
 			extensions.getExtension(X509SubjectAlternativeName.IDENTIFIER);
 		if (extension != null && extension instanceof X509SubjectAlternativeName)
@@ -143,6 +158,11 @@ public class MixCertificateView implements ICertificateView
 	{
 		return m_CountryMapper;
 	}
+	
+	public String getCommonName()
+	{
+		return m_strCommonName;
+	}
 
 	public String getCountry()
 	{
@@ -164,9 +184,9 @@ public class MixCertificateView implements ICertificateView
 		return m_strLatitude;
 	}
 
-	public boolean isMixCertificate()
+	public boolean isCA()
 	{
-		return m_bMixCertificate;
+		return m_bCA;
 	}
 
 	private String formatDNField(String a_strDNField)

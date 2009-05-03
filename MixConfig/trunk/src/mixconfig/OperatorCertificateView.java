@@ -47,6 +47,7 @@ public class OperatorCertificateView implements ICertificateView
 	private String m_strOrgaUnit;
 	private String m_strEMail;
 	private String m_strURL;
+	private String m_strCommonName;
 
 	public OperatorCertificateView()
 	{
@@ -62,6 +63,7 @@ public class OperatorCertificateView implements ICertificateView
 			m_strOrgaUnit = "";
 			m_strEMail = "";
 			m_strURL = "";
+			m_strCommonName = "";
 			return;
 		}
 
@@ -79,10 +81,7 @@ public class OperatorCertificateView implements ICertificateView
 		}
 
 		m_strOrganisation = formatDNField(dn.getOrganisation());
-		if (m_strOrganisation.equals(""))
-		{
-			m_strOrganisation = formatDNField(dn.getCommonName());
-		}
+		m_strCommonName = formatDNField(dn.getCommonName());
 		m_strOrgaUnit = formatDNField(dn.getOrganisationalUnit());
 
 		extensions = a_certificate.getX509Certificate().getExtensions();
@@ -138,6 +137,11 @@ public class OperatorCertificateView implements ICertificateView
 		return m_CountryMapper;
 	}
 
+	public String getCommonName()
+	{
+		return m_strCommonName;
+	}
+	
 	public String getCountry()
 	{
 		if (m_CountryMapper.getISOCode().length() == 0)
