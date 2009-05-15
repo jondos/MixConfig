@@ -546,7 +546,8 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 		// String variable to store the value
 		String sValue = null;
 		// Remove the node if a_value is null or empty string
-	    if (a_value == null || a_value.trim().length() == 0)
+	    if ((a_value == null || a_value.trim().length() == 0) && 
+	    	!m_mixConf.hasAttributes(a_xmlPath))
 		{
 			m_mixConf.removeNode(a_xmlPath);
 		}

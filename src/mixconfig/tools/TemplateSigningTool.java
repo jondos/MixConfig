@@ -51,12 +51,16 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.w3c.dom.Document;
+
 import logging.LogType;
+import mixconfig.MixConfig;
 import mixconfig.panels.CertPanel;
 import anon.crypto.ICertificate;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
 import anon.crypto.SignatureCreator;
+import anon.crypto.SignatureVerifier;
 import anon.infoservice.Database;
 import anon.terms.template.TermsAndConditionsTemplate;
 import anon.util.XMLParseException;
@@ -152,8 +156,9 @@ public class TemplateSigningTool extends JAPDialog implements ActionListener, Ch
 			TermsAndConditionsTemplate selectedTemplate = getSelectedTemplate();
 			if( (selectedTemplate != null) && (signingKey != null) )
 			{
-				signer.signXml(0, selectedTemplate.getDocument());
-				System.out.println(XMLUtil.toString(selectedTemplate.getDocument()));
+				Document docToSign = selectedTemplate.getDocument();
+				signer.signXml(SignatureVerifier.DOCUMENT_CLASS_TERMS, docToSign);
+				selectedTemplate.setSignedDocument(docToSign);
 				exportFile(selectedTemplate);
 			}
 		}
@@ -171,21 +176,17 @@ public class TemplateSigningTool extends JAPDialog implements ActionListener, Ch
 		signButton.setEnabled(signingKeyAvaliable);
 		if(signingKeyAvaliable)
 		{
-			signer.setSigningKey(0, signingKey);
+			signer.setSigningKey(SignatureVerifier.DOCUMENT_CLASS_TERMS, signingKey);
 		}
 	}
 	
 	private void loadTemplateFromFile()
 	{
 		//Load template from file
-		JFileChooser fc = new JFileChooser();
-		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		fc.setMultiSelectionEnabled(true);
-		int clicked = fc.showOpenDialog(parent);
-		switch ( clicked )
+		JFileChooser fc = MixConfig.showFileDialog(parent, MixConfig.OPEN_MULTIPLE_DIALOG, MixConfig.FILTER_XML);
+		
+		if (fc != null)
 		{
-			case JFileChooser.APPROVE_OPTION:
-			{
 				TermsAndConditionsTemplate currentTemplate = null;
 				File[] fs = fc.getSelectedFiles();
 				for (File file : fs) 
@@ -206,17 +207,8 @@ public class TemplateSigningTool extends JAPDialog implements ActionListener, Ch
 						JAPDialog.showErrorDialog(this, "Cannot load template", LogType.MISC, e);
 					}
 				}
-				break;
-			}
-			case JFileChooser.CANCEL_OPTION:
-			{
-				break;
-			}
-			case JFileChooser.ERROR_OPTION:
-			{
-				break;
-			}
-		}
+			
+		 }
 	}
 	
 	private void exportFile(TermsAndConditionsTemplate template)

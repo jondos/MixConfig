@@ -75,6 +75,7 @@ public class MixConfig extends JApplet
 	public final static int SAVE_DIALOG = 1;
 	public final static int OPEN_DIALOG = 2;
 	public final static int CHOOSE_DIR_DIALOG = 3;
+	public final static int OPEN_MULTIPLE_DIALOG = 4;
 	public final static int FILTER_ALL = 0;
 	public final static int FILTER_CER = 1;
 	public final static int FILTER_XML = 2;
@@ -428,8 +429,15 @@ public class MixConfig extends JApplet
 		}
 		if(type==MixConfig.CHOOSE_DIR_DIALOG)
 			fd2.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		else
+		else if (type == OPEN_MULTIPLE_DIALOG)
+		{
 			fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fd2.setMultiSelectionEnabled(true);
+		}
+		else
+		{
+			fd2.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		}
 		if ( (filter_type & FILTER_CER) != 0)
 		{
 			fd2.addChoosableFileFilter(active = new SimpleFileFilter(FILTER_CER));
