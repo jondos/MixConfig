@@ -118,21 +118,26 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	private static final String CERTPATH = "certificates/";
 	public static final String CERTPATH_MIX = CERTPATH + "acceptedMixCAs/";
 	public static final String CERTPATH_PAYMENT = CERTPATH + "acceptedPaymentInstances/";
+	public static final String CERTPATH_TERMS = CERTPATH + "acceptedTaCTemplates/";
 	
 	static {
 		// Add default certificates to the certificate store
 		addDefaultCertificates(CERTPATH_MIX, JAPCertificate.CERTIFICATE_TYPE_MIX); /** TODO should be root mix instead */
 		addDefaultCertificates(CERTPATH_MIX, JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX); // TODO use this instead of above line!
 		addDefaultCertificates(CERTPATH_PAYMENT, JAPCertificate.CERTIFICATE_TYPE_PAYMENT);
+		addDefaultCertificates(CERTPATH_TERMS, JAPCertificate.CERTIFICATE_TYPE_TERMS_AND_CONDITIONS);
 		// needed for applet version (no dynamic loading is possible)
 		addDefaultCertificates(CERTPATH_MIX + "gpf_jondonym_ca.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "japmixroot.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "Operator_CA.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
-		addDefaultCertificates(CERTPATH_PAYMENT + "Payment_Instance.cer", JAPCertificate.CERTIFICATE_TYPE_PAYMENT);		
+		addDefaultCertificates(CERTPATH_PAYMENT + "Payment_Instance.cer", JAPCertificate.CERTIFICATE_TYPE_PAYMENT);	
+		addDefaultCertificates(CERTPATH_TERMS + "Terms_and_Conditions.b64.cer", JAPCertificate.CERTIFICATE_TYPE_TERMS_AND_CONDITIONS);
 		// TODO use these instead of above lines!
 		addDefaultCertificates(CERTPATH_MIX + "gpf_jondonym_ca.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "japmixroot.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "Operator_CA.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
+		
+		
 	}
 
 	private static final String CERT_VALID = "cert.gif";
@@ -621,10 +626,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			else if (source == this.m_bttnCreateCert)
 			{
 				bCertChanged = generateNewCert();
-				if(bCertChanged)
-				{
-					TermsAndConditionsPanel.loadOperator();
-				}
 			}
 			else if (source == this.m_bttnExportCert)
 			{

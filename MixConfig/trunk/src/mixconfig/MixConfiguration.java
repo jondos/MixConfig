@@ -994,6 +994,19 @@ public class MixConfiguration
 		return ret;
 	}
 	
+	public boolean hasAttributes(String a_xmlPath)
+	{
+		Node n = getNode(a_xmlPath, false);
+		if (n != null)
+		{
+			if (n.getAttributes() != null && n.getAttributes().getLength() > 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Remove the node with the specified name from the configuration
 	 * 

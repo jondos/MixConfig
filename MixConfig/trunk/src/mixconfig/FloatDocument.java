@@ -38,7 +38,7 @@ import anon.util.Util;
  */
 public class FloatDocument extends PlainDocument
 {
-	private float max, min;
+	private double max, min;
 	private int aCDigits_max = 0;
 
 	// minval should be < 0 maxval > 0
@@ -47,8 +47,8 @@ public class FloatDocument extends PlainDocument
 	{
 		super();
 		 // Float.parseFloat() not available in JDK 1.1.8 !!!
-	    max =  Util.parseFloat(maxval);
-		min =  Util.parseFloat(minval);
+	    max =  Util.parseDouble(maxval);
+		min =  Util.parseDouble(minval);
 
 		aCDigits_max = getACDigits(maxval);
 	}

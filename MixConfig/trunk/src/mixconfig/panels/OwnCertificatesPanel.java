@@ -41,7 +41,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
-import java.awt.event.ItemEvent;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Calendar;
@@ -70,7 +69,6 @@ import mixconfig.MixCertificateView;
 import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
 import mixconfig.OperatorCertificateView;
-import mixconfig.panels.MixConfigPanel.ToggleButtonModel;
 import anon.crypto.AbstractX509Extension;
 import anon.crypto.JAPCertificate;
 import anon.crypto.PKCS12;
@@ -903,8 +901,8 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			{
 				try
 				{
-					Util.parseFloat(strLongitude);
-					Util.parseFloat(strLatitude);
+					Util.parseDouble(strLongitude);
+					Util.parseDouble(strLatitude);
 				}
 				catch (NumberFormatException a_e)
 				{

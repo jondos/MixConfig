@@ -121,7 +121,7 @@ public class MixCertificateView implements ICertificateView
 					try
 					{
 						m_strLongitude = coordinates.elementAt(0).toString();
-						Util.parseFloat(m_strLongitude);
+						Util.parseDouble(m_strLongitude);
 						m_strLongitude = m_strLongitude.trim();
 					}
 					catch (NumberFormatException a_e)
@@ -131,7 +131,7 @@ public class MixCertificateView implements ICertificateView
 					try
 					{
 						m_strLatitude = coordinates.elementAt(1).toString();
-						Util.parseFloat(m_strLatitude);
+						Util.parseDouble(m_strLatitude);
 						m_strLatitude = m_strLatitude.trim();
 					}
 					catch (NumberFormatException a_e)

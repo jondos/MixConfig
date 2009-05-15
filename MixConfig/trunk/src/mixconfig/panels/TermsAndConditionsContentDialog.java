@@ -28,8 +28,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package mixconfig.panels;
 
+import gui.GUIUtils;
+import gui.MixConfigTextField;
+import gui.TermsAndConditionsDialog;
+import gui.TitledGridBagPanel;
+import gui.dialog.DialogContentPane;
+import gui.dialog.JAPDialog;
+
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -39,23 +47,29 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Collection;
 import java.util.TreeMap;
 
-import gui.MixConfigTextField;
-import gui.TitledGridBagPanel;
-import gui.dialog.DialogContentPane;
-import gui.dialog.JAPDialog;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JLabel;
+import javax.swing.ListCellRenderer;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
+import javax.swing.text.JTextComponent;
 
 import logging.LogType;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import anon.terms.TCComponent;
 import anon.terms.TCComposite;
@@ -66,15 +80,24 @@ import anon.terms.template.TermsAndConditionsTemplate;
 import anon.util.JAPMessages;
 
 /**
- * Dialog for the TC content management
- * TODO: still under construction 
+ * The content management dialog for the terms and conditions 
  * @author simon
- *
  */
 public class TermsAndConditionsContentDialog extends JAPDialog 
 	implements ItemListener, ActionListener, FocusListener
 {
-	//View
+	static final String MSG_STATUS_PREFIX = TermsAndConditionsContentDialog.class.getName() + "_status";
+	static final String MSG_NAME = TermsAndConditionsContentDialog.class.getName() + "_name";
+	static final String MSG_ID = TermsAndConditionsContentDialog.class.getName() + "_id";
+	static final String MSG_ID_DESCRIPTION = TermsAndConditionsContentDialog.class.getName() + "_idDescription";
+	
+	static final String MSG_BUTTON_FROM_TEMPLATE =  TermsAndConditionsContentDialog.class.getName() + "_btnFromTemplate";
+	static final String MSG_BUTTON_CAPITALIZE =  TermsAndConditionsContentDialog.class.getName() + "_btnCapitalize";
+	static final String MSG_BUTTON_BOLD =  TermsAndConditionsContentDialog.class.getName() + "_btnBold";
+	
+	private TermsAndConditionsPanel parentPanel;
+	
+	//View components
 	private JButton sectionAddButton;
 	private JButton sectionDeleteButton;
 	private JButton sectionResetButton;
@@ -83,6 +106,12 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	private JButton paragraphDeleteButton;
 	private JButton paragraphResetButton;
 	
+	//edit customized content buttons
+	private JButton fromTemplateButton;
+	private JButton capitalizeButton;
+	private JButton boldButton;
+	
+	private JButton previewButton;
 	private JButton okButton;
 	private JButton cancelButton;
 	
@@ -104,12 +133,12 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	private TCComposite templateSections = null;
 	private TCComposite translationSections = null;
 	
-	public TermsAndConditionsContentDialog(Component parent, TermsAndConditionsTemplate template,
+	private TermsAndConditionsContentDialog(TermsAndConditionsPanel parentPanel, TermsAndConditionsTemplate template,
 			TermsAndConditionsTranslation translation) 
 	{
-		super(parent, JAPMessages.getString(TermsAndConditionsPanel.MSG_CONTENT), true);
+		super(parentPanel, JAPMessages.getString(TermsAndConditionsPanel.MSG_CONTENT), true);
+		this.parentPanel = parentPanel;
 		setDefaultCloseOperation(JAPDialog.DISPOSE_ON_CLOSE);
-		//setResizable(false);
 		initializeComponents();
 		placeComponents();
 		
@@ -128,7 +157,17 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		paragraphAddButton = new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_ADD));
 		paragraphDeleteButton = new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_DELETE));
 		paragraphResetButton = new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_RESET));
+	
+		JPanel contentActionButtonPanel = new JPanel();
+		fromTemplateButton = new JButton(JAPMessages.getString(MSG_BUTTON_FROM_TEMPLATE));
+		capitalizeButton = new JButton(JAPMessages.getString(MSG_BUTTON_CAPITALIZE));
+		boldButton = new JButton(JAPMessages.getString(MSG_BUTTON_BOLD));
 		
+		contentActionButtonPanel.add(fromTemplateButton);
+		contentActionButtonPanel.add(capitalizeButton);
+		contentActionButtonPanel.add(boldButton);
+		
+		previewButton =  new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_PREVIEW));
 		okButton = new JButton(JAPMessages.getString(DialogContentPane.MSG_OK));
 		cancelButton = new JButton(JAPMessages.getString(DialogContentPane.MSG_CANCEL));
 		
@@ -146,9 +185,9 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		paragraphPanel = createTCComponentPanel(TermsAndConditionsPanel.MSG_PARAGRAPH, 
 					paragraphChoice, paragraphAddButton, paragraphDeleteButton, paragraphResetButton);
 		templateContentPanel = createContentPanel(TermsAndConditionsPanel.MSG_TEMPLATE_LABEL, 
-					sectionNameTemplate, templateText);
+					sectionNameTemplate, templateText, null);
 		customizedContentPanel = createContentPanel(TermsAndConditionsPanel.MSG_TRANSLATION_LABEL, 
-					sectionNameTranslation, translationText);
+					sectionNameTranslation, translationText, contentActionButtonPanel);
 		
 		//initialize listeners
 		sectionChoice.addItemListener(this);
@@ -160,6 +199,10 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		paragraphAddButton.addActionListener(this);
 		paragraphDeleteButton.addActionListener(this);
 		paragraphResetButton.addActionListener(this);
+		fromTemplateButton.addActionListener(this);
+		capitalizeButton.addActionListener(this);
+		boldButton.addActionListener(this);
+		previewButton.addActionListener(this);
 		okButton.addActionListener(this);
 		cancelButton.addActionListener(this);
 		
@@ -172,6 +215,10 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		templateText.setLineWrap(true);
 		translationText.setLineWrap(true);
 		
+		ListCellRenderer tcComponentRenderer = new TCComponentListItemRenderer();
+		//initialize renderers
+		sectionChoice.setRenderer(tcComponentRenderer);
+		paragraphChoice.setRenderer(tcComponentRenderer);
 	}
 	
 	private void placeComponents()
@@ -184,6 +231,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		
 		JPanel buttonPanel = new JPanel();
 		
+		buttonPanel.add(previewButton);
 		buttonPanel.add(cancelButton);
 		buttonPanel.add(okButton);
 		
@@ -211,64 +259,108 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		contentPane.add(buttonPanel, c);
 	}
 	
+	/**
+	 * Reloads the section-comboBox without specifying a particular selected
+	 * section.
+	 */
 	public void loadSectionList()
 	{
 		loadSectionList(null);
 	}
 	
+	/**
+	 * Reloads the section-comboBox. The section with the id of the specified section will 
+	 * be the selected item, if such an item exists in the section-list.
+	 */
 	public void loadSectionList(TCComponent selected)
 	{
 		sectionChoice.removeAllItems();
 		TCComponent[] fromTemplate = (templateSections != null) ? templateSections.getTCComponents() : null;
 		TCComponent[] fromTrans = (translationSections != null) ? translationSections.getTCComponents() : null;
 		
-		TCComponentListItem selectedItem = null;
-		
 		Collection<TCComponentListItem> items = TCComponentListItem.createList(fromTemplate, fromTrans);
+		loadComboBoxItems(sectionChoice, items, selected);
+	}
+	
+	/**
+	 * Reloads the paragraph-comboBox of the selected section without specifying a particular 
+	 * selected paragraph.
+	 */
+	public void loadParagraphList()
+	{
+		loadParagraphList(null);
+	}
+	
+	/**
+	 * Reloads the paragraph-comboBox of the selected section. The paragraph with the id of the specified paragraph will 
+	 * be the selected item, if such an item exists in the paragraph-list.
+	 */
+	public void loadParagraphList(TCComponent selected)
+	{
+		paragraphChoice.removeAllItems();
+		Collection<TCComponentListItem> items = 
+			TCComponentListItem.createList(
+					getParagraphsOfSelectedTemplateSection(), 
+					getParagraphsOfSelectedTranslationSection());
+		loadComboBoxItems(paragraphChoice, items, selected);
+	}
+	
+	/**
+	 * Used by the list-item-loading-functions to fill the content of the comboBoxes
+	 * @param comboBox the comboBox to fill in the items
+	 * @param items collection of items to be filled in the comboBox
+	 * @param selected component that will be selected if a 
+	 * customized- or template-component with the same id exists in the collection of list-items, 
+	 * if null, this parameter will be ignored.
+	 */
+	private void loadComboBoxItems(JComboBox comboBox, 
+			Collection<TCComponentListItem> items, TCComponent selected)
+	{
+		TCComponentListItem selectedItem = null;
+		TCComponent currentComponent = null;
 		for (TCComponentListItem item : items) 
 		{
-			if(	(selected != null) && 
-				(item.getTranslationComponent() != null) &&
-				(item.getTranslationComponent().equals(selected)) )
+			if(	selected != null ) 
 			{
-				selectedItem = item;
+				currentComponent = item.getTranslationComponent();
+				if (currentComponent == null) 
+				{
+					currentComponent = item.getTemplateComponent();
+				}	
+				if(currentComponent.getId() == selected.getId())
+				{
+					selectedItem = item;
+				}
 			}
-			sectionChoice.addItem(item);
+			comboBox.addItem(item);
 		}
 		if(selectedItem != null)
 		{
-			sectionChoice.setSelectedItem(selectedItem);
+			comboBox.setSelectedItem(selectedItem);
 		}
 	}
 	
+	/**
+	 * ItemListener implementations
+	 */
 	public void itemStateChanged(ItemEvent e) 
 	{
 		if( e.getStateChange() == ItemEvent.SELECTED)
 		{
 			if(e.getSource() == sectionChoice)
 			{
-				paragraphChoice.removeAllItems();
-				Collection<TCComponentListItem> items = 
-					TCComponentListItem.createList(
-							getParagraphsOfSelectedTemplateSection(), 
-							getParagraphsOfSelectedTranslationSection());
-				for (TCComponentListItem item : items) 
-				{
-					paragraphChoice.addItem(item);
-				}
+				loadParagraphList();
 			}
-			/*else if(e.getSource() == paragraphChoice)
-			{
-				
-			}*/
+			
+			//set the content of the text-fields and -areas.
 			Section templateSect = getSelectedTemplateSection();
 			Section transSect = getSelectedTranslationSection();
 			
 			Paragraph templatePar = getSelectedTemplateParagraph();
 			Paragraph transPar = getSelectedTranslationParagraph();
 			
-			templateText.setText((templatePar != null) ? templatePar.toString().trim() : "");
-			translationText.setText((transPar != null) ? transPar.toString().trim() : "");
+			templateText.setText((templatePar != null) ? templatePar.toString() : "");
+			translationText.setText((transPar != null) ? transPar.toString() : "");
 			
 			sectionNameTemplate.setText(
 					(templateSect != null) && templateSect.hasContent() && (templateSect.getContent() != null) ? 
@@ -276,10 +368,13 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			sectionNameTranslation.setText(
 					(transSect != null) && (transSect.hasContent()) && (transSect.getContent() != null) ? 
 							transSect.getContent().toString().trim() : "");
+			enableComponents();
 		}
 	}
 
-	//TODO implement actions
+	/**
+	 * ActionListener implementations
+	 */
 	public void actionPerformed(ActionEvent e) 
 	{
 		if(e.getSource() == sectionAddButton)
@@ -288,41 +383,78 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		}
 		else if(e.getSource() == sectionDeleteButton)
 		{
-			
+			actionDeleteSection();
 		}
 		else if(e.getSource() == sectionResetButton)
 		{
-			
+			actionResetSection();
 		}
 		else if(e.getSource() == paragraphAddButton)
 		{
-			//TODO: same as above
-			Paragraph p = AddComponentDialog.showAddParagraphDialog(this.getContentPane());
+			actionAddParagraph();
 		}
 		else if(e.getSource() == paragraphDeleteButton)
 		{
-			
+			actionDeleteParagraph();
 		}
 		else if(e.getSource() == paragraphResetButton)
 		{
-			
+			actionResetParagraph();
+		}
+		else if(e.getSource() == fromTemplateButton)
+		{
+			actionContentFromTemplate();
+		}
+		else if(e.getSource() == capitalizeButton)
+		{
+			actionCapitalizeContent();
+		}
+		else if(e.getSource() == boldButton)
+		{
+			actionSetContentBold();
+		}
+		else if(e.getSource() == previewButton)
+		{
+			actionPreview();
 		}
 		else if(e.getSource() == okButton)
 		{
-			
+			dispose();
+			return;
 		}
 		else if(e.getSource() == cancelButton)
 		{
+			translationSections = null;
 			dispose();
+			return;
 		}
+		enableComponents();
 	}
 	
+	/**
+	 * @return the template-section of the selected section-list item
+	 * or null if it is not defined by the selected list item.
+	 */
 	private Section getSelectedTemplateSection()
 	{
 		TCComponentListItem item = getSelectedListItem(sectionChoice);
 		return (Section) ((item != null) ? item.getTemplateComponent() : null);
 	}
 	
+	/**
+	 * @return the customized translation-section of the selected section-list item
+	 * or null if it is not defined by the selected list item.
+	 */
+	private Section getSelectedTranslationSection()
+	{
+		TCComponentListItem item = getSelectedListItem(sectionChoice);
+		return (Section) ((item != null) ? item.getTranslationComponent() : null);
+	}
+	
+	/**
+	 * @return an array with the paragraphs of the selected template-section
+	 * or null if no template-section is defined by the selected section-item.
+	 */
 	private TCComponent[] getParagraphsOfSelectedTemplateSection()
 	{
 		Section selectedTemplateSection = 
@@ -331,12 +463,10 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 				selectedTemplateSection.getTCComponents() : null;
 	}
 	
-	private Section getSelectedTranslationSection()
-	{
-		TCComponentListItem item = getSelectedListItem(sectionChoice);
-		return (Section) ((item != null) ? item.getTranslationComponent() : null);
-	}
-	
+	/**
+	 * @return an array with the paragraphs of the selected translation-section
+	 * or null if no translation-section is defined by the selected section-item.
+	 */
 	private TCComponent[] getParagraphsOfSelectedTranslationSection()
 	{
 		Section selectedTranslationSection = 
@@ -345,18 +475,94 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 				selectedTranslationSection.getTCComponents() : null;
 	}
 	
+	/**
+	 * @return the template-paragraph of the selected paragraph-list item
+	 * or null if it is not defined by the selected list item.
+	 */
 	private Paragraph getSelectedTemplateParagraph()
 	{
 		TCComponentListItem item = getSelectedListItem(paragraphChoice);
 		return (Paragraph) ((item != null) ? item.getTemplateComponent() : null);
 	}
 	
+	/**
+	 * @return the customized translation-paragraph of the selected paragraph-list item
+	 * or null if it is not defined by the selected list item.
+	 */
 	private Paragraph getSelectedTranslationParagraph()
 	{
 		TCComponentListItem item = getSelectedListItem(paragraphChoice);
 		return (Paragraph) ((item != null) ? item.getTranslationComponent() : null);
 	}
 	
+	/**
+	 * convenience function to get a customized section as a container for a modified
+	 * or added paragraph. The returned section will also be part of the model. If no customized 
+	 * section with the id of the selected section exists it will be created and added to the model 
+	 * before it will be returned.
+	 * @param withSectionName if true the section-name from the template will be set for the customized
+	 * section if it is created, otherwise a newly created customized section will have no name.
+	 * This parameter has no effect if a customized section already exists.
+	 * @return customized section that acts as a container for the modified or added paragraphs.
+	 */
+	private Section getCustomizedSection(boolean withSectionName)
+	{
+		TCComponentListItem item = getSelectedListItem(sectionChoice);
+		Section customizedSection = (Section) item.getTranslationComponent(); 
+		if(customizedSection == null)
+		{
+			Section templateSection = (Section) item.getTemplateComponent();
+			//templateSection must not be null
+			customizedSection = 
+				new Section(templateSection.getId(), withSectionName ? templateSection.getContent() : null);
+			translationSections.addTCComponent(customizedSection);
+			item.setTranslationComponent(customizedSection);
+		}
+		return customizedSection;
+	}
+	
+	/**
+	 * @return the same as getCustomizedSection(false);
+	 */
+	private Section getCustomizedSection()
+	{
+		return getCustomizedSection(false);
+	}
+	
+	/**
+	 * returns a customized paragraph that can be edited.
+	 * if it does not exist in the model it will be created and added to the model 
+	 * before it will be returned. This method will also create a new customized section
+	 * if the customized paragraph has no container yet.
+	 * @param withSectionName refers to the creation of customized section as container.
+	 * @return an editable customized paragraph.
+	 */
+	private Paragraph getCustomizedParagraph(boolean withSectionName)
+	{
+		TCComponentListItem item = getSelectedListItem(paragraphChoice);
+		Paragraph customizedParagraph = (Paragraph) item.getTranslationComponent();
+		if(customizedParagraph == null)
+		{
+			Paragraph templateParagraph = (Paragraph) item.getTemplateComponent();
+			customizedParagraph = new Paragraph(templateParagraph.getId());
+			Section customizedSection = getCustomizedSection(withSectionName);
+			customizedSection.addTCComponent(customizedParagraph);
+		}
+		return customizedParagraph;
+	}
+	
+	/**
+	 * @return the same as getCustomizedParagraph(false);
+	 */
+	private Paragraph getCustomizedParagraph()
+	{
+		return getCustomizedParagraph(false);
+	}
+	
+	/**
+	 * @param comboBox
+	 * @return the selected list item of the specified combobox
+	 */
 	private static TCComponentListItem getSelectedListItem(JComboBox comboBox)
 	{
 		Object item = comboBox.getSelectedItem();
@@ -377,30 +583,470 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	}
 	
 	private static TitledGridBagPanel createContentPanel(String contentSourceNameKey,
-			JTextField sectionNameTF, JTextArea paragraphTextArea)
+			JTextField sectionNameTF, JTextArea paragraphTextArea, JPanel buttonPanel)
 	{
 		TitledGridBagPanel contentPanel = 
 			new TitledGridBagPanel(
 					JAPMessages.getString(TermsAndConditionsPanel.MSG_CONTENT)+"/"+
 					JAPMessages.getString(contentSourceNameKey));
 		contentPanel.addRow(new Component[]{
-				TermsAndConditionsPanel.createLabel(TermsAndConditionsPanel.MSG_SECTION), 
+				GUIUtils.createLabel(TermsAndConditionsPanel.MSG_SECTION), 
 				sectionNameTF}, 
 				new int[]{1, GridBagConstraints.REMAINDER});
 		contentPanel.addRow(new Component[]{
-				TermsAndConditionsPanel.createLabel(TermsAndConditionsPanel.MSG_PARAGRAPH), 
+				GUIUtils.createLabel(TermsAndConditionsPanel.MSG_PARAGRAPH), 
 				new JScrollPane(paragraphTextArea, 
 						JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)}, 
 				new int[]{1, GridBagConstraints.REMAINDER});
+		if(buttonPanel != null)
+		{
+			contentPanel.addRow(buttonPanel);
+		}
 		return contentPanel;
+	}
+	
+	/****** user actions: *****/
+	
+	private void actionAddSection()
+	{
+		Section newSection = AddComponentDialog.showAddSectionDialog(this.getContentPane());
+		if(newSection != null)
+		{
+			TCComponent existingSection = translationSections.getTCComponent(newSection.getId());
+			if((existingSection != null) && existingSection.hasContent())
+			{	
+				JAPDialog.showErrorDialog(getParentComponent(), "Section '"+existingSection.getContent()+"' with id "+
+						existingSection.getId()+" already exists", LogType.MISC);
+			}
+			else
+			{
+				translationSections.addTCComponent(newSection);
+				loadSectionList(newSection);
+			}
+		}
+	}
+	
+	private void actionAddParagraph()
+	{
+		Paragraph newParagraph = AddComponentDialog.showAddParagraphDialog(this.getContentPane());
+		if(newParagraph != null)
+		{
+			Section translationSection = getCustomizedSection();
+			TCComponent existingParagraph = translationSection.getTCComponent(newParagraph.getId());
+			if( (existingParagraph != null) && existingParagraph.hasContent())
+			{
+				JAPDialog.showErrorDialog(getParentComponent(), "Paragraph with id "+
+						existingParagraph.getId()+" already exists", LogType.MISC);
+			}
+			else
+			{
+				Section templateSection = getSelectedTemplateSection();
+				if(templateSection != null)
+				{
+					//check if a paragraph with the given id is specified by the template
+					existingParagraph = templateSection.getTCComponent(newParagraph.getId());
+					if(existingParagraph != null)
+					{
+						//if this is the case: copy the template content for modification.
+						newParagraph.setContent(existingParagraph.getContent());
+					}
+				}
+				translationSection.addTCComponent(newParagraph);
+				loadParagraphList(newParagraph);
+			}
+		}
+	}
+	
+	private void actionDeleteSection()
+	{
+		TCComponentListItem item = getSelectedListItem(sectionChoice);
+		deleteSelectedComponent(item, translationSections);
+		loadSectionList(item.getTemplateComponent());
+	}
+	
+	private void actionDeleteParagraph()
+	{
+		TCComponentListItem item = getSelectedListItem(paragraphChoice);
+		Section container = getSelectedTranslationSection();
+		boolean containerHadContent =  (container != null) && (container.hasContent());
+		//Might look crazy but we need to create a customized section for nesting a paragraph item,
+		//which overwrites the template content with null-content.
+		if(container == null) 
+		{
+			container = getCustomizedSection();
+		}
+		deleteSelectedComponent(item, container);
+		//We must consider this special case that the last customized paragragh of
+		//a nameless section was deleted. This means the customized section definition 
+		//must be removed with the last paragraph, otherwise the empty section
+		//is misinterpreted as a null-overwrite-section for the template.
+		if(containerHadContent && !container.hasContent())
+		{
+			translationSections.removeTCComponent(container.getId());
+			loadSectionList(getSelectedTemplateSection());
+		}
+		else
+		{
+			//if a template component still exists: re-select it
+			loadParagraphList(item.getTemplateComponent());
+		}
+	}
+	
+	private void actionContentFromTemplate()
+	{
+		Paragraph templateParagraph = getSelectedTemplateParagraph();
+		Paragraph customizedParagraph = getSelectedTranslationParagraph();
+		if( templateParagraph != null )
+		{
+			if( customizedParagraph == null )
+			{
+				customizedParagraph = getCustomizedParagraph();
+			}
+			if(templateParagraph.hasContent())
+			{
+				customizedParagraph.setContent(templateParagraph.getContent());
+			}
+			loadParagraphList(customizedParagraph);
+		}
+	}
+	
+	private void actionCapitalizeContent()
+	{
+		Paragraph p = getSelectedTranslationParagraph();
+		if(p != null)
+		{
+			capitalizeTextContent(p);
+			//view changes directly is simple in this case: no need to reload 
+			//the whole paragraph list
+			translationText.setText(p.toString());
+		}
+	}
+	
+	private void actionSetContentBold()
+	{
+		Paragraph p = getSelectedTranslationParagraph();
+		if(p != null)
+		{
+			p.setContentBold();
+			//view changes directly is simple in this case: no need to reload 
+			//the whole paragraph list
+			translationText.setText(p.toString());
+		}
+	}
+	
+	//TODO: If the Java 1.1 source restriction of the Anonlib classes is 
+	//revoked move this method the class anon.terms.template.Paragraph
+	private void capitalizeTextContent(Paragraph p)
+	{
+		NodeList contentNodes = (NodeList) p.getContent();
+		for (int i = 0; i < contentNodes.getLength(); i++) 
+		{
+			capitalizeTextContentRecursion(contentNodes.item(i));
+		}
+	}
+	
+	//TODO: As this is a recursive helper routine for the above function
+	//move it also to class anon.terms.template.Paragraph
+	private void capitalizeTextContentRecursion(Node node)
+	{
+		if(node != null)
+		{
+			if( node.getNodeType() == Node.TEXT_NODE )
+			{
+				node.setTextContent(node.getTextContent().toUpperCase());
+			}
+			else if( node.getNodeType() == Node.ELEMENT_NODE )
+			{
+				NodeList nl = ((Element) node).getChildNodes();
+				for (int i = 0; i < nl.getLength(); i++) 
+				{
+					capitalizeTextContentRecursion(nl.item(i));
+				}
+			}
+			else if( node.getNodeType() == Node.DOCUMENT_NODE )
+			{
+				capitalizeTextContentRecursion(((Document) node).getDocumentElement());
+			}
+		}
+	}
+	
+	/**
+	 * Reusable function to remove Sections or Paragraphs from the model
+	 * @param item the list-item representing the component to be removed
+	 * @param if a customized component has to be removed, this is the container 
+	 * from where to remove it.
+	 * @param returns the component that was deleted or the null-content object which
+	 * represents the disabling of a corresponding template component  
+	 */
+	private void deleteSelectedComponent(TCComponentListItem item, TCComposite container)
+	{
+		if( (item != null) && 
+			(item.getStatus() != null) && 
+			!item.getStatus().equals(TCComponentListItem.STATUS_DELETED) &&
+			(container != null) )
+		{
+			TCComponent deleteComponent =  item.getTranslationComponent();
+			if(deleteComponent != null)
+			{
+				//simply delete the customized section
+				container.removeTCComponent(deleteComponent.getId());
+			}
+			else
+			{
+				//add element that overwrites the corresponding template element with 
+				//no content, with the effect that the corresponding template component will not be shown.
+				try 
+				{
+					TCComponent templateComponent = item.getTemplateComponent();
+					deleteComponent = templateComponent.getClass().newInstance();
+					deleteComponent.setId(templateComponent.getId());
+					deleteComponent.setContent(null);
+					container.addTCComponent(deleteComponent);
+				} 
+				catch (InstantiationException e) {} 
+				catch (IllegalAccessException e) {}
+			}
+		}
+	}
+	
+	private void actionResetSection()
+	{
+		TCComponentListItem sectionItem = getSelectedListItem(sectionChoice);
+		resetCustomizedComponent(sectionItem, translationSections);
+		loadSectionList(sectionItem.getTemplateComponent());
+	}
+	
+	private void actionResetParagraph()
+	{ 
+		TCComponentListItem paragraphItem = getSelectedListItem(paragraphChoice);
+		Section container = getSelectedTranslationSection();
+		boolean containerHadContent = (container != null) && (container.hasContent());
+		resetCustomizedComponent(paragraphItem, container);
+		
+		//same special case handling as in actionDeleteParagraph
+		if(containerHadContent && !container.hasContent())
+		{
+			translationSections.removeTCComponent(container.getId());
+			loadSectionList(getSelectedTemplateSection());
+		}
+		else
+		{
+			//if a template component still exists: re-select it
+			loadParagraphList(paragraphItem.getTemplateComponent());
+		}
+	}
+	
+	private void actionPreview()
+	{
+		TermsAndConditionsTranslation previewTranslation = parentPanel.getPreviewTranslation();
+		if(previewTranslation != null)
+		{
+			previewTranslation.setSections(translationSections);
+			TermsAndConditionsDialog.previewTranslation(getContentPane(), previewTranslation);
+		}
+	}
+	
+	//resulting effect: the template content will be displayed again without changes
+	//if component was resetted, it is returned. otherwise null will be returned.
+	private void resetCustomizedComponent(TCComponentListItem item, TCComposite container)
+	{
+		if((item != null) && (container != null) )
+		{
+			String status = item.getStatus();
+			if(status != null)
+			{
+				TCComponent translationComponent = item.getTranslationComponent();
+				if(translationComponent != null)
+				{
+					container.removeTCComponent(translationComponent.getId());
+				}
+			}
+		}
+	}
+	
+	/** FocusListener implementation */
+	public void focusGained(FocusEvent e) {}
+
+	public void focusLost(FocusEvent e) 
+	{
+		JTextComponent source = (JTextComponent) e.getSource();
+		String content = (source.getText() != null) ? source.getText() : "";
+		if( source == translationText )
+		{
+			editParagraph(content);
+		}
+		else if (source == sectionNameTranslation)
+		{
+			editSection(content);
+		}
+		enableComponents();
+	}
+	
+	private void editSection(String content)
+	{
+		Section translationSection = getSelectedTranslationSection();
+		
+		if(translationSection != null)
+		{
+			if((content != null) && !(content.equals("")))
+			{
+				translationSection.setContent(content);
+			}
+			else
+			{
+				if(translationSection.getTCComponentCount() == 0)
+				{
+					actionResetSection();
+				}
+			}
+		}
+		else if((content != null) && !(content.equals("")))
+		{
+			translationSection = getCustomizedSection(true);
+			translationSection.setContent(content);
+			loadSectionList(translationSection);
+		}
+	}
+	
+	private void editParagraph(String content)
+	{
+		if( (getSelectedTranslationParagraph() != null) &&
+			( (content == null) || content.equals("") ))
+		{
+			actionResetParagraph();
+		}
+		else
+		{
+			if( (content != null) && !content.equals(""))
+			{
+				Paragraph customizedParagraph = getCustomizedParagraph();
+				customizedParagraph.setContent(content);
+				loadParagraphList(customizedParagraph);
+			}
+		}
+	}
+	
+	/**
+	 * to be invoked for enabling or disabling view components
+	 */
+	protected void enableComponents()
+	{
+		sectionChoice.setEnabled(isSectionSelectable());
+		sectionDeleteButton.setEnabled(isSectionDeletable());
+		sectionResetButton.setEnabled(isSectionResettable());
+		
+		paragraphChoice.setEnabled(isParagraphSelectable());
+		paragraphAddButton.setEnabled(isParagraphAddable());
+		paragraphDeleteButton.setEnabled(isParagraphDeletable());
+		paragraphResetButton.setEnabled(isParagraphResettable());
+		
+		fromTemplateButton.setEnabled(isContentFromTemplateAvailable());
+		capitalizeButton.setEnabled(isContentCapitalizable());
+		boldButton.setEnabled(isContentSetToBoldPossible());
+		
+		//Although this check is done, a preview must always be possible when this dialog is displayed.
+		previewButton.setEnabled(parentPanel.isPreviewPossible());
+		
+		translationText.setEnabled(isParagraphEditable());
+		sectionNameTranslation.setEnabled(isSectionNameEditable());
+	}
+	
+	/** methods to check if view components should be enabled or disabled **/
+	private boolean isSectionSelectable()
+	{
+		return (getSelectedListItem(sectionChoice) != null);
+	}
+	
+	private boolean isSectionResettable()
+	{
+		return isSectionSelectable() && (getSelectedTranslationSection() != null);
+	}
+	
+	private boolean isSectionDeletable()
+	{
+		return isSectionSelectable() && isItemDeletable(getSelectedListItem(sectionChoice));
+	}
+	
+	private boolean isParagraphSelectable()
+	{
+		return isSectionDeletable() && (getSelectedListItem(paragraphChoice) != null);
+	}
+	
+	private boolean isParagraphDeletable()
+	{
+		return isParagraphSelectable() && isItemDeletable(getSelectedListItem(paragraphChoice));
+	}
+	
+	private boolean isParagraphResettable()
+	{
+		return isParagraphSelectable() && (getSelectedTranslationParagraph() != null);
+	}
+	
+	private boolean isParagraphEditable()
+	{
+		return isParagraphDeletable();
+	}
+	
+	private boolean isContentCapitalizable()
+	{
+		Paragraph customizedPar = getSelectedTranslationParagraph();
+		return (customizedPar != null) && customizedPar.hasContent();
+	}
+	
+	private boolean isContentSetToBoldPossible()
+	{
+		Paragraph customizedPar = getSelectedTranslationParagraph();
+		return (customizedPar != null) && customizedPar.hasContent();
+	}
+	
+	private boolean isContentFromTemplateAvailable()
+	{
+		Paragraph templatePar = getSelectedTemplateParagraph();
+		return (templatePar != null) && templatePar.hasContent();
+	}
+	
+	/*
+	 * sometimes it is not possible to add a paragraph, (i.e if a template section is overwritten with null-content)
+	 */
+	private boolean isParagraphAddable()
+	{
+		return isSectionDeletable();
+	}
+	
+	private boolean isSectionNameEditable()
+	{
+		return isSectionDeletable();
+	}
+	
+	private boolean isItemDeletable(TCComponentListItem item)
+	{
+		return (item != null) && (item.getStatus() != null) && 
+				!(item.getStatus().equals(TCComponentListItem.STATUS_DELETED));
+	}
+	
+	/** 
+	 * used to synchronously show a T&C content management dialog and return the customized sections as result.
+	 * @param parentPanel the parentComponent of the content management dialog
+	 * @param template the base template from which the content shall be customized 
+	 * @param translation the translation from which to take the customized content.
+	 * @return the sections containing the customized content.
+	 */
+	public static TCComposite showContentDialog(TermsAndConditionsPanel parentPanel, TermsAndConditionsTemplate template,
+			TermsAndConditionsTranslation translation)
+	{
+		TermsAndConditionsContentDialog dialog = 
+			new TermsAndConditionsContentDialog(parentPanel, template, translation);
+		dialog.pack();
+		dialog.setVisible(true);
+		return dialog.translationSections;
 	}
 	
 	private static class TCComponentListItem
 	{
-		public final static String STATUS_EDITED = "(Edited)";
-		public final static String STATUS_DELETED = "(Deleted)";
-		public final static String STATUS_NEW = "(New)";
+		public final static String STATUS_EDITED = "Edited";
+		public final static String STATUS_DELETED = "Deleted";
+		public final static String STATUS_NEW = "New";
 		
 		double id = 0;
 		TCComponent templateComponent = null;
@@ -446,7 +1092,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 				}
 				else
 				{
-					//throw new IllegalStateException("template and tarnslation component are both null !?!");
+					//throw new IllegalStateException("template and translation component are both null !?!");
 					return null;
 				}
 			}
@@ -463,6 +1109,12 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			}
 		}
 		
+		private String getStatusDisplayString()
+		{
+			String status = getStatus();
+			return ( (status != null) && !status.equals("")) ? JAPMessages.getString(MSG_STATUS_PREFIX+status) : status;
+		}
+		
 		private String getTypeString()
 		{
 			if( (templateComponent == null) && 
@@ -470,8 +1122,9 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			{
 				return null;
 			}
-			Class clazz = (templateComponent != null) ? templateComponent.getClass() : translationComponent.getClass();
-			return JAPMessages.getString(TermsAndConditionsPanel.class.getName()+"_"+clazz.getSimpleName().toLowerCase());
+			Class<? extends TCComponent> tcComponentClass = (Class<? extends TCComponent>) 
+				((templateComponent != null) ? templateComponent.getClass() : translationComponent.getClass());
+			return JAPMessages.getString(TermsAndConditionsPanel.class.getName()+"_"+tcComponentClass.getSimpleName().toLowerCase());
 		}
 		
 		private String getIdString()
@@ -488,10 +1141,14 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		{
 			String typeString = getTypeString();
 			String idString = getIdString();
-			String status = getStatus();
-			if( (typeString != null) && (idString != null) && (status != null) )
+			String statusDisplayString = getStatusDisplayString();
+			if((statusDisplayString != null) && !statusDisplayString.equals(""))
 			{
-				return getTypeString()+" "+getIdString()+" "+getStatus();
+				statusDisplayString = "("+statusDisplayString+")";
+			}
+			if( (typeString != null) && (idString != null) && (statusDisplayString != null) )
+			{
+				return typeString+" "+idString+" "+statusDisplayString;
 			}
 			return null;
 		}
@@ -528,47 +1185,26 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			return ht.values();
 		}
 	}
-
-	//actions:
-	private void actionAddSection()
+	
+	/**
+	 * Class for showing special dialog that allwos user to create and add new 
+	 * customized sections or paragraphs
+	 */
+	private static class AddComponentDialog extends JAPDialog 
+		implements KeyListener, ActionListener
 	{
-		Section s = AddComponentDialog.showAddSectionDialog(this.getContentPane());
-		if(s != null)
-		{
-			Section idCheckSect = (Section) translationSections.getTCComponent(s.getId());
-			if(idCheckSect != null)
-			{
-				JAPDialog.showErrorDialog(getParentComponent(), "Section '"+idCheckSect.getContent()+"' with id "+
-						idCheckSect.getId()+" already exists", LogType.MISC);
-			}
-			else
-			{
-				translationSections.addTCComponent(s);
-				loadSectionList(s);
-			}
-		}
-		else
-		{
-			//something went wrong
-			JAPDialog.showErrorDialog(getParentComponent(), "New section could not be added.", LogType.MISC);	
-		}
-	}
-	
-	
-	
-	public void focusGained(FocusEvent e) {}
-
-	public void focusLost(FocusEvent e) 
-	{
+		JButton ok = new JButton(JAPMessages.getString(DialogContentPane.MSG_OK));
+		JButton cancel = new JButton(JAPMessages.getString(DialogContentPane.MSG_CANCEL));
+		JTextField[] inputFields = null;
+		InputVerifier verifier = null;
 		
-	}
-	
-	private static class AddComponentDialog extends JAPDialog
-	{
 		private AddComponentDialog(Component parent, String componentKey, 
-				JTextField[] inputFields, JLabel[] labels)
+				JTextField[] inputFields, JLabel[] labels, JLabel helpTextLabel, InputVerifier verifier)
 		{
 			super(parent, JAPMessages.getString(componentKey), true);
+			this.inputFields = inputFields;
+			this.verifier = verifier;
+			
 			setDefaultCloseOperation(HIDE_ON_CLOSE);
 			getContentPane().setLayout(new GridBagLayout());
 			GridBagConstraints c = new GridBagConstraints();
@@ -586,54 +1222,115 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			
 			c.gridx = 1;
 			c.gridwidth = GridBagConstraints.REMAINDER;
-			for (c.gridy = 0; c.gridy < labels.length; c.gridy++) 
+			for (c.gridy = 0; c.gridy < this.inputFields.length; c.gridy++) 
 			{
-				getContentPane().add(inputFields[c.gridy], c);
-			}
-			JPanel panel = new JPanel();
-			JButton ok = new JButton(JAPMessages.getString(DialogContentPane.MSG_OK));
-			final JButton cancel = new JButton(JAPMessages.getString(DialogContentPane.MSG_CANCEL));
-			
-			final JTextField[] tfs = inputFields;
-			
-			ActionListener simpleActionListener = new ActionListener()
-			{
-				public void actionPerformed(ActionEvent e) 
+				if(verifier != null)
 				{
-					if(e.getSource() == cancel)
-					{
-						for (int i = 0; i < tfs.length; i++) 
-						{
-							tfs[i].setText("");
-						}
-					}
-					setVisible(false);
+					this.inputFields[c.gridy].addKeyListener(this);
 				}
-			};
+				getContentPane().add(this.inputFields[c.gridy], c);
+			}
+		
+			ok.addActionListener(this);
+			cancel.addActionListener(this);
 			
-			ok.addActionListener(simpleActionListener);
-			cancel.addActionListener(simpleActionListener);
-			
+			JPanel panel = new JPanel();
 			panel.add(ok);
 			panel.add(cancel);
 			
 			c.gridx = 0;
 			c.gridy = Math.max(inputFields.length, labels.length);
+			if(helpTextLabel != null)
+			{
+				getContentPane().add(helpTextLabel, c);
+				c.gridy++;
+			}
 			getContentPane().add(panel, c);
+			ok.setEnabled((verifier != null) ? verifier.verfifyInput() : true);
 		}
 		
-		//TODO: a lot
+		/**
+		 * ActionListener implementation
+		 */
+		public void actionPerformed(ActionEvent e) 
+		{
+			if(e.getSource() == cancel)
+			{
+				for (int i = 0; i < inputFields.length; i++) 
+				{
+					inputFields[i].setText("");
+				}
+			}
+			setVisible(false);
+		}
+		
+		/**
+		 * KeyListener implementation for live field validation
+		 */
+		public void keyReleased(KeyEvent e)
+		{
+			ok.setEnabled((verifier != null) ? verifier.verfifyInput() : true);
+		}
+		public void keyTyped(KeyEvent e) {}
+		public void keyPressed(KeyEvent e) {}
+		
+		
+		/** 
+		 * @param input Input to check.
+		 * @return true if the input is a valid ID, i.e. a valid
+		 * floating point number,false otherwise
+		 */
+		public static boolean verifyValidID(String input)
+		{
+			if(input != null) 
+			{
+				try
+				{
+					Double.parseDouble(input);
+					return true;
+				}
+				catch (NumberFormatException e) {}
+			}
+			return false;
+		}
+		
+		/**
+		 * @param input Input to check
+		 * @return true if the entered input is a valid name, i.e. 
+		 * not null and not empty, false otherwise
+		 */
+		public static boolean verifyValidName(String input)
+		{
+			return (input != null) && !input.equals("");
+		}
+		
+		/**
+		 * Display a a dialog for creating a new customized section
+		 * @param parent parent component for displaying the dialog
+		 * @return the created customized section or null if 
+		 * user canceled operation. 
+		 */
 		public static Section showAddSectionDialog(Component parent)
 		{
-			JTextField idField = new JTextField(10);
-			JTextField nameField = new JTextField(10);
+			JLabel idLabel = GUIUtils.createLabel(MSG_ID);
+			JLabel nameLabel = GUIUtils.createLabel(MSG_NAME);
 			
-			JLabel idLabel = new JLabel("Id");
-			JLabel nameLabel = new JLabel("Name");
+			final JTextField idField = new JTextField(10);
+			final JTextField nameField = new JTextField(10);
+			
+			InputVerifier verifier = new InputVerifier()
+			{
+				public boolean verfifyInput() 
+				{
+					return verifyValidID(idField.getText()) && 
+							verifyValidName(nameField.getText());
+				}
+			};
 			
 			AddComponentDialog addSectionDialog = 
 				new AddComponentDialog(parent, TermsAndConditionsPanel.MSG_SECTION,
-						new JTextField[]{idField, nameField}, new JLabel[]{idLabel, nameLabel});
+						new JTextField[]{idField, nameField}, new JLabel[]{idLabel, nameLabel},
+						GUIUtils.createMultiLineLabel(MSG_ID_DESCRIPTION, 300), verifier);
 			
 			addSectionDialog.pack();
 			addSectionDialog.setVisible(true);
@@ -649,20 +1346,35 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			}
 			catch(NumberFormatException nfe)
 			{
-				//TODO show error Dialog
+				//Not possible since fields are validated live
 			}
 			addSectionDialog.dispose();
 			return sect;
 		}
 		
+		/**
+		 * Display a a dialog for creating a new customized paragraph
+		 * @param parent parent component for displaying the dialog
+		 * @return the created customized paragraph or null if 
+		 * user canceled operation. 
+		 */
 		public static Paragraph showAddParagraphDialog(Component parent)
 		{
-			JLabel idLabel = new JLabel("Id");
-			JTextField idField = new JTextField(10);
+			JLabel idLabel = GUIUtils.createLabel(MSG_ID);
+			final JTextField idField = new JTextField(10);
+			
+			InputVerifier verifier = new InputVerifier()
+			{
+				public boolean verfifyInput() 
+				{
+					return verifyValidID(idField.getText());
+				}
+			};
 			
 			AddComponentDialog addParagraphDialog = 
 				new AddComponentDialog(parent, TermsAndConditionsPanel.MSG_SECTION,
-						new JTextField[]{idField}, new JLabel[]{idLabel});
+						new JTextField[]{idField}, new JLabel[]{idLabel},
+						GUIUtils.createMultiLineLabel(MSG_ID_DESCRIPTION, 300), verifier);
 			
 			addParagraphDialog.pack();
 			addParagraphDialog.setVisible(true);
@@ -677,10 +1389,42 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			}
 			catch(NumberFormatException nfe)
 			{
-				//TODO show error Dialog
+				//Not possible since fields are validated live
 			}
 			addParagraphDialog.dispose();
 			return par;
 		}
+		
+		/** just a helper for verifying textfield content */ 
+		private interface InputVerifier
+		{
+			boolean verfifyInput();
+		}
+	}
+	
+	
+	public static class TCComponentListItemRenderer extends BasicComboBoxRenderer
+	{
+		public Component getListCellRendererComponent(JList list, Object value,
+				int index, boolean isSelected, boolean cellHasFocus) {
+			
+			Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			if( (value instanceof TCComponentListItem) && (value != null) &&
+				(c instanceof JLabel) && (c != null) )
+			{
+				TCComponentListItem item = (TCComponentListItem) value;
+				JLabel itemLabel = (JLabel) c;
+				
+				if( (item.getStatus() != null) && 
+					(item.getStatus().equals(TCComponentListItem.STATUS_DELETED)))
+				{
+					//display deleted items cursive
+					Font f = itemLabel.getFont();
+					itemLabel.setFont(f.deriveFont(Font.ITALIC));
+				}
+			}
+			return c;
+		}
+		
 	}
 }

@@ -30,6 +30,7 @@ package mixconfig.panels;
 
 import gui.DateListener;
 import gui.DatePanel;
+import gui.GUIUtils;
 import gui.MixConfigTextField;
 import gui.TermsAndConditionsDialog;
 import gui.TitledGridBagPanel;
@@ -41,7 +42,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -53,9 +53,11 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -68,37 +70,26 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.TreeMap;
 import java.util.Vector;
 import java.util.zip.InflaterInputStream;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.ListCellRenderer;
 import javax.swing.MutableComboBoxModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import logging.LogHolder;
 import logging.LogLevel;
@@ -117,11 +108,9 @@ import anon.crypto.JAPCertificate;
 import anon.infoservice.Database;
 import anon.infoservice.OperatorAddress;
 import anon.infoservice.ServiceOperator;
-import anon.terms.TCComponent;
+import anon.terms.TCComposite;
 import anon.terms.TermsAndConditions;
 import anon.terms.TermsAndConditionsTranslation;
-import anon.terms.template.Paragraph;
-import anon.terms.template.Section;
 import anon.terms.template.TermsAndConditionsTemplate;
 import anon.util.Base64;
 import anon.util.IXMLEncodable;
@@ -179,6 +168,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	static final String MSG_SECTION = TermsAndConditionsPanel.class.getName() + "_section";
 	static final String MSG_PARAGRAPH = TermsAndConditionsPanel.class.getName() + "_paragraph";
 	static final String MSG_CONTENT = TermsAndConditionsPanel.class.getName() + "_content";
+	static final String MSG_EDIT_CONTENT = TermsAndConditionsPanel.class.getName() + "_editContent";
+	static final String MSG_IMPORT_WHOLE = TermsAndConditionsPanel.class.getName() + "_importWhole";
 	
 	public static final String XML_ELEMENT_TEMPLATES = "Templates"; 
 	public static final String XML_ELEMENT_TEMPLATE = "Template";
@@ -192,7 +183,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	public final static String LEGAL_OPINIONS_TAG ="LegalOpinionsUrl";
 	public final static String OPERATIONAL_AGREEMENT_TAG ="OperationalAgreementUrl";
 	
-	public final static String TRANSLATION_HTML_EXPORT_ENCODING = "ISO-8859-1";
 	public final static String TEMPLATE_EXPORT_ENCODING = "UTF-8";
 	
 	/** ComboBox and Model */
@@ -204,13 +194,14 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	private JButton m_btnAddTranslation;
 	private JButton m_btnDefaultTranslation;
 	private JButton m_btnDeleteTranslation;
-	private JButton m_btnExportTranslation;
+	//private JButton m_btnExportTranslation;
 	
 	private JButton m_btnInfoServiceTemplate;
 	private JButton m_btnFileTemplate;
 	private JButton m_btnExportTemplate;
 	private JButton m_btnDeleteTemplate;
 	
+	private JButton m_btnImportWhole;
 	private JButton m_btnContent;
 	
 	/** Date panel + button */
@@ -248,7 +239,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	
 	private TermsAndConditions operatorTCs = null;
 	private OperatorAddress generalAddress = null;
-	private String opCertX509 = null;
+	
 	private String selectedLanguage = "";
 	private File lastOpened = null;
 
@@ -265,11 +256,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	public static TermsAndConditionsPanel get()
 	{
 		return panelSingleton;
-	}
-	
-	public static void loadOperator() throws IOException, NotLoadedException
-	{
-		panelSingleton.load();
 	}
 	
 	/** Constructor */
@@ -321,8 +307,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		m_btnDeleteTranslation = new JButton(JAPMessages.getString(MSG_DELETE));
 		m_btnDeleteTranslation.addActionListener(this);
 		
-		m_btnExportTranslation = new JButton(JAPMessages.getString(MSG_EXPORT));
-		m_btnExportTranslation.addActionListener(this);
+		//m_btnExportTranslation = new JButton(JAPMessages.getString(MSG_EXPORT));
+		//m_btnExportTranslation.addActionListener(this);
 		//Button for loading a template locally
 		m_btnFileTemplate = new JButton(JAPMessages.getString(MSG_FILE));
 		m_btnFileTemplate.addActionListener(this);
@@ -331,9 +317,11 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		m_btnExportTemplate.addActionListener(this);
 		m_btnDeleteTemplate = new JButton(JAPMessages.getString(MSG_DELETE));
 		m_btnDeleteTemplate.addActionListener(this);
-		m_btnContent = new JButton(JAPMessages.getString(MSG_CONTENT));
+		m_btnContent = new JButton(JAPMessages.getString(MSG_EDIT_CONTENT));
 		m_btnContent.addActionListener(this);
-		//m_btnContent.setEnabled(false);
+		
+		m_btnImportWhole = new JButton(JAPMessages.getString(MSG_IMPORT_WHOLE));
+		m_btnImportWhole.addActionListener(this);
 		
 		JPanel translationButtonPanel = new JPanel();
 		translationButtonPanel.add(m_btnAddTranslation);
@@ -346,7 +334,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		templateButtonPanel.add(m_btnExportTemplate);
 		
 		JPanel templateURLPanel = new JPanel();
-		templateURLPanel.add( createLabel(MSG_URL, MSG_PATH));
+		templateURLPanel.add(GUIUtils.createLabel(MSG_URL, MSG_PATH));
 		templateURLPanel.add(m_tf_templateURL);
 		
 		// The current date
@@ -354,8 +342,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		m_pnlDate = new DatePanel(now);
 		m_pnlDate.addDateListener(this);
 		
-		panelTranslation.addRow(createLabel(MSG_LANGUAGE_LABEL), m_cbTranslations, m_btnDeleteTranslation);
-		panelTranslation.addRow(new Component[]{createLabel(MSG_VALID_LABEL), m_pnlDate}, new int[]{1,2}); //, m_btnToday);
+		panelTranslation.addRow(GUIUtils.createLabel(MSG_LANGUAGE_LABEL), m_cbTranslations, m_btnDeleteTranslation);
+		panelTranslation.addRow(new Component[]{GUIUtils.createLabel(MSG_VALID_LABEL), m_pnlDate}, new int[]{1,2}); //, m_btnToday);
 		panelTranslation.addRow(new Component[]{translationButtonPanel}, new int[]{3});		
 		
 		panelTemplate.addRow(m_cbReferenceIDs, m_btnDeleteTemplate);
@@ -372,7 +360,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		// Street
 		m_tf_general_Street = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_general_Street.addFocusListener(this);
-		panelOperatorLeft.addRow(createLabel(MSG_STREET_LABEL), m_tf_general_Street, null);
+		panelOperatorLeft.addRow(GUIUtils.createLabel(MSG_STREET_LABEL), m_tf_general_Street, null);
 
 		// Postal code
 		m_tf_general_Post = new MixConfigTextField(MAX_COLUMN_LENGTH);
@@ -381,22 +369,22 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		// City
 		m_tf_general_City = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_general_City.addFocusListener(this);
-		panelOperatorLeft.addRow(createLabel(MSG_ZIP_LABEL, MSG_CITY_LABEL), m_tf_general_Post, m_tf_general_City);
+		panelOperatorLeft.addRow(GUIUtils.createLabel(MSG_ZIP_LABEL, MSG_CITY_LABEL), m_tf_general_Post, m_tf_general_City);
 		
 		// Fax
 		m_tf_general_Fax = new MixConfigTextField(MAX_COLUMN_LENGTH);	
 		m_tf_general_Fax.addFocusListener(this);
-		panelOperatorLeft.addRow(createLabel(MSG_FAX_LABEL), m_tf_general_Fax, null);
+		panelOperatorLeft.addRow(GUIUtils.createLabel(MSG_FAX_LABEL), m_tf_general_Fax, null);
 		
 		// Venue
 		m_tf_general_Venue = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_general_Venue.addFocusListener(this);
-		panelOperatorLeft.addRow(createLabel(MSG_VENUE_LABEL), m_tf_general_Venue, null);
+		panelOperatorLeft.addRow(GUIUtils.createLabel(MSG_VENUE_LABEL), m_tf_general_Venue, null);
 		
 		// VAT
 		m_tf_general_VAT = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_general_VAT.addFocusListener(this);
-		panelOperatorLeft.addRow(createLabel(MSG_VAT_LABEL), m_tf_general_VAT, null);
+		panelOperatorLeft.addRow(GUIUtils.createLabel(MSG_VAT_LABEL), m_tf_general_VAT, null);
 		
 		// Operator information ---------------------------
 		
@@ -410,7 +398,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		// Street
 		m_tf_lang_Street = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_lang_Street.addFocusListener(this);
-		panelOperatorRight.addRow(createLabel(MSG_STREET_LABEL), m_tf_lang_Street, null);
+		panelOperatorRight.addRow(GUIUtils.createLabel(MSG_STREET_LABEL), m_tf_lang_Street, null);
 
 		// Postal code
 		m_tf_lang_Post = new MixConfigTextField(MAX_COLUMN_LENGTH);
@@ -419,24 +407,20 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		// City
 		m_tf_lang_City = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_lang_City.addFocusListener(this);
-		panelOperatorRight.addRow(createLabel(MSG_ZIP_LABEL, MSG_CITY_LABEL), m_tf_lang_Post, m_tf_lang_City);
+		panelOperatorRight.addRow(GUIUtils.createLabel(MSG_ZIP_LABEL, MSG_CITY_LABEL), m_tf_lang_Post, m_tf_lang_City);
 		
 		// Fax
 		m_tf_lang_Fax = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_lang_Fax.addFocusListener(this);
-		panelOperatorRight.addRow(createLabel(MSG_FAX_LABEL), m_tf_lang_Fax, null);
-		
-		// VAT
-		//m_tf_lang_VAT = new MixConfigTextField(MAX_COLUMN_LENGTH);
-		//m_tf_lang_VAT.addFocusListener(this);
-		//panelOperatorRight.addRow(createLabel(MSG_VAT_LABEL), m_tf_lang_VAT, null);
+		panelOperatorRight.addRow(GUIUtils.createLabel(MSG_FAX_LABEL), m_tf_lang_Fax, null);
 		
 		// Venue
 		m_tf_lang_Venue = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tf_lang_Venue.addFocusListener(this);
-		panelOperatorRight.addRow(createLabel(MSG_VENUE_LABEL), m_tf_lang_Venue, null);	
+		panelOperatorRight.addRow(GUIUtils.createLabel(MSG_VENUE_LABEL), m_tf_lang_Venue, null);	
 		
-		panelOperatorRight.addRow(m_btnContent);
+		panelOperatorRight.addRow(new Component[]{m_btnContent, m_btnImportWhole}, 
+				new int[]{1, GridBagConstraints.REMAINDER});
 		// Translations -------------------------------------------
 		
 		TitledGridBagPanel panelURLs = new TitledGridBagPanel(JAPMessages.getString(MSG_TITLE_URLS));
@@ -449,17 +433,17 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		// URL privacy policy
 		m_tfUrlPP = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tfUrlPP.addFocusListener(this);
-		panelURLs.addRow(createLabel(MSG_PRIVACY_POLICY_LABEL), m_tfUrlPP, null);
+		panelURLs.addRow(GUIUtils.createLabel(MSG_PRIVACY_POLICY_LABEL), m_tfUrlPP, null);
 		
 		// URL legal opinions
 		m_tfUrlLO = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tfUrlLO.addFocusListener(this);
-		panelURLs.addRow(createLabel(MSG_LEGAL_OPINIONS_LABEL), m_tfUrlLO, null);
+		panelURLs.addRow(GUIUtils.createLabel(MSG_LEGAL_OPINIONS_LABEL), m_tfUrlLO, null);
 		
 		// URL operational agreement
 		m_tfUrlOA = new MixConfigTextField(MAX_COLUMN_LENGTH);
 		m_tfUrlOA.addFocusListener(this);
-		panelURLs.addRow(createLabel(MSG_OP_AGREEMENT_LABEL), m_tfUrlOA, null);
+		panelURLs.addRow(GUIUtils.createLabel(MSG_OP_AGREEMENT_LABEL), m_tfUrlOA, null);
 		
 		// Keep the panels in place -----------------------
 		
@@ -642,10 +626,16 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		{
 			ConfigurationEvent configEvent = (ConfigurationEvent)event;
 			String sPath = configEvent.getModifiedXMLPath();
-			if (sPath.equals("Certificates/OperatorOwnCertificate"))
+			if (sPath.startsWith("Certificates/OperatorOwnCertificate"))
 			{
-				// Act accordingly
-				LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Act accordingly " + sPath);
+				if (getServiceOperator() != null)
+				{
+					setEnabled(true);
+				}
+				else
+				{
+					setEnabled(false);
+				}
 			}
 		}	
 	}
@@ -699,13 +689,17 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		{
 			actionDeleteTemplate();
 		}
-		else if (ae.getSource() == m_btnExportTranslation )
+		/*else if (ae.getSource() == m_btnExportTranslation )
 		{
 			actionExportTranslation();
-		}
+		}*/
 		else if (ae.getSource() == m_btnContent )
 		{
 			showContentDialog();
+		}
+		else if (ae.getSource() == m_btnImportWhole )
+		{
+			actionImportWhole();
 		}
 		
 		saveAndLog();
@@ -810,13 +804,18 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	
 	public void load() throws IOException
 	{
+		load((Document) null);
+	}
+	
+	private void load(Document configDoc) throws IOException
+	{
 		savingEnabled = false;
 		try 
 		{
-			initTermsAndConditionsSettings();
+			initTermsAndConditionsSettings(configDoc);
 			//general address setting must be loaded immediately after initTermsAndConditionsSettings
 			initGeneralAddress();
-			initTemplates();
+			initTemplates(configDoc);
 			initTranslations();
 			loadDate();
 			// Initially save the date if it is not yet there
@@ -966,7 +965,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	
 	protected void enableComponents() 
 	{
-		boolean previewPossible = isPreviewTranslationPossible();
 		//Buttons
 		m_btnDeleteTranslation.setEnabled(isDeleteTranslationPossible());
 		m_btnDefaultTranslation.setEnabled(isDefaultLanguagePossible());
@@ -980,8 +978,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		panelOperatorRight.setEnabled(isATranslationLoaded());
 		//this enable check must take place after checking the right oprator panel, 
 		//otherwise the button can be falsely reactivated.
-		m_btnContent.setEnabled(previewPossible);
-		m_btnPreview.setEnabled(previewPossible);
+		m_btnContent.setEnabled(isContentManagementPossible());
+		m_btnPreview.setEnabled(isPreviewPossible());
 		
 		m_tf_templateURL.setEnabled(isDeleteTemplatePossible());
 		if(m_cbReferenceIDs.getItemCount() == 0)
@@ -996,7 +994,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 			m_cbTranslations.addItem(
 					ComboBoxPlaceHolder.createPlaceHolder(MSG_PHOLDER_ADD_TRANSLATION));
 		}
-		
 		repaint();
 	}
 	
@@ -1021,7 +1018,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		langPanel.setLayout(new FlowLayout());
 		buttonPanel.setLayout(new FlowLayout());
 		
-		JLabel langLabel = createLabel(MSG_AVAIL_LANG_LABEL);
+		JLabel langLabel = GUIUtils.createLabel(MSG_AVAIL_LANG_LABEL);
 		
 		final JButton addButton = 
 			new JButton(JAPMessages.getString(MSG_ADD));
@@ -1091,10 +1088,13 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		TemplateReferenceID refId = getSelectedTemplateReferenceID();
 		TermsAndConditionsTemplate template = (refId != null) ? 
 			TermsAndConditionsTemplate.getById(refId.getReferenceID(), false) : null;
-		TermsAndConditionsContentDialog dialog = 
-			new TermsAndConditionsContentDialog(this, template, getSelectedTranslation());
-		dialog.pack();
-		dialog.setVisible(true);
+		TermsAndConditionsTranslation translation = getSelectedTranslation();
+		TCComposite translationSections =
+			TermsAndConditionsContentDialog.showContentDialog(this, template, translation);
+		if(translationSections != null)
+		{
+			translation.setSections(translationSections);
+		}
 	}
 	// -- action methods - invoked if a corresponding action event occures --
 	private void actionAddTranslation()
@@ -1134,10 +1134,10 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	
 	private void actionPreviewTranslation()
 	{
-		TermsAndConditionsTranslation previewTranslation = getTransformTranslation(); 
+		TermsAndConditionsTranslation previewTranslation = getPreviewTranslation(); 
 		if(previewTranslation != null)
 		{
-			TermsAndConditionsDialog.previewTranslation(MixConfig.getMainWindow(), previewTranslation, m_btnExportTranslation);
+			TermsAndConditionsDialog.previewTranslation(this, previewTranslation);
 		}
 	}
 	
@@ -1160,6 +1160,15 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 					try 
 					{
 						currentTemplate = new TermsAndConditionsTemplate(file);
+						
+						if (!currentTemplate.isVerified())
+						{
+							if (!JAPDialog.showYesNoDialog(this, "The template " + currentTemplate.getId() + 
+									" does not have a valid signature! It will not be accepted by the users. Load it nevertheless?"))
+							{
+								continue;
+							}
+						}
 						Database.getInstance(TermsAndConditionsTemplate.class).update(currentTemplate);
 						if(!somethingAdded)
 						{
@@ -1185,6 +1194,62 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 								JAPMessages.getString(MSG_LOAD_FILE_ERROR), 
 								LogType.MISC, e);
 					}
+				}
+				break;
+			}
+			case JFileChooser.CANCEL_OPTION:
+			{
+				break;
+			}
+			case JFileChooser.ERROR_OPTION:
+			{
+				break;
+			}
+		}
+	}
+	
+	private void actionImportWhole()
+	{
+		//Load template from file
+		JFileChooser fc = (lastOpened != null) ? new JFileChooser(lastOpened) : new JFileChooser();
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		
+		int clicked = fc.showDialog(this, JAPMessages.getString(MSG_LOAD));
+		switch ( clicked )
+		{
+			case JFileChooser.APPROVE_OPTION:
+			{
+				File file = fc.getSelectedFile();
+				try 
+				{
+					InputStreamReader reader = 
+						new InputStreamReader(new FileInputStream(file), "UTF-8");
+					
+					Document doc = XMLUtil.readXMLDocument(file);
+					if((doc == null) || (doc.getDocumentElement() == null) )
+						throw new XMLParseException("No document found");
+					
+					NodeList nl = doc.getDocumentElement().getElementsByTagName(XML_ELEMENT_TC_OPTIONS);
+					if( nl.getLength() < 1)
+						throw new XMLParseException("No T&C Options element found");
+					
+					Element tcOptionsRoot = (Element) nl.item(0);
+					nl = tcOptionsRoot.getElementsByTagName(TermsAndConditions.XML_ELEMENT_NAME);
+					if( nl.getLength() < 1)
+						throw new XMLParseException("No T&C element found");
+					load(doc);
+				} 
+				catch (XMLParseException e) 
+				{
+					JAPDialog.showErrorDialog(this, 
+							JAPMessages.getString(MSG_LOAD_FILE_ERROR), 
+							LogType.MISC, e);
+				} 
+				catch (IOException e) 
+				{
+					JAPDialog.showErrorDialog(this, 
+							JAPMessages.getString(MSG_LOAD_FILE_ERROR), 
+							LogType.MISC, e);
 				}
 				break;
 			}
@@ -1344,78 +1409,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		}
 	}
 	
-	private void actionExportTranslation()
-	{
-		//export template must never be null. in this case the button must be disabled
-		//don't catch further null pointers, because they would be bugs and need to be fixed.
-		TermsAndConditionsTemplate exportTemplate = 
-			(TermsAndConditionsTemplate) Database.getInstance(TermsAndConditionsTemplate.class).getEntryById(
-				getSelectedTemplateReferenceID().getReferenceID());
-		TermsAndConditionsTranslation exportTranslation = getTransformTranslation();
-		
-		String suggestedFileName = 
-			"Terms_"+operatorTCs.getOperator().getOrganization()+"_"+
-				exportTranslation.getLocale()+".html";
-		
-		JFileChooser fc = (lastOpened != null) ? new JFileChooser(lastOpened) : new JFileChooser();
-		File suggestedFile = new File(fc.getCurrentDirectory()+File.separator+suggestedFileName);
-		fc.setSelectedFile(suggestedFile);
-		int clicked = fc.showSaveDialog(this);
-		switch ( clicked )
-		{
-			case JFileChooser.APPROVE_OPTION:
-			{
-				File selectedFile = fc.getSelectedFile();
-				boolean confirmed = true;
-				if(selectedFile.exists())
-				{
-					confirmed = 
-						JAPDialog.showConfirmDialog(this, 
-							JAPMessages.getString(MSG_FILE_EXISTS, selectedFile.getName()),
-							JAPDialog.OPTION_TYPE_YES_NO, 
-							JAPDialog.MESSAGE_TYPE_QUESTION) == JAPDialog.RETURN_VALUE_YES;
-				}
-				if(confirmed)
-				{
-					//exportTemplate.importData(exportTranslation);
-					try 
-					{
-						//Make sure the exported HTML is ISO-Latin-1 encoded
-						OutputStreamWriter exportWriter = 
-							new OutputStreamWriter(new FileOutputStream(selectedFile), TRANSLATION_HTML_EXPORT_ENCODING);
-						
-						exportTemplate.transform(exportWriter, exportTranslation);
-						exportWriter.flush();
-						exportWriter.close();
-					} 
-					catch (IOException e) 
-					{
-						JAPDialog.showErrorDialog(this, 
-								JAPMessages.getString(MSG_SAVE_FILE_ERROR, selectedFile.getName()), 
-								LogType.MISC, e);
-					} 
-					catch (TransformerException e) 
-					{
-						JAPDialog.showErrorDialog(this, 
-								JAPMessages.getString(MSG_SAVE_FILE_ERROR, selectedFile.getName()), 
-								LogType.MISC, e);
-					}
-				}
-				break;
-			}
-			case JFileChooser.CANCEL_OPTION:
-			{
-				break;
-			}
-			case JFileChooser.ERROR_OPTION:
-			{
-				break;
-			}
-		}
-	}
-	
-	
-	
 	// --- private load and save functions ---
 	
 	private void loadDate()
@@ -1472,33 +1465,42 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		}
 	}
 	
-	private void initTermsAndConditionsSettings() throws IOException, NotLoadedException
+	private ServiceOperator getServiceOperator()
 	{
-		Document rootConfigDoc = getConfiguration().getDocument();
-		NodeList nl = rootConfigDoc.getElementsByTagName(TermsAndConditions.XML_ELEMENT_NAME);
 		String opCertFromConfig = getConfiguration().getValue("Certificates/OperatorOwnCertificate/X509Certificate");
+		JAPCertificate operatorCertificate = (opCertFromConfig != null) ? 
+				JAPCertificate.getInstance(Base64.decode(opCertFromConfig)) : null;
+		return (operatorCertificate != null) ? new ServiceOperator(operatorCertificate) : null;
+	}
+	
+	private void initTermsAndConditionsSettings(Document configDoc) throws IOException, NotLoadedException
+	{
+		Document rootConfigDoc = (configDoc != null) ? configDoc : getConfiguration().getDocument();
+		NodeList nl = rootConfigDoc.getElementsByTagName(TermsAndConditions.XML_ELEMENT_NAME);
+		//String opCertFromConfig = getConfiguration().getValue("Certificates/OperatorOwnCertificate/X509Certificate");
+		ServiceOperator operator = getServiceOperator();
 		
-		if((opCertFromConfig != null) && 
-		   (opCertX509 != null) &&
-		   (operatorTCs != null) && 
-		   opCertFromConfig.equals(opCertX509) )
-	   {
-			LogHolder.log(LogLevel.INFO, LogType.MISC, "Don't reload operator T&Cs.");
-			return;
-	   }
-		
-		opCertX509 = opCertFromConfig;
-		JAPCertificate operatorCertificate = (opCertX509 != null) ? JAPCertificate.getInstance(Base64.decode(opCertX509)) : null;
-		if(operatorCertificate == null)
+		if(configDoc == null)
 		{
-			LogHolder.log(LogLevel.ERR, LogType.MISC, "No operator certificate can be found. "+
-					"Cannot initiate any terms and conditions without operator certificate.");
+			if((operator != null) && 
+			   (operatorTCs != null) && 
+			   (operatorTCs.getOperator() != null) &&
+			   operatorTCs.getOperator().equals(operator) )
+		   {
+				LogHolder.log(LogLevel.INFO, LogType.MISC, "Don't reload operator T&Cs.");
+				return;
+		   }
+		}
+		
+		if(operator == null)
+		{
+			LogHolder.log(LogLevel.ERR, LogType.MISC, "No operator is specified. "+
+					"Cannot initiate any terms and conditions without operator settings.");
 			setEnabled(false);
 			throw new NotLoadedException();
 		}
 		else
 		{
-			ServiceOperator operator = new ServiceOperator(operatorCertificate);
 			try 
 			{
 				if(nl.getLength() > 0)
@@ -1536,6 +1538,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 						throw new IOException("Wrong format of the newly created date. This should never happen!");
 					}
 				}
+
 				setEnabled(true);
 			}
 		}
@@ -1562,14 +1565,17 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		}
 	}
 	
-	private void initTemplates()
+	private void initTemplates(Document configDoc)
 	{
-		if( (getConfiguration() == null) || (getConfiguration().getDocument() == null) )
+		Document rootConfigDoc = (configDoc != null) ? configDoc : getConfiguration().getDocument();
+			
+		if( (rootConfigDoc == null) || 
+			(rootConfigDoc.getDocumentElement() == null) )
 		{
 			return;
 		}
 		
-		NodeList nl = getConfiguration().getDocument().getElementsByTagName(XML_ELEMENT_TEMPLATE);
+		NodeList nl = rootConfigDoc.getElementsByTagName(XML_ELEMENT_TEMPLATE);
 		Element currentElement = null;
 		String currentTemplateURLValue = null;
 		if(nl.getLength() == 0)
@@ -1991,7 +1997,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		return false;
 	}
 	
-	private TermsAndConditionsTranslation getTransformTranslation()
+	TermsAndConditionsTranslation getPreviewTranslation()
 	{
 		Document rootConfigDoc = getConfiguration().getDocument();
 		NodeList nl = rootConfigDoc.getElementsByTagName(XML_ELEMENT_TC_TRANSLATION_IMPORTS);
@@ -2017,7 +2023,20 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		return (getSelectedTranslation() != null);
 	}
 	
-	private boolean isPreviewTranslationPossible()
+	
+	boolean isPreviewPossible()
+	{
+		return isTransformationPossible();
+	}
+	
+	private boolean isContentManagementPossible()
+	{
+		return isTransformationPossible();
+	}
+	
+	//requires that a translation is defined and selected which
+	//referes to a loaded template.
+	private boolean isTransformationPossible()
 	{
 		TermsAndConditionsTemplate template = null;
 		TermsAndConditionsTranslation currentTranslation = getSelectedTranslation();
@@ -2109,28 +2128,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				}
 			}
 		}
-	}
-	
-	static JLabel createLabel(String messageKey)
-	{
-		return createLabel(new String[]{messageKey});
-	}
-	
-	static JLabel createLabel(String messageKey1, String messageKey2)
-	{
-		return createLabel(new String[]{messageKey1, messageKey2});
-	}
-	
-	static JLabel createLabel(String[] messageKeys)
-	{
-		StringBuffer labelName = new StringBuffer("");
-		for (int i = 0; i < messageKeys.length; i++) 
-		{
-			labelName.append(
-					JAPMessages.getString(messageKeys[i])+
-					((i < messageKeys.length - 1) ? "/" : ""));
-		}
-		return new JLabel(labelName.toString());
 	}
 	
 	/**
