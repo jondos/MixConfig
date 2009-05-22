@@ -30,6 +30,7 @@ package mixconfig;
 import java.util.Vector;
 import anon.crypto.JAPCertificate;
 import anon.crypto.ICertificate;
+import anon.crypto.X509BasicConstraints;
 import anon.crypto.X509Extensions;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectAlternativeName;
@@ -42,6 +43,7 @@ import anon.util.CountryMapper;
  */
 public class OperatorCertificateView implements ICertificateView
 {
+	private boolean m_bCA;
 	private CountryMapper m_CountryMapper;
 	private String m_strOrganisation;
 	private String m_strOrgaUnit;
@@ -58,6 +60,7 @@ public class OperatorCertificateView implements ICertificateView
 	{
 		if (a_certificate == null)
 		{
+			m_bCA = false;
 			m_CountryMapper = new CountryMapper();
 			m_strOrganisation = "";
 			m_strOrgaUnit = "";
@@ -71,6 +74,7 @@ public class OperatorCertificateView implements ICertificateView
 		X509Extensions extensions;
 		JAPCertificate certificate = a_certificate.getX509Certificate();
 		X509DistinguishedName dn = certificate.getSubject();
+		X509BasicConstraints extConstraints;
 
 		try
 		{
@@ -78,6 +82,18 @@ public class OperatorCertificateView implements ICertificateView
 		}
 		catch (IllegalArgumentException a_e)
 		{
+		}
+		
+		extConstraints = (X509BasicConstraints)
+		certificate.getExtensions().getExtension(X509BasicConstraints.IDENTIFIER);
+		if (extConstraints != null && extConstraints.isCA())
+			
+		{
+			m_bCA = true;
+		}
+		else
+		{
+			m_bCA = false;
 		}
 
 		m_strOrganisation = formatDNField(dn.getOrganisation());
@@ -135,6 +151,11 @@ public class OperatorCertificateView implements ICertificateView
 	public CountryMapper getCountryMapper()
 	{
 		return m_CountryMapper;
+	}
+	
+	public boolean isCA()
+	{
+		return m_bCA;
 	}
 
 	public String getCommonName()
