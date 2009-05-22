@@ -102,6 +102,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 	public static final int MAX_COORDINATE_FIELD_LENGTH = 7;
 
 	public static final String MSG_WARNING_NO_MIX_CERT = MixConfigPanel.class.getName() + "_warningNoMixCert";
+	public static final String MSG_WARNING_NO_OPERATOR_CERT = MixConfigPanel.class.getName() + "_warningOperatorCert";
 	public static final String MSG_ERROR_BLANK_FIELD = MixConfigPanel.class.getName() + "_errorBlankField";
 
 	/**

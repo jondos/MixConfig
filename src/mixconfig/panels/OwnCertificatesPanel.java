@@ -65,6 +65,7 @@ import logging.LogType;
 import mixconfig.ConfigurationEvent;
 import mixconfig.FloatDocument;
 import mixconfig.ICertCreationValidator;
+import mixconfig.ICertificateView;
 import mixconfig.MixCertificateView;
 import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
@@ -408,7 +409,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			if (e.getSource() instanceof CertPanel)
 			{
 				save((CertPanel)e.getSource());
-				if(e.getSource() == m_ownCert)
+				if (e.getSource() == m_ownCert)
 				{
 					if (m_ownCert.getCert() != null)
 					{
@@ -454,7 +455,9 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 						}
 					}
 					updateMixID();
-					if (((MixCertificateView) m_ownCert.getCertificateView()).isCA())
+					MixCertificateView certView = (MixCertificateView) m_ownCert.getCertificateView();
+					if (m_ownCert.getCert() != null && 
+							(certView.isCA() || certView.getCountry().length() == 0 || certView.getLocalityName().length() == 0))
 					{
 						JAPDialog.showWarningDialog(MixConfig.getMainWindow(),
 							JAPMessages.getString(MSG_WARNING_NO_MIX_CERT));
@@ -506,6 +509,14 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 						{
 							//if(JAPDialog.showYesNoDialog(this, JAPMessages.getString(MSG_AUTO_SIGN))) {..}
 							signMixCertificate(false);
+						}
+						
+						if (m_operatorCert.getCert() != null && 
+								(!certView.isCA() || certView.getCountry().length() == 0 || certView.getEMail().length() == 0 ||
+							certView.getOrganisation().length() == 0))
+						{
+							JAPDialog.showWarningDialog(MixConfig.getMainWindow(),
+								JAPMessages.getString(MSG_WARNING_NO_OPERATOR_CERT));
 						}
 					}
 				}

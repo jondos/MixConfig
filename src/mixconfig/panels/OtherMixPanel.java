@@ -301,34 +301,49 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 
 	public void stateChanged(ChangeEvent a_e)
 	{
-		if (a_e.getSource() == m_otherCert)
+		try
 		{
-			/**
-			 * Retrieve information about location from the certificate and put it
-			 * into the right text fields
-			 */
-			MixCertificateView certView = (MixCertificateView) m_otherCert.getCertificateView();
-			m_locCityField.setText(certView.getLocalityName());
-			m_locCountryField.setText(certView.getCountry());
-			m_locStateField.setText(certView.getStateOrProvince());
-			m_locLongField.setText(certView.getLongitude());
-			m_locLatField.setText(certView.getLatitude());
-			if (certView.isCA())
+			if (a_e.getSource() == m_otherCert)
 			{
-				JAPDialog.showWarningDialog(MixConfig.getMainWindow(),
-											JAPMessages.getString(MSG_WARNING_NO_MIX_CERT));
+				/**
+				 * Retrieve information about location from the certificate and put it
+				 * into the right text fields
+				 */
+				MixCertificateView certView = (MixCertificateView) m_otherCert.getCertificateView();
+				m_locCityField.setText(certView.getLocalityName());
+				m_locCountryField.setText(certView.getCountry());
+				m_locStateField.setText(certView.getStateOrProvince());
+				m_locLongField.setText(certView.getLongitude());
+				m_locLatField.setText(certView.getLatitude());
+				if (m_otherCert.getCert() != null && 
+						(certView.isCA() || certView.getCountry().length() == 0 || certView.getLocalityName().length() == 0))
+				{
+					JAPDialog.showWarningDialog(MixConfig.getMainWindow(),
+												JAPMessages.getString(MSG_WARNING_NO_MIX_CERT));
+				}
+			}
+			else if (a_e.getSource() == m_otherOpCert)
+			{
+				m_otherCert.setAdditionalVerifier(m_otherOpCert.getCert());
+				m_otherCert.updateCertificateIcon(false);
+				OperatorCertificateView certView = (OperatorCertificateView) m_otherOpCert.getCertificateView();
+				m_opOrgField.setText(certView.getOrganisation());
+				m_opOrgUnitField.setText(certView.getOrganisationalUnit());
+				m_opCountryField.setText(certView.getCountry());
+				m_opUrlField.setText(certView.getURL());
+				m_opEmailField.setText(certView.getEMail());
+				if (m_otherOpCert.getCert() != null && 
+						(!certView.isCA() || certView.getCountry().length() == 0 || certView.getEMail().length() == 0 ||
+						certView.getOrganisation().length() == 0))
+				{
+					JAPDialog.showWarningDialog(MixConfig.getMainWindow(),
+						JAPMessages.getString(MSG_WARNING_NO_OPERATOR_CERT));
+				}
 			}
 		}
-		else if (a_e.getSource() == m_otherOpCert)
+		catch (RuntimeException a_ex)
 		{
-			m_otherCert.setAdditionalVerifier(m_otherOpCert.getCert());
-			m_otherCert.updateCertificateIcon(false);
-			OperatorCertificateView certView = (OperatorCertificateView) m_otherOpCert.getCertificateView();
-			m_opOrgField.setText(certView.getOrganisation());
-			m_opOrgUnitField.setText(certView.getOrganisationalUnit());
-			m_opCountryField.setText(certView.getCountry());
-			m_opUrlField.setText(certView.getURL());
-			m_opEmailField.setText(certView.getEMail());
+			throw a_ex;
 		}
 	}
 }
