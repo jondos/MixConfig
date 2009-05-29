@@ -47,6 +47,7 @@ import mixconfig.MixConfig;
 import mixconfig.MixConfiguration;
 import mixconfig.panels.AdvancedPanel;
 import mixconfig.panels.GeneralPanel;
+import mixconfig.panels.LogCrimePanel;
 import mixconfig.panels.MixConfigPanel;
 import mixconfig.panels.NextMixProxyPanel;
 import mixconfig.panels.OwnCertificatesPanel;

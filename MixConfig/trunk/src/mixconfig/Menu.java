@@ -616,7 +616,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 
 	/**
 	 * If there are inconsistencies in the current configuration, ask the user if
-	 * she wants to ignore them for saving.
+	 * he wants to ignore them for saving.
 	 * @throws IOException
 	 * @return true if there are no inconsistencies or inconsistencies should be ignored
 	 *         false otherwise
@@ -625,11 +625,17 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 	{
 		// Return value
 		boolean bIgnore = true;
-		if (m_configFrame_Panel.check().length > 0)
+		String[] msg = m_configFrame_Panel.check();
+		
+		if (msg.length > 0)
 		{
 			bIgnore = JAPDialog.showYesNoDialog(MixConfig.getMainWindow(), 
 					               JAPMessages.getString(MSG_IGNORE_INCONSISTENCIES), 
 					               "Inconsistencies found");
+			if (!bIgnore)
+			{
+				MixConfig.info("Inconsistencies found", msg);
+			}
 		}
 		return bIgnore;
 	}

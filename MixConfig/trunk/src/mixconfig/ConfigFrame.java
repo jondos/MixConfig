@@ -41,6 +41,7 @@ import javax.swing.border.EmptyBorder;
 import logging.LogType;
 import mixconfig.panels.AdvancedPanel;
 import mixconfig.panels.GeneralPanel;
+import mixconfig.panels.LogCrimePanel;
 import mixconfig.panels.MixConfigPanel;
 import mixconfig.panels.NextMixProxyPanel;
 import mixconfig.panels.OwnCertificatesPanel;
@@ -59,7 +60,7 @@ public class ConfigFrame extends JPanel
 
 	public ConfigFrame(JFrame parent) throws IOException
 	{
-		m_panels = new MixConfigPanel[7];
+		m_panels = new MixConfigPanel[8];
 		
 		// Currently not displayed:
 		//m_panels[0] = new MixOnCDPanel();
@@ -72,6 +73,7 @@ public class ConfigFrame extends JPanel
 		m_panels[4] = new PreviousMixPanel();
 		m_panels[5] = new NextMixProxyPanel();
 		m_panels[6] = TermsAndConditionsPanel.get();
+		m_panels[7] = LogCrimePanel.get();
 		
 		m_tabbedPane = new JTabbedPane();
 		for (int i = 0; i < m_panels.length; i++)

@@ -40,6 +40,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -75,9 +77,13 @@ import mixconfig.infoservice.InfoServiceTableModel;
 import mixconfig.network.ConnectionData;
 import mixconfig.network.IncomingConnectionTableModel;
 import mixconfig.network.IncomingDialog;
+import anon.infoservice.Database;
+import anon.infoservice.InfoServiceDBEntry;
+import anon.infoservice.InfoServiceHolder;
 import anon.infoservice.ListenerInterface;
 import anon.infoservice.MixInfo;
 import anon.util.JAPMessages;
+import anon.util.Util;
 
 public class GeneralPanel extends MixConfigPanel implements ActionListener, TableModelListener, ChangeListener
 {
@@ -108,6 +114,8 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 	private static final String MSG_ENABLE_PAYMENT = GeneralPanel.class.getName() + "_enablePayment";
 	private static final String MSG_EXPERIMENTAL_FEATURE = GeneralPanel.class.getName() + "_experimentalFeature";
 	private static final String MSG_TOO_MANY_INTERFACES = GeneralPanel.class.getName() + "_tooManyInterfaces";
+	
+	private static final String ACTION_UPDATE_IS = "UpdateInfoServices";
 	
 	public static final String PSEUDO_CASCADE_NAME = "******Dynamic cascade bug*******";
 
@@ -342,7 +350,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 			column.setPreferredWidth(columnSizes[i]);
 		}
 		// Now add the buttons
-		for (int i=0; i<2; i++)
+		for (int i=0; i<3; i++)
 		{
 			final JButton button;
 			switch (i)
@@ -366,6 +374,11 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 					});
 					button.setEnabled(false);
 					button.setActionCommand("DeleteInfoService");
+					button.addActionListener(this);
+					break;
+				case 2:
+					button = new JButton("Update");
+					button.setActionCommand(ACTION_UPDATE_IS);
 					button.addActionListener(this);
 					break;
 				default:
@@ -876,6 +889,27 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 			// Open the dialog for a new InfoService
 			new InfoServiceDialog(MixConfig.getMainWindow(), "Add Info Service", m_infoServiceModel).setVisible(true);
 		}
+		else if (ae.getActionCommand().equals(ACTION_UPDATE_IS))
+		{
+			InfoServiceDBEntry isEntry;
+			InfoServiceData isData;
+			Hashtable hashIS = InfoServiceHolder.getInstance().getInfoServices();
+			Enumeration enumIS;
+			if (hashIS != null && hashIS.size() > 0)
+			{
+				enumIS = hashIS.elements();
+				//Database.getInstance(InfoServiceDBEntry.class).removeAll();
+				m_infoServiceModel.clear();
+				while (enumIS.hasMoreElements())
+				{
+					isEntry = (InfoServiceDBEntry)enumIS.nextElement();
+					
+					isData = new InfoServiceData(MixConfiguration.XML_PATH_INFO_SERVICE, 
+							isEntry.getListenerInterfacesArray());
+					m_infoServiceModel.addData(isData);
+				}
+			}
+		}
 		else if (ae.getActionCommand().equals("DeleteInfoService"))
 		{
 			// Delete the selected row from the model
@@ -1088,23 +1122,7 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 			}
 		}
 
-	// Check if a middle or last mix has only one valid interface
-	mixType = mixConf.getMixType();
-	if (mixType == MixConfiguration.MIXTYPE_LAST || mixType == MixConfiguration.MIXTYPE_MIDDLE)
-	{
-		if (m_listenerModel.getRowCount() > 2)
-		{
-			errors.addElement(MSG_TOO_MANY_INTERFACES);
-		}
-		else if(defaultPorts.size() > 1)
-		{
-			errors.addElement(MSG_TOO_MANY_INTERFACES);
-		}
-		else if(hiddenPorts.size() > 1 && virtualPorts.size() > 1)
-		{
-			errors.addElement(MSG_TOO_MANY_INTERFACES);
-		}
-	}
+	
 		// Check if every listener interface has a port if it is not UNIX transport
 		for (int i = 0; i < m_listenerModel.getRowCount(); i++)
 		{

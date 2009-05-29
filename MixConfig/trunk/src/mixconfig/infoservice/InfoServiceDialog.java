@@ -20,6 +20,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import mixconfig.MixConfiguration;
+
 import anon.infoservice.ListenerInterface;
 
 /**
@@ -63,7 +65,7 @@ public class InfoServiceDialog extends JAPDialog
 
 	protected String getType()
 	{
-		return "InfoService";
+		return MixConfiguration.XML_PATH_INFO_SERVICE;
 	}
 	
 	/**
