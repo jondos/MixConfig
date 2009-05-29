@@ -1,5 +1,7 @@
 package mixconfig.infoservice;
 
+import java.util.Vector;
+
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
@@ -96,6 +98,18 @@ public final class InfoServiceData implements IXMLEncodable, Cloneable {
 			return null;
 		}
 		return m_interfaces[index];
+	}
+	
+	public Vector getListenerInterfaces()
+	{
+		Vector listenerInterfaces = new Vector();
+		ListenerInterface[] listeners = m_interfaces;
+		for (int i = 0; i < listeners.length; i++)
+		{
+			listenerInterfaces.addElement(listeners[i]);
+		}
+		
+		return listenerInterfaces;
 	}
 	
 	public Element toXmlElement(Document doc) {

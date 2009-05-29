@@ -59,6 +59,9 @@ import org.w3c.dom.Document;
 import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectKeyIdentifier;
+import anon.infoservice.Database;
+import anon.infoservice.IDistributable;
+import anon.infoservice.IDistributor;
 import anon.util.ClassUtil;
 import anon.util.JAPMessages;
 import anon.util.ResourceLoader;
@@ -85,7 +88,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_P10 = 32;
 	public final static int FILTER_B64_P10 = 64;
 
-	public final static String VERSION = "00.05.010";  //NEVER change the layout of this line!!
+	public final static String VERSION = "00.05.011";  //NEVER change the layout of this line!!
 	
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -176,6 +179,14 @@ public class MixConfig extends JApplet
 			}
 
 			m_MainWindow = new JFrame();
+			Database.registerDistributor(new IDistributor()
+			{
+				public void addJob(IDistributable a_newJob)
+				{
+					
+				}
+			});
+			
 			((JFrame)m_MainWindow).setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 			
 			// Initially do not allow resizing
@@ -304,6 +315,13 @@ public class MixConfig extends JApplet
 			{
 				GUIUtils.exitWithNoMessagesError("MixConfigMessages");
 			}
+			Database.registerDistributor(new IDistributor()
+			{
+				public void addJob(IDistributable a_newJob)
+				{
+					
+				}
+			});
 			m_MainWindow = (Frame)GUIUtils.getParentWindow(this);
 			m_mixConfiguration = new MixConfiguration();
 			JAPHelp.init(m_MainWindow, null);
@@ -364,20 +382,20 @@ public class MixConfig extends JApplet
 	 */
 	public static void info(String a_title, String[] a_message)
 	{
-		//String message = "";
+		String message = "";
 		if (a_message == null || a_message.length == 0)
 		{
 			JAPDialog.showMessageDialog(getMainWindow(), "", a_title);
 
 		}
-		else //if (a_message.length == 1)
+		else if (a_message.length == 1)
 		{
 			JAPDialog.showMessageDialog(getMainWindow(), a_message[0], a_title);
-		}/*
+		}
 		else
 		{
 			message += "<UL>";
-			for (int i = 0; i < a_message.length; i++)
+			for (int i = 0; i < a_message.length && i < 20; i++)
 			{
 				if (a_message[i] == null || a_message[i].trim().length() == 0)
 				{
@@ -386,8 +404,8 @@ public class MixConfig extends JApplet
 				message +=  "<LI>" + a_message[i] + "</LI>";
 			}
 			message += "</UL>";
-			JAPDialog.showInfoDialog(getMainWindow(), message, a_title);
-		}*/
+			JAPDialog.showMessageDialog(getMainWindow(), message, a_title);
+		}
 	}
 
 	public static void about()

@@ -68,6 +68,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
+import anon.infoservice.Database;
+import anon.infoservice.InfoServiceDBEntry;
 import anon.infoservice.MixInfo;
 import anon.pay.xml.XMLPriceCertificate;
 import anon.util.Base64;
@@ -104,6 +106,8 @@ public class MixConfiguration
 
 	/** Indicates that logging output should be saved to a directory */
 	public static final int LOG_DIRECTORY = 3;
+	
+	public static final String XML_PATH_INFO_SERVICE = "InfoService";
 
 	/** An array containing the Mix types as String values. The indices correspond to
 	   the MIXTYPE_xxx constants */
@@ -733,8 +737,19 @@ public class MixConfiguration
 				i--;
 			}
 		}
-		// Insert 'InfoServices' as the first child of network
-		n.insertBefore(elem, n.getFirstChild());
+		Database.getInstance(InfoServiceDBEntry.class).removeAll();
+		synchronized(a_infoServiceModel)
+		{
+			for (int i = 0; i < a_infoServiceModel.getRowCount(); i++)
+			{
+				Database.getInstance(InfoServiceDBEntry.class).update(
+						new InfoServiceDBEntry(a_infoServiceModel.getData(i).getListenerInterfaces()));
+				
+			}
+			
+			// Insert 'InfoServices' as the first child of network
+			n.insertBefore(elem, n.getFirstChild());
+		}
 		fireStateChanged(a_xmlPath + "/" + elem.getNodeName(), a_infoServiceModel);
 	}
 	
@@ -1085,10 +1100,10 @@ public class MixConfiguration
 		InfoServiceTableModel dummyTableModel = new InfoServiceTableModel();
 		// XXX: Test-InfoService
 		//dummyTableModel.addData(new InfoServiceData("InfoService", "87.230.20.187", 80));
-		dummyTableModel.addData(new InfoServiceData("InfoService", "infoservice.inf.tu-dresden.de", 80));
-		dummyTableModel.addData(new InfoServiceData("InfoService", "72.55.137.241", 80));
-		dummyTableModel.addData(new InfoServiceData("InfoService", "87.230.56.74", 80));
-		dummyTableModel.addData(new InfoServiceData("InfoService", "78.129.146.44", 80));
+		dummyTableModel.addData(new InfoServiceData(XML_PATH_INFO_SERVICE, "infoservice.inf.tu-dresden.de", 80));
+		dummyTableModel.addData(new InfoServiceData(XML_PATH_INFO_SERVICE, "72.55.137.241", 80));
+		dummyTableModel.addData(new InfoServiceData(XML_PATH_INFO_SERVICE, "87.230.56.74", 80));
+		dummyTableModel.addData(new InfoServiceData(XML_PATH_INFO_SERVICE, "78.129.146.44", 80));
 		setValue("Network", dummyTableModel);
 		
 		// Set a default ListenerInterface

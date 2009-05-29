@@ -801,7 +801,7 @@ public abstract class MixConfigPanel extends JPanel implements ItemListener, Foc
 							child = child.getNextSibling();
 						}
 						tableModel.clear();
-						tableModel.addData(new InfoServiceData("InfoService", sHost, iPort));
+						tableModel.addData(new InfoServiceData(MixConfiguration.XML_PATH_INFO_SERVICE, sHost, iPort));
 					}
 				}
 			}

@@ -65,6 +65,8 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.text.JTextComponent;
 
 import logging.LogType;
+import gui.ButtonConstants;
+import gui.MixConfigTextField;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -150,12 +152,12 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	private void initializeComponents()
 	{
 		//create components
-		sectionAddButton = new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_ADD));
-		sectionDeleteButton = new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_DELETE));
+		sectionAddButton = GUIUtils.createButton(ButtonConstants.ADD);
+		sectionDeleteButton = GUIUtils.createButton(ButtonConstants.DELETE);
 		sectionResetButton = new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_RESET));
 		
-		paragraphAddButton = new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_ADD));
-		paragraphDeleteButton = new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_DELETE));
+		paragraphAddButton = GUIUtils.createButton(ButtonConstants.ADD);
+		paragraphDeleteButton = GUIUtils.createButton(ButtonConstants.DELETE);
 		paragraphResetButton = new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_RESET));
 	
 		JPanel contentActionButtonPanel = new JPanel();

@@ -119,6 +119,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	public static final String CERTPATH_MIX = CERTPATH + "acceptedMixCAs/";
 	public static final String CERTPATH_PAYMENT = CERTPATH + "acceptedPaymentInstances/";
 	public static final String CERTPATH_TERMS = CERTPATH + "acceptedTaCTemplates/";
+	public static final String CERTPATH_INFOSERVICES = CERTPATH + "acceptedInfoServiceCAs/";
 	
 	static {
 		// Add default certificates to the certificate store
@@ -126,16 +127,21 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		addDefaultCertificates(CERTPATH_MIX, JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX); // TODO use this instead of above line!
 		addDefaultCertificates(CERTPATH_PAYMENT, JAPCertificate.CERTIFICATE_TYPE_PAYMENT);
 		addDefaultCertificates(CERTPATH_TERMS, JAPCertificate.CERTIFICATE_TYPE_TERMS_AND_CONDITIONS);
+		addDefaultCertificates(CERTPATH_INFOSERVICES, JAPCertificate.CERTIFICATE_TYPE_ROOT_INFOSERVICE);
 		// needed for applet version (no dynamic loading is possible)
 		addDefaultCertificates(CERTPATH_MIX + "gpf_jondonym_ca.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "japmixroot.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "Operator_CA.cer", JAPCertificate.CERTIFICATE_TYPE_MIX);
 		addDefaultCertificates(CERTPATH_PAYMENT + "Payment_Instance.cer", JAPCertificate.CERTIFICATE_TYPE_PAYMENT);	
 		addDefaultCertificates(CERTPATH_TERMS + "Terms_and_Conditions.b64.cer", JAPCertificate.CERTIFICATE_TYPE_TERMS_AND_CONDITIONS);
+		
 		// TODO use these instead of above lines!
 		addDefaultCertificates(CERTPATH_MIX + "gpf_jondonym_ca.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "japmixroot.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
 		addDefaultCertificates(CERTPATH_MIX + "Operator_CA.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
+		
+		addDefaultCertificates(CERTPATH_INFOSERVICES + "InfoService_CA.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_INFOSERVICE);
+		addDefaultCertificates(CERTPATH_INFOSERVICES + "japinfoserviceroot.cer", JAPCertificate.CERTIFICATE_TYPE_ROOT_INFOSERVICE);
 		
 		
 	}
