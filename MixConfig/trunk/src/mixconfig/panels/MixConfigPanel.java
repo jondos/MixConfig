@@ -41,7 +41,6 @@ import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 import javax.swing.ButtonGroup;

@@ -52,6 +52,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -87,6 +88,8 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 	private static final String XML_ELEMENT_REG_EXP_PAYLOAD = "RegExpPayload";
 	private static final String XML_ELEMENT_SURVEILLANCE_IP = "SurveillanceIP";
 	
+	private static final String XML_ATTR_LOG_PAYLOAD = "logPayload";
+	
 	private static final int URL_PANEL = 0;
 	private static final int PAYLOAD_PANEL = 1;
 	private static final int IP_PANEL = 2;
@@ -104,6 +107,9 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 	private static final String[] PANEL_INPUT_ERROR_KEYS = 
 		new String[]{MSG_INVALID_REGEXP, MSG_INVALID_REGEXP, MSG_INVALID_IP};
 	
+	private TitledGridBagPanel globalPanel;
+	private JCheckBox payloadLoggingCheckBox;
+	
 	private JButton[] addButtons;
 	private JButton[] removeButtons;
 	private JComboBox[] parameterBoxes;
@@ -112,8 +118,6 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 	private DataRetentionPanel dataRetentionPanel;
 	
 	private InputChecker[] inputChecker;
-	
-	
 	
 	private static LogCrimePanel panelSingleton = null;
 	
@@ -136,6 +140,11 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 
 	private void initComponents()
 	{
+		globalPanel = new TitledGridBagPanel("Global Parameters");
+		payloadLoggingCheckBox = new JCheckBox();
+		payloadLoggingCheckBox.addActionListener(this);
+		globalPanel.addRow(GUIUtils.createLabel("Log Payload"), payloadLoggingCheckBox);
+		
 		addButtons = new JButton[PANELS];
 		removeButtons = new JButton[PANELS];
 		parameterBoxes = new JComboBox[PANELS];
@@ -188,13 +197,15 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 		c.gridheight = 1;
 		c.weighty = 1;
 		c.weightx = 1;
-		c.gridwidth = 1;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.insets = new Insets(3, 3, 3, 3);
 		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.BOTH;
-		//c.gridwidth = 1;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		add(globalPanel, c);
+		c.gridy++;
+		c.gridwidth = 1;
 		for (c.gridx = 0; c.gridx < surveillanceParameterPanels.length; c.gridx++) 
 		{
 			add(surveillanceParameterPanels[c.gridx], c);
@@ -283,21 +294,30 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 	
 	public void actionPerformed(ActionEvent e) 
 	{
+		
 		int actionType = 0;
 		int panelType = -1;
 		JButton[] currentArray = null;
-		for (;actionType <= REMOVE; actionType++) 
+		if(e.getSource() == payloadLoggingCheckBox)
 		{
-			currentArray = (actionType == ADD) ? addButtons : removeButtons;
-			for (int i = 0; i < currentArray.length; i++) 
+			saveAfterAction();
+			return;
+		}
+		else
+		{
+			for (;actionType <= REMOVE; actionType++) 
 			{
-				if(e.getSource() == currentArray[i])
+				currentArray = (actionType == ADD) ? addButtons : removeButtons;
+				for (int i = 0; i < currentArray.length; i++) 
 				{
-					if(actionType == ADD) addInput(i);
-					else removeSelectedParameter(i);
-					enableComponents();
-					saveAfterAction();
-					return;
+					if(e.getSource() == currentArray[i])
+					{
+						if(actionType == ADD) addInput(i);
+						else removeSelectedParameter(i);
+						enableComponents();
+						saveAfterAction();
+						return;
+					}
 				}
 			}
 		}
@@ -403,6 +423,8 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 				
 			if(crimeDetectionRoot != null)
 			{
+				payloadLoggingCheckBox.setSelected(
+						XMLUtil.parseAttribute(crimeDetectionRoot, XML_ATTR_LOG_PAYLOAD, false));
 				NodeList crimeDetectionElements = null;
 				String textContent = null;
 				for (int panelIndex = 0; panelIndex < PANELS; panelIndex++)
@@ -481,6 +503,8 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 			Element oldCrimeDetectionRoot = (nl.getLength() > 0) ? (Element) nl.item(0) : null;
 			if(crimeDetectionRoot.hasChildNodes())
 			{
+				crimeDetectionRoot.setAttribute(XML_ATTR_LOG_PAYLOAD, 
+						Boolean.toString(payloadLoggingCheckBox.isSelected()));
 				if(oldCrimeDetectionRoot != null)
 				{
 					oldCrimeDetectionRoot.getParentNode().replaceChild(crimeDetectionRoot, oldCrimeDetectionRoot);
