@@ -658,10 +658,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 							}
 						}
 					}
-					else
-					{
-						bMissingTemplates = true;
-					}
 				}
 				
 				
@@ -1898,13 +1894,12 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 					allRefIds[i] = null;
 					continue;
 				}
+
 				currentTemplateURL = new URL(currentTemplateURLValue);
 				template = getTemplateFromURL(currentTemplateURL);
-			} catch (MalformedURLException e) {
-				LogHolder.log(LogLevel.ERR, LogType.MISC, "Could not load template, reason: "+e.getMessage());
-			} catch (IOException e) {
-				LogHolder.log(LogLevel.ERR, LogType.MISC, "Could not load template, reason: "+e.getMessage());
-			} catch (XMLParseException e) {
+			} 
+			catch (Exception e) 
+			{
 				LogHolder.log(LogLevel.ERR, LogType.MISC, "Could not load template, reason: "+e.getMessage());
 			} 
 			finally
@@ -1913,7 +1908,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				if(template != null)
 				{
 					Database.getInstance(TermsAndConditionsTemplate.class).update(template);
-					if(!isTemplateReferenceIdInComboBox(template.getId()))
+					//if(!isTemplateReferenceIdInComboBox(template.getId()))
 					{
 						refIdItem = new TemplateReferenceID(template.getId(), currentTemplateURL);
 					}
@@ -1924,13 +1919,16 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 							currentElement.getAttribute(IXMLEncodable.XML_ATTR_ID),
 							currentTemplateURL);
 				}
-				allRefIds[i] = refIdItem;
+				if(refIdItem == null || !isTemplateReferenceIdInComboBox(refIdItem.getReferenceID()))
+				{
+					allRefIds[i] = refIdItem;
+				}
 			}
-			
-			for (TemplateReferenceID refId : allRefIds) 
-			{
-				if(refId != null) updateObject(m_cbReferenceIDs, refId, false);
-			}
+		}
+		
+		for (TemplateReferenceID refId : allRefIds) 
+		{
+			if(refId != null) updateObject(m_cbReferenceIDs, refId, false);
 		}
 	}
 	
