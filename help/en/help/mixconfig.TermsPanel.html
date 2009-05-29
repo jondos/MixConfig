@@ -1,0 +1,125 @@
+<html>
+<head>
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="xhelpfrms.css">
+</head>
+
+<body>
+<!--#include virtual="/header_en.html"-->
+
+<h2>Terms and Conditions Panel</h2>
+This panel enables you to define standard terms and conditions for the usage of
+your Mix services. You may also use these terms for selling JonDonym coupon
+codes. 
+
+<p><strong>Typical usage</strong></p>
+<ul>
+  <li>Load the currently available templates using the "InfoService..."
+  button.</li>
+  <li>Add translations for the languages that you would like to support.</li>
+  <li>Click on the "Preview" button in order to see the template contents. Then
+    choose the right template(s) for your jurisdiction. </li>
+  <li>Add the missing information about your organisation.</li>
+  <li>Select each of your translations, export each of the related templates
+    into a file, copy these template files to your Mix server and edit the
+    template paths so that they point to their paths on your Mix server.</li>
+</ul>
+
+<p>If you have more than one Mix, you do not need to repeat all these steps:
+just click on "Load from config" to load the terms and condition settings from
+another one of your Mix configurations.</p>
+
+<h3>Template</h3>
+
+<p>You may install one ore more templates for your terms and conditions. The
+templates contain complete terms and condition texts and are available for
+different languages and jurisdictions. If you have an online access, you may
+download the currently available templates from the InfoServices. You may also
+import them from a file.</p>
+
+<p>The templates themselves will not be stored in your Mix configuration. The
+configuration stores only references to the template IDs, and a URI to the
+storage path of the template. For each template, you have to specify a URI
+where the Mix may get it from on startup. <strong>It is recommended</strong>
+that you store the template(s) that you want to use in a file on your Mix
+server, and that you specify the path to this file / these files for each
+respective template.</p>
+<ul>
+  <li><b>Delete</b><br>
+    Deletes the selected template.</li>
+  <li><b>InfoService...</b><br>
+    Loads all available templates from the InfoServices. The URIs for your
+    templates that you have defined will not change if you reload them
+  here.</li>
+  <li><b>File...</b><br>
+    Loads the templates of your choice from local files. You will not need this
+    function if you can get a connection to the InfoServices (see above). The
+    URIs for your templates that you have defined will not change if you reload
+    them here.</li>
+  <li><b>Export</b><br>
+    Exports the selected template to a local file. <strong>This is highly
+    recommended for the templates of your choice.</strong> Put these templates
+    somewhere on your Mix server, so that the Mix has them always available.
+    This option is only available if the template is loaded.</li>
+</ul>
+
+<h3>Translation</h3>
+
+<p>The translations are your concrete definitions of terms and conditions. They
+define the languages in which you will provide your terms and conditions to the
+users. You may edit the text of each translation and thereby change the
+template(s) so that they optimally fit to your needs. <strong>Note that the
+templates are available for a few languages and jurisdictions only.</strong> If
+you would like to have templates for other languages or other jurisdictions,
+you might want to create and publish them over the JonDonym system.</p>
+
+<p>For each translation, a template exists. <strong>Please note that, if you
+select anther template in the template panel on the left side, your translation
+will immediatly change its content.</strong> You therefore should make a
+preview of your terms and conditions for each language before publishing it.
+Unlike the templates, switching between the languages/translations does not
+change anything in your configuration.</p>
+<ul>
+  <li><b>Language</b><br>
+    The language of the currently edited translation. You may switch between
+    your different translations here.</li>
+  <li><b>Delete</b><br>
+    Deletes the selected translation and the changes that you have done to
+  it.</li>
+  <li><b>Add</b><br>
+    Lets you choose the language for a new translation.</li>
+  <li><b>Default</b><br>
+    Sets the default language that the user gets shown if no translation for
+    his language is available. Typically, you should not need this button and
+    let the default staying on "english".</li>
+  <li><b>Preview (also allows you to save the document to a file)</b><br>
+    Shows the translation in an HTML document and allows you to save this
+    translation to a file.</li>
+</ul>
+
+<h3>Operator description (general)</h3>
+Some information that will be part of your terms and conditions are extracted
+from your Operator certificate. Please enter the missing information here.
+Please enter at least "Street", "ZIP/City" and "Venue". The other information
+is optional if you do not have it. <strong>The information given here will be
+the default for all translations.</strong>
+
+<h3>Operator description in ...</h3>
+
+<p>For each translation, you may enter specific information about yu that will
+overwrite the general information if given. This might be a good idea for
+example for locations that are differently written in other languages.</p>
+<ul>
+  <li><b>Edit content</b><br>
+    This button opens an edit dialog. You may then delete, add and alter all
+    sections and paragraphs of your terms and conditions. Please note that you
+    should, before making any changes to the tempaltes, consult a lawyer.</li>
+  <li><b>Load from config</b><br>
+    Loads all translations from another Mix configuration. This is very useful
+    if you do are running more than one Mix service.</li>
+</ul>
+
+<p><!--#include virtual="/footer_en.html"-->
+</p>
+</body>
+</html>

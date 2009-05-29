@@ -61,7 +61,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
 import logging.LogType;
@@ -96,6 +99,9 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	static final String MSG_BUTTON_FROM_TEMPLATE =  TermsAndConditionsContentDialog.class.getName() + "_btnFromTemplate";
 	static final String MSG_BUTTON_CAPITALIZE =  TermsAndConditionsContentDialog.class.getName() + "_btnCapitalize";
 	static final String MSG_BUTTON_BOLD =  TermsAndConditionsContentDialog.class.getName() + "_btnBold";
+	static final String MSG_BUTTON_URL_TAG =  TermsAndConditionsContentDialog.class.getName() + "_btnUrlTag";
+	
+	static final String URL_TAG = "<Url></Url>";
 	
 	private TermsAndConditionsPanel parentPanel;
 	
@@ -112,6 +118,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	private JButton fromTemplateButton;
 	private JButton capitalizeButton;
 	private JButton boldButton;
+	private JButton urlTagButton;
 	
 	private JButton previewButton;
 	private JButton okButton;
@@ -164,10 +171,12 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		fromTemplateButton = new JButton(JAPMessages.getString(MSG_BUTTON_FROM_TEMPLATE));
 		capitalizeButton = new JButton(JAPMessages.getString(MSG_BUTTON_CAPITALIZE));
 		boldButton = new JButton(JAPMessages.getString(MSG_BUTTON_BOLD));
+		urlTagButton = new JButton(JAPMessages.getString(MSG_BUTTON_URL_TAG));
 		
 		contentActionButtonPanel.add(fromTemplateButton);
 		contentActionButtonPanel.add(capitalizeButton);
 		contentActionButtonPanel.add(boldButton);
+		contentActionButtonPanel.add(urlTagButton);
 		
 		previewButton =  new JButton(JAPMessages.getString(TermsAndConditionsPanel.MSG_PREVIEW));
 		okButton = new JButton(JAPMessages.getString(DialogContentPane.MSG_OK));
@@ -204,6 +213,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		fromTemplateButton.addActionListener(this);
 		capitalizeButton.addActionListener(this);
 		boldButton.addActionListener(this);
+		urlTagButton.addActionListener(this);
 		previewButton.addActionListener(this);
 		okButton.addActionListener(this);
 		cancelButton.addActionListener(this);
@@ -414,6 +424,10 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		else if(e.getSource() == boldButton)
 		{
 			actionSetContentBold();
+		}
+		else if(e.getSource() == urlTagButton)
+		{
+			actionAddUrlTag();
 		}
 		else if(e.getSource() == previewButton)
 		{
@@ -735,6 +749,26 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			//the whole paragraph list
 			translationText.setText(p.toString());
 		}
+	}
+	
+	private void actionAddUrlTag()
+	{
+		String text = translationText.getText();
+		int dot = 0;
+		if( (text == null) && text.equals(""))
+		{
+			editParagraph(URL_TAG);		
+		}
+		else
+		{
+			//TODO: still appends to the end of the text
+			dot = translationText.getCaretPosition();
+			System.out.println(dot);
+			StringBuffer buffer = new StringBuffer(text);
+			buffer.insert(dot, URL_TAG);
+			editParagraph(buffer.toString());
+		}
+		
 	}
 	
 	//TODO: If the Java 1.1 source restriction of the Anonlib classes is 
