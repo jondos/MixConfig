@@ -55,6 +55,11 @@ public class LinkedEmailComposer implements ILinkedInformation {
 	{
 		return false;
 	}
+	
+	public boolean isModal() 
+	{
+		return true;
+	}
 
 	public String getTooltipText() {
 		// TODO Auto-generated method stub

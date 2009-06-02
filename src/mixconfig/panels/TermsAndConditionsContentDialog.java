@@ -142,6 +142,8 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	private TCComposite templateSections = null;
 	private TCComposite translationSections = null;
 	
+	private int lastCaretPosition = 0;
+	
 	private TermsAndConditionsContentDialog(TermsAndConditionsPanel parentPanel, TermsAndConditionsTemplate template,
 			TermsAndConditionsTranslation translation) 
 	{
@@ -226,7 +228,6 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		
 		templateText.setLineWrap(true);
 		translationText.setLineWrap(true);
-		
 		ListCellRenderer tcComponentRenderer = new TCComponentListItemRenderer();
 		//initialize renderers
 		sectionChoice.setRenderer(tcComponentRenderer);
@@ -762,10 +763,9 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		else
 		{
 			//TODO: still appends to the end of the text
-			dot = translationText.getCaretPosition();
-			System.out.println(dot);
+			System.out.println(lastCaretPosition);
 			StringBuffer buffer = new StringBuffer(text);
-			buffer.insert(dot, URL_TAG);
+			buffer.insert(lastCaretPosition, URL_TAG);
 			editParagraph(buffer.toString());
 		}
 		
@@ -902,7 +902,10 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	}
 	
 	/** FocusListener implementation */
-	public void focusGained(FocusEvent e) {}
+	public void focusGained(FocusEvent e) 
+	{
+		lastCaretPosition = translationText.getCaretPosition();
+	}
 
 	public void focusLost(FocusEvent e) 
 	{

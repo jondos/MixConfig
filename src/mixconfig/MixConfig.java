@@ -88,7 +88,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_P10 = 32;
 	public final static int FILTER_B64_P10 = 64;
 
-	public final static String VERSION = "00.05.012";  //NEVER change the layout of this line!!
+	public final static String VERSION = "00.05.013";  //NEVER change the layout of this line!!
 	
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -382,6 +382,11 @@ public class MixConfig extends JApplet
 	 */
 	public static void info(String a_title, String[] a_message)
 	{
+		info(a_title, a_message, false);
+	}
+	
+	public static void info(String a_title, String[] a_message, boolean a_bBlocking)
+	{
 		String message = "";
 		if (a_message == null || a_message.length == 0)
 		{
@@ -404,7 +409,20 @@ public class MixConfig extends JApplet
 				message +=  "<LI>" + a_message[i] + "</LI>";
 			}
 			message += "</UL>";
-			JAPDialog.showMessageDialog(getMainWindow(), message, a_title);
+			if (a_bBlocking)
+			{
+				JAPDialog.showMessageDialog(getMainWindow(), message, a_title);
+			}
+			else
+			{
+				JAPDialog.showMessageDialog(getMainWindow(), message, a_title, new JAPDialog.LinkedInformationAdapter()
+				{
+					public boolean isModal()
+					{
+						return false;
+					}
+				});
+			}
 		}
 	}
 
