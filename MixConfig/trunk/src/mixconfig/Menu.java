@@ -352,7 +352,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 				String[] msg = m_configFrame_Panel.check();
 				if (msg != null && msg.length > 0)
 				{
-					MixConfig.info("Inconsistencies found", msg);
+					MixConfig.info("Inconsistencies found", msg, false);
 				}
 				else
 				{
@@ -634,7 +634,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 					               "Inconsistencies found");
 			if (!bIgnore)
 			{
-				MixConfig.info("Inconsistencies found", msg);
+				MixConfig.info("Inconsistencies found", msg, false);
 			}
 		}
 		return bIgnore;

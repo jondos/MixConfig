@@ -38,7 +38,8 @@ public class MixConfigTextField extends JTextField {
 	private final class MixConfigDocument extends PlainDocument
 	{
 		// Blacklist of characters that may not be entered
-		String sBlacklistedChars = "\u00FC\u00FC\u00C4\u00E4\u00D6\u00F6<>&"; //Ue ue Ae ae Oe oe
+		//String sBlacklistedChars = "\u00FC\u00FC\u00C4\u00E4\u00D6\u00F6<>&"; //Ue ue Ae ae Oe oe
+		String sBlacklistedChars = "<>&"; //Ue ue Ae ae Oe oe
         String sRegexAllowedChar = "[^"+sBlacklistedChars+"]";
         
         // Compile blacklisted chars for replacing them in strings with length > 1

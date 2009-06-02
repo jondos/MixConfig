@@ -672,7 +672,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				
 				if (bMissingTemplates)
 				{
-					JAPDialog.showWarningDialog(MixConfig.getMainWindow(), "You do not have proper templates for all of your terms translations! Please check the results by a preview.");
+					JAPDialog.showWarningDialog(MixConfig.getMainWindow(), "You do not have proper templates for all of your terms translations! Please check the results by a preview, especially if you provide the right language template(s) for your translations.");
 				}
 				else if (bWarnEditedTemplates)
 				{
