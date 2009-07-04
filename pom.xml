@@ -2,6 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>anon</groupId>
   <artifactId>MixConfig</artifactId>
+  <name>MixConfig</name>
   <version>00.05.014-SNAPSHOT</version>
  <repositories>
   <repository>
@@ -11,6 +12,18 @@
   
    
   </repositories>
+ <url>http://anon.inf.tu-dresden.de/develop/MixConfig.html</url>
+ <build>
+ 	<plugins>
+ 		<plugin>
+ 			<artifactId>maven-compiler-plugin</artifactId>
+ 			<configuration>
+ 			<source>1.5</source>
+ 			<target>1.5</target>
+ 			</configuration>
+ 		</plugin>
+ 	</plugins>
+ </build>
  <profiles>
  <profile>
   <id>anon-cc-dev</id>
