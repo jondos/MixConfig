@@ -64,7 +64,7 @@ public class AllTests
 		LogHolder.setDetailLevel(LogHolder.DETAIL_LEVEL_HIGHEST);
 
 		TestSuite suite = new TestSuite("All tests.");
-		suite.addTest(anon.test.AllTests.suite());
+		//suite.addTest(anon.test.AllTests.suite());
 		return suite;
 	}
 }
