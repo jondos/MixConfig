@@ -4,10 +4,10 @@
 	<classpathentry excluding="**" kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/BouncyCastleLightForJap"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/anonlib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/guilib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/logginglib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/BouncyCastleLightForAN.ON"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
