@@ -28,12 +28,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package mixconfig.panels;
 
+import gui.ButtonConstants;
+import gui.ClipFrame;
 import gui.GUIUtils;
-import gui.TitledGridBagPanel;
+import gui.JAPHelpContext;
+import gui.dialog.DialogContentPane;
 import gui.dialog.JAPDialog;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -41,11 +43,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -54,34 +55,40 @@ import java.util.regex.PatternSyntaxException;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
+
+import logging.LogHolder;
+import logging.LogLevel;
+import logging.LogType;
+import mixconfig.MixConfig;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import logging.LogHolder;
-import logging.LogLevel;
-import logging.LogType;
-import gui.ButtonConstants;
-
 import anon.util.JAPMessages;
+import anon.util.XMLParseException;
 import anon.util.XMLUtil;
 
 public class LogCrimePanel extends MixConfigPanel implements ActionListener, KeyListener
 {
 
 	private static final String MSG_CRIME_TITLE = LogCrimePanel.class.getName() + "_title";
+	private static final String MSG_GLOBAL_PARAMS = LogCrimePanel.class.getName() + "_globalParams";
+	private static final String MSG_LOG_PAYLOAD = LogCrimePanel.class.getName() + "_logPayload";
 	private static final String MSG_URL_PANEL_NAME = LogCrimePanel.class.getName() + "_urlPanelName";
 	private static final String MSG_PAYLOAD_PANEL_NAME = LogCrimePanel.class.getName() + "_payloadPanelName";
 	private static final String MSG_IP_PANEL_NAME = LogCrimePanel.class.getName() + "_ipPanelName";
 	private static final String MSG_INVALID_REGEXP = LogCrimePanel.class.getName() + "_invalidRegExp";
 	private static final String MSG_INVALID_IP = LogCrimePanel.class.getName() + "_invalidIP";
+	private static final String MSG_CHOOSE_LOAD_METHOD = LogCrimePanel.class.getName() + "_chooseLoadMethod";
+	private static final String MSG_CHOOSE_SAVE_METHOD = LogCrimePanel.class.getName() + "_chooseSaveMethod";
+	
 	
 	private static final String XML_ELEMENT_CRIME_DETECTION = "CrimeDetection";
 	private static final String XML_ELEMENT_REG_EXP_URL = "RegExpURL";
@@ -107,8 +114,10 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 	private static final String[] PANEL_INPUT_ERROR_KEYS = 
 		new String[]{MSG_INVALID_REGEXP, MSG_INVALID_REGEXP, MSG_INVALID_IP};
 	
-	private TitledGridBagPanel globalPanel;
+	private JPanel globalPanel;
 	private JCheckBox payloadLoggingCheckBox;
+	private JButton m_btnImport;
+	private JButton m_btnExport;
 	
 	private JButton[] addButtons;
 	private JButton[] removeButtons;
@@ -140,11 +149,8 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 
 	private void initComponents()
 	{
-		globalPanel = new TitledGridBagPanel("Global Parameters");
-		payloadLoggingCheckBox = new JCheckBox();
-		payloadLoggingCheckBox.addActionListener(this);
-		globalPanel.addRow(GUIUtils.createLabel("Log Payload"), payloadLoggingCheckBox);
-		
+		//globalPanel = new JPTitledGridBagPanel(JAPMessages.getString(MSG_GLOBAL_PARAMS));
+		initGlobalPanel();
 		addButtons = new JButton[PANELS];
 		removeButtons = new JButton[PANELS];
 		parameterBoxes = new JComboBox[PANELS];
@@ -195,7 +201,7 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 	{
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridheight = 1;
-		c.weighty = 1;
+		c.weighty = 0;
 		c.weightx = 1;
 		c.gridx = 0;
 		c.gridy = 0;
@@ -212,6 +218,7 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 		}
 		c.gridx = 0;
 		c.gridy++;
+		c.weighty = 1;
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		add(dataRetentionPanel, c);
 	}
@@ -239,16 +246,56 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 
 	public String getHelpContext() 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return JAPHelpContext.INDEX;
 	}
 
 	public Component getHelpExtractionDisplayContext() 
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	private void initGlobalPanel()
+	{
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridheight = 1;
+		c.gridwidth = 1;
+		c.weighty = 0;
+		c.weightx = 0;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.insets = new Insets(3, 3, 3, 3);
+		c.anchor = GridBagConstraints.WEST;
+		c.fill = GridBagConstraints.NONE;
+		
+		globalPanel = new JPanel();
+		globalPanel.setLayout(new GridBagLayout());
+		globalPanel.setBorder(new TitledBorder(JAPMessages.getString(MSG_GLOBAL_PARAMS)));
+		
+		m_btnImport = new JButton("Import");
+		m_btnImport.addActionListener(this);
+		globalPanel.add(m_btnImport, c);
+		
+		m_btnExport = new JButton("Export");
+		m_btnExport.addActionListener(this);
+		c.gridx++;
+		globalPanel.add(m_btnExport, c);
+		
+		payloadLoggingCheckBox = new JCheckBox();
+		payloadLoggingCheckBox.addActionListener(this);
+		c.gridy++;
+		c.gridx = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		globalPanel.add(GUIUtils.createLabel(MSG_LOG_PAYLOAD), c);
+
+		c.gridx++;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		c.weightx = 1;
+		globalPanel.add(payloadLoggingCheckBox, c);
+		
+		
+		
+	}
+	
 	private static JPanel createSurveillanceParameterPanel(String nameKey,
 			JComboBox parameters, JButton removeButton, JTextComponent inputComponent, JButton addButton)
 	{
@@ -296,12 +343,53 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 	{
 		
 		int actionType = 0;
-		int panelType = -1;
 		JButton[] currentArray = null;
 		if(e.getSource() == payloadLoggingCheckBox)
 		{
 			saveAfterAction();
 			return;
+		}
+		else if (e.getSource() == m_btnImport)
+		{
+			byte [] data;
+			JAPDialog dialog = new JAPDialog(this, "Import crime detection settings");
+			ChooseStorageMethodPane pane =
+				new ChooseStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_LOAD_METHOD));
+			pane.updateDialog();
+			dialog.pack();
+			dialog.setResizable(false);
+			dialog.setVisible(true);
+			if (pane.getButtonValue() != DialogContentPane.RETURN_VALUE_OK)
+			{
+				return;
+			}
+			if (pane.isMethodFile())
+			{
+				data = MixConfig.openFile(this, MixConfig.FILTER_XML);
+				if (data == null)
+				{
+					return;
+				}
+			}
+			else
+			{
+				data = GUIUtils.getTextFromClipboard(this).getBytes();
+			}
+			try
+			{
+				Element node = XMLUtil.toXMLDocument(data).getDocumentElement();
+				XMLUtil.assertNodeName(node, XML_ELEMENT_CRIME_DETECTION);
+				save(node);
+				load();
+			}
+			catch (Exception a_e)
+			{
+				JAPDialog.showErrorDialog(this, "Cannot read imported settings. They might be damaged.", LogType.GUI, a_e);
+			}
+		}
+		else if (e.getSource() == m_btnExport)
+		{
+			exportCert();
 		}
 		else
 		{
@@ -322,6 +410,99 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 			}
 		}
 	}
+	
+	private void exportCert()
+	{
+		JFileChooser fd;
+		FileFilter ff;
+		File file = null;
+		
+		Element crimeDetectionRoot = (Element) XMLUtil.getFirstChildByName(
+				getConfiguration().getDocument().getDocumentElement(), 
+				XML_ELEMENT_CRIME_DETECTION);
+		
+		if (crimeDetectionRoot == null)
+		{
+			return;
+		}
+		
+	
+		JAPDialog dialog = new JAPDialog(this, "Export crime detection settings");
+		ChooseStorageMethodPane pane =
+			new ChooseStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_SAVE_METHOD));
+
+		pane.updateDialog();
+		dialog.pack();
+		dialog.setResizable(false);
+		dialog.setVisible(true);
+		
+		
+		if (pane.getButtonValue() != DialogContentPane.RETURN_VALUE_OK)
+		{
+			return;
+		}
+		
+		Document doc = XMLUtil.createDocument();
+		try
+		{
+			doc.appendChild(XMLUtil.importNode(doc, crimeDetectionRoot, true));
+		}
+		catch (XMLParseException a_e)
+		{
+			JAPDialog.showErrorDialog(this, LogType.MISC, a_e);
+			return;
+		}
+
+		if (pane.isMethodFile())
+		{
+			do
+			{
+				fd = MixConfig.showFileDialog(this, MixConfig.SAVE_DIALOG, MixConfig.FILTER_XML);
+				if (fd == null)
+				{
+					return; // canceled
+				}
+				
+				file = fd.getSelectedFile();
+				if (file != null)
+				{
+					String fname = file.getName();
+					if (fname.indexOf('.') < 0)
+					{
+						file = new File(file.getParent(), fname + ".xml");
+					}
+				}
+			}
+			while (file != null && file.exists() &&
+				   (JAPDialog.showConfirmDialog(
+					   this, JAPMessages.getString(ChooseStorageMethodPane.MSG_CONFIRM_OVERWRITE),
+					   JAPDialog.OPTION_TYPE_OK_CANCEL,
+					   JAPDialog.MESSAGE_TYPE_QUESTION) != JAPDialog.RETURN_VALUE_OK));
+			
+			try
+			{
+				if (file != null)
+				{
+					XMLUtil.write(doc, file);
+				}
+			}
+			catch (IOException a_e)
+			{				
+				ClipFrame save =
+					new ClipFrame(this,
+								  "I/O error while saving, try clipboard. " +
+								  "Copy and Save this file in a new Location.",
+								  false);
+				save.setText(XMLUtil.toString(doc));
+				save.setVisible(true);
+			}
+		}
+		else
+		{
+			GUIUtils.saveTextToClipboard(XMLUtil.toString(doc), this);
+		}
+	}
+	
 	
 	private void addInput(int panelIndex)
 	{
@@ -375,7 +556,7 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 		
 		try
 		{
-			Pattern p = Pattern.compile(regExp.trim());
+			Pattern.compile(regExp.trim());
 		}
 		catch(PatternSyntaxException e)
 		{
@@ -470,58 +651,81 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 	
 	public void save() throws IOException 
 	{
+		save((Element)null);
+	}
+	
+	private void save(Element a_configElement) throws IOException 
+	{
 		
 		Document configDoc =
 			(getConfiguration() != null) ? getConfiguration().getDocument() : null;
+		NodeList nl = null;
+		Element crimeDetectionRoot = a_configElement;
 		
-		if( (configDoc != null) && 
-			(configDoc.getDocumentElement() != null) )
+		if (crimeDetectionRoot != null && configDoc != null)
 		{
-			Element crimeDetectionRoot = 
-				configDoc.createElement(XML_ELEMENT_CRIME_DETECTION);
-			String textContent = null;
-			Object selectedItem = null;
-			
-			for (int panelIndex = 0; panelIndex < PANELS; panelIndex++)
+			try
 			{
-				for (int i = 0; i < parameterBoxes[panelIndex].getItemCount(); i++) 
+				crimeDetectionRoot = (Element)XMLUtil.importNode(configDoc, crimeDetectionRoot, true);
+			}
+			catch (XMLParseException a_e)
+			{
+				LogHolder.log(LogLevel.EXCEPTION, LogType.MISC, a_e);
+				throw new IOException("Error while importing node!");
+			}
+		}
+		
+		if (configDoc != null && configDoc.getDocumentElement() != null)
+		{
+			nl = configDoc.getElementsByTagName(XML_ELEMENT_CRIME_DETECTION);
+			
+			if (crimeDetectionRoot == null)
+			{
+				crimeDetectionRoot = 
+					configDoc.createElement(XML_ELEMENT_CRIME_DETECTION);
+				Object selectedItem = null;
+				
+				for (int panelIndex = 0; panelIndex < PANELS; panelIndex++)
 				{
-					selectedItem = parameterBoxes[panelIndex].getItemAt(i);
-					if((selectedItem != null) && 
-						(selectedItem instanceof String) )
+					for (int i = 0; i < parameterBoxes[panelIndex].getItemCount(); i++) 
 					{
-						Element parameterElement = 
-							configDoc.createElement(XML_ELEMENT_NAMES[panelIndex]);
-						parameterElement.setTextContent(((String)selectedItem).trim());
-						crimeDetectionRoot.appendChild(parameterElement);
+						selectedItem = parameterBoxes[panelIndex].getItemAt(i);
+						if((selectedItem != null) && 
+							(selectedItem instanceof String) )
+						{
+							Element parameterElement = 
+								configDoc.createElement(XML_ELEMENT_NAMES[panelIndex]);
+							parameterElement.setTextContent(((String)selectedItem).trim());
+							crimeDetectionRoot.appendChild(parameterElement);
+						}
 					}
 				}
-			}
-			
-			NodeList nl = configDoc.getElementsByTagName(XML_ELEMENT_CRIME_DETECTION);
-			
-			Element oldCrimeDetectionRoot = (nl.getLength() > 0) ? (Element) nl.item(0) : null;
-			if(crimeDetectionRoot.hasChildNodes())
-			{
+				
 				crimeDetectionRoot.setAttribute(XML_ATTR_LOG_PAYLOAD, 
 						Boolean.toString(payloadLoggingCheckBox.isSelected()));
-				if(oldCrimeDetectionRoot != null)
-				{
-					oldCrimeDetectionRoot.getParentNode().replaceChild(crimeDetectionRoot, oldCrimeDetectionRoot);
-				}
-				else
-				{
-					configDoc.getDocumentElement().appendChild(crimeDetectionRoot);
-				}
 			}
-			else
+		}
+		
+		
+		Element oldCrimeDetectionRoot = (nl != null && nl.getLength() > 0) ? (Element) nl.item(0) : null;		
+		if (crimeDetectionRoot != null && crimeDetectionRoot.hasChildNodes())
+		{			
+			if (oldCrimeDetectionRoot != null)
 			{
-				if(oldCrimeDetectionRoot != null)
-				{
-					oldCrimeDetectionRoot.getParentNode().removeChild(oldCrimeDetectionRoot);
-				}
+				oldCrimeDetectionRoot.getParentNode().replaceChild(crimeDetectionRoot, oldCrimeDetectionRoot);
 			}
-		}	
+			else if (configDoc != null)
+			{
+				configDoc.getDocumentElement().appendChild(crimeDetectionRoot);
+			}
+		}
+		else
+		{
+			if (oldCrimeDetectionRoot != null)
+			{
+				oldCrimeDetectionRoot.getParentNode().removeChild(oldCrimeDetectionRoot);
+			}
+		}
 	}
 
 	public void itemStateChanged(ItemEvent ie) 

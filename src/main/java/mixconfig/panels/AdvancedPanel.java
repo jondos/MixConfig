@@ -27,6 +27,7 @@
  */
 package mixconfig.panels;
 
+import gui.GUIUtils;
 import gui.JAPHelpContext;
 import gui.JAPJIntField;
 import gui.MixConfigTextField;
@@ -96,7 +97,16 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 	private static final String MSG_LOG_DIR = AdvancedPanel.class.getName() + "_logDir";
 	private static final String MSG_COMPRESS_LOG = AdvancedPanel.class.getName() + "_compressLog";
 	private static final String MSG_LOG_SYSLOG = AdvancedPanel.class.getName() + "_logSyslog";
+	
+	private static final String MSG_LOG_LABEL_MAX_FILE_SIZE = AdvancedPanel.class.getName() + "_logLabelMaxFileSize";
+	private static final String MSG_LOG_LABEL_MAX_FILES = AdvancedPanel.class.getName() + "_logLabelMaxFiles";
 
+	private static final String XML_ELEMENT_GENERAL = "General";
+	private static final String XML_ELEMENT_LOGGING = "Logging";
+	private static final String XML_ATTR_COMPRESSED = "compressed";
+	private static final String XML_ATTR_MAX_LOG_FILE_SIZE = "MaxFileSize";
+	private static final String XML_ATTR_MAX_LOG_FILES = "MaxFiles";
+	
 	// Panels
 	private TitledGridBagPanel m_panelLogging, m_panelMonitoring, m_panelTrafficShaping, m_panelMisc;
 	private CertPanel m_panelLogCert;
@@ -111,7 +121,8 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 	private JAPJIntField m_tfBytesPerInterval, m_tfUnshapedTraffic;
 	// User ID, File descriptors and max number of users
 	private MixConfigTextField m_tfUID;
-	private JAPJIntField m_tfNumFileDesc, m_tfMaxUsers;
+	private JAPJIntField m_tfNumFileDesc, m_tfMaxUsers, 
+		m_tfMaxLogFileSize, m_tfMaxLogFiles;
 	
 	// Other components:
 	private JLabel m_lblMaxUsers; // Might be disabled
@@ -158,7 +169,18 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 		m_tfFileName = new MixConfigTextField();
 		m_tfFileName.addFocusListener(this);
 		m_tfFileName.setEnabled(false);
+		
+		m_tfMaxLogFiles = new JAPJIntField();
+		m_tfMaxLogFiles.addFocusListener(this);
+		m_tfMaxLogFiles.setEnabled(false);
+		
+		m_tfMaxLogFileSize = new JAPJIntField();
+		m_tfMaxLogFileSize.addFocusListener(this);
+		m_tfMaxLogFileSize.setEnabled(false);
+		
 		m_panelLogging.addRow(m_rbFile, m_tfFileName);
+		m_panelLogging.addRow(GUIUtils.createLabel(MSG_LOG_LABEL_MAX_FILE_SIZE), m_tfMaxLogFileSize);
+		m_panelLogging.addRow(GUIUtils.createLabel(MSG_LOG_LABEL_MAX_FILES), m_tfMaxLogFiles);
 		// Compress Log JCheckBox
 		m_cbCompressLog = new JCheckBox(JAPMessages.getString(MSG_COMPRESS_LOG));
 		m_cbCompressLog.addItemListener(this);
@@ -315,6 +337,8 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 		else if (s == m_rbFile)
 		{
 			m_tfFileName.setEnabled(m_rbFile.isSelected());
+			m_tfMaxLogFileSize.setEnabled(m_rbFile.isSelected());
+			m_tfMaxLogFiles.setEnabled(m_rbFile.isSelected());
 			m_cbCompressLog.setEnabled(m_rbFile.isSelected());
 			m_panelLogCert.setEnabled(m_rbFile.isSelected());
 			if (!m_rbFile.isSelected())
@@ -337,7 +361,8 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 		}
 		else if (s == m_cbCompressLog)
 		{
-			focusLost(new FocusEvent(m_tfFileName, 0));
+			setDirectoryLoggingValues();
+			//focusLost(new FocusEvent(m_tfFileName, 0));
 		}
 		else if (s == m_cbDaemon)
 		{
@@ -445,17 +470,70 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 		}
 	}
 
+	private void setDirectoryLoggingValues()
+	{
+		int iMaxLogFileSize;
+		int iMaxLogFiles;
+		MixConfiguration c = getConfiguration();
+		c.removeNode("General/Logging/EncryptedLog/File");
+		c.removeNode("General/Logging/File");
+		
+		String attributes[] = 
+			new String[]{
+				XML_ATTR_MAX_LOG_FILE_SIZE, 
+				XML_ATTR_MAX_LOG_FILES,
+				XML_ATTR_COMPRESSED}; 
+		
+		try
+		{
+			iMaxLogFileSize = m_tfMaxLogFileSize.getInt();
+		}
+		catch (NumberFormatException a_e)
+		{
+			iMaxLogFileSize = -1;
+		}
+				
+		try
+		{
+			iMaxLogFiles = m_tfMaxLogFiles.getInt();
+		}
+		catch (NumberFormatException a_e)
+		{
+			iMaxLogFiles = -1;
+		}
+		
+		String values[] = 
+			new String[]{
+				iMaxLogFileSize > 0 ? 
+						Integer.toString(iMaxLogFileSize*1024*1024) : "", //output value in Mbytes 
+				iMaxLogFiles > 0 ?
+						Integer.toString(iMaxLogFiles) : "",
+				m_cbCompressLog.isSelected() ? "true" : ""};
+		
+		for (int i = 0; i < attributes.length; i++) 
+		{
+			if((values[i] == null) || values[i].equals("") )
+			{
+				c.removeAttribute(m_logFilePath, attributes[i]);
+			}
+			else
+			{
+				c.setAttribute(m_logFilePath, attributes[i], values[i]);
+			}
+		}
+		c.setValue(m_logFilePath, m_tfFileName.getText());
+	}
+	
 	public void focusLost(FocusEvent a_event)
 	{
 		MixConfiguration c = getConfiguration();
 
-		if (a_event.getSource() == m_tfFileName)
+		if ( (a_event.getSource() == m_tfFileName) ||
+			 (a_event.getSource() == m_tfMaxLogFileSize) ||
+			 (a_event.getSource() == m_tfMaxLogFiles) )
 		{
-			c.removeNode("General/Logging/EncryptedLog/File");
-			c.removeNode("General/Logging/File");
-			c.setAttribute(m_logFilePath, "compressed", m_cbCompressLog.isSelected());
-			c.setValue(m_logFilePath, m_tfFileName.getText());
-		}
+			setDirectoryLoggingValues();
+		}	
 		else if (a_event.getSource() == m_tfNumFileDesc)
 		{
 			if (m_tfNumFileDesc.getText().equals(""))
@@ -515,7 +593,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 		// Go to an initial state
 		m_tfFileName.setText("");
 		m_rbNoLog.setSelected(true);
-		m_cbCompressLog.setSelected(false);
+		//m_cbCompressLog.setSelected(false);
 		
 		String s = c.getValue("General/Logging/Console");
 		if (s != null) m_rbConsole.setSelected((new Boolean(s)).booleanValue());
@@ -527,7 +605,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 		if (s != null)
 		{
 			m_tfFileName.setText(s);
-			s = c.getValue(m_logFilePath + "/compressed");
+			s = c.getValue(m_logFilePath + "/"+ XML_ATTR_COMPRESSED);
 			m_cbCompressLog.setSelected((new Boolean(s)).booleanValue());
 			m_rbFile.setSelected(true);
 			m_panelLogCert.setEnabled(true);
@@ -543,9 +621,32 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 		s = c.getValue("General/Logging/File");
 		if (s != null)
 		{
+			
 			m_tfFileName.setText(s);
-			s = c.getValue(m_logFilePath + "/compressed");
+			s = c.getValue(m_logFilePath +"/"+ XML_ATTR_MAX_LOG_FILE_SIZE);
+			
+			if(s != null)
+			{
+				try
+				{
+					m_tfMaxLogFileSize.setInt((Integer.parseInt(s)/(1024*1024)));
+				}
+				catch(NumberFormatException nfe){}
+			}
+			
+			s = c.getValue(m_logFilePath +"/"+ XML_ATTR_MAX_LOG_FILES);
+			if(s != null)
+			{
+				try
+				{
+					m_tfMaxLogFiles.setInt(Integer.parseInt(s));
+				}
+				catch(NumberFormatException nfe){}
+			}
+			
+			s = c.getValue(m_logFilePath + "/"+ XML_ATTR_COMPRESSED);
 			m_cbCompressLog.setSelected( (new Boolean(s)).booleanValue());
+			
 			m_rbFile.setSelected(true);
 		}
 		

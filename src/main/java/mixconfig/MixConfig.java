@@ -27,6 +27,7 @@
  */
 package mixconfig;
 
+import gui.ClipFrame;
 import gui.GUIUtils;
 import gui.dialog.JAPDialog;
 import gui.help.JAPHelp;
@@ -217,8 +218,15 @@ public class MixConfig extends JApplet
 				m_mixConfiguration = new MixConfiguration();
 			}
 			// start with the expert view if a file was loaded.
-			m_startPanel = new ChoicePanel((JFrame)m_MainWindow, null, 
-					(fileLoaded ? ChoicePanel.CARD_EXPERT : ChoicePanel.CARD_CHOICE));
+			if(fileLoaded)
+			{
+				m_startPanel = new ChoicePanel((JFrame)m_MainWindow, null, ChoicePanel.CARD_EXPERT);
+				m_startPanel.setExpertVisible();
+			}
+			else
+			{
+				m_startPanel = new ChoicePanel((JFrame)m_MainWindow, null,ChoicePanel.CARD_CHOICE);
+			}
 			((JFrame)m_MainWindow).setContentPane(m_startPanel);
 			m_MainWindow.pack();
 			GUIUtils.centerOnScreen(m_MainWindow);
@@ -533,6 +541,8 @@ public class MixConfig extends JApplet
 
 	public static byte[] openFile(Component a_component, int type)
 	{
+		try
+		{
 		JFileChooser fileChooser = showFileDialog(a_component, MixConfig.OPEN_DIALOG, type);
 		if (fileChooser == null)
 		{
@@ -553,6 +563,14 @@ public class MixConfig extends JApplet
 										  JAPMessages.getString(MSG_ERROR_OPEN_FILE, file.toString()),
 										  LogType.MISC, e);
 			}
+		}
+		}
+		catch (SecurityException a_e)
+		{
+			ClipFrame open = new ClipFrame(a_component, "Paste the data to be imported in " +
+					   "the area provided.", true);
+			open.setVisible(true);
+			return open.getText().getBytes();
 		}
 		return null;
 	}

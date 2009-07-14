@@ -238,18 +238,9 @@ public class PriceCertPanel extends JPanel implements ActionListener, ChangeList
 		}
 		if (pane.isMethodFile())
 		{
-			try
-			{
-				// Certificate can be imported from an XML-file
-				cert = MixConfig.openFile(this, MixConfig.FILTER_XML);
-			}
-			catch (RuntimeException a_ex)
-			{
-				ClipFrame open = new ClipFrame(this, "Paste the price certificate to be imported in " +
-											   "the provided area.", true);
-				open.setVisible(true);
-				cert = open.getText().getBytes();
-			}
+			// Certificate can be imported from an XML-file
+			cert = MixConfig.openFile(this, MixConfig.FILTER_XML);
+
 			if (cert == null)
 			{
 				return false;

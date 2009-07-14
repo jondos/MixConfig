@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package mixconfig.panels;
 
+import gui.ButtonConstants;
 import gui.GUIUtils;
 import gui.MixConfigTextField;
 import gui.TermsAndConditionsDialog;
@@ -61,15 +62,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
 import logging.LogType;
-import gui.ButtonConstants;
-import gui.MixConfigTextField;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -364,7 +360,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			{
 				loadParagraphList();
 			}
-			
+
 			//set the content of the text-fields and -areas.
 			Section templateSect = getSelectedTemplateSection();
 			Section transSect = getSelectedTranslationSection();
@@ -381,6 +377,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			sectionNameTranslation.setText(
 					(transSect != null) && (transSect.hasContent()) && (transSect.getContent() != null) ? 
 							transSect.getContent().toString().trim() : "");
+			lastCaretPosition = 0;
 			enableComponents();
 		}
 	}
@@ -755,15 +752,12 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	private void actionAddUrlTag()
 	{
 		String text = translationText.getText();
-		int dot = 0;
-		if( (text == null) && text.equals(""))
+		if( (text == null) || text.equals(""))
 		{
 			editParagraph(URL_TAG);		
 		}
 		else
 		{
-			//TODO: still appends to the end of the text
-			System.out.println(lastCaretPosition);
 			StringBuffer buffer = new StringBuffer(text);
 			buffer.insert(lastCaretPosition, URL_TAG);
 			editParagraph(buffer.toString());
@@ -922,6 +916,10 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		enableComponents();
 	}
 	
+	/**
+	 * Edits the name of the model of the selected section.
+	 * @param content the new name for the selected section
+	 */
 	private void editSection(String content)
 	{
 		Section translationSection = getSelectedTranslationSection();
@@ -948,6 +946,10 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		}
 	}
 	
+	/**
+	 * Edits the model of the selected Paragraph.
+	 * @param content after the operation the model of the selected Paragraph will store this content.
+	 */
 	private void editParagraph(String content)
 	{
 		if( (getSelectedTranslationParagraph() != null) &&
@@ -959,9 +961,11 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 		{
 			if( (content != null) && !content.equals(""))
 			{
+				int caretSave = lastCaretPosition;
 				Paragraph customizedParagraph = getCustomizedParagraph();
 				customizedParagraph.setContent(content);
 				loadParagraphList(customizedParagraph);
+				lastCaretPosition = caretSave;
 			}
 		}
 	}
