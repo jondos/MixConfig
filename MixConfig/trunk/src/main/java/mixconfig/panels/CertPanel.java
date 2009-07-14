@@ -154,7 +154,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 	private static final String MSG_MANDATORY_ALGO = CertPanel.class.getName() + "_mandatoryAlgorithm";
 	private static final String MSG_CERT_TYPE_UNKNOWN = CertPanel.class.getName() + "_certTypeUnknown";
-	private static final String MSG_CONFIRM_OVERWRITE = CertPanel.class.getName() + "_confirmOverwriting";
 	private static final String MSG_CONFIRM_DELETION = CertPanel.class.getName() + "_confirmDeletion";
 	private static final String MSG_CHOOSE_LOAD_METHOD = CertPanel.class.getName() + "_chooseLoadMethod";
 	private static final String MSG_CHOOSE_SAVE_METHOD = CertPanel.class.getName() + "_chooseSaveMethod";
@@ -744,6 +743,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				}
 
 				bChanged = ( (PKCS12) m_cert).setX509Certificate(x509cert);
+				if (bChanged)
+				{
+					setCertInfo(x509cert);
+				}
 			}
 			else
 			{
@@ -1030,8 +1033,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	{
 		byte[] cert = null;
 		JAPDialog dialog = new JAPDialog(this, "Import certificate");
-		ChooseCertStorageMethodPane pane =
-			new ChooseCertStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_LOAD_METHOD));
+		ChooseStorageMethodPane pane =
+			new ChooseStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_LOAD_METHOD));
 		pane.updateDialog();
 		dialog.pack();
 		dialog.setResizable(false);
@@ -1042,18 +1045,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		if (pane.isMethodFile())
 		{
-			try
-			{
-				//cert = MixConfig.openFile(this, MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
-				cert = MixConfig.openFile(this, MixConfig.FILTER_CER);
-			}
-			catch (RuntimeException a_ex)
-			{
-				ClipFrame open = new ClipFrame(this, "Paste a certificate to be imported in " +
-											   "the area provided.", true);
-				open.setVisible(true);
-				cert = open.getText().getBytes();
-			}
+			//cert = MixConfig.openFile(this, MixConfig.FILTER_CER | MixConfig.FILTER_B64_CER);
+			cert = MixConfig.openFile(this, MixConfig.FILTER_CER);
+	
 			if (cert == null)
 			{
 				return false;
@@ -1079,8 +1073,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 
 		pkcs12 = (PKCS12) m_cert;
 		JAPDialog dialog = new JAPDialog(this, "Import certificate");
-		ChooseCertStorageMethodPane pane =
-			new ChooseCertStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_LOAD_METHOD));
+		ChooseStorageMethodPane pane =
+			new ChooseStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_LOAD_METHOD));
 		pane.updateDialog();
 		dialog.pack();
 		dialog.setResizable(false);
@@ -1097,26 +1091,9 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				//filter |= (MixConfig.FILTER_B64_CER | MixConfig.FILTER_CER);
 				filter |= (MixConfig.FILTER_CER);
 			}
-			try
-			{
-				buff = MixConfig.openFile(this, filter);
-			}
-			catch (SecurityException e)
-			{
-				/*
-					 JAPDialog.showErrorDialog(
-				 this,
-				 "Import of a private key with certificate is not supported when running as an applet.",
-				 "Not supported!",
-				 LogType.GUI);
-					 m_bttnImportCert.setEnabled(false);
-					return false;*/
-				ClipFrame open = new ClipFrame(this, "Paste a certificate to be imported in " +
-											   "the area provided.", true);
-				open.setVisible(true);
-				buff = open.getText().getBytes();
+		
+			buff = MixConfig.openFile(this, filter);
 
-			}
 			if (buff == null)
 			{
 				return false;
@@ -1258,8 +1235,8 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		int type;
 
 		JAPDialog dialog = new JAPDialog(this, "Export certificate");
-		ChooseCertStorageMethodPane pane =
-			new ChooseCertStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_SAVE_METHOD));
+		ChooseStorageMethodPane pane =
+			new ChooseStorageMethodPane(dialog, JAPMessages.getString(MSG_CHOOSE_SAVE_METHOD));
 		FileFilterSelectionPane typePane =
 			new FileFilterSelectionPane(dialog, JAPMessages.getString(MSG_CHOOSE_CERT_TYPE), pane);
 
@@ -1359,7 +1336,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			}
 			while (file != null && file.exists() &&
 				   (JAPDialog.showConfirmDialog(
-					   this, JAPMessages.getString(MSG_CONFIRM_OVERWRITE),
+					   this, JAPMessages.getString(ChooseStorageMethodPane.MSG_CONFIRM_OVERWRITE),
 					   JAPDialog.OPTION_TYPE_OK_CANCEL,
 					   JAPDialog.MESSAGE_TYPE_QUESTION) != JAPDialog.RETURN_VALUE_OK));
 		}
@@ -1544,40 +1521,6 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 	}
 
-	private class ChooseCertStorageMethodPane extends DialogContentPane implements
-		DialogContentPane.IWizardSuitable
-	{
-		private JRadioButton m_btnFile;
-		private JRadioButton m_btnClip;
-
-		public ChooseCertStorageMethodPane(JAPDialog a_dialog, String a_strText)
-		{
-			super(a_dialog, a_strText,
-				  new DialogContentPaneOptions(DialogContentPane.OPTION_TYPE_OK_CANCEL));
-			GridBagConstraints constr = new GridBagConstraints();
-			ButtonGroup group = new ButtonGroup();
-
-			m_btnFile = new JRadioButton("File");
-			m_btnClip = new JRadioButton("Clipboard");
-			group.add(m_btnFile);
-			group.add(m_btnClip);
-			m_btnFile.setSelected(true);
-			constr.gridx = 0;
-			constr.gridy = 0;
-			constr.anchor = GridBagConstraints.WEST;
-			constr.fill = GridBagConstraints.HORIZONTAL;
-			constr.weightx = 0;
-			getContentPane().setLayout(new GridBagLayout());
-			getContentPane().add(m_btnFile, constr);
-			constr.gridy++;
-			getContentPane().add(m_btnClip, constr);
-		}
-		public boolean isMethodFile()
-		{
-			return m_btnFile.isSelected();
-		}
-	}
-
 	private class FileFilterSelectionPane extends DialogContentPane implements
 		DialogContentPane.IWizardSuitable
 	{
@@ -1589,10 +1532,10 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		private JRadioButton m_btnCertRequest;
 		private JRadioButton m_btnPrivateCert;
 
-		private ChooseCertStorageMethodPane m_previousPane;
+		private ChooseStorageMethodPane m_previousPane;
 
 		public FileFilterSelectionPane(JAPDialog a_dialog, String a_strText,
-			ChooseCertStorageMethodPane a_previousPane)
+			ChooseStorageMethodPane a_previousPane)
 		{
 			super(a_dialog, a_strText,
 				  new DialogContentPaneOptions(DialogContentPane.OPTION_TYPE_OK_CANCEL, a_previousPane));
