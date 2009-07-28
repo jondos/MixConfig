@@ -89,7 +89,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_P10 = 32;
 	public final static int FILTER_B64_P10 = 64;
 
-	public final static String VERSION = "00.05.014";  //NEVER change the layout of this line!!
+	public final static String VERSION = "00.05.015";  //NEVER change the layout of this line!!
 	
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -543,27 +543,27 @@ public class MixConfig extends JApplet
 	{
 		try
 		{
-		JFileChooser fileChooser = showFileDialog(a_component, MixConfig.OPEN_DIALOG, type);
-		if (fileChooser == null)
-		{
-			return null;
-		}
-
-		File file = fileChooser.getSelectedFile();
-
-		if (file != null)
-		{
-			try
+			JFileChooser fileChooser = showFileDialog(a_component, MixConfig.OPEN_DIALOG, type);
+			if (fileChooser == null)
 			{
-				return ResourceLoader.getStreamAsBytes(new FileInputStream(file));
+				return null;
 			}
-			catch (IOException e)
+
+			File file = fileChooser.getSelectedFile();
+	
+			if (file != null)
 			{
-				JAPDialog.showErrorDialog(getMainWindow(),
-										  JAPMessages.getString(MSG_ERROR_OPEN_FILE, file.toString()),
-										  LogType.MISC, e);
+				try
+				{
+					return ResourceLoader.getStreamAsBytes(new FileInputStream(file));
+				}
+				catch (IOException e)
+				{
+					JAPDialog.showErrorDialog(getMainWindow(),
+											  JAPMessages.getString(MSG_ERROR_OPEN_FILE, file.toString()),
+											  LogType.MISC, e);
+				}
 			}
-		}
 		}
 		catch (SecurityException a_e)
 		{

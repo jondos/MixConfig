@@ -170,11 +170,11 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 		m_tfFileName.addFocusListener(this);
 		m_tfFileName.setEnabled(false);
 		
-		m_tfMaxLogFiles = new JAPJIntField();
+		m_tfMaxLogFiles = new JAPJIntField(100);
 		m_tfMaxLogFiles.addFocusListener(this);
 		m_tfMaxLogFiles.setEnabled(false);
 		
-		m_tfMaxLogFileSize = new JAPJIntField();
+		m_tfMaxLogFileSize = new JAPJIntField(2000);
 		m_tfMaxLogFileSize.addFocusListener(this);
 		m_tfMaxLogFileSize.setEnabled(false);
 		
