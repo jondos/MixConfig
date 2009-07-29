@@ -6,13 +6,21 @@ rc_reset
 
 case "$1" in
   start)
-	echo "Starting $PROGRAM_NAME..."
-	cd $INSTALL_PATH
-	ulimit -HSn 4096
-	$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS
-	if [ ! "`$0 process`" ]
-	then
-		rc_failed 1
+  $0 status
+  rc_status
+	if [ "$?" -eq 0 ]
+		then
+		echo "Starting $PROGRAM_NAME..."
+		cd $INSTALL_PATH
+		ulimit -HSn 4096
+		$EXECUTE_COMMAND $INSTALL_PATH/$PROGRAM $PROGRAM_OPTIONS
+		if [ ! "`$0 process`" ]
+		then
+			rc_failed 1
+		fi
+	else
+		echo "$PROGRAM_NAME is already running."
+		rc_failed 5
 	fi
 	rc_status -v
 	;;
@@ -168,7 +176,7 @@ case "$1" in
   update)
 	OLD_VERSION_OPTION=`$0 version`
   	rc_reset	
-	NEW_VERSION_OPTION=`$EXECUTE_COMMAND $INSTALL_PATH/cvs/$CVS_MODULE/$PROGRAM $VERSION_OPTION | grep -i version`
+	NEW_VERSION_OPTION=`$EXECUTE_COMMAND $INSTALL_PATH/svn/$SVN_MODULE/$PROGRAM $VERSION_OPTION | grep -i version`
 	echo "OLD_VERSION_OPTION: $OLD_VERSION_OPTION"
 	echo "NEW_VERSION_OPTION: $NEW_VERSION_OPTION"
 	rc_status
@@ -197,7 +205,7 @@ case "$1" in
 					mv "$LOGFILE" "$INSTALL_PATH/backup/$PROGRAM.log~$VERSION_COUNT"
 				fi
 			fi
-			cp $INSTALL_PATH/cvs/$CVS_MODULE/$PROGRAM $INSTALL_PATH
+			cp $INSTALL_PATH/svn/$SVN_MODULE/$PROGRAM $INSTALL_PATH
 		else 
 			rc_failed 5
 		fi
@@ -224,13 +232,22 @@ case "$1" in
 	then 
 		if [ "$2" = "-d" ]
 		then
-			COMPILE_DIR="$3"
+			if [ "$3" = "cvs" ]
+			then
+				COMPILE_DIR="$INSTALL_PATH/$3/$CVS_MODULE"
+			elif [ "$3" = "svn" ]
+			then
+				COMPILE_DIR="$INSTALL_PATH/$3/$SVN_MODULE"
+			else
+				COMPILE_DIR="$INSTALL_PATH/$3"
+			fi
+			
 			shift 2
 		fi
 	fi
 	if [ ! "$COMPILE_DIR" ]
 	then
-		COMPILE_DIR="$INSTALL_PATH/cvs/$CVS_MODULE"
+		COMPILE_DIR="$INSTALL_PATH/svn/$SVN_MODULE"
 	fi
 	echo "Compiling in directory '$COMPILE_DIR'!"
 
