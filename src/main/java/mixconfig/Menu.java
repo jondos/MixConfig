@@ -372,7 +372,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			}
 			else if (evt.getActionCommand().equals("Proxy"))
 			{
-				Proxy proxy = ProxyDialog.showProxyDialog(MixConfig.getMainWindow());
+				Proxy proxy = ProxyDialog.showProxyDialog(MixConfig.getMainWindow(), MixConfig.getProxy());
 				if(proxy != null)
 				{
 					MixConfig.configureProxy(proxy);

@@ -43,6 +43,7 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
+import java.net.Proxy.Type;
 import java.security.SecureRandom;
 
 import javax.swing.ImageIcon;
@@ -67,6 +68,7 @@ import anon.crypto.X509SubjectKeyIdentifier;
 import anon.infoservice.Database;
 import anon.infoservice.IDistributable;
 import anon.infoservice.IDistributor;
+import anon.infoservice.IMutableProxyInterface;
 import anon.infoservice.InfoServiceDBEntry;
 import anon.util.ClassUtil;
 import anon.util.JAPMessages;
@@ -415,10 +417,23 @@ public class MixConfig extends JApplet
 	
 	public static void configureProxy(Proxy proxy)
 	{
-		MixConfig.proxy = proxy;
-		//also set the proxy interface for the infoservice. 
-		InfoServiceDBEntry.setMutableProxyInterface(
+		if(proxy.type().equals(Type.DIRECT))
+		{
+			MixConfig.proxy = null;
+			 System.clearProperty("http.proxyHost");
+		     System.clearProperty("http.proxyPort");
+			InfoServiceDBEntry.setMutableProxyInterface(
+					new IMutableProxyInterface.DummyMutableProxyInterface());
+		}
+		else
+		{
+			MixConfig.proxy = proxy;
+			System.setProperty("http.proxyHost", ((InetSocketAddress) proxy.address()).getHostName());
+		     System.setProperty("http.proxyPort", ""+((InetSocketAddress) proxy.address()).getPort());
+			//also set the proxy interface for the infoservice. 
+			InfoServiceDBEntry.setMutableProxyInterface(
 				new ProxyAdapter(proxy));
+		}
 	}
 	
 	public static Proxy getProxy()
