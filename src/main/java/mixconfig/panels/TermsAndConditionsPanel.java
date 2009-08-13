@@ -2082,8 +2082,10 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	 */
 	private TermsAndConditionsTemplate getTemplateFromURL(URL templateURL) throws IOException, XMLParseException
 	{
-		URLConnection currentConn = templateURL.openConnection();
 		InputStream inputStream = null;
+		URLConnection currentConn = 
+			(isHttpUrl(templateURL) && (MixConfig.getProxy() != null) ) ?
+					templateURL.openConnection(MixConfig.getProxy()) : templateURL.openConnection();
 		
 		try
 		{
@@ -2108,6 +2110,12 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 			(docElement != null) ? new TermsAndConditionsTemplate(docElement) : null;
 		
 		return template;
+	}
+	
+	static boolean isHttpUrl(URL url)
+	{
+		String proto = url.getProtocol();
+		return (proto != null) && proto.startsWith("http");
 	}
 	
 	/**
@@ -2144,7 +2152,11 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				// Create the request URL an connect
 			    URL requestURL = new URL("http", host, port, 
 			    		TermsAndConditionsTemplate.INFOSERVICE_CONTAINER_PATH);
-				HttpURLConnection conn = (HttpURLConnection) requestURL.openConnection();
+		
+			    HttpURLConnection conn = (HttpURLConnection)
+			    	(isHttpUrl(requestURL) && (MixConfig.getProxy() != null)  ?
+			    			requestURL.openConnection(MixConfig.getProxy()) : requestURL.openConnection());
+			    	
 				// Create a serials document from the InputStream
 				DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 				
@@ -2417,7 +2429,10 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		TermsAndConditionsTranslation currentTrans = getSelectedTranslation();
 		
 		return (currentTrans != null) && 
-				!currentTrans.getLocale().equals(refId.getLangCode());
+			(currentTrans.getLocale() != null) && 
+			(refId != null) &&
+			(refId.getLangCode() != null) &&
+			!currentTrans.getLocale().equals(refId.getLangCode());
 	}
 	
 	boolean isPreviewPossible()
