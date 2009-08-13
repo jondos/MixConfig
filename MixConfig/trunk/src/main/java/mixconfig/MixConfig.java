@@ -40,6 +40,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.SocketAddress;
 import java.security.SecureRandom;
 
 import javax.swing.ImageIcon;
@@ -53,6 +56,7 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import logging.SystemErrLog;
+import mixconfig.network.ProxyAdapter;
 import mixconfig.tools.CertificateGenerator;
 
 import org.w3c.dom.Document;
@@ -63,6 +67,7 @@ import anon.crypto.X509SubjectKeyIdentifier;
 import anon.infoservice.Database;
 import anon.infoservice.IDistributable;
 import anon.infoservice.IDistributor;
+import anon.infoservice.InfoServiceDBEntry;
 import anon.util.ClassUtil;
 import anon.util.JAPMessages;
 import anon.util.ResourceLoader;
@@ -108,6 +113,8 @@ public class MixConfig extends JApplet
 	private static File m_fileCurrentDir = new File(ClassUtil.getUserDir());
 	private static String m_currentFileName;
 
+	private static Proxy proxy = null;
+	
 	public static void main(String[] argv)
 	{
 		File f = null;
@@ -179,6 +186,28 @@ public class MixConfig extends JApplet
 				}
 			}
 
+	        //read proxy settings which must be specified as system properties
+	        String httpProxyHost = System.getProperty("http.proxyHost");
+	        String httpProxyPort = System.getProperty("http.proxyPort");
+	        //port and host must be specified.
+	        if( (httpProxyHost != null) && (httpProxyPort != null) )
+	        {
+	        	try
+	        	{
+	        		SocketAddress proxyAddress = new InetSocketAddress(
+	        				httpProxyHost, Integer.parseInt(httpProxyPort));
+	        		proxy = new Proxy(Proxy.Type.HTTP, proxyAddress);
+	        		//also set the proxy interface for the infoservice. 
+	        		InfoServiceDBEntry.setMutableProxyInterface(
+	        				new ProxyAdapter(proxy));
+	        	}
+	        	catch(NumberFormatException nfe)
+	        	{
+	        		throw new IllegalArgumentException(
+	        			"Bad proxy port: "+httpProxyPort+". Port must be a number between 0 and 65535");
+	        	}
+	        }
+	        
 			m_MainWindow = new JFrame();
 			Database.registerDistributor(new IDistributor()
 			{
@@ -382,6 +411,11 @@ public class MixConfig extends JApplet
 		return m_currentFileName;
 	}
 
+	public static Proxy getProxy()
+	{
+		return proxy;
+	}
+	
 	/** 
 	 * Display an info message dialog
 	 * @param a_title The title of the message dialog
