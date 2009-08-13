@@ -192,20 +192,7 @@ public class MixConfig extends JApplet
 	        //port and host must be specified.
 	        if( (httpProxyHost != null) && (httpProxyPort != null) )
 	        {
-	        	try
-	        	{
-	        		SocketAddress proxyAddress = new InetSocketAddress(
-	        				httpProxyHost, Integer.parseInt(httpProxyPort));
-	        		proxy = new Proxy(Proxy.Type.HTTP, proxyAddress);
-	        		//also set the proxy interface for the infoservice. 
-	        		InfoServiceDBEntry.setMutableProxyInterface(
-	        				new ProxyAdapter(proxy));
-	        	}
-	        	catch(NumberFormatException nfe)
-	        	{
-	        		throw new IllegalArgumentException(
-	        			"Bad proxy port: "+httpProxyPort+". Port must be a number between 0 and 65535");
-	        	}
+	        	configureProxy(httpProxyHost, httpProxyPort);
 	        }
 	        
 			m_MainWindow = new JFrame();
@@ -411,6 +398,29 @@ public class MixConfig extends JApplet
 		return m_currentFileName;
 	}
 
+	public static void configureProxy(String host, String port)
+	{
+		try
+    	{
+    		SocketAddress proxyAddress = new InetSocketAddress(
+    				host, Integer.parseInt(port));
+    		configureProxy(new Proxy(Proxy.Type.HTTP, proxyAddress));
+    	}
+    	catch(NumberFormatException nfe)
+    	{
+    		throw new IllegalArgumentException(
+    			"Bad proxy port: "+port+". Port must be a number between 0 and 65535");
+    	}
+	}
+	
+	public static void configureProxy(Proxy proxy)
+	{
+		MixConfig.proxy = proxy;
+		//also set the proxy interface for the infoservice. 
+		InfoServiceDBEntry.setMutableProxyInterface(
+				new ProxyAdapter(proxy));
+	}
+	
 	public static Proxy getProxy()
 	{
 		return proxy;

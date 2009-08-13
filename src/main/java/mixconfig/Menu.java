@@ -32,6 +32,7 @@ import gui.GUIUtils;
 import gui.JAPHelpContext;
 import gui.dialog.CADialog;
 import gui.dialog.JAPDialog;
+import gui.dialog.ProxyDialog;
 import gui.help.JAPHelp;
 
 import java.awt.Container;
@@ -45,6 +46,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.Proxy;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
@@ -101,6 +103,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 	private JMenuItem m_saveAsMenuItem;
 	private JMenuItem m_saveclipItem;
 	private JMenuItem m_checkItem;
+	private JMenuItem m_proxyItem;
 	private JMenuItem m_newMenuItem;
 	private JMenuItem m_openMenuItem;
 	private JMenuItem m_openclipItem;
@@ -148,6 +151,9 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_checkItem = new JMenuItem("Check");
 		m_checkItem.setEnabled(false);
 
+		m_proxyItem = new JMenuItem("Proxy");
+		m_proxyItem.setEnabled(true);
+		
 		m_saveMenuItem = new JMenuItem();
 		String curFileName = MixConfig.getCurrentFileName();
 		if (curFileName == null)
@@ -167,6 +173,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_openMenuItem.addActionListener(this);
 		m_openclipItem.addActionListener(this);
 		m_checkItem.addActionListener(this);
+		m_proxyItem.addActionListener(this);
 		m_saveMenuItem.addActionListener(this);
 		m_saveclipItem.addActionListener(this);
 		m_saveAsMenuItem.addActionListener(this);
@@ -177,6 +184,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_saveclipItem.setActionCommand("SaveClip");
 		m_openclipItem.setActionCommand("OpenClip");
 		m_checkItem.setActionCommand("Check");
+		m_proxyItem.setActionCommand("Proxy");
 		m_saveMenuItem.setActionCommand("Save");
 		m_saveAsMenuItem.setActionCommand("SaveAs");
 		if (m_mainWin == null)
@@ -192,6 +200,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_fileMenu.add(m_openclipItem);
 		m_fileMenu.addSeparator();
 		m_fileMenu.add(m_checkItem);
+		m_fileMenu.add(m_proxyItem);
 		m_fileMenu.add(m_saveMenuItem);
 		m_fileMenu.add(m_saveAsMenuItem);
 		m_fileMenu.add(m_saveclipItem);
@@ -360,6 +369,14 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 				}
 				// XXX: Additionally perform the NEW reload-check here
 				mixConf.performReloadCheck();
+			}
+			else if (evt.getActionCommand().equals("Proxy"))
+			{
+				Proxy proxy = ProxyDialog.showProxyDialog(MixConfig.getMainWindow());
+				if(proxy != null)
+				{
+					MixConfig.configureProxy(proxy);
+				}
 			}
 			else if (evt.getActionCommand().equals("Save"))
 			{
