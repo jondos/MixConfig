@@ -2083,9 +2083,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	private TermsAndConditionsTemplate getTemplateFromURL(URL templateURL) throws IOException, XMLParseException
 	{
 		InputStream inputStream = null;
-		URLConnection currentConn = 
-			(isHttpUrl(templateURL) && (MixConfig.getProxy() != null) ) ?
-					templateURL.openConnection(MixConfig.getProxy()) : templateURL.openConnection();
+		URLConnection currentConn = templateURL.openConnection();
 		
 		try
 		{
@@ -2110,12 +2108,6 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 			(docElement != null) ? new TermsAndConditionsTemplate(docElement) : null;
 		
 		return template;
-	}
-	
-	static boolean isHttpUrl(URL url)
-	{
-		String proto = url.getProtocol();
-		return (proto != null) && proto.startsWith("http");
 	}
 	
 	/**
@@ -2153,9 +2145,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 			    URL requestURL = new URL("http", host, port, 
 			    		TermsAndConditionsTemplate.INFOSERVICE_CONTAINER_PATH);
 		
-			    HttpURLConnection conn = (HttpURLConnection)
-			    	(isHttpUrl(requestURL) && (MixConfig.getProxy() != null)  ?
-			    			requestURL.openConnection(MixConfig.getProxy()) : requestURL.openConnection());
+			    HttpURLConnection conn = (HttpURLConnection) requestURL.openConnection();
 			    	
 				// Create a serials document from the InputStream
 				DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
