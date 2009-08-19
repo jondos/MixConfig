@@ -6,10 +6,10 @@ rc_reset
 
 case "$1" in
   start)
-  $0 status
-  rc_status
-	if [ "$?" -eq 0 ]
-		then
+#  $0 status
+#  rc_status
+#	if [ "$?" -eq 0 ]
+#		then
 		echo "Starting $PROGRAM_NAME..."
 		cd $INSTALL_PATH
 		ulimit -HSn 4096
@@ -18,10 +18,10 @@ case "$1" in
 		then
 			rc_failed 1
 		fi
-	else
-		echo "$PROGRAM_NAME is already running."
-		rc_failed 5
-	fi
+#	else
+#		echo "$PROGRAM_NAME is already running."
+#		rc_failed 5
+#	fi
 	rc_status -v
 	;;
   stop)
