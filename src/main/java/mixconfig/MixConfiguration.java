@@ -53,6 +53,7 @@ import mixconfig.network.IncomingConnectionTableModel;
 import mixconfig.network.OutgoingConnectionTableModel;
 import mixconfig.network.ProxyTableModel;
 import mixconfig.panels.CascadePanel;
+import mixconfig.panels.CertPanel;
 import mixconfig.panels.GeneralPanel;
 import mixconfig.panels.MixOnCDPanel;
 import mixconfig.panels.PaymentPanel;
@@ -366,6 +367,19 @@ public class MixConfiguration
 		return strValues;
 	}
 
+	public boolean isRootPathVerificationEnabled()
+	{
+		try
+		{
+			return Boolean.valueOf(getValue(CertPanel.XMLPATH_CERTIFICATES_PATH_VERIFICATION)).booleanValue();
+		}
+		catch (Exception a_e)
+		{
+			return false;
+		}
+		
+	}
+	
 	/**
 	 * Returns if the MixOnCD configuration is used.
 	 * @return true if the MixOnCD configuration is used; false otherwise
@@ -909,12 +923,12 @@ public class MixConfiguration
 	public void setValue(String a_xmlPath, Element a_elem)
 	{
 		// XXX: Is it necessary to remove the old node??
-		this.removeNode(a_xmlPath);
+		this.removeNode(a_xmlPath + "/" + a_elem.getNodeName());
 		// Find the node, create if it doesn't exist
-		Node n = getNode(a_xmlPath, true);
+		Node n = getNode(a_xmlPath + "/" + a_elem.getNodeName(), true);
 		// Append the price certificate in 'Accounting'
 		n.appendChild(a_elem);
-		this.fireStateChanged(a_xmlPath, a_elem);
+		this.fireStateChanged(a_xmlPath + "/" + a_elem.getNodeName(), a_elem);
 	}
 
 	/**
@@ -1095,6 +1109,10 @@ public class MixConfiguration
 				MixInfo.NAME_TYPE_MIX);
 		// Set the payment attribute
 		setAttribute(GeneralPanel.XMLPATH_GENERAL_MIXTYPE, GeneralPanel.XML_ATTRIBUTE_PAYMENT, true);
+		
+		setValue(CertPanel.XMLPATH_CERTIFICATES_PATH_VERIFICATION, true);
+		CertPanel.resetRootCertificates(this);
+		
 		
 		// Create a dummy TableModel for adding default InfoServices
 		InfoServiceTableModel dummyTableModel = new InfoServiceTableModel();

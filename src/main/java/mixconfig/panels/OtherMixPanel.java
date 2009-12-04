@@ -278,6 +278,11 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 	{
 		Vector<String> errors = new Vector<String>();
 
+		if (getConfiguration().isRootPathVerificationEnabled())
+		{
+			return errors;
+		}
+		
 		if (!m_otherCert.isEnabled() && m_otherCert.getCert() != null)
 		{
 			errors.addElement(

@@ -160,7 +160,8 @@ public class DataRetentionPanel extends JPanel implements ActionListener, FocusL
 				{
 				MyRSAPublicKey key=(MyRSAPublicKey)(cert.getPublicKey());
 				Element elem=key.toXmlElement(doc);
-				c.setValue("DataRetention/PublicEncryptionKey", elem);
+				Element elemPEK = doc.createElement("PublicEncryptionKey");
+				c.setValue("DataRetention", elemPEK);
 				}
 			}
 			
@@ -257,7 +258,9 @@ public class DataRetentionPanel extends JPanel implements ActionListener, FocusL
 			MixConfiguration c=m_parentPanel.getConfiguration();
 			Document doc=c.getDocument();
 			Element elem=key.toXmlElement(doc);
-			c.setValue("DataRetention/PublicEncryptionKey", elem);
+			Element elemPEK = doc.createElement("PublicEncryptionKey");
+			elemPEK.appendChild(elem);
+			c.setValue("DataRetention", elemPEK);
 		}
 		catch(Exception e)
 		{
