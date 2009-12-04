@@ -69,12 +69,16 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import mixconfig.ICertCreationValidator;
 import mixconfig.ICertificateView;
 import mixconfig.MixConfig;
+import mixconfig.MixConfiguration;
 import mixconfig.SimpleFileFilter;
 import mixconfig.tools.CertificateGenerator;
 import mixconfig.wizard.CannotContinueException;
@@ -113,6 +117,11 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	
 	// The type of this certificate (see JAPCertificate)
 	private int m_certType = 0;
+	
+	public static final String XMLPATH_CERTIFICATES = "Certificates";
+	public static final String XMLPATH_CERTIFICATES_PATH_VERIFICATION = 
+		XMLPATH_CERTIFICATES + "/MixCertificateVerification";
+	public static final String XML_ELEM_TRUSTED_ROOT_CERTS = "TrustedRootCertificates";
 	
 	// Paths to certificates
 	private static final String CERTPATH = "certificates/";
@@ -510,7 +519,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		{
 			cert = (JAPCertificate) certificates.nextElement();
 			m_trustedCertificates.addCertificateWithoutVerification(cert, iType, true, true);
-			SignatureVerifier.getInstance().getVerificationCertificateStore().addCertificateWithoutVerification(cert, iType, true, true);
+			SignatureVerifier.getInstance().getVerificationCertificateStore().addCertificateWithoutVerification(cert, iType, true, true);			
 		}
 		
 		// No certificates found
@@ -821,6 +830,21 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 	{
 		m_additionalVerifier = a_cert;
 	}
+	
+
+	public static void resetRootCertificates(MixConfiguration a_conf)
+	{
+		Vector<CertificateInfoStructure> certificates = 
+			SignatureVerifier.getInstance().getVerificationCertificateStore().getAvailableCertificatesByType(JAPCertificate.CERTIFICATE_TYPE_ROOT_MIX);
+		Document doc = a_conf.getDocument();
+		Element elem = doc.createElement(CertPanel.XML_ELEM_TRUSTED_ROOT_CERTS);
+		for (int i = 0; i < certificates.size(); i++)
+		{
+			elem.appendChild(certificates.elementAt(i).getCertificate().toXmlElement(doc));
+		}
+		a_conf.setValue(CertPanel.XMLPATH_CERTIFICATES, elem);
+	}
+	
 
 	/** Removes the certficate from the panel */
 	public void removeCert()

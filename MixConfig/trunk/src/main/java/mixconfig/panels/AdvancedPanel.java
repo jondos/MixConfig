@@ -36,21 +36,30 @@ import gui.TitledGridBagPanel;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
 import java.util.Vector;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import mixconfig.ConfigurationEvent;
 import mixconfig.MixConfiguration;
+import anon.crypto.CertificateContainer;
+import anon.crypto.CertificateInfoStructure;
 import anon.crypto.JAPCertificate;
+import anon.crypto.SignatureVerifier;
 import anon.infoservice.ListenerInterface;
 import anon.util.Base64;
 import anon.util.JAPMessages;
@@ -92,6 +101,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 	private static final String MSG_SET_FD = AdvancedPanel.class.getName() + "_setFD";
 	private static final String MSG_SET_MAXUSERS = AdvancedPanel.class.getName() + "_setMaxUsers";
 	private static final String MSG_RUN_DAEMON = AdvancedPanel.class.getName() + "_runDaemon";
+	private static final String MSG_ENABLE_ROOT_VERIFICATION = AdvancedPanel.class.getName() + "_enableRootVerification";
 	private static final String MSG_ENABLE_LOGGING = AdvancedPanel.class.getName() + "_enableLogging";
 	private static final String MSG_LOG_CONSOLE = AdvancedPanel.class.getName() + "_logConsole";
 	private static final String MSG_LOG_DIR = AdvancedPanel.class.getName() + "_logDir";
@@ -126,7 +136,7 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 	
 	// Other components:
 	private JLabel m_lblMaxUsers; // Might be disabled
-	private JCheckBox m_cbDaemon, m_cbCompressLog;
+	private JCheckBox m_cbDaemon, m_cbCompressLog, m_cbPathVerification;
 	private JRadioButton m_rbConsole, m_rbFile, m_rbSyslog, m_rbNoLog;
 	private ButtonGroup m_loggingButtonGroup;
 	
@@ -179,8 +189,11 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 		m_tfMaxLogFileSize.setEnabled(false);
 		
 		m_panelLogging.addRow(m_rbFile, m_tfFileName);
-		m_panelLogging.addRow(GUIUtils.createLabel(MSG_LOG_LABEL_MAX_FILE_SIZE), m_tfMaxLogFileSize);
-		m_panelLogging.addRow(GUIUtils.createLabel(MSG_LOG_LABEL_MAX_FILES), m_tfMaxLogFiles);
+		//m_panelLogging.addRow(GUIUtils.createLabel(MSG_LOG_LABEL_MAX_FILE_SIZE), m_tfMaxLogFileSize);
+		//m_panelLogging.addRow(GUIUtils.createLabel(MSG_LOG_LABEL_MAX_FILES), m_tfMaxLogFiles);
+		m_panelLogging.addRow(GUIUtils.createLabel(MSG_LOG_LABEL_MAX_FILE_SIZE), m_tfMaxLogFileSize, 
+				GUIUtils.createLabel(MSG_LOG_LABEL_MAX_FILES), m_tfMaxLogFiles);
+		
 		// Compress Log JCheckBox
 		m_cbCompressLog = new JCheckBox(JAPMessages.getString(MSG_COMPRESS_LOG));
 		m_cbCompressLog.addItemListener(this);
@@ -296,6 +309,22 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 		m_cbDaemon.setName("General/Daemon");
 		m_cbDaemon.addItemListener(this);
 		m_panelMisc.addRow(m_cbDaemon, null);
+		
+		JButton btnRootCerts = new JButton("Reset root certificates");
+		
+		btnRootCerts.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent a_event)
+			{
+				CertPanel.resetRootCertificates(getConfiguration());
+			}
+		});
+		
+		m_cbPathVerification = new JCheckBox(JAPMessages.getString(MSG_ENABLE_ROOT_VERIFICATION));
+		m_cbPathVerification.setName(CertPanel.XMLPATH_CERTIFICATES_PATH_VERIFICATION);
+		m_cbPathVerification.addItemListener(this);
+		m_panelMisc.addRow(m_cbPathVerification, btnRootCerts);		
+			
 		
 		// Keep the panels in place
 		constraints.gridx++;
