@@ -1,0 +1,5 @@
+?package(mix-config-tool): needs="X11" \
+                    section="Apps/Utils" \
+                    title="MixConfigTool" \
+                    command="mixconfigtool" \
+                    icon="mixconfigtool.png"

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=MixConfigTool
+Type=Application
+Comment=JonDonym Mix Configuration
+Exec=mixconfigtool
+Icon=mixconfigtool.png
+Categories=Application;Utility
