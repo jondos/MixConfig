@@ -1,0 +1,54 @@
+#!/usr/bin/make -f
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+
+	install -m755 debian/start_mixconfig debian/mix-config-tool/usr/bin/mixconfigtool
+	install -m644 target/MixConfig.jar debian/mix-config-tool/usr/share/java
+	install -m644 icons/mixconfigtool-48.png debian/mix-config-tool/usr/share/pixmaps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-16.png debian/mix-config-tool/usr/share/pixmaps/mixconfigtool-16.png
+	install -m644 debian/mix-config-tool.desktop debian/mix-config-tool/usr/share/applications
+
+	install -m644 icons/mixconfigtool-16.png debian/mix-config-tool/usr/share/icons/crystalsvg/16x16/apps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-22.png debian/mix-config-tool/usr/share/icons/crystalsvg/22x22/apps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-32.png debian/mix-config-tool/usr/share/icons/crystalsvg/32x32/apps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-48.png debian/mix-config-tool/usr/share/icons/crystalsvg/48x48/apps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-64.png debian/mix-config-tool/usr/share/icons/crystalsvg/64x64/apps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-16.png debian/mix-config-tool/usr/share/icons/oxygen/16x16/apps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-22.png debian/mix-config-tool/usr/share/icons/oxygen/22x22/apps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-32.png debian/mix-config-tool/usr/share/icons/oxygen/32x32/apps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-48.png debian/mix-config-tool/usr/share/icons/oxygen/48x48/apps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-64.png debian/mix-config-tool/usr/share/icons/oxygen/64x64/apps/mixconfigtool.png
+	install -m644 icons/mixconfigtool-128.png debian/mix-config-tool/usr/share/icons/oxygen/128x128/apps/mixconfigtool.png
+
+binary-arch: build install
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installchangelogs
+	dh_installmenu
+	dh_icons
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb --destdir=./target
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
