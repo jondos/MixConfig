@@ -386,7 +386,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 					//Force UTF-8 as standard output charset. 
 					OutputStreamWriter writer = 
 						new OutputStreamWriter(new FileOutputStream(MixConfig.getCurrentFileName()), "UTF-8");
-					mixConf.save(writer);
+					mixConf.save(writer, true);
 					writer.close();
 					//mixConf.save(new FileWriter(MixConfig.getCurrentFileName()));
 				}
@@ -410,7 +410,9 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 						{
 							file = new File(file.getParent(), fname + ".xml");
 						}
-						mixConf.save(new FileWriter(file.getCanonicalPath()));
+						OutputStreamWriter writer = 
+							new OutputStreamWriter(new FileOutputStream(file.getCanonicalPath()), "UTF-8");
+						mixConf.save(writer, true);
 						m_saveMenuItem.setText("Save [" + file.getName() + "] ");
 						m_saveMenuItem.setEnabled(true);
 						MixConfig.setCurrentFilename(file.getCanonicalPath());
@@ -422,7 +424,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 				if (ignoreInconsistenciesForSaving() && mixConf.performReloadCheck())
 				{
 					StringWriter sw = new StringWriter();
-					MixConfig.getMixConfiguration().save(sw);
+					MixConfig.getMixConfiguration().save(sw, false);
 					String xmlString = sw.toString();
 					GUIUtils.saveTextToClipboard(xmlString, MixConfig.getMainWindow());
 					//mixConf.setSavedToFile();

@@ -30,8 +30,10 @@ package mixconfig;
 import gui.dialog.JAPDialog;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -241,11 +243,12 @@ public class MixConfiguration
 	 * @param a_writer A <CODE>java.io.Writer</CODE> to which to write the XML
 	 * @throws IOException If an error occurs while writing
 	 */
-	public void save(Writer a_writer) throws IOException
+	public void save(Writer a_writer, boolean a_bIsFile) throws IOException
 	{
 		LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Writing configuration ..");
 		XMLUtil.write(m_configuration, a_writer);
-		if (a_writer instanceof FileWriter) m_bSavedToFile = true;
+		if (a_bIsFile) 
+			m_bSavedToFile = true;
 	}
 
 	/**
@@ -299,7 +302,9 @@ public class MixConfiguration
 			{
 				file = new File(file.getParent(), fname + ".xml");
 			}
-			save(new FileWriter(file.getCanonicalPath()));
+			OutputStreamWriter writer = 
+				new OutputStreamWriter(new FileOutputStream(file.getCanonicalPath()), "UTF-8");
+			save(writer, true);
 		}
 
 		return file;

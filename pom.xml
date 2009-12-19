@@ -4,7 +4,7 @@
 	<groupId>anon</groupId>
 	<artifactId>MixConfig</artifactId>
 	<name>MixConfig</name>
-	<version>00.05.017-SNAPSHOT</version>
+	<version>00.05.018-SNAPSHOT</version>
 	<url>http://anon.inf.tu-dresden.de/develop/MixConfig.html</url>
 	<repositories>
 		<repository>
