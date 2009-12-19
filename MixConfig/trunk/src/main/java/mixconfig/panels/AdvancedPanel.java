@@ -724,7 +724,13 @@ public class AdvancedPanel extends MixConfigPanel implements ChangeListener /*,A
 				errors.add("You entered a host, but no port for Server Monitoring!");
 			if (sHost != null && (sHost.equals("") || sHost.indexOf(" ") != -1))
 				errors.add("Server Monitoring host is invalid!");
-		}		
+		}
+		
+		if (m_cbPathVerification.isSelected() && !CertPanel.hasRootCertificates(c))
+		{
+			errors.add("The configuration contains no root certificates for automatic verification. Please reset the root certificates, or your mix will not connect.");
+		}
+		
 		return errors;
 	}
 
