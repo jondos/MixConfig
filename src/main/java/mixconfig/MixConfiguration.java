@@ -927,7 +927,10 @@ public class MixConfiguration
 		// Find the node, create if it doesn't exist
 		Node n = getNode(a_xmlPath + "/" + a_elem.getNodeName(), true);
 		// Append the price certificate in 'Accounting'
-		n.appendChild(a_elem);
+		for (int i = 0; i < a_elem.getChildNodes().getLength(); i++)
+		{
+			n.appendChild(a_elem.getChildNodes().item(i));
+		}
 		this.fireStateChanged(a_xmlPath + "/" + a_elem.getNodeName(), a_elem);
 	}
 

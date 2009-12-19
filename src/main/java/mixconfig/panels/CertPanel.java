@@ -71,6 +71,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import logging.LogHolder;
 import logging.LogLevel;
@@ -94,6 +95,7 @@ import anon.crypto.PKCS12;
 import anon.crypto.SignatureVerifier;
 import anon.util.IMiscPasswordReader;
 import anon.util.JAPMessages;
+import anon.util.XMLUtil;
 
 /** This class provides a control to set and display PKCS12 and X.509 certificates.
  * It contains text fields showing issuer name, validity dates etc.<br>
@@ -831,6 +833,18 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		m_additionalVerifier = a_cert;
 	}
 	
+	
+	public static boolean hasRootCertificates(MixConfiguration a_conf)
+	{
+		Node node = 
+			XMLUtil.getFirstChildByName(a_conf.getDocument().getDocumentElement(), CertPanel.XMLPATH_CERTIFICATES);
+		node = XMLUtil.getFirstChildByName(node, CertPanel.XML_ELEM_TRUSTED_ROOT_CERTS);
+		if (node != null && XMLUtil.getElementsByTagName(node, JAPCertificate.XML_ELEMENT_NAME).getLength() > 0)
+		{
+			return true;
+		}
+		return false;
+	}
 
 	public static void resetRootCertificates(MixConfiguration a_conf)
 	{
