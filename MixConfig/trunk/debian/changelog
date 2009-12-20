@@ -1,11 +1,19 @@
+mix-config-tool (00.05.018) unstable; urgency=low
+
+  * bugfix for root certificate verification
+
+ -- JonDos GmbH <info@jondos.de>  Son, 20 Dec 2009 19:17:23 +0200
+
+
 mix-config-tool (00.05.016) unstable; urgency=low
 
   * added root certificate verification
 
- -- Karsten Ness <kn@jondos.de>  Mon, 7 Dec 2009 19:17:23 +0200
+ -- JonDos GmbH <info@jondos.de>  Mon, 7 Dec 2009 19:17:23 +0200
+
 
 mix-config-tool (00.05.015) unstable; urgency=low
 
   * initial debian version
 
- -- Karsten Ness <kn@jondos.de>  Mon, 24 Nov 2009 09:17:23 +0200
+ -- JonDos GmbH <info@jondos.de>  Mon, 24 Nov 2009 09:17:23 +0200
