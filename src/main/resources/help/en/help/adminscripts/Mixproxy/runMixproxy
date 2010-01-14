@@ -15,7 +15,7 @@ export CVS_MODULE="proxytest"
 export CVSROOT=":pserver:anonymous@cvs.inf.tu-dresden.de:/home/sk13/cvssource"
 
 export SVN_MODULE="proxytest"
-export SVN_MODULE_URL="https://subversion.inf.tu-dresden.de/svn/proxytest/proxytest/trunk"
+export SVN_MODULE_URL="https://subversion.inf.tu-dresden.de/svn/proxytest/proxytest/branches/stable"
 
 ### Call the common start script
 $INSTALL_PATH/../runANONServer $*
