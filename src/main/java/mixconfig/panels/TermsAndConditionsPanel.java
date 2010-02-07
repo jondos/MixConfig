@@ -121,7 +121,8 @@ import anon.infoservice.OperatorAddress;
 import anon.infoservice.ServiceOperator;
 import anon.terms.TCComposite;
 import anon.terms.TermsAndConditions;
-import anon.terms.TermsAndConditionsTranslation;
+
+import anon.terms.TermsAndConditions.Translation;
 import anon.terms.template.TermsAndConditionsTemplate;
 import anon.util.Base64;
 import anon.util.IXMLEncodable;
@@ -519,22 +520,22 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		BeanInfo info;
 		try 
 		{
-			info = Introspector.getBeanInfo(TermsAndConditionsTranslation.class);
+			info = Introspector.getBeanInfo(Translation.class);
 			PropertyDescriptor[] pds = info.getPropertyDescriptors();
 		
 			for (int i = 0; i < pds.length; i++)
 			{
-				if(pds[i].getName().equals(TermsAndConditionsTranslation.PROPERTY_NAME_PRIVACY_POLICY))
+				if(pds[i].getName().equals(Translation.PROPERTY_NAME_PRIVACY_POLICY))
 				{
 					privacyPolicyMapping = 
 						new PropertyToComponentMapping<JTextField>(pds[i], m_tfUrlPP);
 				}
-				else if(pds[i].getName().equals(TermsAndConditionsTranslation.PROPERTY_NAME_OPERATIONAL_AGREEMENT))
+				else if(pds[i].getName().equals(Translation.PROPERTY_NAME_OPERATIONAL_AGREEMENT))
 				{
 					operationalAgreementsMapping = 
 						new PropertyToComponentMapping<JTextField>(pds[i], m_tfUrlOA);
 				}
-				else if(pds[i].getName().equals(TermsAndConditionsTranslation.PROPERTY_NAME_LEGAL_OPINIONS))
+				else if(pds[i].getName().equals(Translation.PROPERTY_NAME_LEGAL_OPINIONS))
 				{
 					legalOpinionsMapping = 
 						new PropertyToComponentMapping<JTextField>(pds[i], m_tfUrlLO);
@@ -562,38 +563,38 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
    		{ 
    			//OperatorAddress property mappings
    			new PropertyToComponentMapping<JTextField>
-   				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_CITY), m_tf_general_City),
+   				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_CITY), m_tf_general_City),
    			new PropertyToComponentMapping<JTextField>
-   				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_STREET), m_tf_general_Street),
+   				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_STREET), m_tf_general_Street),
    			new PropertyToComponentMapping<JTextField>
-   				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_POSTALCODE), m_tf_general_Post),
+   				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_POSTALCODE), m_tf_general_Post),
    			new PropertyToComponentMapping<JTextField>
-   				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_FAX), m_tf_general_Fax),
+   				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_FAX), m_tf_general_Fax),
    			new PropertyToComponentMapping<JTextField>
-   				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_ADDITIONALINFO), m_tf_general_additionalInfo),
+   				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_ADDITIONALINFO), m_tf_general_additionalInfo),
    			new PropertyToComponentMapping<JTextField>
-   				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_VAT), m_tf_general_VAT),
+   				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_VAT), m_tf_general_VAT),
    			new PropertyToComponentMapping<JTextField>
-   				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_VENUE), m_tf_general_Venue)
+   				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_VENUE), m_tf_general_Venue)
    		};
 		
 		translationAddressMappings = new PropertyToComponentMapping[]
 		{ 
 			//OperatorAddress property mappings
 			new PropertyToComponentMapping<JTextField>
-				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_CITY), m_tf_lang_City),
+				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_CITY), m_tf_lang_City),
 			new PropertyToComponentMapping<JTextField>
-				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_STREET), m_tf_lang_Street),
+				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_STREET), m_tf_lang_Street),
 			new PropertyToComponentMapping<JTextField>
-				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_POSTALCODE), m_tf_lang_Post),
+				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_POSTALCODE), m_tf_lang_Post),
 			new PropertyToComponentMapping<JTextField>
-				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_FAX), m_tf_lang_Fax),
+				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_FAX), m_tf_lang_Fax),
 			new PropertyToComponentMapping<JTextField>
-				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_ADDITIONALINFO), m_tf_lang_additionalInfo),
+				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_ADDITIONALINFO), m_tf_lang_additionalInfo),
 			/*new PropertyToComponentMapping<JTextField>
 				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_VAT), m_tf_lang_VAT),*/
 			new PropertyToComponentMapping<JTextField>
-				(OperatorAddress.getDescriptor(OperatorAddress.PROPERTY_NAME_VENUE), m_tf_lang_Venue)
+				(OperatorAddressIntrospection.getDescriptor(OperatorAddress.PROPERTY_NAME_VENUE), m_tf_lang_Venue)
 		};
 		
 		m_cbReferenceIDs.addItemListener(this);
@@ -639,8 +640,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 			if(a_event.getStateChange() == ItemEvent.SELECTED)
 			{
 				TemplateReferenceID refId = getSelectedTemplateReferenceID();
-				TermsAndConditionsTranslation currentTrans = null;
-				TermsAndConditionsTranslation otherTrans = null;
+				Translation currentTrans = null;
+				Translation otherTrans = null;
 				
 				if (!m_bIgnoreTemplateWarningMessages && !m_bInitialisingTranslations)
 				{
@@ -651,7 +652,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				
 					if( (refId != null) && refId.isComplete() )
 					{
-						Enumeration<TermsAndConditionsTranslation> allTranslations =
+						Enumeration<Translation> allTranslations =
 							operatorTCs.getAllTranslations();
 						Vector<TemplateReferenceID> matchingTemplates = null;
 						while (allTranslations.hasMoreElements()) 
@@ -683,7 +684,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		}
 		else if (a_event.getSource() == m_cbTranslations && !m_bInitialisingTranslations)
 		{
-			TermsAndConditionsTranslation selectedTranslation = getSelectedTranslation();
+			Translation selectedTranslation = getSelectedTranslation();
 			TemplateReferenceID refId;
 			if( a_event.getStateChange() == ItemEvent.SELECTED)
 			{
@@ -802,7 +803,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 			updateFromInfoService();
 			// Get the attribute 'referenceId'
 			//String refID = getConfiguration().getAttributeValue(m_cbReferenceIDs.getName(), "referenceId");
-			TermsAndConditionsTranslation selectedTranslation = getSelectedTranslation();
+			Translation selectedTranslation = getSelectedTranslation();
 			if ( (selectedTranslation != null) && 
 					selectTemplateReferenceID(selectedTranslation.getTemplateReferenceId()) )
 			{	
@@ -893,8 +894,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 					"The mix won't start unless a default translation is defined.");
 		}
 		
-		Enumeration<TermsAndConditionsTranslation> enumTranslations = operatorTCs.getAllTranslations();
-		TermsAndConditionsTranslation translation;
+		Enumeration<Translation> enumTranslations = operatorTCs.getAllTranslations();
+		Translation translation;
 		TemplateReferenceID templateRefID;
 		Hashtable<String, TemplateReferenceID> hashRefIDs = 
 			new Hashtable<String, TemplateReferenceID>();
@@ -970,9 +971,9 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 			messages.add("T&C container has no valid date set. This must not happen and seems to be a bug.");
 		}
 		
-		Enumeration<TermsAndConditionsTranslation>
+		Enumeration<Translation>
 			allTrans = operatorTCs.getAllTranslations();
-		TermsAndConditionsTranslation currentTrans = null;
+		Translation currentTrans = null;
 		//Method currentTransPropertyGetter = null;
 		//Object currentValue = null;
 		String currentTemplateRefId = null;
@@ -1073,7 +1074,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 			//save the valid date ...
 			saveDate();
 			// ... and the translation values ...
-			TermsAndConditionsTranslation selectedTranslation = getSelectedTranslation();
+			Translation selectedTranslation = getSelectedTranslation();
 			if(selectedTranslation != null)
 			{
 				saveTranslation(selectedTranslation);
@@ -1356,7 +1357,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	private void showContentDialog()
 	{
 		TermsAndConditionsTemplate template = getSelectedTemplate();
-		TermsAndConditionsTranslation translation = getSelectedTranslation();
+		Translation translation = getSelectedTranslation();
 		TCComposite translationSections =
 			TermsAndConditionsContentDialog.showContentDialog(this, template, translation);
 		if(translationSections != null)
@@ -1415,7 +1416,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		{
 			LanguageMapper langMapper = result.getResult();
 			String cmd = result.getCommand();
-			TermsAndConditionsTranslation t = null;
+			Translation t = null;
 			
 			if(cmd.equals(ACTION_CMD_ADD_TRANSLATION))
 			{
@@ -1484,7 +1485,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	
 	private void actionPreviewTranslation()
 	{
-		TermsAndConditionsTranslation previewTranslation = getPreviewTranslation(); 
+		Translation previewTranslation = getPreviewTranslation(); 
 		if(previewTranslation != null)
 		{
 			TermsAndConditionsDialog.previewTranslation(this, previewTranslation);
@@ -1733,7 +1734,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	
 	private void actionDeleteTranslation()
 	{
-		TermsAndConditionsTranslation selectedTranslation = getSelectedTranslation();
+		Translation selectedTranslation = getSelectedTranslation();
 		if(selectedTranslation != null)
 		{
 			LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Remove translation: "+selectedTranslation);
@@ -1745,8 +1746,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	
 	private void actionDefaultTranslation()
 	{
-		TermsAndConditionsTranslation oldDefault = operatorTCs.getDefaultTranslation();
-		TermsAndConditionsTranslation newDefault = getSelectedTranslation();
+		Translation oldDefault = operatorTCs.getDefaultTranslation();
+		Translation newDefault = getSelectedTranslation();
 		if( (newDefault != null) && 
 			(newDefault != oldDefault) )
 		{
@@ -1770,7 +1771,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		m_pnlDate.setDate(date);
 	}
 	
-	private void loadTranslation(TermsAndConditionsTranslation translation)
+	private void loadTranslation(Translation translation)
 	{
 		if(translation != null)
 		{
@@ -2018,8 +2019,8 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		if(operatorTCs != null)
 		{
 			m_bInitialisingTranslations = true;
-			Enumeration<TermsAndConditionsTranslation> supportedLanguages = operatorTCs.getAllTranslations();
-			TermsAndConditionsTranslation currentTrans = null;	
+			Enumeration<Translation> supportedLanguages = operatorTCs.getAllTranslations();
+			Translation currentTrans = null;	
 			while(supportedLanguages.hasMoreElements())
 			{
 				currentTrans = supportedLanguages.nextElement();
@@ -2030,7 +2031,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 					loadTranslation(currentTrans);
 				}
 			}
-			TermsAndConditionsTranslation selectedTranslation = getSelectedTranslation();
+			Translation selectedTranslation = getSelectedTranslation();
 			selectedLanguage = (selectedTranslation != null) ? selectedTranslation.getLocale() : null;
 			if(selectedLanguage != null)
 			{
@@ -2249,7 +2250,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		return templatesRoot;
 	}
 	
-	private void saveTranslation(TermsAndConditionsTranslation translation)
+	private void saveTranslation(Translation translation)
 	{
 		if(translation != null)
 		{
@@ -2359,7 +2360,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	{
 		return  (m_cbTranslations.getItemCount() > 1) ||
 				((m_cbTranslations.getItemCount() == 1) && 
-				 (m_cbTranslations.getItemAt(0) instanceof TermsAndConditionsTranslation));
+				 (m_cbTranslations.getItemAt(0) instanceof Translation));
 	}
 	
 	private boolean isTemplateReferenceIdInComboBox(String templateReferenceID)
@@ -2387,24 +2388,24 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		return (selectedRefId != null) && selectedRefId.isComplete();
 	}
 	
-	TermsAndConditionsTranslation getPreviewTranslation()
+	Translation getPreviewTranslation()
 	{
 		Document rootConfigDoc = getConfiguration().getDocument();
 		NodeList nl = rootConfigDoc.getElementsByTagName(XML_ELEMENT_TC_TRANSLATION_IMPORTS);
-		TermsAndConditionsTranslation currentTranslation = getSelectedTranslation();
-		if(currentTranslation == null)
+		Translation currentTranslation = getSelectedTranslation();
+		if(currentTranslation == null || operatorTCs == null)
 		{
 			return null;
 		}
 		//create a translation object with the values of the current
 		//selected translation completed with the the general import values. 
 		return (nl.getLength() > 0) ? 
-				currentTranslation.duplicateWithImports((Element) nl.item(0)) : currentTranslation;
+				duplicateWithImports(operatorTCs, currentTranslation, (Element) nl.item(0)) : currentTranslation;
 	}
 	
 	private boolean isDefaultLanguagePossible()
 	{
-		TermsAndConditionsTranslation currentTrans = getSelectedTranslation();
+		Translation currentTrans = getSelectedTranslation();
 		return (currentTrans != null) ? !currentTrans.isDefaultTranslation() : false;
 	}
 	
@@ -2416,7 +2417,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	private boolean isWrongTemplateSet()
 	{
 		TemplateReferenceID refId = getSelectedTemplateReferenceID();
-		TermsAndConditionsTranslation currentTrans = getSelectedTranslation();
+		Translation currentTrans = getSelectedTranslation();
 		
 		return (currentTrans != null) && 
 			(currentTrans.getLocale() != null) && 
@@ -2440,7 +2441,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	private boolean isTransformationPossible()
 	{
 		TermsAndConditionsTemplate template = null;
-		TermsAndConditionsTranslation currentTranslation = getSelectedTranslation();
+		Translation currentTranslation = getSelectedTranslation();
 		String templateRefID = null;
 		if( currentTranslation != null)
 		{
@@ -2469,10 +2470,10 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		return (getSelectedTemplateReferenceID() != null);
 	}
 	
-	private TermsAndConditionsTranslation getSelectedTranslation()
+	private Translation getSelectedTranslation()
 	{
 			Object selected = m_cbTranslations.getSelectedItem();
-			return (TermsAndConditionsTranslation) ((selected instanceof TermsAndConditionsTranslation) ? selected : null);
+			return (Translation) ((selected instanceof Translation) ? selected : null);
 	}
 	
 	private TemplateReferenceID getSelectedTemplateReferenceID()
@@ -2572,6 +2573,88 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				}
 			}
 		}
+	}
+	
+	private static Translation duplicateWithImports(TermsAndConditions tcsContainer, Translation translation,
+			Element xmlImports)
+	{
+		try 
+		{
+			Translation importTrans = 
+				tcsContainer.new Translation(xmlImports, false);
+			
+			//create a deep copy of this translation
+			//Translation
+			Object currentValue = null;
+			Method currentGetter = null;
+			Method currentSetter = null;
+			
+			//even though it may be a waste of memory, it is necessary to clone the sections in case the
+			//translation copy will modify the sections.
+			//importTrans.sections = (TCComposite) this.sections.clone();
+			
+			PropertyDescriptor translationPDs[] =
+				Introspector.getBeanInfo(translation.getClass()).getPropertyDescriptors();
+			for (int i = 0; i < translationPDs.length; i++) 
+			{
+				if( !translationPDs[i].getName().equals("operatorAddress") &&
+					!translationPDs[i].getName().equals("defaultTranslation") &&
+					translationPDs[i].getWriteMethod() != null)
+				{
+					currentGetter = translationPDs[i].getReadMethod();
+					currentSetter = translationPDs[i].getWriteMethod();
+					System.out.println("invoking getter: "+currentGetter);
+					currentValue = currentGetter.invoke(translation, null);
+				
+					if( (currentValue != null) && !currentValue.toString().equals(""))
+					{
+						currentSetter.invoke(
+								importTrans, 
+								new Object[]{currentValue});
+					}
+				}
+			}
+			
+			if(importTrans.getOperator() == null)
+			{
+				importTrans.setOperatorAddress(translation.getOperatorAddress());
+			}
+			else if(translation.getOperatorAddress() != null)
+			{
+				//now we update every address field on the newTrans address object
+				//which is defined in the address object of the current translation
+				PropertyDescriptor addressPDs[] =
+					Introspector.getBeanInfo(OperatorAddress.class).getPropertyDescriptors();
+				for (int i = 0; i < addressPDs.length; i++) 
+				{
+					if( addressPDs[i].getWriteMethod() != null )
+					{
+						currentGetter = addressPDs[i].getReadMethod();
+						currentSetter = addressPDs[i].getWriteMethod();
+						currentValue = currentGetter.invoke(translation.getOperatorAddress(), null);
+						//update the field in the copied object.
+						if( (currentValue != null) && !currentValue.toString().equals(""))
+						{
+							currentSetter.invoke(
+									importTrans.getOperatorAddress(), 
+									new Object[]{currentValue});
+						}
+					}
+				}
+			}
+			return importTrans;
+		} catch (XMLParseException e) {
+			e.printStackTrace();
+		} catch (IntrospectionException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	/**
@@ -2836,4 +2919,30 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 	
 	class NotLoadedException extends Exception
 	{}
+	
+	static class OperatorAddressIntrospection 
+	{
+		private static Hashtable propertyDescriptors = new Hashtable();
+		
+		static 
+		{
+			try 
+			{
+				BeanInfo info = Introspector.getBeanInfo(OperatorAddress.class);
+				PropertyDescriptor[] pds = info.getPropertyDescriptors();
+				for (int i = 0; i < pds.length; i++)
+				{
+					propertyDescriptors.put(pds[i].getName(), pds[i]);
+				}
+			} 
+			catch (IntrospectionException e) 
+			{
+			} 
+		}
+		
+		public static PropertyDescriptor getDescriptor(String propertyName)
+		{
+			return (PropertyDescriptor) propertyDescriptors.get(propertyName);
+		}
+	}
 }

@@ -74,7 +74,7 @@ import org.w3c.dom.NodeList;
 
 import anon.terms.TCComponent;
 import anon.terms.TCComposite;
-import anon.terms.TermsAndConditionsTranslation;
+import anon.terms.TermsAndConditions.Translation;
 import anon.terms.template.Paragraph;
 import anon.terms.template.Section;
 import anon.terms.template.TermsAndConditionsTemplate;
@@ -141,7 +141,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	private int lastCaretPosition = 0;
 	
 	private TermsAndConditionsContentDialog(TermsAndConditionsPanel parentPanel, TermsAndConditionsTemplate template,
-			TermsAndConditionsTranslation translation) 
+			Translation translation) 
 	{
 		super(parentPanel, JAPMessages.getString(TermsAndConditionsPanel.MSG_CONTENT), true);
 		this.parentPanel = parentPanel;
@@ -869,7 +869,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	
 	private void actionPreview()
 	{
-		TermsAndConditionsTranslation previewTranslation = parentPanel.getPreviewTranslation();
+		Translation previewTranslation = parentPanel.getPreviewTranslation();
 		if(previewTranslation != null)
 		{
 			previewTranslation.setSections(translationSections);
@@ -1076,7 +1076,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 	 * @return the sections containing the customized content.
 	 */
 	public static TCComposite showContentDialog(TermsAndConditionsPanel parentPanel, TermsAndConditionsTemplate template,
-			TermsAndConditionsTranslation translation)
+			Translation translation)
 	{
 		TermsAndConditionsContentDialog dialog = 
 			new TermsAndConditionsContentDialog(parentPanel, template, translation);

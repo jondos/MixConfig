@@ -581,7 +581,7 @@ public class MixConfig extends JApplet
 		}
 		else
 		{
-			returnValue = GUIUtils.showMonitoredFileChooser(fd2, a_component);
+			returnValue = GUIUtils.showMonitoredFileChooser(fd2, a_component, GUIUtils.FILE_CHOOSER_OPEN);
 		}
 		if (returnValue == JFileChooser.CANCEL_OPTION)
 		{
