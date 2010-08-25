@@ -35,6 +35,7 @@ public class SimpleFileFilter extends javax.swing.filechooser.FileFilter
 {
 	private String m_strDesc;
 	private String m_strExtension;
+	private String m_strExtensionTwo;
 	private int filterType;
 
 	public int getFilterType()
@@ -48,12 +49,14 @@ public class SimpleFileFilter extends javax.swing.filechooser.FileFilter
 		switch (filter_type)
 		{
 			case MixConfig.FILTER_CER:
-				m_strDesc = "Public X.509 Certificate (*.cer)";
+				m_strDesc = "Public X.509 Certificate (*.cer, *.crt)";
 				m_strExtension = ".cer";
+				m_strExtensionTwo = ".crt";
 				break;
 			case MixConfig.FILTER_B64_CER:
-				m_strDesc = "Public X.509 Certificate, Base64 (*.cer)";
+				m_strDesc = "Public X.509 Certificate, Base64 (*.cer, *.crt)";
 				m_strExtension = ".cer";
+				m_strExtensionTwo = ".crt";
 				break;
 			case MixConfig.FILTER_XML:
 				m_strDesc = "Mix Configuration (*.xml)";
@@ -85,7 +88,8 @@ public class SimpleFileFilter extends javax.swing.filechooser.FileFilter
 
 	public boolean accept(File f)
 	{
-		return f.isDirectory() || f.getName().endsWith(m_strExtension);
+		return f.isDirectory() || f.getName().endsWith(m_strExtension) ||
+		(m_strExtensionTwo != null && f.getName().endsWith(m_strExtensionTwo));
 	}
 
 	public String getDescription()

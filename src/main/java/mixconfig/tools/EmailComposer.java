@@ -23,8 +23,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import platform.AbstractOS;
-import platform.WindowsOS;
+import anon.platform.AbstractOS;
+import anon.platform.WindowsOS;
 import anon.crypto.PKCS10CertificationRequest;
 import anon.crypto.PKCS12;
 import anon.util.Base64;

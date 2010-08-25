@@ -1342,7 +1342,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 		} 
 		catch (URISyntaxException e)
 		{
-			LogHolder.log(LogLevel.EXCEPTION, LogType.FILE, e);
+			LogHolder.log(LogLevel.EXCEPTION, LogType.GUI, e);
 			return false;
 		}
 			

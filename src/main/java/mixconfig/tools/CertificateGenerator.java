@@ -33,7 +33,6 @@ import gui.dialog.WorkerContentPane;
 
 import java.security.SecureRandom;
 import java.util.Calendar;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import logging.LogHolder;
@@ -147,7 +146,7 @@ public class CertificateGenerator implements Runnable
 		{
 			if (!Thread.currentThread().isInterrupted())
 			{
-				JAPDialog.showErrorDialog(MixConfig.getMainWindow(), "Threading error!", LogType.THREAD, e);
+				JAPDialog.showErrorDialog(MixConfig.getMainWindow(), "Threading error!", LogType.CRYPTO, e);
 			}
 			m_cert = null;
 		}
