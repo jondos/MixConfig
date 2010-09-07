@@ -1128,7 +1128,7 @@ public class MixConfiguration
 		//dummyTableModel.addData(new InfoServiceData("InfoService", "87.230.20.187", 80));
 		dummyTableModel.addData(new InfoServiceData(XML_PATH_INFO_SERVICE, "infoservice.inf.tu-dresden.de", 80));
 		dummyTableModel.addData(new InfoServiceData(XML_PATH_INFO_SERVICE, "72.55.137.241", 80));
-		dummyTableModel.addData(new InfoServiceData(XML_PATH_INFO_SERVICE, "87.230.56.74", 80));
+		dummyTableModel.addData(new InfoServiceData(XML_PATH_INFO_SERVICE, "is.beneficium.de", 80));
 		dummyTableModel.addData(new InfoServiceData(XML_PATH_INFO_SERVICE, "78.129.146.44", 80));
 		setValue("Network", dummyTableModel);
 		
