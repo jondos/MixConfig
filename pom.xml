@@ -97,11 +97,11 @@
 							</execution>
 						</executions>
 					</plugin>
-<!-- 					<plugin>
-						-
+ 					<plugin>
+						<!--
 							This runs an ANT script which does all the copying of the right
 							files to the right positions...
-						-
+						-->
 						<artifactId>maven-antrun-plugin</artifactId>
 						<version>1.3</version>
 						<executions>
@@ -111,9 +111,8 @@
 									<tasks>
 										<property name="src_dir" value="${project.build.sourceDirectory}" />
 										<property name="WWWDEVELOP" value="/var/www/JapWeb/develop/" />
-										<property name="japdevelopment.jnlp"
-											location="/home/infoservice/japDevelopment.jnlp" />
-										<property name="japtomcat" location="/home/tomcat/webapps/jap/" />
+										<property name="MixConfig.jnlp"
+											location="/var/www/JapWeb/develop/MixConfig.jnlp" />
 										<property name="signedJarFile" value="${signedJarFileName}" />
 										<ant antfile="${basedir}/ant_build_maven_anon_cc_daily_snapshot.xml">
 											<target name="deploy_daily_snapshot" />
@@ -132,7 +131,7 @@
 								<version>1.7.1</version>
 							</dependency>
 						</dependencies>
-					</plugin> -->
+					</plugin> 
 				</plugins>
 			</build>
 		</profile>

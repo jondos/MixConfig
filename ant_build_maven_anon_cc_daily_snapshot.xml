@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<project name="Jap">
-	<target name="getCurrentVersionInformation">
+<project name="MixConfig">
+<!-- <target name="getCurrentVersionInformation">
 		<loadfile srcfile="${src_dir}/jap/JAPConstants.java"
 			property="currentVersion">
 			<filterchain>
@@ -40,35 +40,8 @@
 			</filterchain>
 		</loadfile>
 	</target>
-
-	<target name="deploy_daily_snapshot" depends="getCurrentVersionInformation"
-		unless="bUnstableStableVersion">
-		<echo>Stable version!</echo>
-		<echo message="${currentVersion}" file="${WWWDEVELOP}/japversion.txt" />
-		<copy file="${signedJarFile}" tofile="${WWWDEVELOP}/signedJAP__V${currentVersion}.jar" />
-		<!--
-			Copy JAP.jar to the Tomcat directory for JAP Update functionality
-		-->
-		<copy file="${signedJarFile}" tofile="${japtomcat}/signedJAP__V${currentVersion}.jar" />
-		<!-- Touch version.xml to make tomcat reread the JAP web-app -->
-		<touch file="${japtomcat}/version.xml" />
-		<copy file="${signedJarFile}" tofile="${WWWDEVELOP}/JAP.jar" />
-		<!--
-			Sets the new version number in the JavaWebStart/JAP Update
-			japDevelopment.jnlp
-		-->
-		<replaceregexp file="${japdevelopment.jnlp}"
-			match="version=&quot;([0-9][0-9][\.][0-9][0-9][\.][0-9][0-9][0-9])&quot;"
-			replace="version=&quot;${currentVersion}&quot;" byline="true">
-		</replaceregexp>
-		<!--
-			Sets the new release date in the JavaWebStart/JAP Update
-			japDevelopment.jnlp
-		-->
-		<replaceregexp file="${japdevelopment.jnlp}"
-			match="releaseDate=&quot;([^&quot;]*)&quot;" replace="releaseDate=&quot;${releaseDate}&quot;"
-			byline="true">
-		</replaceregexp>
-
+-->
+	<target name="deploy_daily_snapshot" >
+		<copy file="${signedJarFile}" tofile="${WWWDEVELOP}/MixConfig.jar" />
 	</target>
 </project>
