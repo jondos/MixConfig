@@ -516,7 +516,7 @@ private void doVerifyLogFiles() {
 		final DefaultTableModel model=new DefaultTableModel();
 		model.addColumn("File");
 		model.addColumn("Header");
-		model.addColumn("Log Entries");
+		model.addColumn("Log Lines");
 		model.addColumn("Footer");
 	//	model.setRowCount(20);
 		tableVerify.setModel(model);
@@ -649,6 +649,8 @@ private void doVerifyLogFiles() {
 						}
 						model.setValueAt("ok", model.getRowCount()-1, 3);
 						int lines=anonLogFile.getNrOfLogLines();
+						System.out.println("Number of Log entries per log line: "+anonLogFile.getHeader().getNrOfLogEntriesPerLogLine());
+						System.out.println("Log line size: "+anonLogFile.getHeader().getSizeOfLogLine());
 						labelCurrentFileStatus.setText("Try to verify log line 1/"+lines);
 						int goodLines=0,badLines=0;
 						try

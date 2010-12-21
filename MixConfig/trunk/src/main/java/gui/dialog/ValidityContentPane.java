@@ -142,7 +142,7 @@ public class ValidityContentPane extends DialogContentPane implements
 	*/
 	}
 
-	public CheckError[] checkYesOK()
+	public CheckError checkYesOK()
 	{
 		try
 		{
@@ -150,7 +150,7 @@ public class ValidityContentPane extends DialogContentPane implements
 		}
 		catch (NumberFormatException a_e)
 		{
-			return new CheckError[]{new CheckError("One or more date fields are empty", LogType.GUI)};
+			return new CheckError("One or more date fields are empty");
 		}
 		return null;
 	}

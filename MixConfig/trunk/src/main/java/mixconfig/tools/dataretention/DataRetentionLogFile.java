@@ -39,6 +39,11 @@ public class DataRetentionLogFile {
 		m_Header.parseFromFile(new FileInputStream(m_File));
 	}
 
+	public DataRetentionLogFileHeader getHeader()
+		{
+			return m_Header;
+		}
+	
 	public int getEncryptedKeyCount()
 	{
 		return m_Header.getEncryptedKeyCount();
