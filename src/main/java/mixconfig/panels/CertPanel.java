@@ -1602,7 +1602,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			getContentPane().add(m_btnPrivateCert, constr);
 		}
 
-		public CheckError[] checkUpdate()
+		public CheckError checkUpdate()
 		{
 			if (m_cert instanceof PKCS12)
 			{
@@ -1647,17 +1647,17 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			super(a_parentDialog, "You have successfully created the certificate!", a_previousContentPane);
 		}
 
-		public CheckError[] checkCancel()
+		public CheckError checkCancel()
 		{
 			return showConfirmDialog();
 		}
 
-		public CheckError[] checkNo()
+		public CheckError checkNo()
 		{
 			return showConfirmDialog();
 		}
 
-		private CheckError[] showConfirmDialog()
+		private CheckError showConfirmDialog()
 		{
 			int returnValue =
 				JAPDialog.showConfirmDialog( (JAPDialog) getDialog(),
@@ -1666,7 +1666,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 											JAPDialog.OPTION_TYPE_OK_CANCEL, JAPDialog.MESSAGE_TYPE_WARNING);
 		   if (returnValue != RETURN_VALUE_OK)
 		   {
-			   return new CheckError[]{new CheckError()};
+			   return new CheckError();
 		   }
 
 		   return null;
