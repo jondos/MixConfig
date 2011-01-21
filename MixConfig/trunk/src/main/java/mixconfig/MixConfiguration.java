@@ -1189,7 +1189,7 @@ public class MixConfiguration
 		} 
 		catch (IOException e) 
 		{
-		    JAPDialog.showErrorDialog(MixConfig.getMainWindow(), e.getMessage(), LogType.MISC);
+		    JAPDialog.showErrorDialog(MixConfig.getMainWindow(), e.getMessage());
 		}
 		String xmlString = sw.toString();
 		// Reload the document from the string
@@ -1211,13 +1211,12 @@ public class MixConfiguration
 			LogHolder.log(LogLevel.WARNING, LogType.MISC, e.getMessage());
 		    JAPDialog.showErrorDialog(MixConfig.getMainWindow(), 
 		    		"This configuration contains invalid characters! Once saved it cannot be loaded " +
-		    		"again by the mix software or this tool. Please re-check this configuration!!", 
-		    		LogType.MISC);
+		    		"again by the mix software or this tool. Please re-check this configuration!!");
 		}
 		catch (IOException ioe)
 		{
 			LogHolder.log(LogLevel.WARNING, LogType.MISC, ioe.getMessage());
-		    JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ioe.getMessage(), LogType.MISC);
+		    JAPDialog.showErrorDialog(MixConfig.getMainWindow(), ioe.getMessage());
 		}
 		// Log something
 		if (ret == true) LogHolder.log(LogLevel.DEBUG, LogType.MISC, "Reload-check successful :-)");

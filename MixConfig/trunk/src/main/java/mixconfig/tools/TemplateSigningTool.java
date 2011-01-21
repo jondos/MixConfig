@@ -200,11 +200,11 @@ public class TemplateSigningTool extends JAPDialog implements ActionListener, Ch
 					} 
 					catch (XMLParseException e) 
 					{
-						JAPDialog.showErrorDialog(this, "Cannot load template", LogType.MISC, e);
+						JAPDialog.showErrorDialog(this, "Cannot load template", e);
 					} 
 					catch (IOException e) 
 					{
-						JAPDialog.showErrorDialog(this, "Cannot load template", LogType.MISC, e);
+						JAPDialog.showErrorDialog(this, "Cannot load template", e);
 					}
 				}
 			
@@ -244,7 +244,7 @@ public class TemplateSigningTool extends JAPDialog implements ActionListener, Ch
 					} 
 					catch (IOException e) 
 					{
-						JAPDialog.showErrorDialog(this, "IOException occured.", LogType.MISC, e);
+						JAPDialog.showErrorDialog(this, "IOException occured.", e);
 					} 
 				}
 				break;

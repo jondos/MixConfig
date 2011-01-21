@@ -1536,14 +1536,12 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 					catch (XMLParseException e) 
 					{
 						JAPDialog.showErrorDialog(this, 
-								JAPMessages.getString(MSG_LOAD_FILE_ERROR), 
-								LogType.MISC, e);
+								JAPMessages.getString(MSG_LOAD_FILE_ERROR), e);
 					} 
 					catch (IOException e) 
 					{
 						JAPDialog.showErrorDialog(this, 
-								JAPMessages.getString(MSG_LOAD_FILE_ERROR), 
-								LogType.MISC, e);
+								JAPMessages.getString(MSG_LOAD_FILE_ERROR), e);
 					}
 				}
 				break;
@@ -1593,14 +1591,12 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 				catch (XMLParseException e) 
 				{
 					JAPDialog.showErrorDialog(this, 
-							JAPMessages.getString(MSG_LOAD_FILE_ERROR), 
-							LogType.MISC, e);
+							JAPMessages.getString(MSG_LOAD_FILE_ERROR), e);
 				} 
 				catch (IOException e) 
 				{
 					JAPDialog.showErrorDialog(this, 
-							JAPMessages.getString(MSG_LOAD_FILE_ERROR), 
-							LogType.MISC, e);
+							JAPMessages.getString(MSG_LOAD_FILE_ERROR), e);
 				}
 				break;
 			}
@@ -1660,8 +1656,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 						catch (IOException e) 
 						{
 							JAPDialog.showErrorDialog(this, 
-									JAPMessages.getString(MSG_SAVE_FILE_ERROR, selectedFile.getName()), 
-									LogType.MISC, e);
+									JAPMessages.getString(MSG_SAVE_FILE_ERROR, selectedFile.getName()), e);
 						}
 					}
 					break;
@@ -1710,7 +1705,7 @@ public class TermsAndConditionsPanel extends MixConfigPanel implements ActionLis
 						{
 							JAPDialog.showErrorDialog(this, 
 									JAPMessages.getString(MSG_TEMPLATE_MISMATCH, 
-											new Object[]{template.getId(), refId.getReferenceID()}) ,LogType.MISC);
+											new Object[]{template.getId(), refId.getReferenceID()}));
 							m_tf_templateURL.setText(refId.getSource().toString());
 							return;
 						}

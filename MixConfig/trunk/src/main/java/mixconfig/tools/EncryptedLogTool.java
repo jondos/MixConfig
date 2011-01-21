@@ -191,11 +191,11 @@ public class EncryptedLogTool extends JAPDialog
 		{
 			if (m_arLog == null || m_arLog.length == 0)
 			{
-				JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_NO_LOG), LogType.GUI);
+				JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_NO_LOG));
 			}
 			else if (m_privateCertPanel.getCert() == null)
 			{
-				JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_NO_CERT), LogType.GUI);
+				JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_NO_CERT));
 			}
 			else
 			{
@@ -206,7 +206,7 @@ public class EncryptedLogTool extends JAPDialog
 				catch (Throwable a_e)
 				{
 					JAPDialog.showErrorDialog(this, JAPMessages.getString(MSG_CANNOT_DECRYPT),
-											  LogType.MISC, a_e);
+											  a_e);
 				}
 			}
 		}

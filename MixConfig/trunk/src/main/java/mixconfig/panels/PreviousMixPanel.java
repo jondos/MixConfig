@@ -102,7 +102,7 @@ public class PreviousMixPanel extends OtherMixPanel implements ChangeListener
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, ex);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, ex);
 		}
 	}
 

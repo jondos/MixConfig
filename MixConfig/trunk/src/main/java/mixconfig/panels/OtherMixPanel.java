@@ -205,7 +205,7 @@ public abstract class OtherMixPanel extends MixConfigPanel implements ChangeList
 					catch (Exception ex)
 					{
 						// TODO: Rather log something
-						JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, ex);
+						JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, ex);
 					}					
 				}
 			}

@@ -96,7 +96,7 @@ public class MixConfig extends JApplet
 	public final static int FILTER_P10 = 32;
 	public final static int FILTER_B64_P10 = 64;
 
-	public final static String VERSION = "00.05.024";  //NEVER change the layout of this line!!
+	public final static String VERSION = "00.05.025";  //NEVER change the layout of this line!!
 	
 	private static final String IMG_MAIN = MixConfig.class.getName() + "_icon.gif";
 
@@ -229,8 +229,7 @@ public class MixConfig extends JApplet
 				{
 					JAPDialog.showErrorDialog(getMainWindow(),
 											  JAPMessages.getString(MSG_CONFIG_FILE_NOT_FOUND,
-						new File(m_currentFileName).toString()),
-											  LogType.MISC);
+						new File(m_currentFileName).toString()));
 				}
 
 				m_mixConfiguration = new MixConfiguration();
@@ -295,7 +294,7 @@ public class MixConfig extends JApplet
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorDialog(getMainWindow(), JAPMessages.getString(MSG_COULD_NOT_INITIALISE), LogType.MISC, e);
+			JAPDialog.showErrorDialog(getMainWindow(), JAPMessages.getString(MSG_COULD_NOT_INITIALISE), e);
 			System.exit(1);
 		}
 	}
@@ -360,7 +359,7 @@ public class MixConfig extends JApplet
 		catch (Exception e)
 		{
 			JAPDialog.showErrorDialog(getMainWindow(), JAPMessages.getString(MSG_COULD_NOT_INITIALISE),
-									  LogType.MISC, e);
+									  e);
 			System.exit(1);
 		}
 	}
@@ -526,8 +525,7 @@ public class MixConfig extends JApplet
 		catch (SecurityException a_e)
 		{
 			JAPDialog.showErrorDialog(a_component,
-									  "Access to file system is not allowed when running as applet!",
-									  LogType.MISC);
+									  "Access to file system is not allowed when running as applet!");
 			return null;
 		}
 		if(type==MixConfig.CHOOSE_DIR_DIALOG)
@@ -620,7 +618,7 @@ public class MixConfig extends JApplet
 				{
 					JAPDialog.showErrorDialog(getMainWindow(),
 											  JAPMessages.getString(MSG_ERROR_OPEN_FILE, file.toString()),
-											  LogType.MISC, e);
+											  e);
 				}
 			}
 		}
