@@ -71,7 +71,7 @@ public class CertificateGenerator implements Runnable
 	/** Constructor for <CODE>CertificateGenerator</CODE>
 	 * @param a_name The signer name
 	 * @param a_extensions the extensions for the certificate (optional, may be null)
-	 * @param a_bDSA if true, DSA ist used; otherwise an RSA certificate is created
+	 * @param a_bDSA if true, DSA is used; otherwise an RSA certificate is created
 	 */
 	public CertificateGenerator(X509DistinguishedName a_name, X509Extensions a_extensions, boolean a_bDSA)
 	{
@@ -146,7 +146,7 @@ public class CertificateGenerator implements Runnable
 		{
 			if (!Thread.currentThread().isInterrupted())
 			{
-				JAPDialog.showErrorDialog(MixConfig.getMainWindow(), "Threading error!", LogType.CRYPTO, e);
+				JAPDialog.showErrorDialog(MixConfig.getMainWindow(), "Threading error!", e);
 			}
 			m_cert = null;
 		}

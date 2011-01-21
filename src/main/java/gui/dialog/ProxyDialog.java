@@ -86,11 +86,11 @@ public class ProxyDialog extends JAPDialog implements ActionListener
 			String portText = portTextField.getText();
 			if((hostText == null) || hostText.equals(""))
 			{
-				JAPDialog.showErrorDialog(this, "No host specified.", LogType.MISC);
+				JAPDialog.showErrorDialog(this, "No host specified.");
 			}
 			else if((portText == null) || portText.equals(""))
 			{
-				JAPDialog.showErrorDialog(this, "No port specified.", LogType.MISC);
+				JAPDialog.showErrorDialog(this, "No port specified.");
 			}
 			else
 			{
@@ -105,12 +105,11 @@ public class ProxyDialog extends JAPDialog implements ActionListener
 		    	catch(NumberFormatException nfe)
 		    	{
 		    		JAPDialog.showErrorDialog(this,
-		    				"Bad proxy port: "+portText+". Port must be a number between 0 and 65535",
-		    				LogType.MISC);
+		    				"Bad proxy port: "+portText+". Port must be a number between 0 and 65535");
 		    	}
 		    	catch(IllegalArgumentException ila)
 		    	{
-		    		JAPDialog.showErrorDialog(this, ila.getMessage(), LogType.MISC);
+		    		JAPDialog.showErrorDialog(this, ila.getMessage());
 		    	}
 			}
 		}

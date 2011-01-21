@@ -456,7 +456,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 				{
 					JAPDialog.showErrorDialog(MixConfig.getMainWindow(),
 							     JAPMessages.getString(MSG_NO_VALID_CLIPDOC),
-								 JAPMessages.getString(MSG_COULD_NOT_PARSE), LogType.GUI, a_e);
+								 JAPMessages.getString(MSG_COULD_NOT_PARSE), a_e);
 				}
 			}
 			else if (evt.getActionCommand().equals(CMD_OPEN_FILE) ||
@@ -551,7 +551,7 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		catch (Exception e)
 		{
 			JAPDialog.showErrorDialog(MixConfig.getMainWindow(),
-					     JAPMessages.getString(JAPDialog.MSG_ERROR_UNKNOWN), LogType.GUI, e);
+					     JAPMessages.getString(JAPDialog.MSG_ERROR_UNKNOWN), e);
 		}
 		// Set MessageTitle
 		((ChoicePanel)m_configWiz_Panel.getParent()).setMessageTitle();

@@ -631,7 +631,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			if((existingSection != null) && existingSection.hasContent())
 			{	
 				JAPDialog.showErrorDialog(getParentComponent(), "Section '"+existingSection.getContent()+"' with id "+
-						existingSection.getId()+" already exists", LogType.MISC);
+						existingSection.getId()+" already exists");
 			}
 			else
 			{
@@ -651,7 +651,7 @@ public class TermsAndConditionsContentDialog extends JAPDialog
 			if( (existingParagraph != null) && existingParagraph.hasContent())
 			{
 				JAPDialog.showErrorDialog(getParentComponent(), "Paragraph with id "+
-						existingParagraph.getId()+" already exists", LogType.MISC);
+						existingParagraph.getId()+" already exists");
 			}
 			else
 			{

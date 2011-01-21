@@ -727,17 +727,17 @@ private void doVerifyLogFiles() {
 
 private void doErrorPrivKey(JAPDialog parent) {
 	// TODO Auto-generated method stub
-	JAPDialog.showErrorDialog(parent, "The given private key could not be read. Plaese check if the provided location is correct.", 0);
+	JAPDialog.showErrorDialog(parent, "The given private key could not be read. Plaese check if the provided location is correct.");
 }
 
 private void doErrorSmartCard(JAPDialog parent) {
 	// TODO Auto-generated method stub
-	JAPDialog.showErrorDialog(parent, "Could not find any SmartCard reader which contains a valid SmartCard. Plaese check your readers and the inserted SmartCard",0);
+	JAPDialog.showErrorDialog(parent, "Could not find any SmartCard reader which contains a valid SmartCard. Plaese check your readers and the inserted SmartCard");
 }
 
 private void doErrorLogDir() {
 	// TODO Auto-generated method stub
-	JAPDialog.showErrorDialog(this, "The given log dir could not be read. Plaese check if the provided location is correct.", 0);
+	JAPDialog.showErrorDialog(this, "The given log dir could not be read. Plaese check if the provided location is correct.");
 }
 
 private void doSelectLogDir() {

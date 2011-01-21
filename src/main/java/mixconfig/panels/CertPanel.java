@@ -681,7 +681,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (Exception ex)
 		{
-			JAPDialog.showErrorDialog(this, LogType.GUI, ex);
+			JAPDialog.showErrorDialog(this, ex);
 		}
 	}
 
@@ -782,8 +782,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 						{
 							JAPDialog.showErrorDialog(GUIUtils.getParentWindow(this),
 								"Your private certificate was not loaded for some unknown reason! " +
-								"It might be damaged.",
-								LogType.CRYPTO);
+								"It might be damaged.");
 							break;
 						}
 						else
@@ -1157,7 +1156,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 				{
 					JAPDialog.showErrorDialog(
 						this, "This public key certificate does not belong to your private key!",
-						"Wrong certificate!", LogType.GUI);
+						"Wrong certificate!");
 					return false;
 				}
 			}
@@ -1243,7 +1242,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 			}
 		});
 
-		DialogContentPane.updateDialogOptimalSized(passwordContentPane);
+		passwordContentPane.pack();
 		dialog.setResizable(false);
 		dialog.setVisible(true);
 
@@ -1278,7 +1277,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		FileFilterSelectionPane typePane =
 			new FileFilterSelectionPane(dialog, JAPMessages.getString(MSG_CHOOSE_CERT_TYPE), pane);
 
-		DialogContentPane.updateDialogOptimalSized(pane);
+		pane.pack();
 		dialog.setResizable(false);
 		dialog.setVisible(true);
 		if (typePane.getButtonValue() != DialogContentPane.RETURN_VALUE_OK)
@@ -1434,7 +1433,7 @@ public class CertPanel extends JPanel implements ActionListener, ChangeListener
 		}
 		catch (IOException a_e)
 		{
-			JAPDialog.showErrorDialog(this, "Could not export certificate", LogType.MISC, a_e);
+			JAPDialog.showErrorDialog(this, "Could not export certificate", a_e);
 			ClipFrame save =
 				new ClipFrame(this,
 							  "I/O error while saving, try clipboard. " +

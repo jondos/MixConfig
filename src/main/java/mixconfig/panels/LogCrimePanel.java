@@ -384,7 +384,7 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 			}
 			catch (Exception a_e)
 			{
-				JAPDialog.showErrorDialog(this, "Cannot read imported settings. They might be damaged.", LogType.GUI, a_e);
+				JAPDialog.showErrorDialog(this, "Cannot read imported settings. They might be damaged.", a_e);
 			}
 		}
 		else if (e.getSource() == m_btnExport)
@@ -449,7 +449,7 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 		}
 		catch (XMLParseException a_e)
 		{
-			JAPDialog.showErrorDialog(this, LogType.MISC, a_e);
+			JAPDialog.showErrorDialog(this, a_e);
 			return;
 		}
 
@@ -515,7 +515,7 @@ public class LogCrimePanel extends MixConfigPanel implements ActionListener, Key
 		{
 			JAPDialog.showErrorDialog(this, 
 					JAPMessages.getString(
-							PANEL_INPUT_ERROR_KEYS[panelIndex], input), LogType.MISC);
+							PANEL_INPUT_ERROR_KEYS[panelIndex], input) );
 		}
 		//inputComponents[boxIndex].setText("");
 	}

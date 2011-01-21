@@ -156,7 +156,7 @@ public class ChoicePanel extends JPanel
 		}
 		catch (Exception e)
 		{
-			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, LogType.GUI, e);
+			JAPDialog.showErrorDialog(MixConfig.getMainWindow(), null, e);
 		}
 	}
 
