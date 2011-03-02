@@ -903,8 +903,16 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				while (enumIS.hasMoreElements())
 				{
 					isEntry = (InfoServiceDBEntry)enumIS.nextElement();
+					
+					Vector vecListeners = isEntry.getListenerInterfaces();
+					ListenerInterface[] nList = new ListenerInterface[vecListeners.size()];
+					for (int i = 0; i < vecListeners.size(); i++)
+					{
+						nList[i] = (ListenerInterface)vecListeners.elementAt(i);
+					}
+					
 					isData = new InfoServiceData(MixConfiguration.XML_PATH_INFO_SERVICE, 
-							(ListenerInterface[])isEntry.getListenerInterfaces().toArray());
+							nList);
 					m_infoServiceModel.addData(isData);
 				}
 			}
