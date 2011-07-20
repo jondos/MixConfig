@@ -107,7 +107,7 @@
 							<execution>
 								<phase>deploy</phase>
 								<configuration>
-									<tasks>
+									<target>
 										<property name="src_dir" value="${project.build.sourceDirectory}" />
 										<property name="WWWDEVELOP" value="/var/www/JapWeb/develop/" />
 										<property name="MixConfig.jnlp"
@@ -116,7 +116,7 @@
 										<ant antfile="${basedir}/ant_build_maven_anon_cc_daily_snapshot.xml">
 											<target name="deploy_daily_snapshot" />
 										</ant>
-									</tasks>
+									</target>
 								</configuration>
 								<goals>
 									<goal>run</goal>
