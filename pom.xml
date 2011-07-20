@@ -89,7 +89,7 @@
 									<storepass>${jar.sign.storepass}</storepass> <!-- Has to be defined as a property in settings.xml -->
 									<keypass>${jar.sign.keypass}</keypass> <!-- dito -->
 									<sigfile>JAP-TEAM</sigfile>
-									<archive>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</archive>
+									<archive>${project.build.directory}/>${project.artifactId}-${project.version}-jar-with-dependencies.jar</archive>
 									<verify>false</verify>
 									<processMainArtifact>false</processMainArtifact>
 								</configuration>
@@ -112,7 +112,7 @@
 										<property name="WWWDEVELOP" value="/var/www/JapWeb/develop/" />
 										<property name="MixConfig.jnlp"
 											location="/var/www/JapWeb/develop/MixConfig.jnlp" />
-										<property name="signedJarFile" value="${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar" />
+										<property name="signedJarFile" value="${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar" />
 										<ant antfile="${basedir}/ant_build_maven_anon_cc_daily_snapshot.xml">
 											<target name="deploy_daily_snapshot" />
 										</ant>
