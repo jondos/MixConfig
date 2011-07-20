@@ -70,9 +70,6 @@
 				developer version and publish it on the Web
 			-->
 			<id>anon-cc-daily-snapshot</id>
-			<properties>
-				<signedJarFileName>${project.build.directory}/signed_${project.build.finalName}-jar-with-dependencies.jar</signedJarFileName>
-			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -115,7 +112,7 @@
 										<property name="WWWDEVELOP" value="/var/www/JapWeb/develop/" />
 										<property name="MixConfig.jnlp"
 											location="/var/www/JapWeb/develop/MixConfig.jnlp" />
-										<property name="signedJarFile" value="${signedJarFileName}" />
+										<property name="signedJarFile" value="${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar" />
 										<ant antfile="${basedir}/ant_build_maven_anon_cc_daily_snapshot.xml">
 											<target name="deploy_daily_snapshot" />
 										</ant>
