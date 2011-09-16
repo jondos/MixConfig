@@ -1,17 +1,13 @@
 package mixconfig.tools;
 
-import gui.JAPHelpContext;
 import gui.JAPJIntField;
 import gui.dialog.JAPDialog;
 import gui.dialog.PasswordContentPane;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -20,12 +16,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Date;
-import java.util.EventObject;
 
 import javax.swing.ButtonGroup;
-import javax.swing.CellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -35,31 +28,14 @@ import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTree;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.tree.DefaultTreeSelectionModel;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
 
 import anon.crypto.MyRSAPrivateKey;
 import anon.crypto.PKCS12;
 
 import mixconfig.MixConfig;
-import mixconfig.panels.CertPanel;
 import mixconfig.tools.dataretention.DataRetentionLogFile;
 import mixconfig.tools.dataretention.DataRetentionLogFileEntry;
 import mixconfig.tools.dataretention.DataRetentionLogFileHeader;
@@ -155,8 +131,7 @@ private void initComponents() {
 	bttn.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent arg0) 
 		{
-			doSelectSecretKey();// TODO Auto-generated method stub
-			
+			doSelectSecretKey();			
 		}
 		
 	});
@@ -280,8 +255,7 @@ private void initComponents() {
 	bttn.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent arg0) 
 		{
-			doVerifyLogFiles();// TODO Auto-generated method stub
-			
+			doVerifyLogFiles();			
 		}
 		
 	});
@@ -300,11 +274,9 @@ private void initComponents() {
 	{
 		public void actionPerformed(ActionEvent arg0) 
 		{
-			// TODO Auto-generated method stub
 			try {
 				doLogDecrpyt();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -391,7 +363,6 @@ private Object doSetSecretPrivateKey()
 					return null;
 				privKey=(MyRSAPrivateKey)pkcs12.getPrivateKey();
 				} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				doErrorPrivKey(this);
 				return null;
 			}
@@ -406,7 +377,6 @@ private Object doSetSecretPrivateKey()
 				bFoundCard=smartcard.connectToSmartCard();
 				smartcard.retrievePublicKey();
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			if(!bFoundCard)
@@ -438,7 +408,6 @@ private Object doSetSecretPrivateKey()
 				} 
 				
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 				return null;
 			}
@@ -552,7 +521,6 @@ private void doVerifyLogFiles() {
 			public void run() {
 				bRun=true;
 				File logFiles[]=null;
-				// TODO Auto-generated method stub
 				try{
 				File dir=new File(m_tfLogDir.getText());
 				if(!dir.isDirectory()||!dir.canRead())
@@ -685,7 +653,6 @@ private void doVerifyLogFiles() {
 					Thread.sleep(100);
 				} catch (InterruptedException e)
 				{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				pbFiles.setValue(pbFiles.getValue()+1);
@@ -703,12 +670,10 @@ private void doVerifyLogFiles() {
 	{
 			public void actionPerformed(ActionEvent e)
 			{
-				// TODO Auto-generated method stub
 				runnableDoVerify.stopIt();
 				try {
 					threadDoVerify.join();
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				dlgVerify.dispose();
@@ -726,17 +691,14 @@ private void doVerifyLogFiles() {
 }
 
 private void doErrorPrivKey(JAPDialog parent) {
-	// TODO Auto-generated method stub
 	JAPDialog.showErrorDialog(parent, "The given private key could not be read. Plaese check if the provided location is correct.");
 }
 
 private void doErrorSmartCard(JAPDialog parent) {
-	// TODO Auto-generated method stub
 	JAPDialog.showErrorDialog(parent, "Could not find any SmartCard reader which contains a valid SmartCard. Plaese check your readers and the inserted SmartCard");
 }
 
 private void doErrorLogDir() {
-	// TODO Auto-generated method stub
 	JAPDialog.showErrorDialog(this, "The given log dir could not be read. Plaese check if the provided location is correct.");
 }
 
@@ -752,7 +714,6 @@ private void doSelectLogDir() {
 }
 
 protected void doLogDecrpyt() throws Exception {
-	// TODO Auto-generated method stub
 	final MyRSAPrivateKey privKey;
 	final DataRetentionSmartCard smartcard;
 	
@@ -909,7 +870,6 @@ private void doSelectSecretKey()
 }
 
 private void setPrivateKeyFile(boolean bSmartCard,String text) {
-	// TODO Auto-generated method stub
 	m_bUseSmartCardforPrivateKey=bSmartCard;
 	if(bSmartCard)
 	{

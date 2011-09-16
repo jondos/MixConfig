@@ -51,7 +51,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import logging.LogType;
 import mixconfig.ICertCreationValidator;
 import mixconfig.MixConfig;
 import mixconfig.panels.CertPanel;
