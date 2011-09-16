@@ -5,20 +5,24 @@
 
 package mixconfig.tools.dataretention;
 
+import java.security.PublicKey;
 import java.util.List;
-import javax.smartcardio.*;
-import java.security.*;
-import javax.crypto.*;
 import java.math.BigInteger;
-//import org.bouncycastle.crypto.engines.*;
+
+import javax.crypto.Cipher;
+import javax.smartcardio.ATR;
+import javax.smartcardio.Card;
+import javax.smartcardio.CardChannel;
+import javax.smartcardio.CardTerminal;
+import javax.smartcardio.CommandAPDU;
+import javax.smartcardio.ResponseAPDU;
+import javax.smartcardio.TerminalFactory;
 
 import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.AEADParameters;
 import org.bouncycastle.crypto.digests.SHA512Digest;
-import anon.crypto.MyRSA;
-import anon.crypto.MyRSAPrivateKey;
 import anon.crypto.MyRSAPublicKey;
 
 /**
