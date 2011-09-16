@@ -140,7 +140,7 @@
 		<dependency>
 			<groupId>anon</groupId>
 			<artifactId>guilib</artifactId>
-			<version>00.00.142-SNAPSHOT</version>
+			<version>00.00.143-SNAPSHOT</version>
 			<exclusions> <!-- don't use obsolete XML classes if not necessary -->
 				<exclusion>
 					<groupId>xml</groupId>
