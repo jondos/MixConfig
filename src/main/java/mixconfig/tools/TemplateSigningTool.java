@@ -53,7 +53,6 @@ import javax.swing.event.ChangeListener;
 
 import org.w3c.dom.Document;
 
-import logging.LogType;
 import mixconfig.MixConfig;
 import mixconfig.panels.CertPanel;
 import anon.crypto.ICertificate;
