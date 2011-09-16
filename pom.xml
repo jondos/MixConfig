@@ -11,6 +11,10 @@
 		<repository>
 			<id>anon.inf.tu-dresden.de</id>
 			<url>http://anon.inf.tu-dresden.de/artifactory/repo</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>interval:5</updatePolicy>
+			</snapshots>
 		</repository>
 	</repositories>
 	<build>
