@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>anon</groupId>
@@ -24,7 +25,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2.1</version> <!-- previous versions have unacceptable errors!  -->
+				<version>2.2.1</version> <!-- previous versions have unacceptable errors! -->
 				<executions>
 					<execution>
 						<id>create-executable-jar</id>
@@ -65,10 +66,8 @@
 			</distributionManagement>
 		</profile>
 		<profile>
-			<!--
-				This profile is for creating a daily snapshot of the current
-				developer version and publish it on the Web
-			-->
+			<!-- This profile is for creating a daily snapshot of the 
+				current developer version and publish it on the Web -->
 			<id>anon-cc-daily-snapshot</id>
 			<build>
 				<plugins>
@@ -96,11 +95,9 @@
 							</execution>
 						</executions>
 					</plugin>
- 					<plugin>
-						<!--
-							This runs an ANT script which does all the copying of the right
-							files to the right positions...
-						-->
+					<plugin>
+						<!-- This runs an ANT script which does all the copying 
+							of the right files to the right positions... -->
 						<artifactId>maven-antrun-plugin</artifactId>
 						<version>1.6</version>
 						<executions>
@@ -108,12 +105,15 @@
 								<phase>deploy</phase>
 								<configuration>
 									<target>
-										<property name="src_dir" value="${project.build.sourceDirectory}" />
+										<property name="src_dir"
+											value="${project.build.sourceDirectory}" />
 										<property name="WWWDEVELOP" value="/var/www/JapWeb/develop/" />
 										<property name="MixConfig.jnlp"
 											location="/var/www/JapWeb/develop/MixConfig.jnlp" />
-										<property name="signedJarFile" value="${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar" />
-										<ant antfile="${basedir}/ant_build_maven_anon_cc_daily_snapshot.xml">
+										<property name="signedJarFile"
+											value="${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar" />
+										<ant
+											antfile="${basedir}/ant_build_maven_anon_cc_daily_snapshot.xml">
 											<target name="deploy_daily_snapshot" />
 										</ant>
 									</target>
@@ -130,7 +130,7 @@
 								<version>1.8.1</version>
 							</dependency>
 						</dependencies>
-					</plugin> 
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -140,13 +140,13 @@
 		<dependency>
 			<groupId>anon</groupId>
 			<artifactId>guilib</artifactId>
-			<version>00.00.091-SNAPSHOT</version>
+			<version>00.00.142-SNAPSHOT</version>
 			<exclusions> <!-- don't use obsolete XML classes if not necessary -->
-	        	<exclusion>
-	          		<groupId>xml</groupId>
+				<exclusion>
+					<groupId>xml</groupId>
 					<artifactId>xml</artifactId>
-	        	</exclusion>
-	      	</exclusions>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
