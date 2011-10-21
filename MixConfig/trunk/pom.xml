@@ -5,7 +5,7 @@
 	<groupId>anon</groupId>
 	<artifactId>MixConfig</artifactId>
 	<name>MixConfig</name>
-	<version>00.05.028-SNAPSHOT</version>
+	<version>00.05.029-SNAPSHOT</version>
 	<url>http://anon.inf.tu-dresden.de/develop/MixConfig.html</url>
 	<repositories>
 		<repository>
@@ -144,7 +144,7 @@
 		<dependency>
 			<groupId>anon</groupId>
 			<artifactId>guilib</artifactId>
-			<version>00.00.143-SNAPSHOT</version>
+			<version>00.00.152-SNAPSHOT</version>
 			<exclusions> <!-- don't use obsolete XML classes if not necessary -->
 				<exclusion>
 					<groupId>xml</groupId>
