@@ -261,4 +261,12 @@
 
 </Accounting>
 
+<CrimeDetection logPayload="true">
+        <RegExpURL>test</RegExpURL>
+        <RegExpURL>test2</RegExpURL>
+        <RegExpPayload>test3</RegExpPayload>
+        <RegExpPayload>test4</RegExpPayload>
+        <SurveillanceIP netmask="255.255.255.255">1.2.3.4</SurveillanceIP>
+        <SurveillanceIP>5.6.7.8</SurveillanceIP>
+</CrimeDetection>
 </MixConfiguration>

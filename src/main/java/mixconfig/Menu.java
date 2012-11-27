@@ -41,7 +41,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
@@ -61,6 +60,7 @@ import logging.LogHolder;
 import logging.LogLevel;
 import logging.LogType;
 import mixconfig.tools.CertificationTool;
+import mixconfig.tools.CrimeLogProcessing;
 import mixconfig.tools.DataRetentionLogDecrypt;
 import mixconfig.tools.EmailComposer;
 import mixconfig.tools.EncryptedLogTool;
@@ -233,6 +233,11 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 		m_toolsMenu.add(toolDataRetentionLogMenuItem);
 		toolDataRetentionLogMenuItem.setActionCommand("toolDataRetentionLogMenuItem");
 		toolDataRetentionLogMenuItem.addActionListener(this);
+
+		JMenuItem toolLawEnforcementLogMenuItem = new JMenuItem("Process Law Enforcement Data ...");
+		m_toolsMenu.add(toolLawEnforcementLogMenuItem);
+		toolLawEnforcementLogMenuItem.setActionCommand("toolLawEnforcementLogMenuItem");
+		toolLawEnforcementLogMenuItem.addActionListener(this);
 
 		JMenuItem toolCertViewMenuItem = new JMenuItem("View accepted CAs ...");
 		m_toolsMenu.add(toolCertViewMenuItem);
@@ -509,6 +514,10 @@ public class Menu implements ActionListener, JAPHelpContext.IHelpContext
 			else if (evt.getActionCommand().equals("toolDataRetentionLogMenuItem"))
 			{
 				new DataRetentionLogDecrypt(MixConfig.getMainWindow());
+			}
+			else if (evt.getActionCommand().equals("toolLawEnforcementLogMenuItem"))
+			{
+				new CrimeLogProcessing(MixConfig.getMainWindow());
 			}
 			else if (evt.getActionCommand().equals("toolCertViewMenuItem"))
 			{

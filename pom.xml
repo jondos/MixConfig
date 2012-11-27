@@ -5,7 +5,7 @@
 	<groupId>anon</groupId>
 	<artifactId>MixConfig</artifactId>
 	<name>MixConfig</name>
-	<version>00.05.032-SNAPSHOT</version>
+	<version>00.05.035-SNAPSHOT</version>
 	<url>http://anon.inf.tu-dresden.de/develop/MixConfig.html</url>
 	<repositories>
 		<repository>
@@ -17,6 +17,25 @@
 			</snapshots>
 		</repository>
 	</repositories>
+	<dependencies>
+		<dependency>
+			<groupId>anon</groupId>
+			<artifactId>guilib</artifactId>
+			<version>00.00.190-SNAPSHOT</version>
+			<exclusions> <!-- don't use obsolete XML classes if not necessary -->
+				<exclusion>
+					<groupId>xml</groupId>
+					<artifactId>xml</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -140,23 +159,5 @@
 		</profile>
 
 	</profiles>
-	<dependencies>
-		<dependency>
-			<groupId>anon</groupId>
-			<artifactId>guilib</artifactId>
-			<version>00.00.176-SNAPSHOT</version>
-			<exclusions> <!-- don't use obsolete XML classes if not necessary -->
-				<exclusion>
-					<groupId>xml</groupId>
-					<artifactId>xml</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+
 </project>

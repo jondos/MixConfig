@@ -45,7 +45,7 @@ import anon.crypto.PKCS12;
 import anon.crypto.RSAKeyPair;
 import anon.crypto.Validity;
 import anon.crypto.X509DistinguishedName;
-import anon.crypto.X509Extensions;
+import anon.crypto.MyX509Extensions;
 import anon.crypto.X509SubjectKeyIdentifier;
 
 /** An implementation of <CODE>Runnable</CODE> that starts a new thread to 
@@ -59,7 +59,7 @@ public class CertificateGenerator implements Runnable
 	/** The signer name for the certificate */
 	private X509DistinguishedName m_name;
 
-	private X509Extensions m_extensions;
+	private MyX509Extensions m_extensions;
 
 	private boolean m_bDSA;
 	
@@ -73,7 +73,7 @@ public class CertificateGenerator implements Runnable
 	 * @param a_extensions the extensions for the certificate (optional, may be null)
 	 * @param a_bDSA if true, DSA is used; otherwise an RSA certificate is created
 	 */
-	public CertificateGenerator(X509DistinguishedName a_name, X509Extensions a_extensions, boolean a_bDSA)
+	public CertificateGenerator(X509DistinguishedName a_name, MyX509Extensions a_extensions, boolean a_bDSA)
 	{
 		m_name = a_name;
 		m_extensions = a_extensions;
@@ -87,7 +87,7 @@ public class CertificateGenerator implements Runnable
 	 * @param a_bDSA if true, DSA is used; otherwise an RSA certificate is created
 	 * @param a_keyize size of newly generated key in bits
 	 */
-	public CertificateGenerator(X509DistinguishedName a_name, X509Extensions a_extensions, boolean a_bDSA,int keysize)
+	public CertificateGenerator(X509DistinguishedName a_name, MyX509Extensions a_extensions, boolean a_bDSA,int keysize)
 	{
 		m_name = a_name;
 		m_extensions = a_extensions;
@@ -140,7 +140,7 @@ public class CertificateGenerator implements Runnable
 			}
 			extensions.addElement(ski);
 
-			m_cert = new PKCS12(m_name, keyPair, m_validity, new X509Extensions(extensions));
+			m_cert = new PKCS12(m_name, keyPair, m_validity, new MyX509Extensions(extensions));
 		}
 		catch (Exception e)
 		{
@@ -155,7 +155,7 @@ public class CertificateGenerator implements Runnable
 	public static CertificateWorker createWorker(JAPDialog a_parentDialog,
 												 DialogContentPane a_previousContentPane,
 												 X509DistinguishedName a_name,
-												 X509Extensions a_extensions,
+												 MyX509Extensions a_extensions,
 												 boolean a_bDSA,int keysize)
 	{
 		// FIXME: Please, let us remove this hack completely! 

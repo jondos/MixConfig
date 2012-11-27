@@ -33,7 +33,7 @@ import anon.crypto.ICertificate;
 import anon.util.CountryMapper;
 import anon.util.Util;
 import anon.crypto.X509BasicConstraints;
-import anon.crypto.X509Extensions;
+import anon.crypto.MyX509Extensions;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectAlternativeName;
 import anon.crypto.AbstractX509Extension;
@@ -72,7 +72,7 @@ public class MixCertificateView implements ICertificateView
 		}
 		JAPCertificate certificate = a_certificate.getX509Certificate();
 		X509DistinguishedName dn;
-		X509Extensions extensions;
+		MyX509Extensions extensions;
 		X509SubjectAlternativeName alternativeName;
 		Vector coordinates;
 		X509BasicConstraints extConstraints;

@@ -31,7 +31,7 @@ import java.util.Vector;
 import anon.crypto.JAPCertificate;
 import anon.crypto.ICertificate;
 import anon.crypto.X509BasicConstraints;
-import anon.crypto.X509Extensions;
+import anon.crypto.MyX509Extensions;
 import anon.crypto.X509DistinguishedName;
 import anon.crypto.X509SubjectAlternativeName;
 import anon.crypto.AbstractX509AlternativeName;
@@ -71,7 +71,7 @@ public class OperatorCertificateView implements ICertificateView
 		}
 
 		Vector vecTags, vecValues;
-		X509Extensions extensions;
+		MyX509Extensions extensions;
 		JAPCertificate certificate = a_certificate.getX509Certificate();
 		X509DistinguishedName dn = certificate.getSubject();
 		X509BasicConstraints extConstraints;
