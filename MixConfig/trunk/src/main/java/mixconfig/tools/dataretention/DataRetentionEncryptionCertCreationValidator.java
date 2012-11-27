@@ -3,13 +3,13 @@ package mixconfig.tools.dataretention;
 import java.util.Vector;
 
 import anon.crypto.X509DistinguishedName;
-import anon.crypto.X509Extensions;
+import anon.crypto.MyX509Extensions;
 import mixconfig.ICertCreationValidator;
 
 public class DataRetentionEncryptionCertCreationValidator implements
 		ICertCreationValidator {
 
-	public X509Extensions getExtensions() {
+	public MyX509Extensions getExtensions() {
 		// TODO Auto-generated method stub
 		return null;
 	}

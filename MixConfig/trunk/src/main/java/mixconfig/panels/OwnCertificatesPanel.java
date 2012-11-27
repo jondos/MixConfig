@@ -77,7 +77,7 @@ import anon.crypto.Validity;
 import anon.crypto.X509AuthorityKeyIdentifier;
 import anon.crypto.X509BasicConstraints;
 import anon.crypto.X509DistinguishedName;
-import anon.crypto.X509Extensions;
+import anon.crypto.MyX509Extensions;
 import anon.crypto.X509KeyUsage;
 import anon.crypto.X509SubjectAlternativeName;
 import anon.crypto.X509SubjectKeyIdentifier;
@@ -575,14 +575,14 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 		// Get the cert
 		PKCS12 operatorCert = (PKCS12)m_operatorCert.getCert();
 		Vector<AbstractX509Extension> vecExtensions = new Vector(); 
-		X509Extensions extensions;
+		MyX509Extensions extensions;
 		vecExtensions.addElement(new X509SubjectKeyIdentifier(
 				((PKCS12) m_ownCert.getCert()).getPublicKey()));
 		vecExtensions.addElement(new X509AuthorityKeyIdentifier(operatorCert.getPublicKey()));
 		vecExtensions.addElement(new X509KeyUsage(
 				X509KeyUsage.DIGITAL_SIGNATURE | X509KeyUsage.NON_REPUDIATION));
 		vecExtensions.addElement(new X509BasicConstraints(false));
-		extensions = new X509Extensions(vecExtensions);
+		extensions = new MyX509Extensions(vecExtensions);
 		
 		// Sign ..
 		((PKCS12) m_ownCert.getCert()).sign(operatorCert, validity, 
@@ -936,7 +936,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			return new X509DistinguishedName(attributes);
 		}
 
-		public X509Extensions getExtensions()
+		public MyX509Extensions getExtensions()
 		{
 			Vector<String> coordinates = new Vector<String>();
 			Vector<Integer> tags = new Vector<Integer>();
@@ -959,7 +959,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			vecExtensions.addElement(new X509KeyUsage(
 					X509KeyUsage.DIGITAL_SIGNATURE | X509KeyUsage.NON_REPUDIATION));
 
-			return new X509Extensions(vecExtensions);
+			return new MyX509Extensions(vecExtensions);
 		}
 
 		public String getPasswordInfoMessage()
@@ -1034,7 +1034,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			return new X509DistinguishedName(attributes);
 		}
 
-		public X509Extensions getExtensions()
+		public MyX509Extensions getExtensions()
 		{
 			Vector<AbstractX509Extension> vecExtensions = new Vector<AbstractX509Extension>();
 			Vector<String> vecValues = new Vector<String>();
@@ -1054,7 +1054,7 @@ public class OwnCertificatesPanel extends MixConfigPanel implements ActionListen
 			vecExtensions.addElement(new X509KeyUsage(
 					X509KeyUsage.DIGITAL_SIGNATURE | X509KeyUsage.NON_REPUDIATION |
 					X509KeyUsage.KEY_CERT_SIGN));
-			return new X509Extensions(vecExtensions);
+			return new MyX509Extensions(vecExtensions);
 		}
 
 		public String getPasswordInfoMessage()

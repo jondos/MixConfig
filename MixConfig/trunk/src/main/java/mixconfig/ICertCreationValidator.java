@@ -30,7 +30,7 @@ package mixconfig;
 import java.util.Vector;
 
 import anon.crypto.X509DistinguishedName;
-import anon.crypto.X509Extensions;
+import anon.crypto.MyX509Extensions;
 
 /** This interface contains methods that provide information needed for generating
  * new certificates. Classes that use <CODE>CertPanel</CODE> must implement this
@@ -55,7 +55,7 @@ public interface ICertCreationValidator
 	 * Returns the X509 extensions that are added to the new certificate.
 	 * @return the X509 extensions that are added to the new certificate
 	 */
-	X509Extensions getExtensions();
+	MyX509Extensions getExtensions();
 
 	/** Returns a message to be shown in the &quot;new password&quot; dialog for the PKCS12 certificate.
 	 * @return A password info message

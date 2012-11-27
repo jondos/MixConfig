@@ -61,7 +61,7 @@ import anon.crypto.JAPCertificate;
 import anon.crypto.MyRSAPrivateKey;
 import anon.crypto.PKCS12;
 import anon.crypto.X509DistinguishedName;
-import anon.crypto.X509Extensions;
+import anon.crypto.MyX509Extensions;
 import anon.util.Base64;
 import anon.util.JAPMessages;
 
@@ -336,9 +336,9 @@ public class EncryptedLogTool extends JAPDialog
 			return JAPMessages.getString(MSG_PASSWD_INFO_MSG);
 		}
 
-		public X509Extensions getExtensions()
+		public MyX509Extensions getExtensions()
 		{
-			return new X509Extensions(new Vector());
+			return new MyX509Extensions(new Vector());
 		}
 		public X509DistinguishedName getSigName()
 		{
