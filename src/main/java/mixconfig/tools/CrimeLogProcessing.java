@@ -195,7 +195,7 @@ public class CrimeLogProcessing extends JAPDialog
 				getContentPane().add(panelButtons, constraintsPanel);
 
 				final JAPDialog parentDlg = this;
-				bttn = new JButton("Ausführen");
+				bttn = new JButton("Ausf\u00FChren");
 				panelButtons.add(bttn);
 				bttn.addActionListener(new ActionListener()
 					{
@@ -206,7 +206,7 @@ public class CrimeLogProcessing extends JAPDialog
 										JAPDialog
 												.showErrorDialog(
 														parentDlg,
-														"Ein Fehler ist aufgetreten.\nBitte überprüfen Sie, ob die Log-Datei existiert und lesbar ist. Überprüfen Sie auch, ob das Ausgabeverzeichnis existiert und schreibbar ist.");
+														"Ein Fehler ist aufgetreten.\nBitte \u00FCberpr\u00FCfen Sie, ob die Log-Datei existiert und lesbar ist. Pr\u00FCfen Sie auch, ob das Ausgabeverzeichnis existiert und schreibbar ist.");
 									}
 								else
 									dispose();
