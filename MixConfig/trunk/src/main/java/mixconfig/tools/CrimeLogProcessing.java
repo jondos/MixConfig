@@ -43,13 +43,17 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
-import java.sql.Date;
+import java.util.Date;
+import java.util.Locale;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Hashtable;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import anon.util.Base64;
@@ -58,7 +62,7 @@ import mixconfig.MixConfig;
 
 import gui.dialog.JAPDialog;
 
-public class CrimeLogProcessing extends JAPDialog
+public class CrimeLogProcessing extends JAPDialog implements Runnable
 	{
 		private JTextField m_tfLogFile;
 		private JTextField m_tfOutputDir;
@@ -66,16 +70,31 @@ public class CrimeLogProcessing extends JAPDialog
 		private JRadioButton m_radioFirstMix;
 		private JRadioButton m_radioMiddleMix;
 		private JRadioButton m_radioLastMix;
-		private DateFormat m_dateFormat=new SimpleDateFormat("yyyyMMdd-hhmmss");
-				
+		private JProgressBar m_Progress;
+		private DateFormat m_dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss",Locale.GERMANY);
+		private DateFormat m_dateFormatLog = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss",Locale.GERMANY);
+		private Hashtable<String, String> m_htDateChannels;
+		private CrimeLogProcessing m_crimelogprocessingDlg;
+		private int m_processedBytes;
+		private JButton m_bttnDoIt;
+		private Thread m_threadDoIt;
+		private volatile boolean m_bRun;
+		
 		public CrimeLogProcessing(Frame parent)
 			{
 				super(parent, "Proccessing Tool for Law Enforcement Data", true);
+				m_crimelogprocessingDlg=this;
 				// CAMsg::printMsg(LOG_CRIT,"Crime detection: User surveillance, previous mix channel (opened at: %u): %u - Downstream Payload (Base64 encoded): %s\n");
 				// CAMsg::printMsg(LOG_CRIT,"Crime detection: User surveillance, previous mix channel (opened at: %u): %u - Upstream Payload (Base64 encoded): %s\n");
+				/*
+				 * regexpLogLine = Pattern .compile(
+				 * "Crime detection: User surveillance, previous mix channel \\(opened at: (\\d+)\\): (\\d+) - ([UpDown]+)stream Payload \\(Base64 encoded\\): (.+)$"
+				 * , Pattern.CASE_INSENSITIVE);
+				 */// CAMsg::printMsg(LOG_CRIT,"[2013/01/10-13:06:23, critical]  Crime detection: User surveillance, previous mix channel: %u - Downstream Payload (Base64 encoded): %s\n");
+				// CAMsg::printMsg(LOG_CRIT,"[2013/01/10-13:06:23, critical] Crime detection: User surveillance, previous mix channel: %u): %u - Upstream Payload (Base64 encoded): %s\n");
 				regexpLogLine = Pattern
 						.compile(
-								"Crime detection: User surveillance, previous mix channel \\(opened at: (\\d+)\\): (\\d+) - ([UpDown]+)stream Payload \\(Base64 encoded\\): (.+)$",
+								"\\[(.+), .*\\] Crime detection: User surveillance, previous mix channel: (\\d+) - ([UpDown]+)stream Payload \\(Base64 encoded\\): (.+)$",
 								Pattern.CASE_INSENSITIVE);
 				// regexpLogLine=Pattern.compile("Crime detection: User surveillance, previous mix channel \\(opened at: (\\d+)\\): (\\d+) - ",Pattern.CASE_INSENSITIVE);
 				initComponents();
@@ -185,8 +204,27 @@ public class CrimeLogProcessing extends JAPDialog
 				constraintsPanel.fill = GridBagConstraints.HORIZONTAL;
 				getContentPane().add(bttn, constraintsPanel);
 
-				panelButtons = new JPanel(new GridLayout(1, 2, 20, 0));
+				label = new JLabel("Verarbeitung:");
+				constraintsPanel.gridx = 0;
 				constraintsPanel.gridy = 4;
+				constraintsPanel.anchor = GridBagConstraints.WEST;
+				constraintsPanel.weightx = 0;
+				constraintsPanel.insets = new Insets(10, 10, 10, 10);
+				getContentPane().add(label, constraintsPanel);
+
+				m_Progress = new JProgressBar();
+				constraintsPanel.gridx = 1;
+				constraintsPanel.gridwidth = 2;
+				constraintsPanel.fill=GridBagConstraints.HORIZONTAL;
+				constraintsPanel.gridy = 4;
+				constraintsPanel.anchor = GridBagConstraints.WEST;
+				constraintsPanel.weightx = 1;
+				constraintsPanel.insets = new Insets(10, 10, 10, 10);
+				getContentPane().add(m_Progress, constraintsPanel);
+				
+
+				panelButtons = new JPanel(new GridLayout(1, 2, 20, 0));
+				constraintsPanel.gridy = 5;
 				constraintsPanel.gridx = 0;
 				constraintsPanel.weighty = 0;
 				constraintsPanel.gridwidth = GridBagConstraints.REMAINDER;
@@ -194,22 +232,14 @@ public class CrimeLogProcessing extends JAPDialog
 				constraintsPanel.anchor = GridBagConstraints.SOUTHEAST;
 				getContentPane().add(panelButtons, constraintsPanel);
 
-				final JAPDialog parentDlg = this;
-				bttn = new JButton("Ausf\u00FChren");
-				panelButtons.add(bttn);
-				bttn.addActionListener(new ActionListener()
+				m_bttnDoIt = new JButton("Ausf\u00FChren");
+				panelButtons.add(m_bttnDoIt);
+				m_bttnDoIt.addActionListener(new ActionListener()
 					{
 						public void actionPerformed(ActionEvent arg0)
 							{
-								if (!doIt())
-									{
-										JAPDialog
-												.showErrorDialog(
-														parentDlg,
-														"Ein Fehler ist aufgetreten.\nBitte \u00FCberpr\u00FCfen Sie, ob die Log-Datei existiert und lesbar ist. Pr\u00FCfen Sie auch, ob das Ausgabeverzeichnis existiert und schreibbar ist.");
-									}
-								else
-									dispose();
+								m_bttnDoIt.setEnabled(false);
+								doIt();
 							}
 
 					});
@@ -219,35 +249,62 @@ public class CrimeLogProcessing extends JAPDialog
 					{
 						public void actionPerformed(ActionEvent arg0)
 							{
+								m_bRun=false;
+								if(m_threadDoIt!=null)
+									try
+										{
+											m_threadDoIt.join();
+										}
+									catch (InterruptedException e)
+										{
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
 								dispose();
 							}
 
 					});
 			}
 
-		private boolean doIt()
+		private void doIt()
 			{
+				m_bRun=true;
+				m_threadDoIt=new Thread(this,"Thread process law enforcement data");
+				m_threadDoIt.setDaemon(true);
+				m_threadDoIt.start();
+				
+			}
+		
+		public void run()
+			{
+				m_htDateChannels = new Hashtable<String, String>();
 				LineNumberReader reader = null;
 				boolean ret = false;
 				try
 					{
 						File fileLog = new File(m_tfLogFile.getText());
+						final long filesize=fileLog.length();
+						SwingUtilities.invokeAndWait(new Runnable(){public void run(){m_Progress.setMaximum((int) filesize);}});
 						reader = new LineNumberReader(new FileReader(fileLog));
 						File outputDir = new File(m_tfOutputDir.getText());
 						String currentLine = null;
-						while ((currentLine = reader.readLine()) != null)
+						m_processedBytes=0;
+						while ((currentLine = reader.readLine()) != null&&m_bRun)
 							{
 								if (!processLine(currentLine, outputDir))
 									{
 										ret = false;
 										break;
 									}
+								m_processedBytes+=currentLine.length();
+								SwingUtilities.invokeLater(new Runnable(){public void run(){m_Progress.setValue(m_processedBytes);}});
+															
 							}
-						ret=true;
+						ret = true;
 					}
 				catch (Throwable t)
 					{
-						ret=false;
+						ret = false;
 					}
 				if (reader != null)
 					try
@@ -257,11 +314,45 @@ public class CrimeLogProcessing extends JAPDialog
 					catch (Throwable e)
 						{
 						}
-				return ret;
+				
+				if (!ret)
+					{
+						JAPDialog
+								.showErrorDialog(
+										m_crimelogprocessingDlg,
+										"Ein Fehler ist aufgetreten.\nBitte \u00FCberpr\u00FCfen Sie, ob die Log-Datei existiert und lesbar ist. Pr\u00FCfen Sie auch, ob das Ausgabeverzeichnis existiert und schreibbar ist.");
+					}
+				else if(m_bRun) //Execution was not canceled
+					{
+						JAPDialog
+						.showMessageDialog(
+								m_crimelogprocessingDlg,
+								"Verarbeitung erfolgreich beendet!");
+					}
 			}
 
 		// CAMsg::printMsg(LOG_CRIT,"Crime detection: User surveillance, previous mix channel (opened at: %u): %u - Downstream Payload (Base64 encoded): %s\n");
 		// CAMsg::printMsg(LOG_CRIT,"Crime detection: User surveillance, previous mix channel (opened at: %u): %u - Upstream Payload (Base64 encoded): %s\n");
+		/*
+		 * private boolean processLine(String currentLine, File outputDir) { if
+		 * (!currentLine
+		 * .contains("Crime detection: User surveillance, previous mix channel"))
+		 * return true; boolean bUpstream = false; String strChannel = null; String
+		 * strDate = null; String strPayloadBase64 = null; Matcher matcher =
+		 * regexpLogLine.matcher(currentLine); if (matcher.find()) { strDate =
+		 * matcher.group(1); strChannel = matcher.group(2); bUpstream =
+		 * ("Up".equals(matcher.group(3))); strPayloadBase64 = matcher.group(4); }
+		 * else return true; Date date=new Date(Long.parseLong(strDate)*1000);
+		 * String strFilenameForChannel = m_dateFormat.format(date)+ " -- " +
+		 * strChannel; if (bUpstream) { strFilenameForChannel += ".sent"; } else {
+		 * strFilenameForChannel += ".received"; } try { FileOutputStream fileOut =
+		 * new FileOutputStream(outputDir + "/" + strFilenameForChannel, true);
+		 * byte[] payload = Base64.decode(strPayloadBase64); fileOut.write(payload);
+		 * fileOut.close(); } catch (Throwable t) { return false; } return true; }
+		 */
+
+		// CAMsg::printMsg(LOG_CRIT,"Crime detection: User surveillance, previous mix channel:  %u - Downstream Payload (Base64 encoded): %s\n");
+		// CAMsg::printMsg(LOG_CRIT,"Crime detection: User surveillance, previous mix channel: %u - Upstream Payload (Base64 encoded): %s\n");
 		private boolean processLine(String currentLine, File outputDir)
 			{
 				if (!currentLine.contains("Crime detection: User surveillance, previous mix channel"))
@@ -280,8 +371,36 @@ public class CrimeLogProcessing extends JAPDialog
 					}
 				else
 					return true;
-				Date date=new Date(Long.parseLong(strDate)*1000);
-				String strFilenameForChannel = m_dateFormat.format(date)+ " -- " + strChannel;
+				// Date date=new Date(Long.parseLong(strDate)*1000);
+				String strTmp = m_htDateChannels.get(strChannel);
+				if (strTmp == null)
+					{
+						try
+							{
+								strTmp = m_dateFormat.format(m_dateFormatLog.parse(strDate));
+							}
+						catch (Throwable t)
+							{
+								return false;
+							}
+						m_htDateChannels.put(strChannel, strTmp);
+					}
+				else
+					{// check if channel is still the same, i.e. opening time <1h from
+						// current time...
+						try
+							{
+								Date dateCurrent = m_dateFormatLog.parse(strDate);
+								Date dateOpen = m_dateFormat.parse(strTmp);
+								if((dateCurrent.getTime()-dateOpen.getTime())>3600000)
+										System.out.println("Problem with channel opening times for channel: "+strChannel+"Open time: "+strTmp+" Current Record Time: "+strDate);
+							}
+						catch (Throwable t)
+							{
+								System.out.println("Something is wrong");
+							}
+					}
+				String strFilenameForChannel = /* m_dateFormat.format(date) */strTmp + " -- " + strChannel;
 				if (bUpstream)
 					{
 						strFilenameForChannel += ".sent";
