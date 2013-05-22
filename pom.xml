@@ -111,7 +111,6 @@
 									<goal>sign</goal>
 								</goals>
 								<configuration>
-<!-- 									<keystore>/usr/share/tomcat6/.keystore</keystore> -->
 									<alias>jap</alias>
 									<storepass>${jar.sign.storepass}</storepass> <!-- Has to be defined as a property in settings.xml -->
 									<keypass>${jar.sign.keypass}</keypass> <!-- dito -->
