@@ -7,6 +7,11 @@
 	<name>MixConfig</name>
 	<version>00.05.036-SNAPSHOT</version>
 	<url>http://anon.inf.tu-dresden.de/develop/MixConfig.html</url>
+			<properties>
+		<compiler.plugin.version>3.1</compiler.plugin.version>
+		<jdk.path>/opt/java/jdk1.7</jdk.path>
+		<jdk.version>1.7</jdk.version>
+	</properties>
 	<repositories>
 		<repository>
 			<id>anon.inf.tu-dresden.de</id>
@@ -40,8 +45,8 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
+					<version>${compiler.plugin.version}</version>
+									<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
