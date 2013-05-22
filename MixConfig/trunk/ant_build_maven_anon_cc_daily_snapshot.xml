@@ -1,46 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project name="MixConfig">
-<!-- <target name="getCurrentVersionInformation">
-		<loadfile srcfile="${src_dir}/jap/JAPConstants.java"
-			property="currentVersion">
-			<filterchain>
-				<linecontains>
-					<contains value="static final String aktVersion" />
-				</linecontains>
-				<tokenfilter>
-					<stringtokenizer delims='"' suppressdelims="true" />
-					<containsstring contains="." />
-				</tokenfilter>
-			</filterchain>
-		</loadfile>
 
-		<loadfile srcfile="${src_dir}/jap/JAPConstants.java"
-			property="releaseDate">
-			<filterchain>
-				<linecontains>
-					<contains value="private static final String CVS_GENERATED_RELEASE_DATE" />
-				</linecontains>
-				<containsregex
-					pattern="(.*&quot;.*)([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} [+][0-9]{4})(.*&quot;.*)"
-					replace="\2" />
-				<deletecharacters chars="\r\n" />
-			</filterchain>
-		</loadfile>
-		
-		<loadfile srcfile="${src_dir}/jap/JAPConstants.java"
-			property="bUnstableVersion">
-			<filterchain>
-				<stripjavacomments />
-				<linecontains>
-					<contains value="public final static boolean m_bUnstableVersion" />
-				</linecontains>
-				<tokenfilter>
-					<containsstring contains="true" />
-				</tokenfilter>
-			</filterchain>
-		</loadfile>
-	</target>
--->
 	<target name="deploy_daily_snapshot" >
 		<copy file="${signedJarFile}" tofile="${WWWDEVELOP}/MixConfig.jar" />
 	</target>
