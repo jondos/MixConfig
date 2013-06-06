@@ -1,7 +1,67 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project name="MixConfig">
 
-	<target name="deploy_daily_snapshot" >
+	<taskdef name="http"
+		classname="org.missinglink.ant.task.http.HttpClientTask">
+	</taskdef>
+
+	<target name="getCurrentVersionInformation">
+		<loadfile srcfile="${src_dir}/mixconfig/MixConfig.java"
+			property="currentVersion">
+			<filterchain>
+				<linecontains>
+					<contains
+						value="public final static String VERSION = " />
+				</linecontains>
+				<tokenfilter>
+					<stringtokenizer delims='"'
+						suppressdelims="true" />
+					<containsstring contains="." />
+				</tokenfilter>
+			</filterchain>
+		</loadfile>
+		<echo message="Current Version: ${currentVersion}" />
+	</target>
+
+	<target name="deploy_to_anon" depends="getCurrentVersionInformation">
+		<echo message="${currentVersion}" file="${WWWDEVELOP}/mixconfigversion.txt" />
 		<copy file="${signedJarFile}" tofile="${WWWDEVELOP}/MixConfig.jar" />
 	</target>
+
+	<target name="deploy_to_sourceforge" depends="getCurrentVersionInformation">
+		<!-- copy file to sf
+		<sshexec host="shell.sourceforge.net" username="${sf.user},anon"
+			password="${sf.pass}"
+			command="mkdir /home/frs/project/anon/infoservice-development/${currentVersion}" />
+		<scp file="${signedJarFile}"
+			remoteTofile="${sf.user}@frs.sourceforge.net:/home/frs/project/anon/infoservice-development/${currentVersion}/InfoService_${currentVersion}.jar"
+			password="${sf.pass}" />
+		-->	
+		<!-- release it using REST-API 
+		<property name="http.entity" value="api_key=${sf.api.key}" />
+		<http
+			url="https://sourceforge.net/projects/anon/files/infoservice-development/${currentVersion}/InfoService_${currentVersion}.jar"
+			method="PUT" printrequest="true" printresponseheaders="true">
+			<headers>
+				<header name="Content-Type:" value="application/x-www-form-urlencoded" />
+			</headers>
+			<entity value="${http.entity}" />
+		</http> -->
+		<exec executable="rsync" failonerror="true">
+		<arg value="-e"/>
+		<arg value="ssh -i ${sf.ssh.key}"/>
+		<arg value="/dev/null"/>
+		<arg value="${sf.user}@frs.sourceforge.net:/home/frs/project/anon/mixconfig-development/${currentVersion}/"/>
+		</exec>
+		<exec executable="rsync" failonerror="true">
+		<arg value="-e"/>
+		<arg value="ssh -i ${sf.ssh.key}"/>
+		<arg value="${signedJarFile}"/>
+		<arg value="${sf.user}@frs.sourceforge.net:/home/frs/project/anon/mixconfig-development/${currentVersion}/MixConfig_${currentVersion}.jar"/>
+		</exec>
+	</target>
+
+	<target name="deploy_daily_snapshot" depends="deploy_to_anon,deploy_to_sourceforge">
+	</target>
+
 </project>
