@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project name="MixConfig">
 
-	<taskdef name="http"
-		classname="org.missinglink.ant.task.http.HttpClientTask">
-	</taskdef>
 
 	<target name="getCurrentVersionInformation">
 		<loadfile srcfile="${src_dir}/mixconfig/MixConfig.java"
