@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<jnlp spec="1.0+"
+				codebase="http://anon.inf.tu-dresden.de/develop/"
+	  		>
+		<information>
+  		<title>MixConfig Tool</title>
+      <vendor>The JAP-Team</vendor>
+      <homepage href="http://anon.inf.tu-dresden.de/"/>
+      <description kind="one-line" >MixConfig is a tool for configuration of Mixes of the AN.ON project</description>
+      <description kind="tooltip" >A tool for Mix configuration</description>
+      <description>MixConfig  is a tool for configuration of Mixes of the AN.ON project</description>
+      <icon href="MixConfig.gif"/>
+		</information>
+    	<information locale="de">
+	     <vendor>JAP-Team</vendor>
+      <description>MixConfig ist ein Programm zum Konfigurieren der Mixe des AN.ON Projektes</description>
+ 	</information>
+<resources>
+    	<j2se version="1.2+"/>
+    	<jar href="MixConfig.jar"/>
+    </resources>
+    <security>
+    	<all-permissions/>
+    </security>
+    <application-desc main-class="mixconfig.MixConfig"/>
+  </jnlp>

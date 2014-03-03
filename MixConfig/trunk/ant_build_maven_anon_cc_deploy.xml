@@ -20,7 +20,7 @@
 		<echo message="Current Version: ${currentVersion}" />
 	</target>
 
-	<target name="deploy_to_anon" depends="getCurrentVersionInformation">
+	<target name="release_to_anon" depends="getCurrentVersionInformation">
 		<echo message="${currentVersion}" file="${WWWDEVELOP}/mixconfigversion.txt" />
 		<copy file="${signedJarFile}" tofile="${WWWDEVELOP}/MixConfig.jar" />
 	</target>
@@ -58,7 +58,9 @@
 		</exec>
 	</target>
 
-	<target name="deploy_daily_snapshot" depends="deploy_to_anon,deploy_to_sourceforge">
+	
+	
+	<target name="deploy_daily_snapshot" depends="deploy_to_sourceforge">
 	</target>
 
 </project>
