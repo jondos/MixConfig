@@ -168,7 +168,7 @@
         <profile>
             <!-- This profile is for creating a daily snapshot of the 
                 current developer version and publish it on the Web -->
-            <id>anon-cc-release</id>
+            <id>anon-release</id>
             <build>
                 <plugins>
                     <plugin>
