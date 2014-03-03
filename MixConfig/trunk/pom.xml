@@ -213,7 +213,7 @@
                                             value="${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar" />
                                         <ant
                                             antfile="${basedir}/ant_build_maven_anon_cc_deploy.xml">
-                                            <target name="deploy_daily_snapshot" />
+                                            <target name="release_to_anon" />
                                         </ant>
                                     </target>
                                 </configuration>
