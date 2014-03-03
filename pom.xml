@@ -177,7 +177,7 @@
                         <version>1.3.1</version>
                         <executions>
                             <execution>
-                                <id>sign-executable-jar</id>
+                                <id>sign-executable-jar-jap</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>sign</goal>
@@ -187,6 +187,22 @@
                                     <storepass>${jar.sign.storepass}</storepass> <!-- Has to be defined as a property in settings.xml -->
                                     <keypass>${jar.sign.keypass}</keypass> <!-- dito -->
                                     <sigfile>JAP-TEAM</sigfile>
+                                    <archive>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</archive>
+                                    <verify>false</verify>
+                                    <processMainArtifact>false</processMainArtifact>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>sign-executable-jar-jondo</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <alias>jondo</alias>
+                                    <storepass>${jar.sign.storepass}</storepass> <!-- Has to be defined as a property in settings.xml -->
+                                    <keypass>${jar.sign.keypass}</keypass> <!-- dito -->
+                                    <sigfile>JONDO</sigfile>
                                     <archive>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</archive>
                                     <verify>false</verify>
                                     <processMainArtifact>false</processMainArtifact>
