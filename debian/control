@@ -1,9 +1,9 @@
 Source: mix-config-tool
 Section: net
 Priority: optional
-Maintainer: Karsten Ness <kn@jondos.de>
+Maintainer: JonDos GmbH <info@jondos.de>
 Build-Depends: debhelper (>= 5)
-Homepage: https://www.jondos.de
+Homepage: https://anonymous-proxy-servers.net
 Standards-Version: 3.7.2
 
 
@@ -22,4 +22,4 @@ Description: configuration tool for JonDonym mix servers
     * other eavesdroppers on the connections (ECHELON,...),
     * any data retention (by international distribution) and
     * the JonDonym service itself.
-Homepage: https://www.jondos.de
+Homepage: https://anonymous-proxy-servers.net
