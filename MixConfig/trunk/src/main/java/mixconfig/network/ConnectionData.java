@@ -53,11 +53,12 @@ final public class ConnectionData implements IXMLEncodable, Cloneable
 	public static final int SSL_TCP = SSL | TCP;
 	public static final int SSL_UNIX = SSL | UNIX;
 
-	public static final int PROXY_MASK = 3;
+	public static final int PROXY_MASK = 7;
 
 	public static final int NO_PROXY = 0;
 	public static final int HTTP_PROXY = 1;
 	public static final int SOCKS_PROXY = 2;
+	public static final int VPN_PROXY = 4;
 
 	private String m_strXMLNodeName; // Name of the XML element
 	private int m_iTransport;
@@ -222,8 +223,15 @@ final public class ConnectionData implements IXMLEncodable, Cloneable
 		if (isProxy)
 		{
 			data = docOwner.createElement("ProxyType");
-			data.appendChild(docOwner.createTextNode( ( (m_iFlags & PROXY_MASK) == HTTP_PROXY) ? "HTTP" :
-				"SOCKS"));
+			int proxytype=m_iFlags & PROXY_MASK;
+			String strProxyType="";
+			if(proxytype==HTTP_PROXY)
+				strProxyType="HTTP";
+			if(proxytype==SOCKS_PROXY)
+				strProxyType="SOCKS";
+			if(proxytype==VPN_PROXY)
+				strProxyType="VPN";
+			data.appendChild(docOwner.createTextNode( strProxyType));
 			elemRoot.appendChild(data);
 		}
 		data = docOwner.createElement("NetworkProtocol");
@@ -261,7 +269,8 @@ final public class ConnectionData implements IXMLEncodable, Cloneable
 			Element visibleAddresses = docOwner.createElement("VisibleAddresses");
 			// TODO: For all visible addresses do ...
 			data = docOwner.createElement("VisibleAddress");
-			data.appendChild(docOwner.createTextNode(m_strVisibleAddress));
+			if(m_strVisibleAddress!=null)
+				data.appendChild(docOwner.createTextNode(m_strVisibleAddress));
 			visibleAddresses.appendChild(data);
 			// And add
 			elemRoot.appendChild(visibleAddresses);
@@ -299,6 +308,7 @@ final public class ConnectionData implements IXMLEncodable, Cloneable
 
 		}
 		// Read the ProxyType
+		ptype = NO_PROXY;
 		data = getChildElementValue(elemRoot, "ProxyType");
 		if (data == null)
 		{
@@ -308,9 +318,13 @@ final public class ConnectionData implements IXMLEncodable, Cloneable
 		{
 			ptype = HTTP_PROXY;
 		}
-		else
+		else if (data.equalsIgnoreCase("SOCKS"))
 		{
 			ptype = SOCKS_PROXY;
+		}
+		else if (data.equalsIgnoreCase("VPN"))
+		{
+			ptype = VPN_PROXY;
 		}
 		// NetworkProtocol
 		data = getChildElementValue(elemRoot, "NetworkProtocol");
