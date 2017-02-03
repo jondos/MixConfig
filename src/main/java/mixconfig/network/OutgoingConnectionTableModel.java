@@ -39,6 +39,8 @@ final public class OutgoingConnectionTableModel extends ConnectionTableModel
 							return "HTTP Proxy";
 						case ConnectionData.SOCKS_PROXY:
 							return "Socks Proxy";
+						case ConnectionData.VPN_PROXY:
+							return "VPN Proxy";
 					}
 				}
 				else

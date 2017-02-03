@@ -29,8 +29,18 @@ public class OutgoingDialog extends ConnectionDialog
 		ConnectionData data = super.getData();
 		if (proxytype != null)
 		{
-			data.setFlags(proxytype.getSelection().getActionCommand().equals("HTTP")
-						  ? ConnectionData.HTTP_PROXY : ConnectionData.SOCKS_PROXY);
+			String strAction=proxytype.getSelection().getActionCommand();
+			int flag=ConnectionData.NO_PROXY;
+			if(strAction!=null)
+				{
+					if(strAction.equalsIgnoreCase("HTTP"))
+						flag=ConnectionData.HTTP_PROXY; 
+					else if(strAction.equalsIgnoreCase("Socks"))
+						flag=ConnectionData.SOCKS_PROXY; 
+					else if(strAction.equalsIgnoreCase("VPN"))
+						flag=ConnectionData.VPN_PROXY; 
+				}
+			data.setFlags(flag);
 			// Set the visible address
 			data.setVisibleAddress(m_tfVisibleAddress.getText());
 		}
@@ -58,7 +68,7 @@ public class OutgoingDialog extends ConnectionDialog
 		rc.anchor = GridBagConstraints.CENTER;
 		rc.gridwidth = 3;
 		proxytype = new ButtonGroup();
-		JRadioButton t = new JRadioButton("HTTP", ptype != ConnectionData.SOCKS_PROXY);
+		JRadioButton t = new JRadioButton("HTTP", ptype == ConnectionData.HTTP_PROXY);
 		t.setActionCommand("HTTP");
 		layout.setConstraints(t, rc);
 		getContentPane().add(t);
@@ -73,8 +83,16 @@ public class OutgoingDialog extends ConnectionDialog
 		layout.setConstraints(t, rc);
 		getContentPane().add(t);
 		proxytype.add(t);
+
+		rc.gridx += 4;
+		t = new JRadioButton("VPN", ptype == ConnectionData.VPN_PROXY);
+		t.setActionCommand("VPN");
+		layout.setConstraints(t, rc);
+		getContentPane().add(t);
+		proxytype.add(t);
+
 		rc.gridy++;
-		rc.gridx -= 4;
+		rc.gridx -= 8;
 	}
 	
 	protected void addVisibleAddress(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc,
