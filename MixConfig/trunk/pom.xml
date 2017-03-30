@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>anon</groupId>
 			<artifactId>guilib</artifactId>
-			<version>00.00.213-SNAPSHOT</version>
+			<version>00.00.215-SNAPSHOT</version>
 			<exclusions> <!-- don't use obsolete XML classes if not necessary -->
 				<exclusion>
 					<groupId>xml</groupId>
