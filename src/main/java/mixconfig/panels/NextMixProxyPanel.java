@@ -124,9 +124,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			protected void setValue(Object v)
 			{
 				int t = ( (Integer) v).intValue();
-				super.setValue(
-					( ( (t & ConnectionData.SSL) == 0) ? "Raw/" : "SSL/") +
-					( ( (t & ConnectionData.UNIX) == 0) ? "TCP" : "Unix"));
+				super.setValue(ConnectionData.getTransportAsString(t));
 				setHorizontalAlignment(CENTER);
 			}
 		};
@@ -347,7 +345,7 @@ public final class NextMixProxyPanel extends OtherMixPanel implements TableModel
 			for (int i = 0; i < rows; i++)
 			{
 				ConnectionData data = m_model.getData(i);
-				if ((data.getTransport() & ConnectionData.TRANSPORT) == ConnectionData.TCP)
+				if ((data.getTransport() & ConnectionData.TRANSPORT_BIT_MASK) != ConnectionData.UNIX)
 				{
 					if (data.getHostname() == null || data.getHostname().length() == 0)
 					{

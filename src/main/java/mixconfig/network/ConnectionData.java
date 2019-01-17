@@ -43,13 +43,15 @@ import anon.util.XMLUtil;
  */
 final public class ConnectionData implements IXMLEncodable, Cloneable
 {
-	public static final int TRANSPORT = 1; // Bit mask
+	public static final int TRANSPORT_BIT_MASK = 3; // Bit mask
 	public static final int TCP = 0;
 	public static final int UNIX = 1;
+	public static final int UDP = 2;
 	public static final int RAW = 0;
-	public static final int SSL = 2;
+	public static final int SSL = 4;
 	public static final int RAW_TCP = RAW | TCP;
 	public static final int RAW_UNIX = RAW | UNIX;
+	public static final int RAW_UDP = RAW | UDP;
 	public static final int SSL_TCP = SSL | TCP;
 	public static final int SSL_UNIX = SSL | UNIX;
 
@@ -235,11 +237,9 @@ final public class ConnectionData implements IXMLEncodable, Cloneable
 			elemRoot.appendChild(data);
 		}
 		data = docOwner.createElement("NetworkProtocol");
-		data.appendChild(docOwner.createTextNode(
-			( ( (m_iTransport & SSL) == 0) ? "RAW/" : "SSL/") +
-			( ( (m_iTransport & UNIX) == 0) ? "TCP" : "UNIX")));
+		data.appendChild(docOwner.createTextNode(getTransportAsString()));
 		elemRoot.appendChild(data);
-		// TCP?
+		// TCP or UDP?
 		if ((m_iTransport & UNIX) == 0)
 		{
 			// Create elements for host ...
@@ -277,6 +277,26 @@ final public class ConnectionData implements IXMLEncodable, Cloneable
 		}
 		return elemRoot;
 	}
+
+	private String getTransportAsString()
+		{
+			return getTransportAsString(m_iTransport);
+		}
+	
+	public static String getTransportAsString(int iTransport)
+		{
+			String strTransport= ((iTransport & SSL) == 0) ? "RAW/" : "SSL/";
+			switch(iTransport&TRANSPORT_BIT_MASK)
+			{
+				case UNIX:
+					return strTransport+"UNIX";
+				case TCP:
+					return strTransport+"TCP";
+				case UDP:
+					return strTransport+"UDP";
+			}
+			return null;
+		}
 
 	/**
 	 * Instantiate ConnectionData from XML element
@@ -337,6 +357,10 @@ final public class ConnectionData implements IXMLEncodable, Cloneable
 			else if (data.equalsIgnoreCase("RAW/TCP"))
 			{
 				trans = RAW_TCP;
+			}
+			else if (data.equalsIgnoreCase("RAW/UDP"))
+			{
+				trans = RAW_UDP;
 			}
 			else if (data.equalsIgnoreCase("SSL/UNIX"))
 			{
