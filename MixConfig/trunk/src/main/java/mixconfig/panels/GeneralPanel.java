@@ -442,14 +442,13 @@ public class GeneralPanel extends MixConfigPanel implements ActionListener, Tabl
 				}
 			}
 		};
+		
 		final TableCellRenderer transportRenderer = new DefaultTableCellRenderer()
 		{
 			protected void setValue(Object v)
 			{
 				int t = ( (Integer) v).intValue();
-				super.setValue(
-					( ( (t & ConnectionData.SSL) == 0) ? "Raw/" : "SSL/") +
-					( ( (t & ConnectionData.UNIX) == 0) ? "TCP" : "Unix"));
+				super.setValue(ConnectionData.getTransportAsString(t));
 				setHorizontalAlignment(CENTER);
 			}
 		};

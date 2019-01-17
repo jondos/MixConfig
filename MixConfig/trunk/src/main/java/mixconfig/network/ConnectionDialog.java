@@ -57,6 +57,8 @@ import anon.util.JAPMessages;
 
 abstract class ConnectionDialog extends JAPDialog
 {
+	private static final String LABLE_HOST_NAME = "Host name:";
+	private static final String LABLE_FILE_NAME = "File name:";
 	private MixConfigTextField m_tfHost;
 	private JAPJIntField m_tfPort;
 	private ButtonGroup ssl, m_bttngrpType;
@@ -79,13 +81,30 @@ abstract class ConnectionDialog extends JAPDialog
 		{
 			bHidden = true;
 		}
-		if (m_bttngrpType.getSelection().getActionCommand().equals("TCP"))
+		if (!m_bttngrpType.getSelection().getActionCommand().equals("Unix"))
 		{
 			if (!m_bMixOnCD)
 			{
-				return new ConnectionData(getType(),
-										  ssl.getSelection().getActionCommand().equals("SSL") ?
-										  ConnectionData.SSL_TCP : ConnectionData.RAW_TCP,
+				int ttype=ConnectionData.TCP;
+;
+				String strCommand=m_bttngrpType.getSelection().getActionCommand();
+				if(strCommand.equals("Unix"))
+				{
+					ttype=ConnectionData.UNIX;
+				}
+				else if(strCommand.equals("UDP"))
+				{
+					ttype=ConnectionData.UDP;
+				}
+				if(ssl.getSelection().getActionCommand().equals("SSL"))
+					{
+						ttype|=ConnectionData.SSL;
+					}
+				else
+					{
+						ttype|=ConnectionData.RAW;
+					}
+				return new ConnectionData(getType(),ttype,
 										  m_tfHost.getText().trim(),
 										  (m_tfPort.getText().length() == 0) ? 0 :
 										  Integer.parseInt(m_tfPort.getText()),
@@ -122,7 +141,7 @@ abstract class ConnectionDialog extends JAPDialog
 		JLabel label = new JLabel("Transport");
 		layout.setConstraints(label, lc);
 		getContentPane().add(label);
-		lc.gridy += 2;
+		lc.gridy += 3;
 
 		int ttype;
 		if (data == null)
@@ -136,7 +155,7 @@ abstract class ConnectionDialog extends JAPDialog
 		rc.anchor = GridBagConstraints.CENTER;
 		rc.gridwidth = 3;
 		m_bttngrpType = new ButtonGroup();
-		JRadioButton t = new JRadioButton("TCP", (ttype & ConnectionData.UNIX) == 0);
+		JRadioButton t = new JRadioButton("TCP", (ttype & ConnectionData.TRANSPORT_BIT_MASK) == ConnectionData.TCP);
 		if (m_firstone == null)
 		{
 			m_firstone = t;
@@ -146,8 +165,9 @@ abstract class ConnectionDialog extends JAPDialog
 		{
 			public void actionPerformed(ActionEvent ev)
 			{
-				boolean is_tcp = ev.getActionCommand().equals("TCP");
-				namelabel.setText(is_tcp ? "Host name" : "File name");
+				String strCommand=ev.getActionCommand();
+				boolean is_tcp = strCommand.equals("TCP")||strCommand.equals("UDP");
+				namelabel.setText(is_tcp ? LABLE_HOST_NAME : LABLE_FILE_NAME);
 				iplabel.setEnabled(is_tcp);
 				m_tfPort.setEnabled(is_tcp);
 			}
@@ -158,14 +178,22 @@ abstract class ConnectionDialog extends JAPDialog
 		getContentPane().add(t);
 		m_bttngrpType.add(t);
 		rc.gridy++;
-		t = new JRadioButton("Unix", (ttype & ConnectionData.UNIX) != 0);
+		t = new JRadioButton("UDP", (ttype & ConnectionData.TRANSPORT_BIT_MASK) == ConnectionData.UDP);
+		t.setActionCommand("UDP");
+		t.addActionListener(tcpunixswitcher);
+		layout.setConstraints(t, rc);
+		getContentPane().add(t);
+		m_bttngrpType.add(t);
+		rc.gridy++;
+		t = new JRadioButton("Unix", (ttype & ConnectionData.TRANSPORT_BIT_MASK) == ConnectionData.UNIX);
 		t.setActionCommand("Unix");
 		t.addActionListener(tcpunixswitcher);
 		layout.setConstraints(t, rc);
 		getContentPane().add(t);
 		m_bttngrpType.add(t);
 
-		rc.gridy--;
+		
+		rc.gridy-=2;
 		rc.gridx += 3;
 		rc.gridwidth = 1;
 		rc.gridheight = 2;
@@ -191,7 +219,7 @@ abstract class ConnectionDialog extends JAPDialog
 		layout.setConstraints(t, rc);
 		getContentPane().add(t);
 		ssl.add(t);
-		rc.gridy++;
+		rc.gridy+=2;
 		rc.gridx -= 4;
 	}
 
@@ -206,8 +234,8 @@ abstract class ConnectionDialog extends JAPDialog
 	protected void addName(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc,
 						   GridBagConstraints rc, boolean a_enabled)
 	{
-		boolean isHost = m_bttngrpType.getSelection().getActionCommand().equals("TCP");
-		namelabel = new JLabel(isHost ? "Hostname" : "Filename");
+		boolean isHost = !m_bttngrpType.getSelection().getActionCommand().equals("Unix");
+		namelabel = new JLabel(isHost ? LABLE_HOST_NAME : LABLE_FILE_NAME);
 		layout.setConstraints(namelabel, lc);
 		getContentPane().add(namelabel);
 		lc.gridy++;
@@ -238,7 +266,7 @@ abstract class ConnectionDialog extends JAPDialog
 	protected void addPort(final ConnectionData data, GridBagLayout layout, GridBagConstraints lc,
 						   GridBagConstraints rc)
 	{
-		boolean isHost = m_bttngrpType.getSelection().getActionCommand().equals("TCP");
+		boolean isHost = !m_bttngrpType.getSelection().getActionCommand().equals("Unix");
 		iplabel = new JLabel("Port");
 		layout.setConstraints(iplabel, lc);
 		getContentPane().add(iplabel);
