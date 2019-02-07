@@ -6,7 +6,7 @@
 	<artifactId>MixConfig</artifactId>
 	<name>MixConfig</name>
 	<version>00.05.048-SNAPSHOT</version>
-	<url>http://anon.inf.tu-dresden.de/develop/MixConfig.html</url>
+	<url>https://anon.inf.tu-dresden.de/develop/MixConfig.html</url>
 			<properties>
 		<compiler.plugin.version>3.1</compiler.plugin.version>
 		<jdk.path>/opt/java/jdk1.7</jdk.path>
@@ -15,7 +15,7 @@
 	<repositories>
 		<repository>
 			<id>anon.inf.tu-dresden.de</id>
-			<url>http://anon.inf.tu-dresden.de/artifactory/repo</url>
+			<url>https://anon.inf.tu-dresden.de/artifactory/repo</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>interval:5</updatePolicy>
